@@ -1,0 +1,14 @@
+{
+  "name": "web-projects",
+  "version": "1.0.0",
+  "description": "Monorepo for multiple web projects",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "preview": "pnpm -r preview"
+  },
+  "devDependencies": {
+    "pnpm": "^9.0.0"
+  }
+}
