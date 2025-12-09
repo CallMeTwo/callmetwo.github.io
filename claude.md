@@ -1,260 +1,284 @@
 # Web Projects Hub - Documentation
 
 ## Overview
-This is a monorepo project hosted on GitHub Pages that serves multiple web applications from a single repository. The landing page provides navigation to different applications, with automatic CI/CD deployment via GitHub Actions.
+Monorepo project hosted on GitHub Pages serving multiple web applications. TypeScript + React + Vite stack with npm workspaces.
 
-## Architecture
+**Live Site:** https://callmetwo.github.io/
 
-### Repository Structure
+## Repository Structure
 ```
 callmetwo.github.io/
-├── index.html                    # Landing page (served at root)
+├── index.html                    # Landing page
 ├── .nojekyll                     # Disables Jekyll processing
-├── package.json                  # Root workspace config (npm workspaces)
-├── package-lock.json             # Dependency lock file (required for CI/CD)
-├── .gitignore
-├── .github/
-│   └── workflows/
-│       └── deploy.yml            # GitHub Actions CI/CD workflow
-├── packages/
-│   ├── data-analyzer/            # Data analysis & visualization app
-│   ├── clinical-calculator/      # Clinical model calculator app
-│   └── shared/                   # Shared utilities and components
-└── README.md
+├── data-analyzer/                # Built files for GitHub Pages
+├── clinical-calculator/          # Built files for GitHub Pages
+└── packages/
+    ├── data-analyzer/            # Source code
+    ├── clinical-calculator/      # Source code
+    └── shared/                   # Shared utilities
 ```
+
+**Key Concept:**
+- `/packages/*/` = Source code (TypeScript/React)
+- Root `/data-analyzer/` and `/clinical-calculator/` = Deployment (built JavaScript)
+- Build workflow: `npm run build` → `cp packages/*/dist/* <root-dir>/` → commit & push
 
 ## Applications
 
-### 1. Data Analyzer (`packages/data-analyzer/`)
-- **Purpose:** Data exploration, visualization, and analysis
-- **Tech Stack:** React + Vite
-- **URL:** `callmetwo.github.io/data-analyzer/`
-- **Features (Placeholder):**
-  - Input data (comma-separated or line-by-line)
-  - Data visualization with Recharts
-  - Statistical analysis with simple-statistics
-  - Export results
-- **Key Files:**
-  - `src/App.jsx` - Main app component
-  - `src/main.jsx` - React entry point
-  - `vite.config.js` - Build configuration
-  - `index.html` - HTML template
+### 1. Data Analyzer ⭐ COMPLETE
+**URL:** https://callmetwo.github.io/data-analyzer/
+**Purpose:** Full-featured statistical analysis and visualization tool
 
-### 2. Clinical Calculator (`packages/clinical-calculator/`)
-- **Purpose:** Clinical model calculations based on user input
-- **Tech Stack:** React + Vite
-- **URL:** `callmetwo.github.io/clinical-calculator/`
-- **Features (Placeholder):**
-  - Form inputs for clinical variables
-  - Calculate model scores
-  - Display results and interpretations
-- **Key Files:**
-  - `src/App.jsx` - Main app component
-  - `src/main.jsx` - React entry point
-  - `vite.config.js` - Build configuration
-  - `index.html` - HTML template
+#### Tech Stack
+- React 18.3 + TypeScript (strict mode)
+- Vite 5.0 (build tool)
+- Recharts 2.10 (data visualization)
+- simple-statistics 7.8 (statistical calculations)
+- xlsx + papaparse (file parsing)
 
-### 3. Shared Utilities (`packages/shared/`)
-- **Purpose:** Reusable utilities and components across apps
-- **Exports:**
-  - `formatNumber()` - Format numbers with locale awareness
-  - `calculateStats()` - Calculate mean, median, min, max
-- **Used by:** Both data-analyzer and clinical-calculator
+#### Complete Workflow (6 Steps)
+1. **File Upload** - CSV, Excel (.xlsx, .xls) with drag-and-drop
+2. **Data Preview** - Display first 5 rows, column list, row/column counts
+3. **Type Verification** - Auto-detect and manually adjust variable types (continuous, categorical, boolean, datetime, id)
+4. **Summary Statistics** - Descriptive stats, distribution metrics, normality tests
+5. **Visualization** - Interactive charts (histogram, box plot, bar chart, scatter plot)
+6. **Statistical Tests** - t-test, chi-square, ANOVA, linear regression
 
-## Landing Page
+#### Key Features
 
-### index.html (Root Level)
-- **Purpose:** Entry point for the website
-- **Design:** Purple gradient background with white card layout
-- **Features:**
-  - Displays "Web Projects Hub" heading
-  - Two project cards:
-    - 📊 Data Analyzer - links to `/data-analyzer/`
-    - ⚕️ Clinical Calculator - links to `/clinical-calculator/`
-  - Responsive design (2 columns on desktop, 1 on mobile)
-  - Hover effects on cards
+**Data Import (`src/utils/fileParser.ts`):**
+- Supports CSV (papaparse), Excel (xlsx library)
+- Auto type inference: continuous (>10 unique numeric), categorical (string/limited unique), boolean, datetime, id
+- Handles missing values, validates file size (10MB limit)
+- Filters empty rows
 
-### .nojekyll File
-- **Purpose:** Disables Jekyll processing on GitHub Pages
-- **Why Needed:** Without this, GitHub Pages would try to render markdown files as HTML, breaking our static site
+**Summary Statistics (`src/utils/statistics.ts`, `src/components/SummaryStatistics.tsx`):**
+- **Continuous variables:** mean, median, SD, min, max, Q1, Q3, IQR, skewness, kurtosis
+- **Normality test:** Shapiro-Wilk with p-values and interpretations
+- **Categorical variables:** frequency tables, mode, unique counts, percentages
+- **Missing data tracking:** Shows count and percentage of missing values
 
-## GitHub Actions CI/CD Workflow
+**Visualizations (`src/utils/visualization.ts`, `src/components/Visualization.tsx`):**
+- **Histogram:** 15-bin distribution for continuous variables
+- **Box Plot:** Five-number summary with outlier detection (1.5×IQR rule)
+- **Bar Chart:** Top 15 categories with color-coded bars
+- **Scatter Plot:** X-Y relationship with optional categorical grouping
+- Smart chart type selection based on variable types
+- Responsive design with tooltips and legends
 
-### File: `.github/workflows/deploy.yml`
+**Statistical Tests (`src/utils/statisticalTests.ts`, `src/components/StatisticalTests.tsx`):**
+- **Independent t-test:** Compare means between 2 groups, Cohen's d effect size, 95% CI
+- **Chi-square test:** Association between categorical variables, Cramér's V effect size
+- **One-way ANOVA:** Compare means across 3+ groups, eta-squared (η²) effect size
+- **Linear regression:** Continuous Y by continuous X, R², adjusted R², coefficient p-values
+- Complete statistical implementations (t-distribution, chi-square distribution, F-distribution, beta/gamma functions)
+- Plain-language interpretations with significance indicators (p < 0.05 highlighted)
 
-#### Trigger
-- Runs on every push to `main` branch
-
-#### Steps
-
-1. **Checkout Code**
-   - Uses `actions/checkout@v4` to get the latest code
-
-2. **Setup Node.js**
-   - Installs Node.js v20
-   - Enables npm caching for faster builds
-
-3. **Install Dependencies**
-   - Runs `npm install`
-   - Installs dependencies for all workspaces
-
-4. **Build All Projects**
-   - Runs `npm run build`
-   - Builds data-analyzer with Vite
-   - Builds clinical-calculator with Vite
-   - Runs no-op for shared package
-
-5. **Prepare Deployment Files**
-   - Copies built dist files to organized structure:
-     - `data-analyzer/` folder with data-analyzer build
-     - `clinical-calculator/` folder with clinical-calculator build
-   - Keeps `index.html` and `.nojekyll` at root
-
-6. **Upload Artifact**
-   - Uses `actions/upload-artifact@v4`
-   - Packages all files for deployment
-
-7. **Deploy to GitHub Pages**
-   - Uses `actions/deploy-pages@v4`
-   - Official GitHub action with proper permissions
-   - Requires environment: `github-pages`
-
-#### Environment Configuration
-```yaml
-environment:
-  name: github-pages
-  url: ${{ steps.deployment.outputs.page_url }}
+#### Component Architecture
 ```
-- Authorizes deployment to GitHub Pages
-- Provides deployment URL output
-
-#### Permissions Required
-```yaml
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+App.tsx                    # Main workflow coordinator
+├── FileUpload.tsx         # Drag-drop file input
+├── DataPreview.tsx        # Data table display
+├── TypeVerification.tsx   # Variable type editor
+├── SummaryStatistics.tsx  # Descriptive stats display
+├── Visualization.tsx      # Chart selector + Recharts integration
+└── StatisticalTests.tsx   # Test selector + results display
 ```
-- `pages: write` - Deploy to GitHub Pages
-- `id-token: write` - OIDC authentication
-- `contents: read` - Read repository code
+
+#### Build Stats
+- **Modules:** 848
+- **Bundle size:** 957 kB (gzipped: 292 kB)
+- **Components:** 6 main + multiple sub-components
+- **Utilities:** 4 files (fileParser, statistics, statisticalTests, visualization)
+
+---
+
+### 2. Clinical Calculator
+**URL:** https://callmetwo.github.io/clinical-calculator/
+**Purpose:** Clinical model calculations (placeholder implementation)
+**Tech Stack:** React + Vite
+**Status:** Basic structure in place, ready for feature development
+
+---
+
+### 3. Shared Package
+**Purpose:** Reusable utilities across apps
+**Exports:**
+- `Navbar` component with breadcrumbs
+- `formatNumber()` - Locale-aware number formatting
+- `calculateStats()` - Mean, median, min, max calculations
 
 ## Development Workflow
 
 ### Local Development
 ```bash
-# Install all dependencies
-npm install
+npm install              # Install all workspace dependencies
+npm run dev              # Start all dev servers
+npm run build            # Build all projects
+npm run preview          # Preview production builds
+npm run test:run         # Run tests (Vitest)
+```
 
-# Start dev servers for all apps
-npm run dev
+### Build & Deploy
+```bash
+# 1. Build source to packages/*/dist/
+npm run build -w data-analyzer
 
-# Build all projects
-npm run build
+# 2. Copy to deployment directory
+rm -rf data-analyzer/* && cp -r packages/data-analyzer/dist/* data-analyzer/
 
-# Preview builds
-npm run preview
+# 3. Commit and push
+git add data-analyzer/
+git commit -m "Deploy: Update Data Analyzer"
+git push
+
+# 4. GitHub Pages serves updated files within ~30 seconds
 ```
 
 ### npm Workspaces
 - Root `package.json` defines workspaces: `packages/*`
-- Each workspace has its own `package.json`, `node_modules` install
-- `npm run <script> --workspaces` runs script in all workspaces
+- Each workspace has independent `package.json`, dependencies
+- Shared dependencies hoisted to root `node_modules/`
+- Run workspace command: `npm run <script> -w <workspace-name>`
 
 ### Adding New Projects
-1. Create new folder in `packages/my-new-app/`
-2. Create `package.json` with `dev`, `build`, `preview` scripts
-3. Create `vite.config.js` with proper `base` path (e.g., `/my-new-app/`)
-4. Create `index.html` and `src/` directory
-5. Update `.github/workflows/deploy.yml` to copy the new app's dist folder
-6. Update root `index.html` landing page with link to new app
+1. Create `packages/my-app/` with `package.json`, `vite.config.js`, `src/`
+2. Set Vite `base: '/my-app/'` for correct GitHub Pages paths
+3. Update root `index.html` landing page with link
+4. Create root `/my-app/` directory for deployment files
+5. Add to build workflow
 
 ## Key Technologies
 
-- **React 18.3** - UI framework
-- **Vite 5.0** - Fast build tool and dev server
-- **npm Workspaces** - Monorepo management
-- **Recharts 2.10** - Data visualization
-- **simple-statistics 7.8** - Statistical calculations
-- **GitHub Actions** - CI/CD automation
-- **GitHub Pages** - Free hosting
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 18.3 | UI framework |
+| TypeScript | 5.x | Type safety |
+| Vite | 5.0 | Build tool, dev server |
+| Recharts | 2.10 | Data visualization |
+| simple-statistics | 7.8 | Statistical calculations |
+| xlsx | 0.18.5 | Excel file parsing |
+| papaparse | 5.5.3 | CSV parsing |
+| Vitest | 1.x | Testing framework |
 
-## Important Notes
+## Configuration Files
 
-### Lock File (`package-lock.json`)
-- **Critical for CI/CD:** GitHub Actions uses this for reproducible builds
-- Must be committed to repository
-- Do NOT add to `.gitignore`
+### Vite Config (Example: `packages/data-analyzer/vite.config.js`)
+```javascript
+export default defineConfig({
+  plugins: [react()],
+  base: '/data-analyzer/',  // Required for GitHub Pages subdirectory
+  resolve: {
+    alias: {
+      shared: fileURLToPath(new URL('../shared', import.meta.url))
+    }
+  }
+})
+```
 
-### Vite Configuration
-- Each app has `vite.config.js` with `base` path (e.g., `/data-analyzer/`)
-- This ensures assets load from correct URL on GitHub Pages
+### TypeScript Config
+- Root `tsconfig.json` with shared settings
+- Workspace configs extend root with specific `include`/`exclude`
+- Strict mode enabled for type safety
 
-### Build Output
-- Each app builds to its own `dist/` folder
-- Workflow copies these to root-level folders for serving
-- Root `index.html` is the entry point
+### GitHub Actions (`.github/workflows/deploy.yml`)
+**Note:** Current workflow builds but does NOT auto-deploy. Manual deployment required.
 
-### Deployment
-- Builds happen automatically on every push to main
-- No manual deployment needed
-- GitHub Pages serves from artifacts uploaded by workflow
-- Site updates within 1-2 minutes of push
+**Workflow steps:**
+1. Install dependencies
+2. Run tests
+3. Build all projects
+4. **Manual step:** Copy built files to root directories and push
 
 ## Troubleshooting
 
-### Build Fails
-1. Check GitHub Actions workflow logs
-2. Verify all workspaces have `dev`, `build`, `preview` scripts
-3. Ensure `package-lock.json` is committed
-
-### Page Not Updating
-1. Hard refresh browser (Ctrl+Shift+R or Cmd+Shift+R)
-2. Check GitHub Actions tab for successful deployment
-3. Verify `.nojekyll` file exists in root
-
-### Links Not Working
-- Verify `vite.config.js` has correct `base` path
-- Ensure workflow copies dist to correct folder names
-- Check landing page `index.html` has correct URLs
-
-## Known Issues
-
-### ✅ RESOLVED: Data Analyzer Build Not Including New Components
-
-**Status:** RESOLVED (2025-12-10)
-
-**Root Cause:**
-Module resolution conflict - Two App files existed simultaneously:
-- `packages/data-analyzer/src/App.jsx` (old placeholder, 160 lines)
-- `packages/data-analyzer/src/App.tsx` (new implementation, 288 lines)
-
-When `main.tsx` imported `App from './App'`, Vite's module resolution prioritized `.jsx` over `.tsx`, causing the old placeholder component to be bundled instead of the new implementation with TypeVerification.
-
+### Build Issues
+**Problem:** Changes not reflected in production build
 **Solution:**
-Deleted the conflicting `App.jsx` file left over from TypeScript migration.
+1. Check for duplicate files (`.jsx` and `.tsx` with same name)
+2. Clear caches: `rm -rf packages/*/dist/ packages/*/.vite packages/*/node_modules/.vite`
+3. Fresh install: `npm install --force`
+4. Verify source files exist and are valid TypeScript
 
-**Before Fix:**
-- Bundle: 147.47 kB, 36 modules
-- Hash: `index-lGltCa1y.js`
-- TypeVerification: ❌ Not included
+### Deployment Issues
+**Problem:** GitHub Pages showing old version
+**Solution:**
+1. Verify built files copied to root directories (`/data-analyzer/`, `/clinical-calculator/`)
+2. Check git: `git ls-files | grep "^data-analyzer/"` (should show built files)
+3. Hard refresh browser: Ctrl+Shift+R (CDN caching ~30 seconds)
+4. Verify `.nojekyll` file exists in root
 
-**After Fix:**
-- Bundle: 516.73 kB, 43 modules (+7 modules)
-- Hash: `index-Cy6KDm_q.js`
-- TypeVerification: ✅ Included and working
+### Module Resolution
+**Problem:** TypeScript can't find modules
+**Solution:**
+1. Check `tsconfig.json` has correct `include` paths
+2. Verify `vite.config.js` has correct alias configuration
+3. Ensure `shared` package exports are correct
+4. Restart TypeScript server in IDE
 
-**Lesson Learned:**
-When migrating from JavaScript to TypeScript, ensure old `.jsx`/`.js` files are deleted to prevent module resolution conflicts. Vite/Node's import resolution can pick up the wrong file extension if multiple matches exist.
+## Project History
 
----
+### Resolved Issues
+**Module Resolution Conflict (2025-12-10):**
+- Two App files existed: `App.jsx` (old) and `App.tsx` (new)
+- Vite imported `.jsx` instead of `.tsx`
+- **Fix:** Delete old `.jsx` files after TypeScript migration
+
+### Migration Notes
+- Migrated from JavaScript to TypeScript (all packages)
+- Changed from `.jsx` to `.tsx` file extensions
+- Added strict type checking
+- All 35 tests passing after migration
 
 ## Future Enhancements
 
-- Add authentication for clinical calculator
-- Implement data persistence with localStorage or backend
-- Add more chart types and analysis options
-- Create shared component library
-- Add testing (Jest, React Testing Library)
-- Set up environment variables for configuration
-- Add API integration for backend services
+### Data Analyzer
+- [ ] Export results to PDF/CSV
+- [ ] Multiple regression (multiple predictors)
+- [ ] Paired t-test
+- [ ] Non-parametric tests (Mann-Whitney, Kruskal-Wallis)
+- [ ] More chart types (heatmap, violin plot)
+- [ ] Data filtering and transformation UI
+- [ ] Save/load analysis sessions
+- [ ] Correlation matrix visualization
+
+### Clinical Calculator
+- [ ] Implement actual clinical models
+- [ ] Form validation
+- [ ] Result interpretation guidelines
+- [ ] Reference ranges
+- [ ] Print/export functionality
+
+### Infrastructure
+- [ ] Automated deployment (fix GitHub Actions)
+- [ ] E2E testing with Playwright
+- [ ] Performance optimization (code splitting)
+- [ ] PWA support (offline mode)
+- [ ] Dark mode
+- [ ] Multi-language support
+
+## Notes for Developers
+
+1. **Always use TypeScript** - No `.jsx` files, use `.tsx`
+2. **Clear caches when stuck** - Vite caches aggressively
+3. **Test locally before deploying** - `npm run preview`
+4. **Check bundle size** - Currently ~1MB (consider code splitting)
+5. **Use shared components** - Don't duplicate code across apps
+6. **Follow naming conventions** - PascalCase for components, camelCase for utilities
+7. **Document complex logic** - Especially statistical calculations
+8. **Type everything** - Avoid `any`, use proper interfaces
+
+## Quick Reference
+
+| Task | Command |
+|------|---------|
+| Install deps | `npm install` |
+| Start dev | `npm run dev` |
+| Build all | `npm run build` |
+| Build one | `npm run build -w data-analyzer` |
+| Test | `npm run test:run` |
+| Deploy | Build → Copy to root → Commit → Push |
+| Add dependency | `npm install <pkg> -w <workspace>` |
+
+**Repository:** https://github.com/CallMeTwo/callmetwo.github.io
+**Live Site:** https://callmetwo.github.io/
