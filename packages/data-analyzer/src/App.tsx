@@ -5,6 +5,7 @@ import DataPreview from './components/DataPreview'
 import TypeVerification from './components/TypeVerification'
 import SummaryStatistics from './components/SummaryStatistics'
 import Visualization from './components/Visualization'
+import StatisticalTests from './components/StatisticalTests'
 import { ParsedData, VariableType } from './types'
 import { inferVariableType, getSampleValues } from './utils/fileParser'
 
@@ -74,6 +75,10 @@ const App: FC = () => {
     setCurrentStep('test-selection')
   }
 
+  const handleBackFromTestSelection = () => {
+    setCurrentStep('visualization')
+  }
+
   const handleCancelUpload = () => {
     setParsedData(null)
     setVariables([])
@@ -140,11 +145,12 @@ const App: FC = () => {
           />
         )}
 
-        {currentStep === 'test-selection' && (
-          <div style={styles.placeholderSection}>
-            <h2>Statistical Test Selection</h2>
-            <p>Coming in next step...</p>
-          </div>
+        {currentStep === 'test-selection' && parsedData && variables.length > 0 && (
+          <StatisticalTests
+            data={parsedData}
+            variables={variables}
+            onBack={handleBackFromTestSelection}
+          />
         )}
       </main>
 
