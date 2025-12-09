@@ -1,0 +1,47 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="64" height="64" fill="white"/>
+
+  <!-- Bold "2" in CENTER -->
+  <text x="32" y="45" font-family="Arial, sans-serif" font-size="28" font-weight="bold"
+        text-anchor="middle" fill="#3498db">2</text>
+
+  <!-- TOP: Vertical bar chart -->
+  <rect x="28" y="6" width="2" height="6" fill="#3498db"/>
+  <rect x="32" y="4" width="2" height="8" fill="#e74c3c"/>
+  <rect x="36" y="5" width="2" height="7" fill="#27ae60"/>
+
+  <!-- RIGHT: Upward trend line -->
+  <polyline points="50,18 54,14 58,10" stroke="#9b59b6" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <circle cx="50" cy="18" r="1" fill="#9b59b6"/>
+  <circle cx="54" cy="14" r="1" fill="#9b59b6"/>
+  <circle cx="58" cy="10" r="1" fill="#9b59b6"/>
+
+  <!-- BOTTOM RIGHT: Small bar cluster -->
+  <rect x="48" y="52" width="1.5" height="6" fill="#f39c12"/>
+  <rect x="51" y="50" width="1.5" height="8" fill="#1abc9c"/>
+  <rect x="54" y="51" width="1.5" height="7" fill="#3498db"/>
+
+  <!-- BOTTOM: Horizontal bars -->
+  <rect x="16" y="54" width="8" height="1.5" fill="#e74c3c" opacity="0.8"/>
+  <rect x="16" y="57" width="10" height="1.5" fill="#27ae60" opacity="0.8"/>
+  <rect x="16" y="60" width="9" height="1.5" fill="#3498db" opacity="0.8"/>
+
+  <!-- BOTTOM LEFT: Scatter dots -->
+  <circle cx="10" cy="52" r="1" fill="#9b59b6" opacity="0.8"/>
+  <circle cx="8" cy="56" r="1.1" fill="#f39c12" opacity="0.8"/>
+  <circle cx="12" cy="58" r="0.9" fill="#e74c3c" opacity="0.8"/>
+  <circle cx="6" cy="60" r="1" fill="#27ae60" opacity="0.8"/>
+
+  <!-- LEFT: Downward then upward line -->
+  <polyline points="6,24 10,28 12,22 14,26" stroke="#3498db" stroke-width="1" fill="none" stroke-linecap="round"/>
+  <circle cx="6" cy="24" r="0.8" fill="#3498db"/>
+  <circle cx="10" cy="28" r="0.8" fill="#3498db"/>
+  <circle cx="12" cy="22" r="0.8" fill="#3498db"/>
+  <circle cx="14" cy="26" r="0.8" fill="#3498db"/>
+
+  <!-- TOP LEFT: Scatter dots -->
+  <circle cx="8" cy="10" r="0.8" fill="#e74c3c"/>
+  <circle cx="12" cy="8" r="0.9" fill="#27ae60"/>
+  <circle cx="14" cy="14" r="0.8" fill="#9b59b6"/>
+</svg>
