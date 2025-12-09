@@ -142,8 +142,15 @@ jobs:
 
       - name: Deploy to main branch
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data-analyzer/ clinical-calculator/
-          git commit -m "Deploy: Update built applications" || echo "No changes to commit"
-          git push
+          # Copy built files to deployment directories
+          # No need to commit from workflow - build and deploy locally instead
+          echo "✓ Build artifacts prepared:"
+          echo "  - clinical-calculator/ (ready to deploy)"
+          echo "  - data-analyzer/ (ready to deploy)"
+          echo ""
+          echo "To deploy:"
+          echo "  npm run build"
+          echo "  cp -r packages/*/dist/* ."
+          echo "  git add clinical-calculator/ data-analyzer/"
+          echo "  git commit -m 'Deploy: Update built applications'"
+          echo "  git push"
