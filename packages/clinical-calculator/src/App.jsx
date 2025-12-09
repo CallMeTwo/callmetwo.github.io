@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navbar } from 'shared/components'
 import ScoreSelector from './components/ScoreSelector'
 import VariableForm from './components/VariableForm'
 import ResultDisplay from './components/ResultDisplay'
@@ -38,6 +39,7 @@ export default function App() {
 
   return (
     <div style={styles.appContainer}>
+      <Navbar breadcrumbs={[{ label: 'Clinical Calculator' }]} />
       <header style={styles.header}>
         <h1 style={styles.mainTitle}>⚕️ Clinical Calculator</h1>
         <p style={styles.subtitle}>Calculate clinical risk scores and interpretations</p>
