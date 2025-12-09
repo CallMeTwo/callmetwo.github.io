@@ -9,7 +9,7 @@ import StatisticalTests from './components/StatisticalTests'
 import { ParsedData, VariableType } from './types'
 import { inferVariableType, getSampleValues } from './utils/fileParser'
 
-type WorkflowStep = 'upload' | 'preview' | 'exploration' | 'summary' | 'visualization' | 'test-selection'
+type WorkflowStep = 'upload' | 'preview' | 'exploration' | 'summary' | 'visualization' | 'test-selection' | 'results'
 
 const App: FC = () => {
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('upload')
@@ -97,7 +97,7 @@ const App: FC = () => {
       {/* Step indicator */}
       <div style={styles.stepsContainer}>
         <StepIndicator
-          steps={['Upload', 'Preview', 'Type Verification', 'Summary', 'Visualization', 'Statistical Tests']}
+          steps={['Upload', 'Preview', 'Type Verification', 'Summary', 'Visualization', 'Test Selection', 'Results']}
           currentStepIndex={getStepIndex(currentStep)}
         />
       </div>
@@ -204,7 +204,8 @@ function getStepIndex(step: WorkflowStep): number {
     exploration: 2,
     summary: 3,
     visualization: 4,
-    'test-selection': 5
+    'test-selection': 5,
+    results: 6
   }
   return stepMap[step]
 }
