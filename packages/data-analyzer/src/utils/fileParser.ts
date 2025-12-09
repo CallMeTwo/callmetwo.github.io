@@ -109,18 +109,12 @@ export const inferVariableType = (
   columnName: string,
   values: (string | number | boolean | null | undefined)[],
   uniqueCount: number
-): 'continuous' | 'categorical' | 'boolean' | 'datetime' | 'id' => {
+): 'continuous' | 'categorical' | 'datetime' | 'id' => {
   // Filter out null/undefined values
   const nonNullValues = values.filter(v => v !== null && v !== undefined)
 
   if (nonNullValues.length === 0) {
     return 'categorical'
-  }
-
-  // Check for boolean
-  const booleanValues = new Set(['true', 'false', 'yes', 'no', '0', '1', 'T', 'F', 'Y', 'N'])
-  if (nonNullValues.every(v => booleanValues.has(String(v).toLowerCase()))) {
-    return 'boolean'
   }
 
   // Check for ID (high cardinality, often string)

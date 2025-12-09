@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react'
+import React, { FC, useMemo, useState } from 'react'
 import { ParsedData, VariableType } from '../types'
 import {
   calculateContinuousStats,
@@ -25,6 +25,23 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
 }) => {
   // Filter only included variables
   const includedVariables = variables.filter(v => v.includeInAnalysis)
+
+  // Track expanded/collapsed state for each card
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(
+    new Set(includedVariables.map(v => v.name)) // All expanded by default
+  )
+
+  const toggleCard = (variableName: string) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(variableName)) {
+        newSet.delete(variableName)
+      } else {
+        newSet.add(variableName)
+      }
+      return newSet
+    })
+  }
 
   // Calculate statistics for all included variables
   const statistics = useMemo(() => {
@@ -68,6 +85,8 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
               key={variable.name}
               variableName={variable.name}
               stats={stats as ContinuousStats}
+              isExpanded={expandedCards.has(variable.name)}
+              onToggle={() => toggleCard(variable.name)}
             />
           ))}
         </div>
@@ -82,6 +101,8 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
               key={variable.name}
               variableName={variable.name}
               stats={stats as CategoricalStats}
+              isExpanded={expandedCards.has(variable.name)}
+              onToggle={() => toggleCard(variable.name)}
             />
           ))}
         </div>
@@ -103,17 +124,23 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
 interface ContinuousStatsCardProps {
   variableName: string
   stats: ContinuousStats
+  isExpanded: boolean
+  onToggle: () => void
 }
 
-const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats }) => {
+const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats, isExpanded, onToggle }) => {
   return (
     <div style={styles.card}>
-      <div style={styles.cardHeader}>
-        <h4 style={styles.variableName}>{variableName}</h4>
+      <div style={styles.cardHeader} onClick={onToggle}>
+        <div style={styles.cardHeaderLeft}>
+          <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
+          <h4 style={styles.variableName}>{variableName}</h4>
+        </div>
         <span style={styles.badge}>Continuous</span>
       </div>
 
-      <div style={styles.statsGrid}>
+      {isExpanded && (
+        <div style={styles.statsGrid}>
         {/* Basic stats */}
         <div style={styles.statsGroup}>
           <h5 style={styles.groupTitle}>Basic Statistics</h5>
@@ -203,7 +230,8 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -211,20 +239,26 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
 interface CategoricalStatsCardProps {
   variableName: string
   stats: CategoricalStats
+  isExpanded: boolean
+  onToggle: () => void
 }
 
-const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, stats }) => {
+const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, stats, isExpanded, onToggle }) => {
   const topFrequencies = stats.frequencies.slice(0, 10) // Show top 10
   const hasMore = stats.frequencies.length > 10
 
   return (
     <div style={styles.card}>
-      <div style={styles.cardHeader}>
-        <h4 style={styles.variableName}>{variableName}</h4>
+      <div style={styles.cardHeader} onClick={onToggle}>
+        <div style={styles.cardHeaderLeft}>
+          <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
+          <h4 style={styles.variableName}>{variableName}</h4>
+        </div>
         <span style={{ ...styles.badge, backgroundColor: '#f3e5f5' }}>Categorical</span>
       </div>
 
-      <div style={styles.statsGrid}>
+      {isExpanded && (
+        <div style={styles.statsGrid}>
         {/* Basic info */}
         <div style={styles.statsGroup}>
           <h5 style={styles.groupTitle}>Summary</h5>
@@ -284,7 +318,8 @@ const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, sta
             </p>
           )}
         </div>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -334,7 +369,19 @@ const styles = {
     alignItems: 'center',
     marginBottom: '20px',
     paddingBottom: '15px',
-    borderBottom: '1px solid #f0f0f0'
+    borderBottom: '1px solid #f0f0f0',
+    cursor: 'pointer',
+    userSelect: 'none'
+  } as const,
+  cardHeaderLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  } as const,
+  expandIcon: {
+    fontSize: '14px',
+    color: '#666',
+    fontWeight: 'bold'
   } as const,
   variableName: {
     margin: 0,

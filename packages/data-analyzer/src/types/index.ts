@@ -13,8 +13,8 @@ export interface ParsedData {
 
 export interface VariableType {
   name: string
-  type: 'continuous' | 'categorical' | 'boolean' | 'datetime' | 'id'
-  inferredType: 'continuous' | 'categorical' | 'boolean' | 'datetime' | 'id'
+  type: 'continuous' | 'categorical' | 'datetime' | 'id'
+  inferredType: 'continuous' | 'categorical' | 'datetime' | 'id'
   sampleValues: (string | number | boolean)[]
   uniqueCount: number
   includeInAnalysis: boolean

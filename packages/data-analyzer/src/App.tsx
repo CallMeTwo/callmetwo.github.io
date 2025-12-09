@@ -25,7 +25,7 @@ const App: FC = () => {
       const columnValues = data.rows.map(row => row[col])
       const uniqueCount = new Set(columnValues).size
       const inferredType = inferVariableType(col, columnValues, uniqueCount)
-      const sampleValues = getSampleValues(columnValues, 3)
+      const sampleValues = getSampleValues(columnValues, 5)
 
       return {
         name: col,
