@@ -4,6 +4,7 @@ import FileUpload from './components/FileUpload'
 import DataPreview from './components/DataPreview'
 import TypeVerification from './components/TypeVerification'
 import SummaryStatistics from './components/SummaryStatistics'
+import Visualization from './components/Visualization'
 import { ParsedData, VariableType } from './types'
 import { inferVariableType, getSampleValues } from './utils/fileParser'
 
@@ -65,6 +66,14 @@ const App: FC = () => {
     setCurrentStep('visualization')
   }
 
+  const handleBackFromVisualization = () => {
+    setCurrentStep('summary')
+  }
+
+  const handleContinueFromVisualization = () => {
+    setCurrentStep('test-selection')
+  }
+
   const handleCancelUpload = () => {
     setParsedData(null)
     setVariables([])
@@ -122,9 +131,18 @@ const App: FC = () => {
           />
         )}
 
-        {currentStep === 'visualization' && (
+        {currentStep === 'visualization' && parsedData && variables.length > 0 && (
+          <Visualization
+            data={parsedData}
+            variables={variables}
+            onContinue={handleContinueFromVisualization}
+            onBack={handleBackFromVisualization}
+          />
+        )}
+
+        {currentStep === 'test-selection' && (
           <div style={styles.placeholderSection}>
-            <h2>Data Visualization</h2>
+            <h2>Statistical Test Selection</h2>
             <p>Coming in next step...</p>
           </div>
         )}
