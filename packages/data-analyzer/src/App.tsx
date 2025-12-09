@@ -1,11 +1,52 @@
-import { useState, ChangeEvent, FC } from 'react'
+import { useState, FC } from 'react'
 import { Navbar } from 'shared'
+import FileUpload from './components/FileUpload'
+import DataPreview from './components/DataPreview'
+import { ParsedData, VariableType } from './types'
+import { inferVariableType, getSampleValues } from './utils/fileParser'
+
+type WorkflowStep = 'upload' | 'preview' | 'exploration' | 'summary' | 'visualization' | 'test-selection' | 'results'
 
 const App: FC = () => {
-  const [data, setData] = useState('')
+  const [currentStep, setCurrentStep] = useState<WorkflowStep>('upload')
+  const [parsedData, setParsedData] = useState<ParsedData | null>(null)
+  const [variables, setVariables] = useState<VariableType[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
-  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setData(e.target.value)
+  const handleDataLoaded = (data: ParsedData) => {
+    setIsLoading(true)
+
+    // Infer variable types
+    const inferredVariables: VariableType[] = data.columns.map(col => {
+      const columnValues = data.rows.map(row => row[col])
+      const uniqueCount = new Set(columnValues).size
+      const inferredType = inferVariableType(col, columnValues, uniqueCount)
+      const sampleValues = getSampleValues(columnValues, 3)
+
+      return {
+        name: col,
+        type: inferredType,
+        inferredType,
+        sampleValues,
+        uniqueCount,
+        includeInAnalysis: true
+      }
+    })
+
+    setParsedData(data)
+    setVariables(inferredVariables)
+    setIsLoading(false)
+    setCurrentStep('preview')
+  }
+
+  const handleContinueFromPreview = () => {
+    setCurrentStep('exploration')
+  }
+
+  const handleCancelUpload = () => {
+    setParsedData(null)
+    setVariables([])
+    setCurrentStep('upload')
   }
 
   return (
@@ -17,34 +58,36 @@ const App: FC = () => {
         <p style={styles.subtitle}>Upload or paste your data to analyze and visualize it</p>
       </header>
 
+      {/* Step indicator */}
+      <div style={styles.stepsContainer}>
+        <StepIndicator
+          steps={['Upload', 'Preview', 'Type Verification', 'Summary', 'Visualization', 'Test Selection', 'Results']}
+          currentStepIndex={getStepIndex(currentStep)}
+        />
+      </div>
+
       <main style={styles.mainContent}>
-        <div style={styles.inputSection}>
-          <h2 style={styles.sectionTitle}>Enter Your Data</h2>
-          <p style={styles.sectionDescription}>
-            Paste your data (comma-separated or one value per line)
-          </p>
-
-          <textarea
-            placeholder="Example: 10, 20, 30, 40, 50&#10;or&#10;10&#10;20&#10;30&#10;40&#10;50"
-            value={data}
-            onChange={handleInputChange}
-            style={styles.textarea}
+        {currentStep === 'upload' && (
+          <FileUpload
+            onDataLoaded={handleDataLoaded}
+            isLoading={isLoading}
           />
+        )}
 
-          <button style={styles.analyzeButton}>
-            Analyze Data
-          </button>
-        </div>
+        {currentStep === 'preview' && parsedData && (
+          <DataPreview
+            data={parsedData}
+            onContinue={handleContinueFromPreview}
+            onCancel={handleCancelUpload}
+          />
+        )}
 
-        <div style={styles.featuresSection}>
-          <h3 style={styles.featuresTitle}>Features Coming Soon:</h3>
-          <ul style={styles.featuresList}>
-            <li>Data exploration and summary statistics</li>
-            <li>Data visualization (charts, graphs)</li>
-            <li>Statistical analysis</li>
-            <li>Export results</li>
-          </ul>
-        </div>
+        {currentStep === 'exploration' && (
+          <div style={styles.placeholderSection}>
+            <h2>Type Verification</h2>
+            <p>Coming in next step...</p>
+          </div>
+        )}
       </main>
 
       <footer style={styles.footer}>
@@ -54,6 +97,53 @@ const App: FC = () => {
       </footer>
     </div>
   )
+}
+
+interface StepIndicatorProps {
+  steps: string[]
+  currentStepIndex: number
+}
+
+const StepIndicator: FC<StepIndicatorProps> = ({ steps, currentStepIndex }) => {
+  return (
+    <div style={styles.stepIndicator}>
+      {steps.map((step, idx) => (
+        <div key={idx} style={styles.stepWrapper}>
+          <div
+            style={{
+              ...styles.stepCircle,
+              ...(idx <= currentStepIndex ? styles.stepCircleActive : {}),
+              ...(idx === currentStepIndex ? styles.stepCircleCurrent : {})
+            }}
+          >
+            {idx <= currentStepIndex ? '✓' : idx + 1}
+          </div>
+          <div style={styles.stepLabel}>{step}</div>
+          {idx < steps.length - 1 && (
+            <div
+              style={{
+                ...styles.stepConnector,
+                ...(idx < currentStepIndex ? styles.stepConnectorActive : {})
+              }}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function getStepIndex(step: WorkflowStep): number {
+  const stepMap: Record<WorkflowStep, number> = {
+    upload: 0,
+    preview: 1,
+    exploration: 2,
+    summary: 3,
+    visualization: 4,
+    'test-selection': 5,
+    results: 6
+  }
+  return stepMap[step]
 }
 
 const styles = {
@@ -80,70 +170,81 @@ const styles = {
     fontSize: '16px',
     opacity: 0.9
   } as const,
-  mainContent: {
-    maxWidth: '900px',
-    margin: '0 auto',
-    padding: '30px 20px',
-    flex: 1
-  } as const,
-  inputSection: {
+  stepsContainer: {
     backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    marginBottom: '30px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-  } as const,
-  sectionTitle: {
-    color: '#333',
-    marginTop: 0,
-    marginBottom: '10px',
-    fontSize: '20px'
-  } as const,
-  sectionDescription: {
-    color: '#666',
-    marginBottom: '15px',
-    fontSize: '14px'
-  } as const,
-  textarea: {
-    width: '100%',
-    height: '200px',
-    padding: '12px',
-    fontSize: '14px',
-    fontFamily: 'monospace',
-    border: '1px solid #ddd',
-    borderRadius: '4px',
-    boxSizing: 'border-box' as const,
-    marginBottom: '15px',
-    resize: 'vertical' as const
+    padding: '20px',
+    borderBottom: '1px solid #eee',
+    overflowX: 'auto' as const
   },
-  analyzeButton: {
-    padding: '12px 24px',
-    fontSize: '16px',
+  stepIndicator: {
+    display: 'flex',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '0 20px',
+    gap: '0'
+  } as const,
+  stepWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 1,
+    position: 'relative'
+  } as const,
+  stepCircle: {
+    width: '36px',
+    height: '36px',
+    borderRadius: '50%',
+    backgroundColor: '#f0f0f0',
+    border: '2px solid #ddd',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    color: '#999',
+    flexShrink: 0
+  } as const,
+  stepCircleActive: {
     backgroundColor: '#3498db',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    borderColor: '#3498db',
+    color: 'white'
+  } as const,
+  stepCircleCurrent: {
+    backgroundColor: '#2980b9',
+    borderColor: '#2980b9',
+    boxShadow: '0 0 0 4px rgba(52, 152, 219, 0.2)'
+  } as const,
+  stepLabel: {
+    marginLeft: '10px',
+    fontSize: '12px',
     fontWeight: '600',
-    transition: 'background-color 0.2s'
-  } as const,
-  featuresSection: {
-    backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-  } as const,
-  featuresTitle: {
-    color: '#333',
-    marginTop: 0,
-    marginBottom: '15px',
-    fontSize: '18px'
-  } as const,
-  featuresList: {
     color: '#666',
-    lineHeight: '1.8',
-    marginBottom: 0
+    whiteSpace: 'nowrap'
   } as const,
+  stepConnector: {
+    position: 'absolute',
+    left: '54px',
+    top: '17px',
+    height: '2px',
+    backgroundColor: '#ddd',
+    flex: 1,
+    width: 'calc(100% - 54px)',
+    zIndex: -1
+  } as any,
+  stepConnectorActive: {
+    backgroundColor: '#3498db'
+  } as const,
+  mainContent: {
+    flex: 1,
+    padding: '30px 20px'
+  } as const,
+  placeholderSection: {
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: '60px 20px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    textAlign: 'center' as const
+  },
   footer: {
     backgroundColor: '#f0f0f0',
     padding: '20px',
