@@ -52,9 +52,9 @@ export const getAllScoringSystems = () => {
  */
 export const validateScoreForm = (scoreId, values) => {
   const errors = []
-  const system = getScoreSystem(scoreId)
 
-  if (!system) {
+  // Check if scoring system exists
+  if (!scoringSystems[scoreId]) {
     errors.push('Invalid scoring system selected')
   }
 
