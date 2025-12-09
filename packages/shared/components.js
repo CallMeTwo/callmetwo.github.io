@@ -1,2 +1,4 @@
 // Export shared React components
-export { default as Navbar } from './Navbar.jsx'
+import Navbar from './Navbar.jsx'
+
+export { Navbar }

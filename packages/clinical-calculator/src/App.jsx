@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navbar } from 'shared/components'
+import Navbar from './components/Navbar'
 import ScoreSelector from './components/ScoreSelector'
 import VariableForm from './components/VariableForm'
 import ResultDisplay from './components/ResultDisplay'
