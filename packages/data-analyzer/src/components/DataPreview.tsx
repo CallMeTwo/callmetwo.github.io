@@ -9,6 +9,7 @@ interface DataPreviewProps {
 
 const DataPreview: FC<DataPreviewProps> = ({ data, onContinue, onCancel }) => {
   const previewRows = data.rows.slice(0, 5) // Show first 5 rows
+  const lastRows = data.rowCount > 10 ? data.rows.slice(-5) : [] // Show last 5 rows if more than 10 total
 
   return (
     <div style={styles.container}>
@@ -71,6 +72,40 @@ const DataPreview: FC<DataPreviewProps> = ({ data, onContinue, onCancel }) => {
           </p>
         )}
       </div>
+
+      {/* Last 5 rows preview */}
+      {lastRows.length > 0 && (
+        <div style={styles.tableSection}>
+          <h3 style={styles.sectionTitle}>Data Preview (Last 5 rows)</h3>
+          <div style={styles.tableWrapper}>
+            <table style={styles.table}>
+              <thead>
+                <tr style={styles.headerRow}>
+                  <th style={styles.headerCell}>#</th>
+                  {data.columns.map((col, idx) => (
+                    <th key={idx} style={styles.headerCell}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {lastRows.map((row, rowIdx) => {
+                  const actualRowNumber = data.rowCount - 5 + rowIdx + 1
+                  return (
+                    <tr key={rowIdx} style={rowIdx % 2 === 0 ? styles.bodyRow : styles.bodyRowAlt}>
+                      <td style={styles.bodyCell}>{actualRowNumber}</td>
+                      {data.columns.map((col, colIdx) => (
+                        <td key={colIdx} style={styles.bodyCell}>
+                          {String(row[col] ?? 'N/A')}
+                        </td>
+                      ))}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Actions */}
       <div style={styles.actions}>

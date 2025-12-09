@@ -108,16 +108,6 @@ const FileUpload: FC<FileUploadProps> = ({ onDataLoaded, isLoading }) => {
           <p style={styles.errorMessage}>{error}</p>
         </div>
       )}
-
-      <div style={styles.infoBox}>
-        <p style={styles.infoTitle}>📝 How it works:</p>
-        <ul style={styles.infoList}>
-          <li>Upload a CSV or Excel file with your data</li>
-          <li>The first row should contain column headers</li>
-          <li>We'll automatically detect variable types</li>
-          <li>You can verify and adjust types in the next step</li>
-        </ul>
-      </div>
     </div>
   )
 }
@@ -204,25 +194,6 @@ const styles = {
     fontSize: '14px',
     color: '#856404',
     lineHeight: '1.5'
-  } as const,
-  infoBox: {
-    backgroundColor: '#e3f2fd',
-    border: '1px solid #90caf9',
-    borderRadius: '8px',
-    padding: '15px 20px'
-  } as const,
-  infoTitle: {
-    margin: '0 0 10px 0',
-    fontSize: '14px',
-    fontWeight: '600',
-    color: '#1976d2'
-  } as const,
-  infoList: {
-    margin: 0,
-    paddingLeft: '20px',
-    fontSize: '14px',
-    color: '#1565c0',
-    lineHeight: '1.8'
   } as const
 }
 

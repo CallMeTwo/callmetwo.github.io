@@ -85,6 +85,16 @@ const App: FC = () => {
     setCurrentStep('upload')
   }
 
+  const handleStepClick = (stepIndex: number) => {
+    // Only allow navigation if data is loaded (except for upload step)
+    if (stepIndex === 0) {
+      setCurrentStep('upload')
+    } else if (parsedData !== null) {
+      const stepMap: WorkflowStep[] = ['upload', 'preview', 'exploration', 'summary', 'visualization', 'test-selection']
+      setCurrentStep(stepMap[stepIndex])
+    }
+  }
+
   return (
     <div style={styles.appContainer}>
       <Navbar breadcrumbs={[{ label: 'Data Analyzer' }]} />
@@ -99,6 +109,8 @@ const App: FC = () => {
         <StepIndicator
           steps={['Upload', 'Preview', 'Type Verification', 'Summary', 'Visualization', 'Statistical Tests']}
           currentStepIndex={getStepIndex(currentStep)}
+          onStepClick={handleStepClick}
+          dataLoaded={parsedData !== null}
         />
       </div>
 
@@ -166,33 +178,49 @@ const App: FC = () => {
 interface StepIndicatorProps {
   steps: string[]
   currentStepIndex: number
+  onStepClick: (stepIndex: number) => void
+  dataLoaded: boolean
 }
 
-const StepIndicator: FC<StepIndicatorProps> = ({ steps, currentStepIndex }) => {
+const StepIndicator: FC<StepIndicatorProps> = ({ steps, currentStepIndex, onStepClick, dataLoaded }) => {
   return (
     <div style={styles.stepIndicator}>
-      {steps.map((step, idx) => (
-        <div key={idx} style={styles.stepWrapper}>
-          <div
-            style={{
-              ...styles.stepCircle,
-              ...(idx <= currentStepIndex ? styles.stepCircleActive : {}),
-              ...(idx === currentStepIndex ? styles.stepCircleCurrent : {})
-            }}
-          >
-            {idx <= currentStepIndex ? '✓' : idx + 1}
-          </div>
-          <div style={styles.stepLabel}>{step}</div>
-          {idx < steps.length - 1 && (
+      {steps.map((step, idx) => {
+        const isClickable = idx === 0 || dataLoaded
+        const handleClick = () => isClickable && onStepClick(idx)
+        return (
+          <div key={idx} style={styles.stepWrapper}>
             <div
               style={{
-                ...styles.stepConnector,
-                ...(idx < currentStepIndex ? styles.stepConnectorActive : {})
+                ...styles.stepCircle,
+                ...(idx <= currentStepIndex ? styles.stepCircleActive : {}),
+                ...(idx === currentStepIndex ? styles.stepCircleCurrent : {}),
+                ...(isClickable ? styles.stepCircleClickable : {})
               }}
-            />
-          )}
-        </div>
-      ))}
+              onClick={handleClick}
+            >
+              {idx <= currentStepIndex ? '✓' : idx + 1}
+            </div>
+            <div
+              style={{
+                ...styles.stepLabel,
+                ...(isClickable ? styles.stepLabelClickable : {})
+              }}
+              onClick={handleClick}
+            >
+              {step}
+            </div>
+            {idx < steps.length - 1 && (
+              <div
+                style={{
+                  ...styles.stepConnector,
+                  ...(idx < currentStepIndex ? styles.stepConnectorActive : {})
+                }}
+              />
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -276,12 +304,18 @@ const styles = {
     borderColor: '#2980b9',
     boxShadow: '0 0 0 4px rgba(52, 152, 219, 0.2)'
   } as const,
+  stepCircleClickable: {
+    cursor: 'pointer'
+  } as const,
   stepLabel: {
     marginLeft: '10px',
     fontSize: '12px',
     fontWeight: '600',
     color: '#666',
     whiteSpace: 'nowrap'
+  } as const,
+  stepLabelClickable: {
+    cursor: 'pointer'
   } as const,
   stepConnector: {
     position: 'absolute',
