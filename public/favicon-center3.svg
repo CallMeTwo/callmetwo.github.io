@@ -1,0 +1,50 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="64" height="64" fill="white"/>
+
+  <!-- Bold "2" in CENTER -->
+  <text x="32" y="45" font-family="Arial, sans-serif" font-size="28" font-weight="bold"
+        text-anchor="middle" fill="#3498db">2</text>
+
+  <!-- TOP: Trend line going up -->
+  <polyline points="26,10 28,8 30,6 32,4 34,6 36,8 38,10" stroke="#e74c3c" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+
+  <!-- TOP RIGHT: Vertical bars -->
+  <rect x="46" y="8" width="2.2" height="6" fill="#3498db"/>
+  <rect x="49" y="6" width="2.2" height="8" fill="#27ae60"/>
+  <rect x="52" y="7" width="2.2" height="7" fill="#e74c3c"/>
+  <rect x="55" y="9" width="2.2" height="5" fill="#9b59b6"/>
+
+  <!-- RIGHT: Scatter plot -->
+  <circle cx="58" cy="20" r="1" fill="#f39c12" opacity="0.8"/>
+  <circle cx="60" cy="26" r="0.9" fill="#1abc9c" opacity="0.8"/>
+  <circle cx="58" cy="32" r="1.1" fill="#3498db" opacity="0.8"/>
+  <circle cx="60" cy="38" r="1" fill="#e74c3c" opacity="0.8"/>
+  <circle cx="58" cy="44" r="0.9" fill="#27ae60" opacity="0.8"/>
+
+  <!-- BOTTOM RIGHT: Bar chart -->
+  <rect x="48" y="50" width="2" height="8" fill="#3498db"/>
+  <rect x="51" y="48" width="2" height="10" fill="#e74c3c"/>
+  <rect x="54" y="49" width="2" height="9" fill="#27ae60"/>
+
+  <!-- BOTTOM: Horizontal bars -->
+  <rect x="16" y="54" width="8" height="1.5" fill="#9b59b6" opacity="0.8"/>
+  <rect x="16" y="57" width="10" height="1.5" fill="#f39c12" opacity="0.8"/>
+  <rect x="16" y="60" width="9" height="1.5" fill="#1abc9c" opacity="0.8"/>
+
+  <!-- BOTTOM LEFT: Bubble chart -->
+  <circle cx="8" cy="52" r="1.2" fill="#3498db" opacity="0.8"/>
+  <circle cx="6" cy="56" r="0.9" fill="#e74c3c" opacity="0.8"/>
+  <circle cx="10" cy="58" r="1" fill="#27ae60" opacity="0.8"/>
+  <circle cx="6" cy="60" r="0.8" fill="#9b59b6" opacity="0.8"/>
+
+  <!-- LEFT: Downward line -->
+  <polyline points="10,40 10,36 10,32 10,28 10,24 10,20" stroke="#3498db" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-dasharray="2,1"/>
+  <circle cx="10" cy="40" r="0.9" fill="#3498db"/>
+  <circle cx="10" cy="28" r="0.9" fill="#3498db"/>
+
+  <!-- TOP LEFT: Mini bars -->
+  <rect x="8" y="12" width="1.5" height="4" fill="#e74c3c"/>
+  <rect x="11" y="10" width="1.5" height="6" fill="#27ae60"/>
+  <rect x="14" y="11" width="1.5" height="5" fill="#9b59b6"/>
+</svg>
