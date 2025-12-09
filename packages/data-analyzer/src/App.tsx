@@ -2,6 +2,7 @@ import { useState, FC } from 'react'
 import { Navbar } from 'shared'
 import FileUpload from './components/FileUpload'
 import DataPreview from './components/DataPreview'
+import TypeVerification from './components/TypeVerification'
 import { ParsedData, VariableType } from './types'
 import { inferVariableType, getSampleValues } from './utils/fileParser'
 
@@ -43,6 +44,18 @@ const App: FC = () => {
     setCurrentStep('exploration')
   }
 
+  const handleVariablesUpdate = (updatedVariables: VariableType[]) => {
+    setVariables(updatedVariables)
+  }
+
+  const handleContinueFromExploration = () => {
+    setCurrentStep('summary')
+  }
+
+  const handleBackFromExploration = () => {
+    setCurrentStep('preview')
+  }
+
   const handleCancelUpload = () => {
     setParsedData(null)
     setVariables([])
@@ -82,9 +95,18 @@ const App: FC = () => {
           />
         )}
 
-        {currentStep === 'exploration' && (
+        {currentStep === 'exploration' && variables.length > 0 && (
+          <TypeVerification
+            variables={variables}
+            onVariablesUpdate={handleVariablesUpdate}
+            onContinue={handleContinueFromExploration}
+            onBack={handleBackFromExploration}
+          />
+        )}
+
+        {currentStep === 'summary' && (
           <div style={styles.placeholderSection}>
-            <h2>Type Verification</h2>
+            <h2>Summary Statistics</h2>
             <p>Coming in next step...</p>
           </div>
         )}
