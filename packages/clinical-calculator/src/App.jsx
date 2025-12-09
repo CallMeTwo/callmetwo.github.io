@@ -1,83 +1,119 @@
 import { useState } from 'react'
+import ScoreSelector from './components/ScoreSelector'
+import VariableForm from './components/VariableForm'
+import ResultDisplay from './components/ResultDisplay'
+import { scoringSystems, calculateScore } from './data/scores'
 
 export default function App() {
-  const [formData, setFormData] = useState({})
+  const [selectedScore, setSelectedScore] = useState('wells')
+  const [formValues, setFormValues] = useState(() => {
+    const initial = {}
+    scoringSystems.wells.variables.forEach(v => {
+      initial[v.id] = v.type === 'checkbox' ? false : 0
+    })
+    return initial
+  })
   const [result, setResult] = useState(null)
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: parseFloat(value) || value
-    }))
+  const currentScoreSystem = scoringSystems[selectedScore]
+
+  const handleScoreChange = (scoreId) => {
+    setSelectedScore(scoreId)
+    // Reset form when score changes
+    const newValues = {}
+    scoringSystems[scoreId].variables.forEach(v => {
+      newValues[v.id] = v.type === 'checkbox' ? false : 0
+    })
+    setFormValues(newValues)
+    setResult(null)
   }
 
-  const handleCalculate = (e) => {
-    e.preventDefault()
-    // Placeholder for calculation logic
-    setResult({
-      score: 75,
-      interpretation: 'Results will be calculated based on input values'
-    })
+  const handleFormChange = (newValues) => {
+    setFormValues(newValues)
+    // Calculate in real-time
+    const { score, interpretation } = calculateScore(selectedScore, newValues)
+    setResult({ score, interpretation })
   }
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', maxWidth: '600px', margin: '0 auto' }}>
-      <h1>Clinical Model Calculator</h1>
-      <p>Enter clinical variables to calculate model scores.</p>
+    <div style={styles.appContainer}>
+      <header style={styles.header}>
+        <h1 style={styles.mainTitle}>⚕️ Clinical Calculator</h1>
+        <p style={styles.subtitle}>Calculate clinical risk scores and interpretations</p>
+      </header>
 
-      <form onSubmit={handleCalculate}>
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="var1" style={{ display: 'block', marginBottom: '5px' }}>
-            Variable 1:
-          </label>
-          <input
-            type="number"
-            id="var1"
-            name="var1"
-            placeholder="Enter value"
-            onChange={handleInputChange}
-            style={{ width: '100%', padding: '8px', fontSize: '14px' }}
+      <main style={styles.mainContent}>
+        <ScoreSelector
+          selectedScore={selectedScore}
+          onScoreChange={handleScoreChange}
+        />
+
+        <div style={styles.calculatorSection}>
+          <VariableForm
+            scoreSystem={currentScoreSystem}
+            values={formValues}
+            onChange={handleFormChange}
+          />
+
+          <ResultDisplay
+            score={result?.score}
+            interpretation={result?.interpretation}
           />
         </div>
+      </main>
 
-        <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="var2" style={{ display: 'block', marginBottom: '5px' }}>
-            Variable 2:
-          </label>
-          <input
-            type="number"
-            id="var2"
-            name="var2"
-            placeholder="Enter value"
-            onChange={handleInputChange}
-            style={{ width: '100%', padding: '8px', fontSize: '14px' }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          style={{
-            padding: '10px 20px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px'
-          }}
-        >
-          Calculate
-        </button>
-      </form>
-
-      {result && (
-        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#d4edda', borderRadius: '4px' }}>
-          <h3>Result:</h3>
-          <p><strong>Score:</strong> {result.score}</p>
-          <p><strong>Interpretation:</strong> {result.interpretation}</p>
-        </div>
-      )}
+      <footer style={styles.footer}>
+        <p style={styles.footerText}>
+          Clinical scoring systems for educational and reference purposes only.
+        </p>
+      </footer>
     </div>
   )
+}
+
+const styles = {
+  appContainer: {
+    minHeight: '100vh',
+    backgroundColor: '#f5f5f5',
+    fontFamily: 'Arial, sans-serif'
+  },
+  header: {
+    backgroundColor: '#2c3e50',
+    color: 'white',
+    padding: '40px 20px',
+    textAlign: 'center'
+  },
+  mainTitle: {
+    margin: '0 0 10px 0',
+    fontSize: '32px',
+    fontWeight: 'bold'
+  },
+  subtitle: {
+    margin: 0,
+    fontSize: '16px',
+    opacity: 0.9
+  },
+  mainContent: {
+    maxWidth: '1000px',
+    margin: '0 auto',
+    padding: '30px 20px'
+  },
+  calculatorSection: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '20px',
+    marginTop: '20px'
+  },
+  footer: {
+    backgroundColor: '#f0f0f0',
+    padding: '20px',
+    textAlign: 'center',
+    marginTop: '40px',
+    borderTop: '1px solid #ddd'
+  },
+  footerText: {
+    margin: 0,
+    fontSize: '13px',
+    color: '#666'
+  }
 }
