@@ -4,6 +4,7 @@ import VariableForm from './components/VariableForm'
 import ResultDisplay from './components/ResultDisplay'
 import { scoringSystems, calculateScore } from './data/scores'
 
+// Clinical Calculator App - Multiple scoring systems for medical risk assessment
 export default function App() {
   const [selectedScore, setSelectedScore] = useState('wells')
   const [formValues, setFormValues] = useState(() => {
