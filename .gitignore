@@ -3,8 +3,8 @@ node_modules/
 pnpm-lock.yaml
 yarn.lock
 
-# Build outputs
-dist/
+# Build outputs (exclude only in packages, not root level)
+packages/*/dist/
 build/
 *.tsbuildinfo
 
