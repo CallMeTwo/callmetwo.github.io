@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Navbar from './components/Navbar'
+import { Navbar } from 'shared'
 
 export default function App() {
   const [data, setData] = useState('')

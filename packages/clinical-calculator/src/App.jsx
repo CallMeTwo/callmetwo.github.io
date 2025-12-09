@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import Navbar from './components/Navbar'
+import { Navbar } from 'shared'
 import ScoreSelector from './components/ScoreSelector'
 import VariableForm from './components/VariableForm'
 import ResultDisplay from './components/ResultDisplay'
-import { scoringSystems, calculateScore } from './data/scores'
+import { calculateScore, getScoreSystem } from './utils/scoring'
+import { scoringSystems } from './data/scoreDefinitions'
 
 // Clinical Calculator App - Multiple scoring systems for medical risk assessment
 export default function App() {

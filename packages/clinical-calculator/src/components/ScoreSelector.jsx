@@ -1,5 +1,5 @@
 import React from 'react'
-import { scoringSystems } from '../data/scores'
+import { scoringSystems } from '../data/scoreDefinitions'
 
 export default function ScoreSelector({ selectedScore, onScoreChange }) {
   const scores = Object.values(scoringSystems)

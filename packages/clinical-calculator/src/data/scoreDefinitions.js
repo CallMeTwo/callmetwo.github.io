@@ -225,16 +225,3 @@ export const scoringSystems = {
     ]
   }
 };
-
-export const getScoreSystem = (scoreId) => {
-  return scoringSystems[scoreId] || scoringSystems.wells;
-};
-
-export const calculateScore = (scoreId, values) => {
-  const system = getScoreSystem(scoreId);
-  const score = system.calculate(values);
-  const interpretation = system.interpretations.find(
-    interp => score >= interp.range[0] && score <= interp.range[1]
-  );
-  return { score, interpretation };
-};

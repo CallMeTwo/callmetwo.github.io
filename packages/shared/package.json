@@ -5,7 +5,9 @@
   "main": "index.js",
   "exports": {
     ".": "./index.js",
-    "./components": "./components.js"
+    "./components": "./components.js",
+    "./theme": "./theme.js",
+    "./hooks": "./hooks/useTheme.jsx"
   },
   "scripts": {
     "dev": "echo 'Shared utilities package'",
