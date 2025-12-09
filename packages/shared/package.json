@@ -6,6 +6,11 @@
   "exports": {
     ".": "./index.js"
   },
+  "scripts": {
+    "dev": "echo 'Shared utilities package'",
+    "build": "echo 'Shared utilities - no build needed'",
+    "preview": "echo 'Shared utilities package'"
+  },
   "dependencies": {
     "react": "^18.3.1"
   }
