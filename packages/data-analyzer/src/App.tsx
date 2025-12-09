@@ -3,11 +3,9 @@ import { Navbar } from 'shared'
 import FileUpload from './components/FileUpload'
 import DataPreview from './components/DataPreview'
 import TypeVerification from './components/TypeVerification'
+import SummaryStatistics from './components/SummaryStatistics'
 import { ParsedData, VariableType } from './types'
 import { inferVariableType, getSampleValues } from './utils/fileParser'
-
-// Force TypeVerification to be included in bundle
-console.log('TypeVerification component loaded:', typeof TypeVerification)
 
 type WorkflowStep = 'upload' | 'preview' | 'exploration' | 'summary' | 'visualization' | 'test-selection' | 'results'
 
@@ -59,6 +57,14 @@ const App: FC = () => {
     setCurrentStep('preview')
   }
 
+  const handleBackFromSummary = () => {
+    setCurrentStep('exploration')
+  }
+
+  const handleContinueFromSummary = () => {
+    setCurrentStep('visualization')
+  }
+
   const handleCancelUpload = () => {
     setParsedData(null)
     setVariables([])
@@ -107,9 +113,18 @@ const App: FC = () => {
           />
         )}
 
-        {currentStep === 'summary' && (
+        {currentStep === 'summary' && parsedData && variables.length > 0 && (
+          <SummaryStatistics
+            data={parsedData}
+            variables={variables}
+            onContinue={handleContinueFromSummary}
+            onBack={handleBackFromSummary}
+          />
+        )}
+
+        {currentStep === 'visualization' && (
           <div style={styles.placeholderSection}>
-            <h2>Summary Statistics</h2>
+            <h2>Data Visualization</h2>
             <p>Coming in next step...</p>
           </div>
         )}

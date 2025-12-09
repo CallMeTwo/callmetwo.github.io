@@ -1,0 +1,480 @@
+import React, { FC, useMemo } from 'react'
+import { ParsedData, VariableType } from '../types'
+import {
+  calculateContinuousStats,
+  calculateCategoricalStats,
+  formatStatistic,
+  interpretSkewness,
+  interpretKurtosis,
+  ContinuousStats,
+  CategoricalStats
+} from '../utils/statistics'
+
+interface SummaryStatisticsProps {
+  data: ParsedData
+  variables: VariableType[]
+  onContinue: () => void
+  onBack: () => void
+}
+
+const SummaryStatistics: FC<SummaryStatisticsProps> = ({
+  data,
+  variables,
+  onContinue,
+  onBack
+}) => {
+  // Filter only included variables
+  const includedVariables = variables.filter(v => v.includeInAnalysis)
+
+  // Calculate statistics for all included variables
+  const statistics = useMemo(() => {
+    return includedVariables.map(variable => {
+      const columnValues = data.rows.map(row => row[variable.name])
+
+      if (variable.type === 'continuous') {
+        return {
+          variable,
+          stats: calculateContinuousStats(columnValues),
+          type: 'continuous' as const
+        }
+      } else {
+        return {
+          variable,
+          stats: calculateCategoricalStats(columnValues),
+          type: 'categorical' as const
+        }
+      }
+    })
+  }, [data, includedVariables])
+
+  const continuousStats = statistics.filter(s => s.type === 'continuous')
+  const categoricalStats = statistics.filter(s => s.type === 'categorical')
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h2 style={styles.title}>Summary Statistics</h2>
+        <p style={styles.subtitle}>
+          Descriptive statistics for {includedVariables.length} variables ({continuousStats.length} continuous, {categoricalStats.length} categorical)
+        </p>
+      </div>
+
+      {/* Continuous Variables */}
+      {continuousStats.length > 0 && (
+        <div style={styles.section}>
+          <h3 style={styles.sectionTitle}>📈 Continuous Variables</h3>
+          {continuousStats.map(({ variable, stats }) => (
+            <ContinuousStatsCard
+              key={variable.name}
+              variableName={variable.name}
+              stats={stats as ContinuousStats}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Categorical Variables */}
+      {categoricalStats.length > 0 && (
+        <div style={styles.section}>
+          <h3 style={styles.sectionTitle}>📊 Categorical Variables</h3>
+          {categoricalStats.map(({ variable, stats }) => (
+            <CategoricalStatsCard
+              key={variable.name}
+              variableName={variable.name}
+              stats={stats as CategoricalStats}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Actions */}
+      <div style={styles.actions}>
+        <button style={styles.backButton} onClick={onBack}>
+          ← Back
+        </button>
+        <button style={styles.continueButton} onClick={onContinue}>
+          Continue to Visualization →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+interface ContinuousStatsCardProps {
+  variableName: string
+  stats: ContinuousStats
+}
+
+const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats }) => {
+  return (
+    <div style={styles.card}>
+      <div style={styles.cardHeader}>
+        <h4 style={styles.variableName}>{variableName}</h4>
+        <span style={styles.badge}>Continuous</span>
+      </div>
+
+      <div style={styles.statsGrid}>
+        {/* Basic stats */}
+        <div style={styles.statsGroup}>
+          <h5 style={styles.groupTitle}>Basic Statistics</h5>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Count:</span>
+            <span style={styles.statValue}>{stats.count}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Missing:</span>
+            <span style={styles.statValue}>{stats.missing}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Mean:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.mean)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Median:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.median)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Std Dev:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.sd)}</span>
+          </div>
+        </div>
+
+        {/* Range & Quartiles */}
+        <div style={styles.statsGroup}>
+          <h5 style={styles.groupTitle}>Range & Quartiles</h5>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Min:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.min)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Q1 (25%):</span>
+            <span style={styles.statValue}>{formatStatistic(stats.q1)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Q3 (75%):</span>
+            <span style={styles.statValue}>{formatStatistic(stats.q3)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Max:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.max)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>IQR:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.q3 - stats.q1)}</span>
+          </div>
+        </div>
+
+        {/* Distribution */}
+        <div style={styles.statsGroup}>
+          <h5 style={styles.groupTitle}>Distribution</h5>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Skewness:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.skewness)}</span>
+          </div>
+          <div style={styles.interpretText}>
+            {interpretSkewness(stats.skewness)}
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Kurtosis:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.kurtosis)}</span>
+          </div>
+          <div style={styles.interpretText}>
+            {interpretKurtosis(stats.kurtosis)}
+          </div>
+        </div>
+
+        {/* Normality Test */}
+        {stats.shapiro && (
+          <div style={styles.statsGroup}>
+            <h5 style={styles.groupTitle}>Normality Test</h5>
+            <div style={styles.statRow}>
+              <span style={styles.statLabel}>Shapiro-Wilk W:</span>
+              <span style={styles.statValue}>{formatStatistic(stats.shapiro.statistic, 4)}</span>
+            </div>
+            <div style={styles.statRow}>
+              <span style={styles.statLabel}>p-value:</span>
+              <span style={styles.statValue}>{formatStatistic(stats.shapiro.pValue, 4)}</span>
+            </div>
+            <div style={{
+              ...styles.normalityBadge,
+              ...(stats.shapiro.isNormal ? styles.normalBadge : styles.nonNormalBadge)
+            }}>
+              {stats.shapiro.isNormal ? '✓ Normal' : '✗ Non-normal'} (α = 0.05)
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+interface CategoricalStatsCardProps {
+  variableName: string
+  stats: CategoricalStats
+}
+
+const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, stats }) => {
+  const topFrequencies = stats.frequencies.slice(0, 10) // Show top 10
+  const hasMore = stats.frequencies.length > 10
+
+  return (
+    <div style={styles.card}>
+      <div style={styles.cardHeader}>
+        <h4 style={styles.variableName}>{variableName}</h4>
+        <span style={{ ...styles.badge, backgroundColor: '#f3e5f5' }}>Categorical</span>
+      </div>
+
+      <div style={styles.statsGrid}>
+        {/* Basic info */}
+        <div style={styles.statsGroup}>
+          <h5 style={styles.groupTitle}>Summary</h5>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Count:</span>
+            <span style={styles.statValue}>{stats.count}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Missing:</span>
+            <span style={styles.statValue}>{stats.missing}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Unique values:</span>
+            <span style={styles.statValue}>{stats.uniqueCount}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Mode:</span>
+            <span style={styles.statValue}>{String(stats.mode)}</span>
+          </div>
+        </div>
+
+        {/* Frequency table */}
+        <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
+          <h5 style={styles.groupTitle}>Frequency Distribution</h5>
+          <table style={styles.frequencyTable}>
+            <thead>
+              <tr>
+                <th style={styles.tableHeader}>Value</th>
+                <th style={styles.tableHeader}>Count</th>
+                <th style={styles.tableHeader}>Percentage</th>
+                <th style={styles.tableHeader}>Bar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topFrequencies.map((item, idx) => (
+                <tr key={idx} style={styles.tableRow}>
+                  <td style={styles.tableCell}>{String(item.value)}</td>
+                  <td style={styles.tableCell}>{item.count}</td>
+                  <td style={styles.tableCell}>{formatStatistic(item.percentage, 1)}%</td>
+                  <td style={styles.tableCell}>
+                    <div style={styles.barContainer}>
+                      <div
+                        style={{
+                          ...styles.bar,
+                          width: `${item.percentage}%`
+                        }}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {hasMore && (
+            <p style={styles.moreText}>
+              ... and {stats.frequencies.length - 10} more values
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const styles = {
+  container: {
+    padding: '30px 20px',
+    maxWidth: '1400px',
+    margin: '0 auto'
+  } as const,
+  header: {
+    marginBottom: '30px',
+    paddingBottom: '20px',
+    borderBottom: '2px solid #eee'
+  } as const,
+  title: {
+    margin: '0 0 10px 0',
+    fontSize: '28px',
+    fontWeight: 'bold',
+    color: '#333'
+  } as const,
+  subtitle: {
+    margin: 0,
+    fontSize: '14px',
+    color: '#666',
+    lineHeight: '1.6'
+  } as const,
+  section: {
+    marginBottom: '40px'
+  } as const,
+  sectionTitle: {
+    margin: '0 0 20px 0',
+    fontSize: '20px',
+    fontWeight: '600',
+    color: '#2c3e50'
+  } as const,
+  card: {
+    backgroundColor: 'white',
+    border: '2px solid #e0e0e0',
+    borderRadius: '8px',
+    padding: '20px',
+    marginBottom: '20px'
+  } as const,
+  cardHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '20px',
+    paddingBottom: '15px',
+    borderBottom: '1px solid #f0f0f0'
+  } as const,
+  variableName: {
+    margin: 0,
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#333'
+  } as const,
+  badge: {
+    padding: '4px 12px',
+    backgroundColor: '#e3f2fd',
+    borderRadius: '12px',
+    fontSize: '12px',
+    fontWeight: '600',
+    color: '#333'
+  } as const,
+  statsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gap: '20px'
+  } as const,
+  statsGroup: {
+    padding: '15px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '6px'
+  } as const,
+  groupTitle: {
+    margin: '0 0 12px 0',
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#666',
+    textTransform: 'uppercase',
+    letterSpacing: '0.5px'
+  } as const,
+  statRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '6px 0',
+    borderBottom: '1px solid #eee'
+  } as const,
+  statLabel: {
+    fontSize: '13px',
+    color: '#666'
+  } as const,
+  statValue: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#333',
+    fontFamily: 'monospace'
+  } as const,
+  interpretText: {
+    fontSize: '12px',
+    color: '#666',
+    fontStyle: 'italic',
+    marginTop: '4px',
+    marginBottom: '8px'
+  } as const,
+  normalityBadge: {
+    padding: '8px 12px',
+    borderRadius: '6px',
+    fontSize: '12px',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: '10px'
+  } as const,
+  normalBadge: {
+    backgroundColor: '#e8f5e9',
+    color: '#2e7d32'
+  } as const,
+  nonNormalBadge: {
+    backgroundColor: '#ffebee',
+    color: '#c62828'
+  } as const,
+  frequencyTable: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: '13px'
+  } as const,
+  tableHeader: {
+    textAlign: 'left',
+    padding: '10px',
+    backgroundColor: '#f0f0f0',
+    fontWeight: '600',
+    color: '#333',
+    borderBottom: '2px solid #ddd'
+  } as const,
+  tableRow: {
+    borderBottom: '1px solid #eee'
+  } as const,
+  tableCell: {
+    padding: '10px',
+    color: '#333'
+  } as const,
+  barContainer: {
+    width: '100%',
+    height: '20px',
+    backgroundColor: '#f0f0f0',
+    borderRadius: '4px',
+    overflow: 'hidden'
+  } as const,
+  bar: {
+    height: '100%',
+    backgroundColor: '#3498db',
+    transition: 'width 0.3s ease'
+  } as const,
+  moreText: {
+    marginTop: '10px',
+    fontSize: '12px',
+    color: '#999',
+    fontStyle: 'italic'
+  } as const,
+  actions: {
+    display: 'flex',
+    gap: '15px',
+    justifyContent: 'flex-end',
+    paddingTop: '20px',
+    borderTop: '2px solid #eee',
+    marginTop: '30px'
+  } as const,
+  backButton: {
+    padding: '12px 24px',
+    fontSize: '14px',
+    backgroundColor: '#f0f0f0',
+    color: '#333',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.2s'
+  } as const,
+  continueButton: {
+    padding: '12px 24px',
+    fontSize: '14px',
+    backgroundColor: '#3498db',
+    color: 'white',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontWeight: '600',
+    transition: 'all 0.2s'
+  } as const
+}
+
+export default SummaryStatistics
