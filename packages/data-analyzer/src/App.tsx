@@ -6,6 +6,9 @@ import TypeVerification from './components/TypeVerification'
 import { ParsedData, VariableType } from './types'
 import { inferVariableType, getSampleValues } from './utils/fileParser'
 
+// Force TypeVerification to be included in bundle
+console.log('TypeVerification component loaded:', typeof TypeVerification)
+
 type WorkflowStep = 'upload' | 'preview' | 'exploration' | 'summary' | 'visualization' | 'test-selection' | 'results'
 
 const App: FC = () => {

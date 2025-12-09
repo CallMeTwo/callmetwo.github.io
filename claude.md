@@ -218,6 +218,66 @@ npm run preview
 - Ensure workflow copies dist to correct folder names
 - Check landing page `index.html` has correct URLs
 
+## Known Issues
+
+### 🔴 CRITICAL: Data Analyzer Build Not Including New Components
+
+**Problem:**
+- TypeVerification component added to `packages/data-analyzer/src/components/TypeVerification.tsx` is NOT being included in production builds
+- Built JavaScript file remains exactly **147.47 kB** regardless of source code changes
+- Changes to App.tsx (which imports TypeVerification) are not reflected in build output
+
+**Symptoms:**
+- `grep "Verify Variable Types" dist/assets/index-lGltCa1y.js` returns nothing
+- File hash never changes: always `index-lGltCa1y.js` with same size
+- File timestamps never update despite running `npm run build`
+- Clinical-calculator builds correctly (156.95 kB, 41 modules)
+- Data-analyzer stuck at 36 modules
+
+**Investigation Findings:**
+1. Source files exist and are valid:
+   - `packages/data-analyzer/src/components/TypeVerification.tsx` - 411 lines, well-formed React component
+   - `packages/data-analyzer/src/App.tsx` - correctly imports and uses TypeVerification
+   - All files committed to git
+
+2. Build process appears to run:
+   - `npm run build` completes successfully with no errors
+   - Vite reports "✓ 36 modules transformed. ✓ built in ~500ms"
+
+3. But output is not being generated:
+   - Output file never changes in size, timestamp, or content
+   - Adding 400+ line component doesn't affect bundle size at all
+   - Adding console.log statements doesn't appear in output
+
+**Attempted Fixes (All Failed):**
+- Deleted dist/ and node_modules/.vite multiple times
+- Fresh npm install --force
+- Renamed/recreated App.tsx
+- Added explicit imports to force tree-shaking prevention
+- Used `npx vite build --debug` directly
+- Cleared .vite cache, .cache, node_modules/.cache
+
+**Likely Causes:**
+1. **Vite caching issue** - Build output may be hardcoded/memoized
+2. **Workspace configuration problem** - npm workspaces may have conflicting configs
+3. **File watcher issue** - Vite may not be detecting new files properly
+4. **Build artifact in git** - Old dist files committed to repository
+
+**Files to Check:**
+- `packages/data-analyzer/vite.config.js` - alias configuration correct?
+- `packages/data-analyzer/tsconfig.json` - include paths correct?
+- `.gitignore` - is `packages/*/dist/` properly excluded?
+- `package.json` workspace configs
+
+**Next Steps for Another Developer:**
+1. Run `npm run build` with verbose logging to see actual Vite internals
+2. Check if old dist files are somehow cached in git history
+3. Try completely new Vite setup in separate folder
+4. Verify tsconfig/vite config difference between clinical-calculator (working) and data-analyzer (broken)
+5. Check Node.js version compatibility
+
+---
+
 ## Future Enhancements
 
 - Add authentication for clinical calculator
