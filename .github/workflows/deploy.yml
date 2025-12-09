@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -123,8 +128,24 @@ jobs:
           </html>
           EOF
 
-      - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Prepare deployment files
+        run: |
+          # Copy built apps to root for GitHub Pages
+          mkdir -p data-analyzer clinical-calculator
+          cp -r packages/data-analyzer/dist/* data-analyzer/
+          cp -r packages/clinical-calculator/dist/* clinical-calculator/
+          # Index.html is already at root
+
+      - name: Deploy to GitHub Pages
+        uses: actions/upload-artifact@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          name: github-pages
+          path: |
+            index.html
+            .nojekyll
+            data-analyzer
+            clinical-calculator
+          retention-days: 1
+
+      - name: Deploy Pages
+        uses: actions/deploy-pages@v4
