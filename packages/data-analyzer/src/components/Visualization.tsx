@@ -22,7 +22,12 @@ import {
   createBarChartData,
   createScatterPlotData,
   getUniqueGroups,
-  CHART_COLORS
+  CHART_COLORS,
+  createGroupedHistogram,
+  createGroupedBoxPlotData,
+  createGroupedBarData,
+  getDecimalPlaces,
+  formatAxisLabel
 } from '../utils/visualization'
 
 interface VisualizationProps {
@@ -152,7 +157,7 @@ const Visualization: FC<VisualizationProps> = ({
             </div>
           )}
 
-          {(chartType === 'bar' || chartType === 'scatter') && categoricalVars.length > 0 && (
+          {(chartType === 'bar' || chartType === 'scatter' || chartType === 'histogram' || chartType === 'box') && categoricalVars.length > 0 && (
             <div style={styles.controlGroup}>
               <label style={styles.label}>Group By (Optional)</label>
               <select
@@ -176,6 +181,7 @@ const Visualization: FC<VisualizationProps> = ({
           <HistogramChart
             data={data}
             variableName={selectedVariable}
+            groupVariable={groupVariable}
           />
         )}
 
@@ -183,6 +189,7 @@ const Visualization: FC<VisualizationProps> = ({
           <BoxPlotChart
             data={data}
             variableName={selectedVariable}
+            groupVariable={groupVariable}
           />
         )}
 
@@ -221,12 +228,49 @@ const Visualization: FC<VisualizationProps> = ({
 interface HistogramChartProps {
   data: ParsedData
   variableName: string
+  groupVariable?: string
 }
 
-const HistogramChart: FC<HistogramChartProps> = ({ data, variableName }) => {
-  const columnValues = data.rows.map(row => row[variableName])
-  const histogramData = createHistogram(columnValues, 15)
+const HistogramChart: FC<HistogramChartProps> = ({ data, variableName, groupVariable }) => {
+  // Use grouped histogram if groupVariable is provided
+  const histogramData = groupVariable
+    ? createGroupedHistogram(data.rows, variableName, groupVariable, 15)
+    : createHistogram(data.rows.map(row => row[variableName]), 15)
 
+  if (groupVariable) {
+    // Grouped histogram with side-by-side (dodged) bars
+    const groups = getUniqueGroups(data.rows, groupVariable)
+
+    return (
+      <div style={styles.chart}>
+        <h3 style={styles.chartTitle}>Histogram: {variableName} (grouped by {groupVariable})</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={histogramData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              label={{ value: variableName, position: 'insideBottom', offset: -5 }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis label={{ value: 'Frequency', angle: -90, position: 'insideLeft' }} />
+            <Tooltip />
+            <Legend />
+            {groups.map((group, idx) => (
+              <Bar
+                key={group}
+                dataKey={group}
+                fill={CHART_COLORS.palette[idx % CHART_COLORS.palette.length]}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  }
+
+  // Non-grouped histogram
   return (
     <div style={styles.chart}>
       <h3 style={styles.chartTitle}>Histogram: {variableName}</h3>
@@ -257,6 +301,64 @@ interface BarChartComponentProps {
 }
 
 const BarChartComponent: FC<BarChartComponentProps> = ({ data, variableName, groupVariable }) => {
+  if (groupVariable) {
+    // Clustered bar chart with groups
+    const groupedBarData = createGroupedBarData(data.rows, variableName, '', groupVariable)
+    const groups = getUniqueGroups(data.rows, groupVariable)
+
+    // Transform data for Recharts: count frequencies for each category-group combination
+    const frequencyData = new Map<string, Map<string, number>>()
+
+    data.rows.forEach(row => {
+      const category = String(row[variableName] || 'Unknown')
+      const group = String(row[groupVariable] || 'Unknown')
+
+      if (!frequencyData.has(category)) {
+        frequencyData.set(category, new Map())
+      }
+      const groupMap = frequencyData.get(category)!
+      groupMap.set(group, (groupMap.get(group) || 0) + 1)
+    })
+
+    // Convert to array format for Recharts
+    const chartData = Array.from(frequencyData.entries()).map(([category, groupMap]) => {
+      const item: any = { category }
+      groups.forEach(group => {
+        item[group] = groupMap.get(group) || 0
+      })
+      return item
+    })
+
+    return (
+      <div style={styles.chart}>
+        <h3 style={styles.chartTitle}>Bar Chart: {variableName} (grouped by {groupVariable})</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="category"
+              label={{ value: variableName, position: 'insideBottom', offset: -5 }}
+              angle={-45}
+              textAnchor="end"
+              height={100}
+            />
+            <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+            <Tooltip />
+            <Legend />
+            {groups.map((group, idx) => (
+              <Bar
+                key={group}
+                dataKey={group}
+                fill={CHART_COLORS.palette[idx % CHART_COLORS.palette.length]}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  }
+
+  // Simple bar chart without grouping
   const columnValues = data.rows.map(row => row[variableName])
   const barData = createBarChartData(columnValues, 15)
 
@@ -302,6 +404,28 @@ const ScatterPlotComponent: FC<ScatterPlotComponentProps> = ({
 }) => {
   const scatterData = createScatterPlotData(data.rows, xVariable, yVariable, groupVariable)
 
+  // Calculate dynamic axis limits with padding
+  const calculateAxisLimits = (values: number[]) => {
+    if (values.length === 0) return { min: 0, max: 1 }
+    const min = Math.min(...values)
+    const max = Math.max(...values)
+    const range = max - min
+    const padding = range === 0 ? 0.5 : range * 0.1 // 10% padding or 0.5 if range is 0
+    return {
+      min: Math.max(min - padding, 0), // Don't go below 0 for positive-only data
+      max: max + padding
+    }
+  }
+
+  const xValues = scatterData.map(d => d.x)
+  const yValues = scatterData.map(d => d.y)
+  const xLimits = calculateAxisLimits(xValues)
+  const yLimits = calculateAxisLimits(yValues)
+
+  // Calculate appropriate decimal places for axis labels
+  const xDecimals = getDecimalPlaces(xLimits.min, xLimits.max)
+  const yDecimals = getDecimalPlaces(yLimits.min, yLimits.max)
+
   if (!groupVariable) {
     return (
       <div style={styles.chart}>
@@ -314,12 +438,16 @@ const ScatterPlotComponent: FC<ScatterPlotComponentProps> = ({
               dataKey="x"
               name={xVariable}
               label={{ value: xVariable, position: 'insideBottom', offset: -5 }}
+              domain={[xLimits.min, xLimits.max]}
+              tickFormatter={(value) => formatAxisLabel(value, xDecimals)}
             />
             <YAxis
               type="number"
               dataKey="y"
               name={yVariable}
               label={{ value: yVariable, angle: -90, position: 'insideLeft' }}
+              domain={[yLimits.min, yLimits.max]}
+              tickFormatter={(value) => formatAxisLabel(value, yDecimals)}
             />
             <Tooltip cursor={{ strokeDasharray: '3 3' }} />
             <Scatter name={yVariable} data={scatterData} fill={CHART_COLORS.primary} />
@@ -347,12 +475,16 @@ const ScatterPlotComponent: FC<ScatterPlotComponentProps> = ({
             dataKey="x"
             name={xVariable}
             label={{ value: xVariable, position: 'insideBottom', offset: -5 }}
+            domain={[xLimits.min, xLimits.max]}
+            tickFormatter={(value) => formatAxisLabel(value, xDecimals)}
           />
           <YAxis
             type="number"
             dataKey="y"
             name={yVariable}
             label={{ value: yVariable, angle: -90, position: 'insideLeft' }}
+            domain={[yLimits.min, yLimits.max]}
+            tickFormatter={(value) => formatAxisLabel(value, yDecimals)}
           />
           <Tooltip cursor={{ strokeDasharray: '3 3' }} />
           <Legend />
@@ -374,9 +506,180 @@ const ScatterPlotComponent: FC<ScatterPlotComponentProps> = ({
 interface BoxPlotChartProps {
   data: ParsedData
   variableName: string
+  groupVariable?: string
 }
 
-const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName }) => {
+const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable }) => {
+  if (groupVariable) {
+    // Grouped box plot with side-by-side boxes
+    const { groups, data: groupedData } = createGroupedBoxPlotData(data.rows, variableName, groupVariable)
+
+    if (groups.length === 0) {
+      return <div style={styles.chart}>No data available for grouped box plot</div>
+    }
+
+    // Prepare box plot data array with color index: each index corresponds to a group on x-axis
+    const boxPlotData = groups.map((group, groupIdx) => {
+      const boxData = groupedData[group]
+      if (!boxData) return null
+
+      return {
+        value: [
+          boxData.min,
+          boxData.q1,
+          boxData.median,
+          boxData.q3,
+          boxData.max,
+          ...boxData.outliers
+        ],
+        itemStyle: {
+          color: CHART_COLORS.palette[groupIdx % CHART_COLORS.palette.length],
+          borderColor: '#333'
+        }
+      }
+    }).filter(Boolean)
+
+    // Single box plot series with all groups positioned at correct x-axis indices
+    const boxPlotSeries = [
+      {
+        name: 'Box Plot',
+        type: 'boxplot',
+        data: boxPlotData,
+        boxWidth: ['15%', '40%']
+      }
+    ]
+
+    // Prepare outlier scatter series for all groups
+    const allOutliersData: any[] = []
+    groups.forEach((group, groupIdx) => {
+      const boxData = groupedData[group]
+      if (boxData && boxData.outliers.length > 0) {
+        boxData.outliers.forEach(value => {
+          allOutliersData.push({
+            value: [groupIdx, value],
+            group: group,
+            groupIdx: groupIdx
+          })
+        })
+      }
+    })
+
+    const outliersSeries = allOutliersData.length > 0 ? [
+      {
+        name: 'Outliers',
+        type: 'scatter',
+        data: allOutliersData.map(item => item.value),
+        symbolSize: 4,
+        itemStyle: {
+          color: (params: any) => {
+            const itemData = allOutliersData[params.dataIndex]
+            return CHART_COLORS.palette[itemData.groupIdx % CHART_COLORS.palette.length]
+          },
+          opacity: 0.7
+        }
+      }
+    ] : []
+
+    // Calculate dynamic y-axis limits
+    const allYValues: number[] = []
+    groups.forEach(group => {
+      const boxData = groupedData[group]
+      if (boxData) {
+        allYValues.push(boxData.min, boxData.q1, boxData.median, boxData.q3, boxData.max, ...boxData.outliers)
+      }
+    })
+    const yMin = Math.min(...allYValues)
+    const yMax = Math.max(...allYValues)
+    const yRange = yMax - yMin
+    const yPadding = yRange === 0 ? 0.5 : yRange * 0.1
+    const yLimits = {
+      min: yMin - yPadding,
+      max: yMax + yPadding
+    }
+
+    // Calculate appropriate decimal places for y-axis
+    const yDecimals = getDecimalPlaces(yLimits.min, yLimits.max)
+
+    const option = {
+      title: {
+        text: `Box Plot: ${variableName} (grouped by ${groupVariable})`,
+        left: 'center',
+        textStyle: {
+          fontSize: 16,
+          fontWeight: 'bold',
+          color: '#333'
+        }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          if (params.seriesType === 'boxplot') {
+            const [min, q1, median, q3, max] = params.value
+            const group = groups[params.dataIndex]
+            return `<div style="padding: 5px;">
+              <strong>${group}</strong><br/>
+              Min: ${min.toFixed(2)}<br/>
+              Q1: ${q1.toFixed(2)}<br/>
+              Median: ${median.toFixed(2)}<br/>
+              Q3: ${q3.toFixed(2)}<br/>
+              Max: ${max.toFixed(2)}
+            </div>`
+          }
+          if (params.seriesType === 'scatter') {
+            const [xIdx, value] = params.value
+            const group = groups[xIdx]
+            return `<div style="padding: 5px;">
+              <strong>${group} (Outlier)</strong><br/>
+              Value: ${value.toFixed(2)}
+            </div>`
+          }
+          return params.name
+        }
+      },
+      grid: {
+        left: '10%',
+        right: '10%',
+        bottom: '15%',
+        top: '15%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: groups,
+        axisLabel: {
+          fontSize: 12
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Value',
+        nameTextStyle: {
+          color: '#666',
+          fontSize: 12
+        },
+        axisLabel: {
+          fontSize: 12,
+          formatter: (value: number) => formatAxisLabel(value, yDecimals)
+        },
+        min: yLimits.min,
+        max: yLimits.max
+      },
+      series: [...boxPlotSeries, ...outliersSeries]
+    }
+
+    return (
+      <div style={styles.chart}>
+        <ReactECharts
+          option={option}
+          style={{ height: '400px', width: '100%' }}
+          notMerge
+          lazyUpdate
+        />
+      </div>
+    )
+  }
+
+  // Non-grouped box plot
   const columnValues = data.rows.map(row => row[variableName])
   const boxData = createBoxPlotData(columnValues)
 
@@ -394,6 +697,20 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName }) => {
     boxData.max,
     ...boxData.outliers
   ]
+
+  // Calculate dynamic y-axis limits
+  const nongroupedYValues = [boxData.min, boxData.q1, boxData.median, boxData.q3, boxData.max, ...boxData.outliers]
+  const nongroupedYMin = Math.min(...nongroupedYValues)
+  const nongroupedYMax = Math.max(...nongroupedYValues)
+  const nongroupedYRange = nongroupedYMax - nongroupedYMin
+  const nongroupedYPadding = nongroupedYRange === 0 ? 0.5 : nongroupedYRange * 0.1
+  const nongroupedYLimits = {
+    min: nongroupedYMin - nongroupedYPadding,
+    max: nongroupedYMax + nongroupedYPadding
+  }
+
+  // Calculate appropriate decimal places for y-axis
+  const nongroupedYDecimals = getDecimalPlaces(nongroupedYLimits.min, nongroupedYLimits.max)
 
   const option = {
     title: {
@@ -444,8 +761,11 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName }) => {
         fontSize: 12
       },
       axisLabel: {
-        fontSize: 12
-      }
+        fontSize: 12,
+        formatter: (value: number) => formatAxisLabel(value, nongroupedYDecimals)
+      },
+      min: nongroupedYLimits.min,
+      max: nongroupedYLimits.max
     },
     series: [
       {

@@ -276,6 +276,135 @@ export function getUniqueGroups(rows: DataRow[], variable: string): string[] {
 }
 
 /**
+ * Prepare grouped histogram data
+ */
+export interface GroupedHistogramBin {
+  binStart: number
+  binEnd: number
+  binCenter: number
+  label: string
+  [key: string]: number | string // Group counts
+}
+
+export function createGroupedHistogram(
+  rows: DataRow[],
+  numericVariable: string,
+  groupVariable: string,
+  numBins: number = 15
+): GroupedHistogramBin[] {
+  // Extract values
+  const values = rows.map(row => row[numericVariable])
+  const numericValues = values
+    .filter(v => v !== null && v !== undefined && v !== '')
+    .map(v => typeof v === 'string' ? parseFloat(v) : v)
+    .filter(v => !isNaN(v)) as number[]
+
+  if (numericValues.length === 0) {
+    return []
+  }
+
+  const min = Math.min(...numericValues)
+  const max = Math.max(...numericValues)
+  const range = max - min
+  const binWidth = range / numBins
+
+  // Create empty bins
+  const bins: GroupedHistogramBin[] = []
+  for (let i = 0; i < numBins; i++) {
+    const binStart = min + i * binWidth
+    const binEnd = min + (i + 1) * binWidth
+    const binCenter = (binStart + binEnd) / 2
+
+    bins.push({
+      binStart,
+      binEnd,
+      binCenter,
+      label: `${binStart.toFixed(1)}-${binEnd.toFixed(1)}`
+    })
+  }
+
+  // Get unique groups
+  const groups = getUniqueGroups(rows, groupVariable)
+
+  // Initialize group counts for each bin
+  groups.forEach(group => {
+    bins.forEach(bin => {
+      bin[group] = 0
+    })
+  })
+
+  // Count values in bins by group
+  rows.forEach(row => {
+    const value = row[numericVariable]
+    const group = String(row[groupVariable] || 'Unknown')
+
+    const numVal = typeof value === 'string' ? parseFloat(value) : Number(value)
+    if (isNaN(numVal)) return
+
+    const binIndex = Math.min(
+      Math.floor((numVal - min) / binWidth),
+      numBins - 1
+    )
+    bins[binIndex][group] = (bins[binIndex][group] as number || 0) + 1
+  })
+
+  return bins
+}
+
+/**
+ * Prepare grouped box plot data
+ */
+export interface GroupedBoxPlotData {
+  [key: string]: BoxPlotData
+}
+
+export function createGroupedBoxPlotData(
+  rows: DataRow[],
+  numericVariable: string,
+  groupVariable: string
+): { groups: string[]; data: GroupedBoxPlotData } {
+  const groups = getUniqueGroups(rows, groupVariable)
+  const data: GroupedBoxPlotData = {}
+
+  groups.forEach(group => {
+    const groupValues = rows
+      .filter(row => String(row[groupVariable] || 'Unknown') === group)
+      .map(row => row[numericVariable])
+
+    const boxData = createBoxPlotData(groupValues)
+    if (boxData) {
+      data[group] = boxData
+    }
+  })
+
+  return { groups, data }
+}
+
+/**
+ * Calculate appropriate decimal places based on data range
+ */
+export function getDecimalPlaces(min: number, max: number): number {
+  const range = Math.abs(max - min)
+
+  if (range === 0) return 1
+
+  // For very small ranges
+  if (range < 0.01) return 4
+  if (range < 0.1) return 3
+  if (range < 1) return 2
+  if (range < 10) return 2
+  if (range < 100) return 1
+  return 0
+}
+
+/**
+ * Format number with appropriate decimal places
+ */
+export function formatAxisLabel(value: number, decimals: number): string {
+  return value.toFixed(decimals)
+}
+
+/**
  * Color palettes for charts
  */
 export const CHART_COLORS = {

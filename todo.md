@@ -19,9 +19,9 @@ This document outlines a comprehensive UI/UX improvement plan for the Data Analy
 
 ---
 
-## Phase 1: Summary Statistics Display Refactor
+## Phase 1: Summary Statistics Display Refactor ✅
 
-### 1.1 Compact Quartile & Range Display
+### 1.1 Compact Quartile & Range Display ✅
 
 **File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
 **Current State**: Quartiles, ranges displayed in separate rows
@@ -52,9 +52,9 @@ After:
 
 ---
 
-## Phase 2: Distribution Metrics Tooltip Enhancement
+## Phase 2: Distribution Metrics Tooltip Enhancement ✅
 
-### 2.1 Compact Skewness & Kurtosis with Hover Tooltips
+### 2.1 Compact Skewness & Kurtosis with Hover Tooltips ✅
 
 **File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
 **Current State**: Shows skewness and kurtosis with text interpretations
@@ -89,9 +89,9 @@ Where `[?]` is a clickable/hoverable icon showing:
 
 ---
 
-## Phase 3: Normality Test Display Refactor
+## Phase 3: Normality Test Display Refactor ✅
 
-### 3.1 Hide Interpretation Card, Color-Code P-Value
+### 3.1 Hide Interpretation Card, Color-Code P-Value ✅
 
 **File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
 **Current State**: Shows p-value + large interpretation card (normal/non-normal)
@@ -118,9 +118,9 @@ After:
 
 ---
 
-## Phase 4: Categorical Variable Enhancements
+## Phase 4: Categorical Variable Enhancements ✅
 
-### 4.1 Sortable Frequency Table Headers
+### 4.1 Sortable Frequency Table Headers ✅
 
 **File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
 **Current State**: Static frequency table
@@ -147,9 +147,9 @@ After:
 
 ---
 
-## Phase 5: Date Variable Support
+## Phase 5: Date Variable Support ✅
 
-### 5.1 Date Variable Type Detection & Statistics
+### 5.1 Date Variable Type Detection & Statistics ✅
 
 **File**: `packages/data-analyzer/src/utils/fileParser.ts`
 **Current State**: No date variable handling
@@ -198,9 +198,9 @@ Display:
 
 ---
 
-## Phase 6: Visualization Step Refactor
+## Phase 6: Visualization Step Refactor ✅
 
-### 6.1 Show All Chart Types, Smart Variable Filtering
+### 6.1 Show All Chart Types, Smart Variable Filtering ✅
 
 **File**: `packages/data-analyzer/src/components/Visualization.tsx`
 **Current State**: Dropdown to select chart type, then variable selection
@@ -236,6 +236,94 @@ DateTime        X       X         X        X
 Boolean         X       -         -        -
 ID              -       -         -        -
 ```
+
+---
+
+## Phase 6.5: Histogram and Box Plot Group By Enhancement ⏳
+
+### 6.5.1 Histogram with Group By Variable (Optional)
+
+**File**: `packages/data-analyzer/src/components/Visualization.tsx`
+**Current State**: Single histogram for numeric variables
+**Target State**: Add optional group by categorical variable with color-filled bars
+
+#### Changes:
+1. **Group By Selection** (optional dropdown):
+   - Dropdown populated with categorical variables
+   - Default: No grouping (single color histogram)
+
+2. **Visual Output**:
+   ```
+   Without grouping:
+   - Single color histogram (gray/blue)
+
+   With grouping (e.g., by "Category"):
+   - Bars filled with different colors for each group
+   - Legend showing group names
+   - Transparent/semi-transparent overlays for overlapping bars
+   - X-axis: Numeric bins
+   - Y-axis: Frequency/Count
+   ```
+
+3. **Data Handling**:
+   - Create histogram bins for the numeric variable
+   - For each bin, subdivide by group categories
+   - Stack or overlay bars (recommend stacked for clarity)
+   - Calculate group-wise counts within each bin
+
+#### Implementation:
+- Add `groupByVariable` to Visualization state
+- Create `GroupBySelector.tsx` component for optional grouping
+- Modify histogram data transformation to handle groups
+- Update Recharts BarChart to use stacked bars when grouping
+- Add legend showing group colors and names
+- Ensure smooth updates when grouping variable changes
+
+---
+
+### 6.5.2 Box Plot with Group By Variable (Side-by-Side)
+
+**File**: `packages/data-analyzer/src/components/Visualization.tsx`
+**Current State**: Box plot with optional categorical X-axis
+**Target State**: Enhanced box plot with optional color grouping and side-by-side display
+
+#### Changes:
+1. **Group By Enhancement** (optional, independent of X-axis):
+   - Add optional group by categorical variable selector
+   - When group by variable selected:
+     - Split each box plot by group (different colors)
+     - Side-by-side boxes for each group
+     - Legend showing group names and colors
+
+2. **Visual Output Example**:
+   ```
+   Without X-axis grouping, with Group By (e.g., gender):
+   [M box] [F box]
+
+   With X-axis grouping (categories), with Group By (gender):
+   Category A:             Category B:              Category C:
+   [M box] [F box]        [M box] [F box]         [M box] [F box]
+   ```
+
+3. **Interactions**:
+   - Hover tooltips showing:
+     - Min, Q1, Median, Q3, Max values
+     - Group name (if applicable)
+     - Outliers highlighted
+   - Click legend to show/hide groups
+
+#### Implementation:
+- Modify box plot data structure to support groups
+- Create `GroupedBoxPlot` logic in utility function
+- Update Recharts rendering to support side-by-side boxes
+- Implement color mapping for groups
+- Add legend and interactive filtering
+- Handle edge cases (empty groups, single element groups)
+
+#### Compatibility:
+- **Y-axis**: Numeric (required) - the distribution to visualize
+- **X-axis**: Categorical (optional) - if provided, shows categories on x-axis
+- **Group By**: Categorical (optional) - colors and separates boxes within each category or across full plot
 
 ---
 
