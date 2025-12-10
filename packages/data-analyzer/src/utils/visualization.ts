@@ -85,33 +85,35 @@ export function createBoxPlotData(values: (string | number | null)[]): BoxPlotDa
   const sorted = [...numericValues].sort((a, b) => a - b)
   const n = sorted.length
 
-  // Calculate quartiles
-  const q1 = sorted[Math.floor(n * 0.25)]
-  const median = sorted[Math.floor(n * 0.5)]
-  const q3 = sorted[Math.floor(n * 0.75)]
+  // Calculate quartiles using linear interpolation for better accuracy
+  const getQuantile = (p: number) => {
+    const index = p * (n - 1)
+    const lower = Math.floor(index)
+    const upper = Math.ceil(index)
+    const weight = index % 1
+
+    if (lower === upper) {
+      return sorted[lower]
+    }
+    return sorted[lower] * (1 - weight) + sorted[upper] * weight
+  }
+
+  const q1 = getQuantile(0.25)
+  const median = getQuantile(0.5)
+  const q3 = getQuantile(0.75)
   const iqr = q3 - q1
 
-  // Calculate whiskers (1.5 * IQR rule)
-  const lowerWhisker = q1 - 1.5 * iqr
-  const upperWhisker = q3 + 1.5 * iqr
+  // Calculate whisker boundaries (1.5 * IQR rule)
+  const lowerWhiskerBound = q1 - 1.5 * iqr
+  const upperWhiskerBound = q3 + 1.5 * iqr
 
-  // Find actual min/max within whiskers and outliers
-  const outliers: number[] = []
-  let min = sorted[0]
-  let max = sorted[n - 1]
+  // Find min/max within whisker bounds (non-outlier range)
+  const nonOutliers = sorted.filter(v => v >= lowerWhiskerBound && v <= upperWhiskerBound)
+  const min = nonOutliers.length > 0 ? nonOutliers[0] : sorted[0]
+  const max = nonOutliers.length > 0 ? nonOutliers[nonOutliers.length - 1] : sorted[n - 1]
 
-  sorted.forEach(value => {
-    if (value < lowerWhisker || value > upperWhisker) {
-      outliers.push(value)
-    } else {
-      if (value < q1 && value > min) min = value
-      if (value > q3 && value < max) max = value
-    }
-  })
-
-  // Ensure whiskers don't go beyond actual data
-  min = Math.max(min, sorted[0])
-  max = Math.min(max, sorted[n - 1])
+  // Find outliers (values beyond whisker bounds)
+  const outliers = sorted.filter(v => v < lowerWhiskerBound || v > upperWhiskerBound)
 
   return {
     min,
