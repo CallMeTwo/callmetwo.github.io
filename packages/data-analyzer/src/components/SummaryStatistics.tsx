@@ -271,16 +271,32 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
   )
 }
 
+type DateSortKey = 'date' | 'count' | 'percentage'
+type SortDirectionType = 'asc' | 'desc' | 'none'
+
 const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded, onToggle, data }) => {
   const [floorUnit, setFloorUnit] = useState<'year' | 'month' | 'week' | 'day'>('day')
+  const [sortKey, setSortKey] = useState<DateSortKey>('date')
+  const [sortDirection, setSortDirection] = useState<SortDirectionType>('asc')
 
   const formatDate = (date: Date | null): string => {
     if (!date) return 'N/A'
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
   }
 
+  const handleDateHeaderClick = (key: DateSortKey) => {
+    if (sortKey === key) {
+      // Toggle direction: asc -> desc -> asc
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+    } else {
+      // New sort key, default to ascending
+      setSortKey(key)
+      setSortDirection('asc')
+    }
+  }
+
   // Get frequency distribution based on floor unit
-  const getDateFrequencies = useMemo(() => {
+  const rawDateFrequencies = useMemo(() => {
     const columnValues = data.rows.map(row => row[variableName])
     const validDates = columnValues
       .filter(v => v !== null && v !== undefined && v !== '')
@@ -297,15 +313,41 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
       flooredMap.set(key, (flooredMap.get(key) || 0) + 1)
     })
 
-    // Convert to array and sort by date
+    // Convert to array
     return Array.from(flooredMap.entries())
       .map(([dateStr, count]) => ({
         date: new Date(dateStr),
         count,
         percentage: (count / validDates.length) * 100
       }))
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
   }, [data, variableName, floorUnit])
+
+  // Sort the frequencies based on current sort state
+  const getSortedDateFrequencies = () => {
+    const frequencies = [...rawDateFrequencies]
+
+    if (sortKey === 'date') {
+      frequencies.sort((a, b) => {
+        const comparison = a.date.getTime() - b.date.getTime()
+        return sortDirection === 'asc' ? comparison : -comparison
+      })
+    } else if (sortKey === 'count') {
+      frequencies.sort((a, b) => {
+        const comparison = a.count - b.count
+        return sortDirection === 'asc' ? comparison : -comparison
+      })
+    } else if (sortKey === 'percentage') {
+      frequencies.sort((a, b) => {
+        const comparison = a.percentage - b.percentage
+        return sortDirection === 'asc' ? comparison : -comparison
+      })
+    }
+
+    return frequencies.slice(0, 20)
+  }
+
+  const sortedDateFrequencies = getSortedDateFrequencies()
+  const hasMoreDates = rawDateFrequencies.length > 20
 
   return (
     <div style={styles.card}>
@@ -365,14 +407,38 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
             <table style={styles.frequencyTable}>
               <thead>
                 <tr>
-                  <th style={styles.tableHeader}>Date</th>
-                  <th style={styles.tableHeader}>Count</th>
-                  <th style={styles.tableHeader}>Percentage</th>
+                  <th
+                    style={{
+                      ...styles.tableHeader,
+                      ...(sortKey === 'date' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
+                    }}
+                    onClick={() => handleDateHeaderClick('date')}
+                  >
+                    Date {sortKey === 'date' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
+                    style={{
+                      ...styles.tableHeader,
+                      ...(sortKey === 'count' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
+                    }}
+                    onClick={() => handleDateHeaderClick('count')}
+                  >
+                    Count {sortKey === 'count' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
+                    style={{
+                      ...styles.tableHeader,
+                      ...(sortKey === 'percentage' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
+                    }}
+                    onClick={() => handleDateHeaderClick('percentage')}
+                  >
+                    Percentage {sortKey === 'percentage' && (sortDirection === 'asc' ? '↑' : '↓')}
+                  </th>
                   <th style={styles.tableHeader}>Bar</th>
                 </tr>
               </thead>
               <tbody>
-                {getDateFrequencies.slice(0, 20).map((item, idx) => (
+                {sortedDateFrequencies.map((item, idx) => (
                   <tr key={idx} style={styles.tableRow}>
                     <td style={styles.tableCell}>{formatDate(item.date)}</td>
                     <td style={styles.tableCell}>{item.count}</td>
@@ -391,9 +457,9 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
                 ))}
               </tbody>
             </table>
-            {getDateFrequencies.length > 20 && (
+            {hasMoreDates && (
               <p style={styles.moreText}>
-                ... and {getDateFrequencies.length - 20} more dates
+                ... and {rawDateFrequencies.length - 20} more dates
               </p>
             )}
           </div>
