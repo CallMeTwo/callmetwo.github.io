@@ -239,9 +239,9 @@ ID              -       -         -        -
 
 ---
 
-## Phase 6.5: Histogram and Box Plot Group By Enhancement ⏳
+## Phase 6.5: Histogram and Box Plot Group By Enhancement ✅
 
-### 6.5.1 Histogram with Group By Variable (Optional)
+### 6.5.1 Histogram with Group By Variable (Optional) ✅
 
 **File**: `packages/data-analyzer/src/components/Visualization.tsx`
 **Current State**: Single histogram for numeric variables
@@ -281,7 +281,7 @@ ID              -       -         -        -
 
 ---
 
-### 6.5.2 Box Plot with Group By Variable (Side-by-Side)
+### 6.5.2 Box Plot with Group By Variable (Side-by-Side) ✅
 
 **File**: `packages/data-analyzer/src/components/Visualization.tsx`
 **Current State**: Box plot with optional categorical X-axis
@@ -324,6 +324,21 @@ ID              -       -         -        -
 - **Y-axis**: Numeric (required) - the distribution to visualize
 - **X-axis**: Categorical (optional) - if provided, shows categories on x-axis
 - **Group By**: Categorical (optional) - colors and separates boxes within each category or across full plot
+
+#### Completion Status:
+✅ **COMPLETED** - Commit: 8ce21a5
+
+**Features Implemented:**
+- Grouped histogram with side-by-side (dodged) bars colored by group
+- Grouped box plot with side-by-side boxes colored by group
+- Group by selector available for all chart types (histogram, box plot, bar chart, scatter plot)
+- Dynamic axis limits that don't force zero-start for data far from zero
+- Smart decimal rounding for axis labels based on data range:
+  - Range >= 100: 0 decimals
+  - Range 10-99: 1 decimal
+  - Range < 10: 2 decimals
+  - Range < 1: 3+ decimals
+- Utility functions: `createGroupedHistogram()`, `createGroupedBoxPlotData()`, `getDecimalPlaces()`, `formatAxisLabel()`
 
 ---
 
