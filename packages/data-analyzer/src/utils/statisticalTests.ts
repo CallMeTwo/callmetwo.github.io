@@ -1,4 +1,5 @@
 import { mean, standardDeviation, variance } from 'simple-statistics'
+import jstat from 'jstat'
 import { DataRow } from '../types'
 
 export interface TTestResult {
@@ -289,145 +290,38 @@ export function linearRegression(
 }
 
 /**
- * T-distribution p-value (approximate)
+ * T-distribution p-value using jstat
+ * Calculates the cumulative distribution function (CDF) for the t-distribution
+ * Returns the right-tailed p-value: P(T > |t|)
  */
 function tDistributionPValue(t: number, df: number): number {
-  // Using approximation for t-distribution CDF
-  const x = df / (df + t * t)
-  return 1 - 0.5 * incompleteBeta(df / 2, 0.5, x)
+  // jstat.t.cdf returns P(T <= t), so we use 1 - CDF for right tail
+  return 1 - jstat.t.cdf(t, df)
 }
 
 /**
- * T-distribution inverse (approximate)
+ * T-distribution inverse using jstat
+ * Calculates the inverse CDF (quantile function) for the t-distribution
+ * Returns the t-value for a given cumulative probability
  */
 function tDistributionInverse(p: number, df: number): number {
-  // Simplified approximation
-  if (df > 30) {
-    return normalInverse(p)
-  }
-  // Use iterative approximation for small df
-  return normalInverse(p) * Math.sqrt(df / (df - 2))
+  return jstat.t.inv(p, df)
 }
 
 /**
- * Chi-square distribution p-value (approximate)
+ * Chi-square distribution p-value using jstat
+ * Returns the right-tailed p-value: P(χ² > chiSquare)
  */
 function chiSquarePValue(chiSquare: number, df: number): number {
-  return 1 - gammaLowerIncomplete(df / 2, chiSquare / 2)
+  return 1 - jstat.chisquare.cdf(chiSquare, df)
 }
 
 /**
- * F-distribution p-value (approximate)
+ * F-distribution p-value using jstat
+ * Returns the right-tailed p-value: P(F > f)
  */
 function fDistributionPValue(f: number, df1: number, df2: number): number {
-  const x = df2 / (df2 + df1 * f)
-  return incompleteBeta(df2 / 2, df1 / 2, x)
-}
-
-/**
- * Incomplete beta function (approximation)
- */
-function incompleteBeta(a: number, b: number, x: number): number {
-  if (x <= 0) return 0
-  if (x >= 1) return 1
-
-  // Series approximation
-  let result = Math.pow(x, a) * Math.pow(1 - x, b) / a
-  let term = result
-  for (let i = 1; i < 100; i++) {
-    term *= (a + b + i - 1) * x / (a + i)
-    result += term / (a + i)
-    if (Math.abs(term) < 1e-10) break
-  }
-
-  return result / beta(a, b)
-}
-
-/**
- * Beta function
- */
-function beta(a: number, b: number): number {
-  return (gamma(a) * gamma(b)) / gamma(a + b)
-}
-
-/**
- * Gamma function (Stirling's approximation)
- */
-function gamma(n: number): number {
-  if (n < 0.5) return Math.PI / (Math.sin(Math.PI * n) * gamma(1 - n))
-  n = n - 1
-  const p = [
-    676.5203681218851, -1259.1392167224028,
-    771.32342877765313, -176.61502916214059,
-    12.507343278686905, -0.13857109526572012,
-    9.9843695780195716e-6, 1.5056327351493116e-7
-  ]
-  let y = 1
-  for (let i = 0; i < p.length; i++) {
-    y += p[i] / (n + i + 1)
-  }
-  const t = n + p.length - 0.5
-  return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * y
-}
-
-/**
- * Incomplete gamma function (lower)
- */
-function gammaLowerIncomplete(s: number, x: number): number {
-  if (x < 0 || s <= 0) return 0
-
-  let sum = 0
-  let term = 1 / s
-  sum = term
-
-  for (let i = 1; i < 100; i++) {
-    term *= x / (s + i)
-    sum += term
-    if (Math.abs(term) < 1e-10) break
-  }
-
-  return sum * Math.pow(x, s) * Math.exp(-x) / gamma(s)
-}
-
-/**
- * Normal distribution inverse (approximate)
- */
-function normalInverse(p: number): number {
-  const a0 = 2.50662823884
-  const a1 = -18.61500062529
-  const a2 = 41.39119773534
-  const a3 = -25.44106049637
-
-  const b1 = -8.47351093090
-  const b2 = 23.08336743743
-  const b3 = -21.06224101826
-  const b4 = 3.13082909833
-
-  const y = p - 0.5
-
-  if (Math.abs(y) < 0.42) {
-    const r = y * y
-    return y * (((a3 * r + a2) * r + a1) * r + a0) /
-      ((((b4 * r + b3) * r + b2) * r + b1) * r + 1)
-  }
-
-  let r = p
-  if (y > 0) r = 1 - p
-  r = Math.log(-Math.log(r))
-
-  const c0 = 0.3374754822726147
-  const c1 = 0.9761690190917186
-  const c2 = 0.1607979714918209
-  const c3 = 0.0276438810333863
-  const c4 = 0.0038405729373609
-  const c5 = 0.0003951896511919
-  const c6 = 0.0000321767881768
-  const c7 = 0.0000002888167364
-  const c8 = 0.0000003960315187
-
-  const x = c0 + r * (c1 + r * (c2 + r * (c3 + r * (c4 + r * (c5 + r * (c6 + r * (c7 + r * c8)))))))
-
-  return y < 0 ? -x : x
+  return 1 - jstat.f.cdf(f, df1, df2)
 }
 
 /**
