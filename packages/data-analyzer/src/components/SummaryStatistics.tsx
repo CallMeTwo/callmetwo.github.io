@@ -630,12 +630,12 @@ const styles = {
     margin: '0 auto'
   } as const,
   header: {
-    marginBottom: '30px',
-    paddingBottom: '20px',
+    marginBottom: '15px',
+    paddingBottom: '10px',
     borderBottom: '2px solid #eee'
   } as const,
   title: {
-    margin: '0 0 10px 0',
+    margin: '0 0 6px 0',
     fontSize: '28px',
     fontWeight: 'bold',
     color: '#333'
@@ -644,13 +644,13 @@ const styles = {
     margin: 0,
     fontSize: '14px',
     color: '#666',
-    lineHeight: '1.6'
+    lineHeight: '1.4'
   } as const,
   section: {
-    marginBottom: '40px'
+    marginBottom: '20px'
   } as const,
   sectionTitle: {
-    margin: '0 0 20px 0',
+    margin: '0 0 12px 0',
     fontSize: '20px',
     fontWeight: '600',
     color: '#2c3e50'
@@ -659,15 +659,15 @@ const styles = {
     backgroundColor: 'white',
     border: '2px solid #e0e0e0',
     borderRadius: '8px',
-    padding: '20px',
-    marginBottom: '20px'
+    padding: '12px',
+    marginBottom: '12px'
   } as const,
   cardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
-    paddingBottom: '15px',
+    marginBottom: '10px',
+    paddingBottom: '8px',
     borderBottom: '1px solid #f0f0f0',
     cursor: 'pointer',
     userSelect: 'none'
@@ -699,15 +699,15 @@ const styles = {
   statsGrid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-    gap: '20px'
+    gap: '12px'
   } as const,
   statsGroup: {
-    padding: '15px',
+    padding: '10px',
     backgroundColor: '#f9f9f9',
     borderRadius: '6px'
   } as const,
   groupTitle: {
-    margin: '0 0 12px 0',
+    margin: '0 0 8px 0',
     fontSize: '13px',
     fontWeight: '600',
     color: '#666',
@@ -717,7 +717,7 @@ const styles = {
   statRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: '6px 0',
+    padding: '3px 0',
     borderBottom: '1px solid #eee'
   } as const,
   statLabel: {
@@ -775,7 +775,7 @@ const styles = {
   } as const,
   tableHeader: {
     textAlign: 'left',
-    padding: '10px',
+    padding: '6px 8px',
     backgroundColor: '#f0f0f0',
     fontWeight: '600',
     color: '#333',
@@ -800,12 +800,12 @@ const styles = {
     borderBottom: '1px solid #eee'
   } as const,
   tableCell: {
-    padding: '10px',
+    padding: '6px 8px',
     color: '#333'
   } as const,
   barContainer: {
     width: '100%',
-    height: '20px',
+    height: '16px',
     backgroundColor: '#f0f0f0',
     borderRadius: '4px',
     overflow: 'hidden'
@@ -816,7 +816,7 @@ const styles = {
     transition: 'width 0.3s ease'
   } as const,
   moreText: {
-    marginTop: '10px',
+    marginTop: '6px',
     fontSize: '12px',
     color: '#999',
     fontStyle: 'italic'
@@ -825,9 +825,9 @@ const styles = {
     display: 'flex',
     gap: '15px',
     justifyContent: 'flex-end',
-    paddingTop: '20px',
+    paddingTop: '12px',
     borderTop: '2px solid #eee',
-    marginTop: '30px'
+    marginTop: '15px'
   } as const,
   backButton: {
     padding: '12px 24px',
