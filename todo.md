@@ -507,6 +507,56 @@ Cannot be reproduced with the custom `incompleteBeta()` implementation, possibly
 - ✅ Large t-statistics → small p-values (significant)
 - ✅ CI includes 0 → p > 0.05 (not significant)
 - ✅ CI excludes 0 → p < 0.05 (significant)
+
+---
+
+## Phase 7.3: t-Test Visualization Improvements ✅
+
+**Date**: 2025-12-11
+**Status**: ✅ COMPLETED
+**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
+
+### Changes Implemented:
+
+1. **Mean ± 95% CI Plot - Display Style**
+   - Changed from bar chart to scatter points (dots) for mean values
+   - Replaced `BarChart` with `ComposedChart`
+   - Replaced `Bar` with `Scatter` component (circle shape, size 120)
+   - Maintains error bars for confidence intervals
+
+2. **Dynamic Y-Axis Minimum - Boxplot**
+   - Calculates `ymin` based on actual data range (minimum value across both groups)
+   - Adds 10% padding below minimum value
+   - Set via ECharts `yAxis.min` property
+   - Improves visualization for data ranges far from zero
+
+3. **Dynamic Y-Axis Minimum - Mean ± CI Plot**
+   - Calculates `ymin` based on lower bounds of confidence intervals (mean - error)
+   - Adds 10% padding below minimum CI bound
+   - Set via Recharts `YAxis domain={[ymin, 'auto']}`
+   - Better scaling for data not near zero
+
+4. **Y-Axis Label Formatting**
+   - Imported `getDecimalPlaces()` and `formatAxisLabel()` from visualization utils
+   - Dynamically determines decimal places based on data range:
+     - Range >= 100: 0 decimals
+     - Range 10-99: 1 decimal
+     - Range 1-9: 2 decimals
+     - Range 0.1-0.9: 3 decimals
+     - Range < 0.1: 4 decimals
+   - Applied to both boxplot (ECharts `axisLabel.formatter`) and mean ± CI plot (Recharts `tickFormatter`)
+   - Consistent formatting in tooltips
+
+5. **X-Axis Padding - Mean ± CI Plot**
+   - Added `padding={{ left: 150, right: 150 }}` to XAxis
+   - Brings the two group points closer together toward center
+   - Creates more compact and visually balanced layout
+
+### Benefits:
+- Cleaner mean display with dots instead of bars
+- Better y-axis scaling for data far from zero
+- Consistent, appropriate decimal precision across all labels
+- More compact and centered visualization layout
 - ✅ Works correctly for all df values (small and large)
 
 **Impact**: t-test results are now reliable and statistically accurate. ✅

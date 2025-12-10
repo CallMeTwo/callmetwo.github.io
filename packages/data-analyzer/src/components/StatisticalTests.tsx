@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ErrorBar } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ErrorBar, ComposedChart, Scatter } from 'recharts'
 import ReactECharts from 'echarts-for-react'
 import { ParsedData, VariableType } from '../types'
 import {
@@ -14,7 +14,7 @@ import {
   ANOVAResult,
   RegressionResult
 } from '../utils/statisticalTests'
-import { createHistogram, createBoxPlotData, getUniqueGroups, CHART_COLORS } from '../utils/visualization'
+import { createHistogram, createBoxPlotData, getUniqueGroups, CHART_COLORS, getDecimalPlaces, formatAxisLabel } from '../utils/visualization'
 
 interface StatisticalTestsProps {
   data: ParsedData
@@ -384,6 +384,16 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
     const box1Values = createBoxPlotValues(box1)
     const box2Values = createBoxPlotValues(box2)
 
+    // Calculate dynamic ymin (minimum value with padding)
+    const allValues = [...group1Data, ...group2Data]
+    const dataMin = Math.min(...allValues)
+    const dataMax = Math.max(...allValues)
+    const range = dataMax - dataMin
+    const ymin = dataMin - range * 0.1 // Add 10% padding below minimum
+
+    // Calculate appropriate decimal places for formatting
+    const decimals = getDecimalPlaces(dataMin, dataMax)
+
     const option = {
       title: {
         text: `Box Plot: ${variable1} by ${variable2}`,
@@ -396,7 +406,7 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
           if (params.seriesType === 'boxplot') {
             const [min, q1, median, q3, max] = params.value
             const groupName = groupNames[params.dataIndex]
-            return `<div style="padding: 5px;"><strong>${groupName}</strong><br/>Min: ${min.toFixed(2)}<br/>Q1: ${q1.toFixed(2)}<br/>Median: ${median.toFixed(2)}<br/>Q3: ${q3.toFixed(2)}<br/>Max: ${max.toFixed(2)}</div>`
+            return `<div style="padding: 5px;"><strong>${groupName}</strong><br/>Min: ${formatAxisLabel(min, decimals)}<br/>Q1: ${formatAxisLabel(q1, decimals)}<br/>Median: ${formatAxisLabel(median, decimals)}<br/>Q3: ${formatAxisLabel(q3, decimals)}<br/>Max: ${formatAxisLabel(max, decimals)}</div>`
           }
           return params.name
         }
@@ -411,7 +421,11 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
         type: 'value',
         name: 'Value',
         nameTextStyle: { color: '#666', fontSize: 12 },
-        axisLabel: { fontSize: 12 }
+        axisLabel: {
+          fontSize: 12,
+          formatter: (value: number) => formatAxisLabel(value, decimals)
+        },
+        min: ymin
       },
       series: [
         {
@@ -479,38 +493,56 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
     const t1 = getTCritical(n1 - 1)
     const t2 = getTCritical(n2 - 1)
 
+    const error1 = t1 * se1
+    const error2 = t2 * se2
+
     const data = [
       {
         group: group1Name,
         mean: mean1,
-        error: t1 * se1
+        error: error1
       },
       {
         group: group2Name,
         mean: mean2,
-        error: t2 * se2
+        error: error2
       }
     ]
 
+    // Calculate dynamic ymin (minimum value - CI lower bound with padding)
+    const lowerBounds = [mean1 - error1, mean2 - error2]
+    const upperBounds = [mean1 + error1, mean2 + error2]
+    const dataMin = Math.min(...lowerBounds)
+    const dataMax = Math.max(...upperBounds)
+    const range = dataMax - dataMin
+    const ymin = dataMin - range * 0.1 // Add 10% padding below minimum
+
+    // Calculate appropriate decimal places for formatting
+    const decimals = getDecimalPlaces(dataMin, dataMax)
+
     return (
       <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+        <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="group" />
-          <YAxis label={{ value: variable1, angle: -90, position: 'insideLeft' }} />
+          <XAxis dataKey="group" padding={{ left: 150, right: 150 }} />
+          <YAxis
+            label={{ value: variable1, angle: -90, position: 'insideLeft' }}
+            domain={[ymin, 'auto']}
+            tickFormatter={(value) => formatAxisLabel(value, decimals)}
+          />
           <Tooltip
-            formatter={(value: any) => (typeof value === 'number' ? value.toFixed(2) : value)}
+            formatter={(value: any) => (typeof value === 'number' ? formatAxisLabel(value, decimals) : value)}
             contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
           />
-          <Bar dataKey="mean" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]}>
+          <Scatter dataKey="mean" fill={CHART_COLORS.primary} shape="circle" size={120}>
             <ErrorBar
               dataKey="error"
               direction="y"
               stroke="#333"
               strokeWidth={2}
             />
-          </Bar>
-        </BarChart>
+          </Scatter>
+        </ComposedChart>
       </ResponsiveContainer>
     )
   }

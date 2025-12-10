@@ -1,0 +1,420 @@
+import { DataRow } from '../types'
+
+export interface HistogramBin {
+  binStart: number
+  binEnd: number
+  binCenter: number
+  count: number
+  label: string
+}
+
+export interface BoxPlotData {
+  min: number
+  q1: number
+  median: number
+  q3: number
+  max: number
+  outliers: number[]
+}
+
+/**
+ * Create histogram bins for continuous data
+ */
+export function createHistogram(
+  values: (string | number | null)[],
+  numBins: number = 10
+): HistogramBin[] {
+  // Filter and convert to numbers
+  const numericValues = values
+    .filter(v => v !== null && v !== undefined && v !== '')
+    .map(v => typeof v === 'string' ? parseFloat(v) : v)
+    .filter(v => !isNaN(v)) as number[]
+
+  if (numericValues.length === 0) {
+    return []
+  }
+
+  const min = Math.min(...numericValues)
+  const max = Math.max(...numericValues)
+  const range = max - min
+  const binWidth = range / numBins
+
+  // Create bins
+  const bins: HistogramBin[] = []
+  for (let i = 0; i < numBins; i++) {
+    const binStart = min + i * binWidth
+    const binEnd = min + (i + 1) * binWidth
+    const binCenter = (binStart + binEnd) / 2
+
+    bins.push({
+      binStart,
+      binEnd,
+      binCenter,
+      count: 0,
+      label: `${binStart.toFixed(1)}-${binEnd.toFixed(1)}`
+    })
+  }
+
+  // Count values in each bin
+  numericValues.forEach(value => {
+    const binIndex = Math.min(
+      Math.floor((value - min) / binWidth),
+      numBins - 1
+    )
+    bins[binIndex].count++
+  })
+
+  return bins
+}
+
+/**
+ * Calculate box plot statistics
+ */
+export function createBoxPlotData(values: (string | number | null)[]): BoxPlotData | null {
+  // Filter and convert to numbers
+  const numericValues = values
+    .filter(v => v !== null && v !== undefined && v !== '')
+    .map(v => typeof v === 'string' ? parseFloat(v) : v)
+    .filter(v => !isNaN(v)) as number[]
+
+  if (numericValues.length === 0) {
+    return null
+  }
+
+  // Sort values
+  const sorted = [...numericValues].sort((a, b) => a - b)
+  const n = sorted.length
+
+  // Calculate quartiles using linear interpolation for better accuracy
+  const getQuantile = (p: number) => {
+    const index = p * (n - 1)
+    const lower = Math.floor(index)
+    const upper = Math.ceil(index)
+    const weight = index % 1
+
+    if (lower === upper) {
+      return sorted[lower]
+    }
+    return sorted[lower] * (1 - weight) + sorted[upper] * weight
+  }
+
+  const q1 = getQuantile(0.25)
+  const median = getQuantile(0.5)
+  const q3 = getQuantile(0.75)
+  const iqr = q3 - q1
+
+  // Calculate whisker boundaries (1.5 * IQR rule)
+  const lowerWhiskerBound = q1 - 1.5 * iqr
+  const upperWhiskerBound = q3 + 1.5 * iqr
+
+  // Find min/max within whisker bounds (non-outlier range)
+  const nonOutliers = sorted.filter(v => v >= lowerWhiskerBound && v <= upperWhiskerBound)
+  const min = nonOutliers.length > 0 ? nonOutliers[0] : sorted[0]
+  const max = nonOutliers.length > 0 ? nonOutliers[nonOutliers.length - 1] : sorted[n - 1]
+
+  // Find outliers (values beyond whisker bounds)
+  const outliers = sorted.filter(v => v < lowerWhiskerBound || v > upperWhiskerBound)
+
+  return {
+    min,
+    q1,
+    median,
+    q3,
+    max,
+    outliers
+  }
+}
+
+/**
+ * Prepare categorical data for bar chart
+ */
+export interface BarChartData {
+  category: string
+  count: number
+  percentage: number
+}
+
+export function createBarChartData(
+  values: (string | number | null)[],
+  maxCategories: number = 20
+): BarChartData[] {
+  // Filter out missing values
+  const validValues = values.filter(v => v !== null && v !== undefined && v !== '')
+
+  if (validValues.length === 0) {
+    return []
+  }
+
+  // Count frequencies
+  const frequencyMap = new Map<string, number>()
+  validValues.forEach(value => {
+    const key = String(value)
+    frequencyMap.set(key, (frequencyMap.get(key) || 0) + 1)
+  })
+
+  // Convert to array and sort by count
+  const data = Array.from(frequencyMap.entries())
+    .map(([category, count]) => ({
+      category,
+      count,
+      percentage: (count / validValues.length) * 100
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, maxCategories)
+
+  return data
+}
+
+/**
+ * Prepare scatter plot data
+ */
+export interface ScatterPlotData {
+  x: number
+  y: number
+  group?: string
+}
+
+export function createScatterPlotData(
+  rows: DataRow[],
+  xVariable: string,
+  yVariable: string,
+  groupVariable?: string
+): ScatterPlotData[] {
+  return rows
+    .map(row => {
+      const xVal = row[xVariable]
+      const yVal = row[yVariable]
+
+      // Convert to numbers
+      const x = typeof xVal === 'string' ? parseFloat(xVal) : Number(xVal)
+      const y = typeof yVal === 'string' ? parseFloat(yVal) : Number(yVal)
+
+      // Skip if invalid
+      if (isNaN(x) || isNaN(y)) {
+        return null
+      }
+
+      const point: ScatterPlotData = { x, y }
+
+      if (groupVariable) {
+        point.group = String(row[groupVariable] || 'Unknown')
+      }
+
+      return point
+    })
+    .filter((point): point is ScatterPlotData => point !== null)
+}
+
+/**
+ * Prepare grouped bar chart data
+ */
+export interface GroupedBarData {
+  category: string
+  [key: string]: number | string
+}
+
+export function createGroupedBarData(
+  rows: DataRow[],
+  categoryVariable: string,
+  valueVariable: string,
+  groupVariable: string
+): GroupedBarData[] {
+  const grouped = new Map<string, Map<string, number[]>>()
+
+  // Group data
+  rows.forEach(row => {
+    const category = String(row[categoryVariable] || 'Unknown')
+    const group = String(row[groupVariable] || 'Unknown')
+    const value = typeof row[valueVariable] === 'string'
+      ? parseFloat(row[valueVariable])
+      : Number(row[valueVariable])
+
+    if (isNaN(value)) return
+
+    if (!grouped.has(category)) {
+      grouped.set(category, new Map())
+    }
+    const categoryMap = grouped.get(category)!
+
+    if (!categoryMap.has(group)) {
+      categoryMap.set(group, [])
+    }
+    categoryMap.get(group)!.push(value)
+  })
+
+  // Calculate means for each category-group combination
+  const result: GroupedBarData[] = []
+
+  grouped.forEach((groupMap, category) => {
+    const item: GroupedBarData = { category }
+
+    groupMap.forEach((values, group) => {
+      const mean = values.reduce((a, b) => a + b, 0) / values.length
+      item[group] = mean
+    })
+
+    result.push(item)
+  })
+
+  return result
+}
+
+/**
+ * Get unique groups from a variable
+ */
+export function getUniqueGroups(rows: DataRow[], variable: string): string[] {
+  const groups = new Set<string>()
+
+  rows.forEach(row => {
+    const value = row[variable]
+    if (value !== null && value !== undefined && value !== '') {
+      groups.add(String(value))
+    }
+  })
+
+  return Array.from(groups).sort()
+}
+
+/**
+ * Prepare grouped histogram data
+ */
+export interface GroupedHistogramBin {
+  binStart: number
+  binEnd: number
+  binCenter: number
+  label: string
+  [key: string]: number | string // Group counts
+}
+
+export function createGroupedHistogram(
+  rows: DataRow[],
+  numericVariable: string,
+  groupVariable: string,
+  numBins: number = 15
+): GroupedHistogramBin[] {
+  // Extract values
+  const values = rows.map(row => row[numericVariable])
+  const numericValues = values
+    .filter(v => v !== null && v !== undefined && v !== '')
+    .map(v => typeof v === 'string' ? parseFloat(v) : v)
+    .filter(v => !isNaN(v)) as number[]
+
+  if (numericValues.length === 0) {
+    return []
+  }
+
+  const min = Math.min(...numericValues)
+  const max = Math.max(...numericValues)
+  const range = max - min
+  const binWidth = range / numBins
+
+  // Create empty bins
+  const bins: GroupedHistogramBin[] = []
+  for (let i = 0; i < numBins; i++) {
+    const binStart = min + i * binWidth
+    const binEnd = min + (i + 1) * binWidth
+    const binCenter = (binStart + binEnd) / 2
+
+    bins.push({
+      binStart,
+      binEnd,
+      binCenter,
+      label: `${binStart.toFixed(1)}-${binEnd.toFixed(1)}`
+    })
+  }
+
+  // Get unique groups
+  const groups = getUniqueGroups(rows, groupVariable)
+
+  // Initialize group counts for each bin
+  groups.forEach(group => {
+    bins.forEach(bin => {
+      bin[group] = 0
+    })
+  })
+
+  // Count values in bins by group
+  rows.forEach(row => {
+    const value = row[numericVariable]
+    const group = String(row[groupVariable] || 'Unknown')
+
+    const numVal = typeof value === 'string' ? parseFloat(value) : Number(value)
+    if (isNaN(numVal)) return
+
+    const binIndex = Math.min(
+      Math.floor((numVal - min) / binWidth),
+      numBins - 1
+    )
+    bins[binIndex][group] = (bins[binIndex][group] as number || 0) + 1
+  })
+
+  return bins
+}
+
+/**
+ * Prepare grouped box plot data
+ */
+export interface GroupedBoxPlotData {
+  [key: string]: BoxPlotData
+}
+
+export function createGroupedBoxPlotData(
+  rows: DataRow[],
+  numericVariable: string,
+  groupVariable: string
+): { groups: string[]; data: GroupedBoxPlotData } {
+  const groups = getUniqueGroups(rows, groupVariable)
+  const data: GroupedBoxPlotData = {}
+
+  groups.forEach(group => {
+    const groupValues = rows
+      .filter(row => String(row[groupVariable] || 'Unknown') === group)
+      .map(row => row[numericVariable])
+
+    const boxData = createBoxPlotData(groupValues)
+    if (boxData) {
+      data[group] = boxData
+    }
+  })
+
+  return { groups, data }
+}
+
+/**
+ * Calculate appropriate decimal places based on data range
+ */
+export function getDecimalPlaces(min: number, max: number): number {
+  const range = Math.abs(max - min)
+
+  if (range === 0) return 1
+
+  // For very small ranges
+  if (range < 0.01) return 4
+  if (range < 0.1) return 3
+  if (range < 1) return 2
+  if (range < 10) return 2
+  if (range < 100) return 1
+  return 0
+}
+
+/**
+ * Format number with appropriate decimal places
+ */
+export function formatAxisLabel(value: number, decimals: number): string {
+  return value.toFixed(decimals)
+}
+
+/**
+ * Color palettes for charts
+ */
+export const CHART_COLORS = {
+  primary: '#3498db',
+  secondary: '#2ecc71',
+  accent: '#e74c3c',
+  warning: '#f39c12',
+  info: '#9b59b6',
+  palette: [
+    '#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6',
+    '#1abc9c', '#34495e', '#e67e22', '#95a5a6', '#d35400'
+  ]
+}
