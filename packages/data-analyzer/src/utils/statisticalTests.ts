@@ -301,13 +301,14 @@ function tDistributionPValue(t: number, df: number): number {
   if (t > 100) return 0
 
   // Using Student's t-distribution CDF approximation
+  // P(T > t) = 0.5 * (1 - I_x(0.5, df/2)) where x = df / (df + t²)
   const x = df / (df + t * t)
-  const betaResult = incompleteBeta(df / 2, 0.5, x)
+  const betaResult = incompleteBeta(0.5, df / 2, x)
 
   // Handle any NaN results from beta function
   if (!isFinite(betaResult)) return 0
 
-  return Math.max(0, Math.min(1, 0.5 * betaResult))
+  return Math.max(0, Math.min(1, 0.5 * (1 - betaResult)))
 }
 
 /**
@@ -349,12 +350,13 @@ function fDistributionPValue(f: number, df1: number, df2: number): number {
   // For very large F values
   if (f > 100) return 0
 
+  // P(F > f) = I_x(df2/2, df1/2) where x = df2 / (df2 + df1*f)
   const x = df2 / (df2 + df1 * f)
   const betaResult = incompleteBeta(df2 / 2, df1 / 2, x)
 
   if (!isFinite(betaResult)) return 0
 
-  return Math.max(0, Math.min(1, betaResult))
+  return Math.max(0, Math.min(1, 1 - betaResult))
 }
 
 /**
