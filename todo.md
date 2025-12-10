@@ -410,6 +410,76 @@ ID              -       -         -        -
 
 ---
 
+## 🔴 CRITICAL ISSUE: T-Distribution P-Value Calculation Bug
+
+**Status**: BLOCKED - Requires investigation and resolution
+**File**: `packages/data-analyzer/src/utils/statisticalTests.ts`
+**Function**: `tDistributionPValue()` and `independentTTest()`
+**Severity**: Critical - Affects all t-test results
+
+### Problem Summary
+
+The p-value calculation for the independent t-test is fundamentally broken. Multiple attempts to fix it using different incomplete beta function parameterizations have failed:
+
+### Tested Approaches
+
+1. **Option 1** (Parameters: df/2, 0.5; Formula: 1 - betaResult)
+   - Result: p-values ~2.0 (outside valid range [0,1])
+   - Issue: Formula gives high values when it should give low
+
+2. **Option 2** (Parameters: 0.5, df/2; Formula: 0.5 * betaResult)
+   - Result: All p-values 0.0000
+   - Issue: Formula always returns near-zero values
+
+3. **Option 3** (Parameters: 0.5, df/2; Input: y = t²/(df+t²); Formula: betaResult)
+   - Result: p > 1 for some t values, p=0.0373 when CI includes 0 (inverted logic)
+   - Issue: Formula direction is inverted
+
+4. **Option 3b** (Add complement: 1 - betaResult)
+   - Result: All p-values 1.0000 when clamped
+   - Issue: Clamping causes loss of information
+
+### Key Test Cases Showing the Bug
+
+| t-statistic | df | 95% CI Mean Diff | Current p-value | Expected p-value |
+|-------------|----|--------------------|-----------------|------------------|
+| 1.6565 | 8 | (shows diff) | 1.2028 (invalid) | ~0.05-0.15 |
+| 5.0031 | 8 | (far from 0) | 0.2479 | ~0.001-0.01 |
+| 0.5726 | 998 | -4 to 9 (includes 0) | 0.0373 | > 0.05 |
+
+### Root Cause Analysis
+
+The incomplete beta function parameterization for the t-distribution CDF is not working correctly. The standard mathematical relationship:
+
+```
+P(T ≤ t) = I_x(df/2, 1/2) where x = df / (df + t²)
+P(T > t) = 1 - I_x(df/2, 1/2)
+```
+
+Cannot be reproduced with the custom `incompleteBeta()` implementation, possibly due to:
+1. Numerical stability issues with large df values (e.g., df=998 → df/2=499)
+2. Incorrect implementation of the regularized incomplete beta function
+3. Parameter order or formula interpretation mismatch
+4. The custom approximation algorithm not converging correctly for certain parameter combinations
+
+### What Needs to Be Done
+
+**Recommendation**: Use an external statistical library with proven t-distribution implementations rather than custom approximations:
+- Option A: Use `jstat` library properly (earlier attempts had import issues)
+- Option B: Use `simple-statistics` if it has t-distribution support
+- Option C: Implement a robust t-distribution CDF from a reference statistical textbook
+- Option D: Use numerical integration or lookup tables
+
+**Current Status**:
+- Custom incomplete beta approximation cannot be easily fixed without deep mathematical debugging
+- All three formula variations have been tested and failed
+- P-values are either all 0, all 1, or > 1 (invalid range)
+- Results are either consistently wrong or inverted
+
+**Impact**: t-test results are unreliable and should not be trusted until this is fixed.
+
+---
+
 ## Phase 8: Statistical Tests - Chi-Square Enhancements
 
 ### 8.1 Chi-Square Results Restructuring
