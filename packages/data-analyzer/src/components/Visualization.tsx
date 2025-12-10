@@ -43,6 +43,7 @@ const Visualization: FC<VisualizationProps> = ({
   const continuousVars = includedVariables.filter(v => v.type === 'continuous')
   const categoricalVars = includedVariables.filter(v => v.type === 'categorical' || v.type === 'boolean')
 
+  const [chartType, setChartType] = useState<ChartType>('histogram')
   const [selectedVariable, setSelectedVariable] = useState<string>(
     continuousVars[0]?.name || categoricalVars[0]?.name || ''
   )
@@ -51,29 +52,34 @@ const Visualization: FC<VisualizationProps> = ({
   )
   const [groupVariable, setGroupVariable] = useState<string>('')
 
-  // Determine which variable is selected and its type
-  const selectedVar = useMemo(() => {
-    return variables.find(v => v.name === selectedVariable)
-  }, [selectedVariable, variables])
-
-  // Determine which charts to show based on selected variable
-  const chartsToShow = useMemo(() => {
-    const charts: ChartType[] = []
-
-    if (selectedVar?.type === 'continuous') {
-      charts.push('histogram', 'box')
+  // Get compatible variables for the selected chart type
+  const compatibleVariables = useMemo(() => {
+    switch (chartType) {
+      case 'histogram':
+      case 'box':
+        return continuousVars
+      case 'bar':
+        return categoricalVars
+      case 'scatter':
+        return continuousVars
+      default:
+        return includedVariables
     }
+  }, [chartType, continuousVars, categoricalVars, includedVariables])
 
-    if (selectedVar?.type === 'categorical' || selectedVar?.type === 'boolean') {
-      charts.push('bar')
+  // Reset selected variable if it's no longer compatible
+  React.useEffect(() => {
+    if (!compatibleVariables.find(v => v.name === selectedVariable)) {
+      setSelectedVariable(compatibleVariables[0]?.name || '')
     }
+  }, [chartType, compatibleVariables, selectedVariable])
 
-    if (continuousVars.length >= 2) {
-      charts.push('scatter')
+  // Auto-reset scatter plot second variable if needed
+  React.useEffect(() => {
+    if (chartType === 'scatter' && !continuousVars.find(v => v.name === selectedVariable2)) {
+      setSelectedVariable2(continuousVars[0]?.name || '')
     }
-
-    return charts
-  }, [selectedVar, continuousVars])
+  }, [chartType, continuousVars, selectedVariable2])
 
   return (
     <div style={styles.container}>
@@ -84,25 +90,55 @@ const Visualization: FC<VisualizationProps> = ({
         </p>
       </div>
 
-      {/* Controls */}
+      {/* Chart Type Selector */}
+      <div style={styles.controls}>
+        <div style={styles.controlGroup}>
+          <label style={styles.label}>Select Chart Type</label>
+          <div style={styles.chartTypeGrid}>
+            {[
+              { type: 'histogram', icon: '📈', label: 'Histogram', desc: 'Distribution of continuous data' },
+              { type: 'box', icon: '📦', label: 'Box Plot', desc: 'Five-number summary' },
+              { type: 'bar', icon: '📊', label: 'Bar Chart', desc: 'Categorical frequencies' },
+              { type: 'scatter', icon: '🔵', label: 'Scatter Plot', desc: 'Relationship between variables' }
+            ].map(chart => (
+              <button
+                key={chart.type}
+                style={{
+                  ...styles.chartTypeButton,
+                  ...(chartType === chart.type ? styles.chartTypeButtonActive : {})
+                }}
+                onClick={() => setChartType(chart.type as ChartType)}
+                title={chart.desc}
+              >
+                <div>{chart.icon} {chart.label}</div>
+                <div style={styles.chartTypeDesc}>{chart.desc}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Variable Controls (filtered by chart type) */}
       <div style={styles.controls}>
         <div style={styles.controlRow}>
           <div style={styles.controlGroup}>
-            <label style={styles.label}>Primary Variable</label>
+            <label style={styles.label}>
+              {chartType === 'scatter' ? 'X-Axis Variable' : 'Variable'}
+            </label>
             <select
               value={selectedVariable}
               onChange={(e) => setSelectedVariable(e.target.value)}
               style={styles.select}
             >
-              {includedVariables.map(v => (
+              {compatibleVariables.map(v => (
                 <option key={v.name} value={v.name}>{v.name}</option>
               ))}
             </select>
           </div>
 
-          {continuousVars.length >= 2 && (
+          {chartType === 'scatter' && continuousVars.length >= 2 && (
             <div style={styles.controlGroup}>
-              <label style={styles.label}>Secondary Variable (for Scatter)</label>
+              <label style={styles.label}>Y-Axis Variable</label>
               <select
                 value={selectedVariable2}
                 onChange={(e) => setSelectedVariable2(e.target.value)}
@@ -115,7 +151,7 @@ const Visualization: FC<VisualizationProps> = ({
             </div>
           )}
 
-          {categoricalVars.length > 0 && (
+          {(chartType === 'bar' || chartType === 'scatter') && categoricalVars.length > 0 && (
             <div style={styles.controlGroup}>
               <label style={styles.label}>Group By (Optional)</label>
               <select
@@ -133,23 +169,23 @@ const Visualization: FC<VisualizationProps> = ({
         </div>
       </div>
 
-      {/* Charts Grid Display */}
-      <div style={styles.chartsGrid}>
-        {chartsToShow.includes('histogram') && (
+      {/* Chart Display */}
+      <div style={styles.chartContainer}>
+        {chartType === 'histogram' && (
           <HistogramChart
             data={data}
             variableName={selectedVariable}
           />
         )}
 
-        {chartsToShow.includes('box') && (
+        {chartType === 'box' && (
           <BoxPlotChart
             data={data}
             variableName={selectedVariable}
           />
         )}
 
-        {chartsToShow.includes('bar') && (
+        {chartType === 'bar' && (
           <BarChartComponent
             data={data}
             variableName={selectedVariable}
@@ -157,7 +193,7 @@ const Visualization: FC<VisualizationProps> = ({
           />
         )}
 
-        {chartsToShow.includes('scatter') && (
+        {chartType === 'scatter' && (
           <ScatterPlotComponent
             data={data}
             xVariable={selectedVariable}
@@ -193,7 +229,7 @@ const HistogramChart: FC<HistogramChartProps> = ({ data, variableName }) => {
   return (
     <div style={styles.chart}>
       <h3 style={styles.chartTitle}>Histogram: {variableName}</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={400}>
         <BarChart data={histogramData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
@@ -201,7 +237,7 @@ const HistogramChart: FC<HistogramChartProps> = ({ data, variableName }) => {
             label={{ value: variableName, position: 'insideBottom', offset: -5 }}
             angle={-45}
             textAnchor="end"
-            height={70}
+            height={80}
           />
           <YAxis label={{ value: 'Frequency', angle: -90, position: 'insideLeft' }} />
           <Tooltip />
@@ -226,7 +262,7 @@ const BarChartComponent: FC<BarChartComponentProps> = ({ data, variableName, gro
   return (
     <div style={styles.chart}>
       <h3 style={styles.chartTitle}>Bar Chart: {variableName}</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={400}>
         <BarChart data={barData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
@@ -234,7 +270,7 @@ const BarChartComponent: FC<BarChartComponentProps> = ({ data, variableName, gro
             label={{ value: variableName, position: 'insideBottom', offset: -5 }}
             angle={-45}
             textAnchor="end"
-            height={80}
+            height={100}
           />
           <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
           <Tooltip />
@@ -269,7 +305,7 @@ const ScatterPlotComponent: FC<ScatterPlotComponentProps> = ({
     return (
       <div style={styles.chart}>
         <h3 style={styles.chartTitle}>Scatter Plot: {yVariable} vs {xVariable}</h3>
-        <ResponsiveContainer width="100%" height={350}>
+        <ResponsiveContainer width="100%" height={400}>
           <ScatterChart>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
@@ -302,7 +338,7 @@ const ScatterPlotComponent: FC<ScatterPlotComponentProps> = ({
   return (
     <div style={styles.chart}>
       <h3 style={styles.chartTitle}>Scatter Plot: {yVariable} vs {xVariable} (grouped by {groupVariable})</h3>
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={400}>
         <ScatterChart>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
@@ -387,7 +423,7 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName }) => {
           </div>
         )}
       </div>
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={350}>
         <LineChart data={plotData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
@@ -426,7 +462,7 @@ const styles = {
     backgroundColor: 'white',
     padding: '15px',
     borderRadius: '8px',
-    marginBottom: '20px',
+    marginBottom: '15px',
     border: '2px solid #e0e0e0'
   } as const,
   controlGroup: {
@@ -454,21 +490,44 @@ const styles = {
     borderRadius: '6px',
     backgroundColor: 'white'
   } as const,
-  chartsGrid: {
+  chartTypeGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(600px, 1fr))',
-    gap: '20px',
-    marginBottom: '20px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    gap: '10px'
   } as const,
-  chart: {
-    width: '100%',
+  chartTypeButton: {
+    padding: '12px',
+    border: '2px solid #ddd',
+    borderRadius: '8px',
+    backgroundColor: 'white',
+    cursor: 'pointer',
+    textAlign: 'center',
+    transition: 'all 0.2s',
+    fontSize: '13px',
+    fontWeight: '500'
+  } as const,
+  chartTypeButtonActive: {
+    borderColor: '#3498db',
+    backgroundColor: '#e3f2fd',
+    fontWeight: '600' as const
+  } as const,
+  chartTypeDesc: {
+    fontSize: '11px',
+    color: '#666',
+    marginTop: '4px'
+  } as const,
+  chartContainer: {
     backgroundColor: 'white',
     padding: '15px',
     borderRadius: '8px',
-    border: '2px solid #e0e0e0'
+    border: '2px solid #e0e0e0',
+    marginBottom: '15px'
+  } as const,
+  chart: {
+    width: '100%'
   } as const,
   chartTitle: {
-    margin: '0 0 15px 0',
+    margin: '0 0 12px 0',
     fontSize: '16px',
     fontWeight: '600',
     color: '#333',
