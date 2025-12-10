@@ -1,4 +1,6 @@
 import React, { FC, useState } from 'react'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ErrorBar } from 'recharts'
+import ReactECharts from 'echarts-for-react'
 import { ParsedData, VariableType } from '../types'
 import {
   independentTTest,
@@ -12,6 +14,7 @@ import {
   ANOVAResult,
   RegressionResult
 } from '../utils/statisticalTests'
+import { createHistogram, createBoxPlotData, getUniqueGroups, CHART_COLORS } from '../utils/visualization'
 
 interface StatisticalTestsProps {
   data: ParsedData
@@ -213,7 +216,15 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
           <h3 style={styles.resultsTitle}>Test Results</h3>
 
           {testResult.testType.includes('t-test') && (
-            <TTestResults result={testResult as TTestResult} />
+            <>
+              <TTestResults result={testResult as TTestResult} />
+              <TTestPlot
+                result={testResult as TTestResult}
+                data={data}
+                variable1={variable1}
+                variable2={variable2}
+              />
+            </>
           )}
 
           {testResult.testType.includes('Chi-Square') && (
@@ -276,26 +287,282 @@ const TestOption: FC<TestOptionProps> = ({
   )
 }
 
-// T-Test Results
-const TTestResults: FC<{ result: TTestResult }> = ({ result }) => (
-  <div style={styles.resultCard}>
-    <h4 style={styles.resultCardTitle}>{result.testType}</h4>
-    <div style={styles.statsGrid}>
-      <StatItem label="t-statistic" value={result.statistic.toFixed(4)} />
-      <StatItem label="Degrees of Freedom" value={result.degreesOfFreedom.toString()} />
-      <StatItem label="p-value" value={result.pValue.toFixed(4)} highlight={result.pValue < 0.05} />
-      <StatItem label="Mean Difference" value={result.meanDifference.toFixed(4)} />
-      <StatItem
-        label="95% CI"
-        value={`[${result.confidenceInterval[0].toFixed(2)}, ${result.confidenceInterval[1].toFixed(2)}]`}
+// T-Test Results (Rearranged Order)
+const TTestResults: FC<{ result: TTestResult }> = ({ result }) => {
+  const formatValue = (value: number | null | undefined): string => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return 'N/A'
+    }
+    return value.toFixed(4)
+  }
+
+  return (
+    <div style={styles.resultCard}>
+      <h4 style={styles.resultCardTitle}>{result.testType}</h4>
+      <div style={styles.statsGrid}>
+        <StatItem
+          label="Mean Difference"
+          value={formatValue(result.meanDifference)}
+        />
+        <StatItem
+          label="95% CI"
+          value={
+            result.confidenceInterval &&
+            !isNaN(result.confidenceInterval[0]) &&
+            !isNaN(result.confidenceInterval[1])
+              ? `[${result.confidenceInterval[0].toFixed(2)}, ${result.confidenceInterval[1].toFixed(2)}]`
+              : 'N/A'
+          }
+        />
+        <StatItem
+          label="Effect Size (Cohen's d)"
+          value={formatValue(result.effectSize)}
+        />
+        <StatItem
+          label="t-statistic"
+          value={formatValue(result.statistic)}
+        />
+        <StatItem
+          label="Degrees of Freedom"
+          value={result.degreesOfFreedom?.toString() || 'N/A'}
+        />
+        <StatItem
+          label="p-value"
+          value={formatValue(result.pValue)}
+          highlight={result.pValue !== null && !isNaN(result.pValue) && result.pValue < 0.05}
+        />
+      </div>
+      <div style={styles.interpretation}>
+        <strong>Interpretation:</strong> {result.interpretation}
+      </div>
+    </div>
+  )
+}
+
+// T-Test Plot Component with Multiple Visualization Options
+interface TTestPlotProps {
+  result: TTestResult
+  data: ParsedData
+  variable1: string
+  variable2: string
+}
+
+type TTestPlotType = 'boxplot' | 'meanCI' | 'histogram'
+
+const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) => {
+  const [plotType, setPlotType] = useState<TTestPlotType>('boxplot')
+
+  // Extract group data
+  const groups = groupNumericData(data.rows, variable1, variable2)
+  const groupNames = Object.keys(groups).sort()
+
+  if (groupNames.length !== 2) {
+    return null
+  }
+
+  const group1Name = groupNames[0]
+  const group2Name = groupNames[1]
+  const group1Data = groups[group1Name]
+  const group2Data = groups[group2Name]
+
+  // Side-by-Side Boxplot
+  const renderBoxPlot = () => {
+    const box1 = createBoxPlotData(group1Data)
+    const box2 = createBoxPlotData(group2Data)
+
+    if (!box1 || !box2) return null
+
+    const createBoxPlotValues = (boxData: any) => [
+      boxData.min,
+      boxData.q1,
+      boxData.median,
+      boxData.q3,
+      boxData.max,
+      ...boxData.outliers
+    ]
+
+    const box1Values = createBoxPlotValues(box1)
+    const box2Values = createBoxPlotValues(box2)
+
+    const option = {
+      title: {
+        text: `Box Plot: ${variable1} by ${variable2}`,
+        left: 'center',
+        textStyle: { fontSize: 16, fontWeight: 'bold', color: '#333' }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          if (params.seriesType === 'boxplot') {
+            const [min, q1, median, q3, max] = params.value
+            const groupName = groupNames[params.dataIndex]
+            return `<div style="padding: 5px;"><strong>${groupName}</strong><br/>Min: ${min.toFixed(2)}<br/>Q1: ${q1.toFixed(2)}<br/>Median: ${median.toFixed(2)}<br/>Q3: ${q3.toFixed(2)}<br/>Max: ${max.toFixed(2)}</div>`
+          }
+          return params.name
+        }
+      },
+      grid: { left: '10%', right: '10%', bottom: '15%', top: '15%', containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: [group1Name, group2Name],
+        axisLabel: { fontSize: 12 }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Value',
+        nameTextStyle: { color: '#666', fontSize: 12 },
+        axisLabel: { fontSize: 12 }
+      },
+      series: [
+        {
+          name: 'Box Plot',
+          type: 'boxplot',
+          data: [box1Values, box2Values],
+          itemStyle: {
+            color: (params: any) => CHART_COLORS.palette[params.dataIndex],
+            borderColor: '#333'
+          },
+          boxWidth: ['20%', '50%']
+        },
+        {
+          name: 'Outliers',
+          type: 'scatter',
+          data: [
+            ...box1.outliers.map(v => [0, v]),
+            ...box2.outliers.map(v => [1, v])
+          ],
+          symbolSize: 4,
+          itemStyle: { opacity: 0.6, color: '#e74c3c' }
+        }
+      ]
+    }
+
+    return (
+      <ReactECharts
+        option={option}
+        style={{ height: '400px', width: '100%' }}
+        notMerge
+        lazyUpdate
       />
-      <StatItem label="Effect Size (Cohen's d)" value={result.effectSize.toFixed(4)} />
+    )
+  }
+
+  // Mean ± 95% CI Plot
+  const renderMeanCIPlot = () => {
+    const mean1 = group1Data.reduce((a, b) => a + b, 0) / group1Data.length
+    const mean2 = group2Data.reduce((a, b) => a + b, 0) / group2Data.length
+
+    const data = [
+      {
+        group: group1Name,
+        mean: mean1,
+        errorMin: result.confidenceInterval[0],
+        errorMax: result.confidenceInterval[1]
+      },
+      {
+        group: group2Name,
+        mean: mean2,
+        errorMin: result.confidenceInterval[0],
+        errorMax: result.confidenceInterval[1]
+      }
+    ]
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="group" />
+          <YAxis label={{ value: variable1, angle: -90, position: 'insideLeft' }} />
+          <Tooltip
+            formatter={(value: any) => (typeof value === 'number' ? value.toFixed(2) : value)}
+            contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
+          />
+          <Bar dataKey="mean" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]}>
+            <ErrorBar
+              dataKey="errorMin"
+              errorDataKey="errorMax"
+              direction="y"
+              stroke="#333"
+              strokeWidth={2}
+            />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  // Histogram with Group Colors
+  const renderHistogram = () => {
+    const hist1 = createHistogram(group1Data, 10)
+    const hist2 = createHistogram(group2Data, 10)
+
+    // Merge histograms by bin
+    const mergedData = hist1.map((bin1, idx) => {
+      const bin2 = hist2[idx]
+      return {
+        label: bin1.label,
+        [group1Name]: bin1.count,
+        [group2Name]: bin2.count
+      }
+    })
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={mergedData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="label"
+            label={{ value: variable1, position: 'insideBottom', offset: -5 }}
+            angle={-45}
+            textAnchor="end"
+            height={80}
+          />
+          <YAxis label={{ value: 'Frequency', angle: -90, position: 'insideLeft' }} />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey={group1Name} fill={CHART_COLORS.palette[0]} />
+          <Bar dataKey={group2Name} fill={CHART_COLORS.palette[1]} />
+        </BarChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  return (
+    <div style={styles.visualizationContainer}>
+      <h4 style={styles.visualizationTitle}>Visualization</h4>
+
+      {/* Plot Type Selection */}
+      <div style={styles.plotTypeSelector}>
+        <label style={styles.label}>Choose Visualization:</label>
+        <div style={styles.radioGroup}>
+          {[
+            { value: 'boxplot', label: '📦 Side-by-Side Boxplot' },
+            { value: 'meanCI', label: '📊 Mean ± 95% CI Plot' },
+            { value: 'histogram', label: '📈 Histogram with Group Colors' }
+          ].map(option => (
+            <label key={option.value} style={styles.radioLabel}>
+              <input
+                type="radio"
+                value={option.value}
+                checked={plotType === option.value}
+                onChange={(e) => setPlotType(e.target.value as TTestPlotType)}
+                style={styles.radioInput}
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Plot Display */}
+      <div style={styles.plotContainer}>
+        {plotType === 'boxplot' && renderBoxPlot()}
+        {plotType === 'meanCI' && renderMeanCIPlot()}
+        {plotType === 'histogram' && renderHistogram()}
+      </div>
     </div>
-    <div style={styles.interpretation}>
-      <strong>Interpretation:</strong> {result.interpretation}
-    </div>
-  </div>
-)
+  )
+}
 
 // Chi-Square Results
 const ChiSquareResults: FC<{ result: ChiSquareResult }> = ({ result }) => (
@@ -641,6 +908,51 @@ const styles = {
     borderRadius: '6px',
     cursor: 'pointer',
     fontWeight: '600'
+  } as const,
+  visualizationContainer: {
+    padding: '20px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '8px',
+    border: '1px solid #e0e0e0',
+    marginTop: '20px'
+  } as const,
+  visualizationTitle: {
+    margin: '0 0 15px 0',
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#2c3e50'
+  } as const,
+  plotTypeSelector: {
+    marginBottom: '20px',
+    padding: '15px',
+    backgroundColor: 'white',
+    borderRadius: '6px',
+    border: '1px solid #e0e0e0'
+  } as const,
+  radioGroup: {
+    display: 'flex',
+    gap: '20px',
+    flexWrap: 'wrap',
+    marginTop: '10px'
+  } as const,
+  radioLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: '14px',
+    color: '#333',
+    cursor: 'pointer',
+    gap: '8px'
+  } as const,
+  radioInput: {
+    cursor: 'pointer',
+    marginRight: '4px'
+  } as const,
+  plotContainer: {
+    backgroundColor: 'white',
+    borderRadius: '6px',
+    border: '1px solid #e0e0e0',
+    padding: '15px',
+    minHeight: '450px'
   } as const
 }
 
