@@ -33,6 +33,14 @@ export interface CategoricalStats {
   mode: string | number
 }
 
+export interface DateStats {
+  count: number
+  missing: number
+  min: Date | null
+  max: Date | null
+  mode: Date | null
+}
+
 export interface FrequencyItem {
   value: string | number
   count: number
@@ -211,4 +219,95 @@ export function interpretKurtosis(kurtosis: number): string {
   if (kurtosis > 3) return 'Heavy-tailed (leptokurtic)'
   if (kurtosis < -3) return 'Light-tailed (platykurtic)'
   return 'Normal-tailed (mesokurtic)'
+}
+
+/**
+ * Calculate statistics for date/datetime variables
+ */
+export function calculateDateStats(values: (string | null)[]): DateStats {
+  // Parse dates and filter out invalid values
+  const validDates = values
+    .filter(v => v !== null && v !== undefined && v !== '')
+    .map(v => new Date(String(v)))
+    .filter(d => !isNaN(d.getTime()))
+
+  const missing = values.length - validDates.length
+
+  if (validDates.length === 0) {
+    return {
+      count: 0,
+      missing,
+      min: null,
+      max: null,
+      mode: null
+    }
+  }
+
+  // Find min and max dates
+  const timestamps = validDates.map(d => d.getTime())
+  const minTimestamp = Math.min(...timestamps)
+  const maxTimestamp = Math.max(...timestamps)
+
+  // Find mode (most frequent date)
+  const dateMap = new Map<number, number>()
+  let maxCount = 0
+  let modeTimestamp = minTimestamp
+
+  validDates.forEach(d => {
+    const ts = d.getTime()
+    const count = (dateMap.get(ts) || 0) + 1
+    dateMap.set(ts, count)
+    if (count > maxCount) {
+      maxCount = count
+      modeTimestamp = ts
+    }
+  })
+
+  return {
+    count: validDates.length,
+    missing,
+    min: new Date(minTimestamp),
+    max: new Date(maxTimestamp),
+    mode: new Date(modeTimestamp)
+  }
+}
+
+/**
+ * Floor a date to a specific unit (year, month, week, day)
+ */
+export function floorDate(
+  date: Date,
+  unit: 'year' | 'month' | 'week' | 'day'
+): Date {
+  const d = new Date(date)
+
+  switch (unit) {
+    case 'year':
+      // January 1st of the year
+      d.setMonth(0)
+      d.setDate(1)
+      d.setHours(0, 0, 0, 0)
+      break
+
+    case 'month':
+      // First day of the month
+      d.setDate(1)
+      d.setHours(0, 0, 0, 0)
+      break
+
+    case 'week':
+      // Monday of the week
+      const day = d.getDay()
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
+      d.setDate(diff)
+      d.setHours(0, 0, 0, 0)
+      break
+
+    case 'day':
+      // No change, but ensure time is midnight
+      d.setHours(0, 0, 0, 0)
+      break
+  }
+
+  return d
 }
