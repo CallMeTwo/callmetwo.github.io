@@ -3,14 +3,18 @@ import { ParsedData, VariableType } from '../types'
 import {
   calculateContinuousStats,
   calculateCategoricalStats,
+  calculateDateStats,
+  floorDate,
   formatStatistic,
   interpretSkewness,
   interpretKurtosis,
   ContinuousStats,
-  CategoricalStats
+  CategoricalStats,
+  DateStats
 } from '../utils/statistics'
 import TooltipIcon from './TooltipIcon'
 import QuartileDisplay from './QuartileDisplay'
+import DateFloorSelector from './DateFloorSelector'
 
 interface SummaryStatisticsProps {
   data: ParsedData
@@ -56,6 +60,12 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
           stats: calculateContinuousStats(columnValues),
           type: 'continuous' as const
         }
+      } else if (variable.type === 'datetime') {
+        return {
+          variable,
+          stats: calculateDateStats(columnValues as string[]),
+          type: 'datetime' as const
+        }
       } else {
         return {
           variable,
@@ -68,13 +78,14 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
 
   const continuousStats = statistics.filter(s => s.type === 'continuous')
   const categoricalStats = statistics.filter(s => s.type === 'categorical')
+  const dateStats = statistics.filter(s => s.type === 'datetime')
 
   return (
     <div style={styles.container}>
       <div style={styles.header}>
         <h2 style={styles.title}>Summary Statistics</h2>
         <p style={styles.subtitle}>
-          Descriptive statistics for {includedVariables.length} variables ({continuousStats.length} continuous, {categoricalStats.length} categorical)
+          Descriptive statistics for {includedVariables.length} variables ({continuousStats.length} continuous, {categoricalStats.length} categorical, {dateStats.length} date)
         </p>
       </div>
 
@@ -103,6 +114,22 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
               key={variable.name}
               variableName={variable.name}
               stats={stats as CategoricalStats}
+              isExpanded={expandedCards.has(variable.name)}
+              onToggle={() => toggleCard(variable.name)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Date/DateTime Variables */}
+      {dateStats.length > 0 && (
+        <div style={styles.section}>
+          <h3 style={styles.sectionTitle}>📅 Date/DateTime Variables</h3>
+          {dateStats.map(({ variable, stats }) => (
+            <DateStatsCard
+              key={variable.name}
+              variableName={variable.name}
+              stats={stats as DateStats}
               isExpanded={expandedCards.has(variable.name)}
               onToggle={() => toggleCard(variable.name)}
             />
@@ -241,6 +268,78 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
       )}
     </div>
   )
+}
+
+const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded, onToggle }) => {
+  const [floorUnit, setFloorUnit] = useState<'year' | 'month' | 'week' | 'day'>('day')
+
+  const formatDate = (date: Date | null): string => {
+    if (!date) return 'N/A'
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  }
+
+  return (
+    <div style={styles.card}>
+      <div style={styles.cardHeader} onClick={onToggle}>
+        <div style={styles.cardHeaderLeft}>
+          <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
+          <h4 style={styles.variableName}>{variableName}</h4>
+        </div>
+        <span style={{ ...styles.badge, backgroundColor: '#f3e5f5' }}>Date/DateTime</span>
+      </div>
+
+      {isExpanded && (
+        <div style={styles.statsGrid}>
+          {/* Summary Statistics */}
+          <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
+            <h5 style={styles.groupTitle}>Summary</h5>
+            <table style={styles.frequencyTable}>
+              <thead>
+                <tr>
+                  <th style={styles.tableHeader}>Count</th>
+                  <th style={styles.tableHeader}>Missing</th>
+                  <th style={styles.tableHeader}>Min Date</th>
+                  <th style={styles.tableHeader}>Max Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={styles.tableRow}>
+                  <td style={styles.tableCell}>{stats.count}</td>
+                  <td style={styles.tableCell}>{stats.missing}</td>
+                  <td style={styles.tableCell}>{formatDate(stats.min)}</td>
+                  <td style={styles.tableCell}>{formatDate(stats.max)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mode and Floor Selector */}
+          <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
+            <h5 style={styles.groupTitle}>Date Mode</h5>
+            <div style={styles.statRow}>
+              <span style={styles.statLabel}>Most Frequent Date:</span>
+              <span style={styles.statValue}>{formatDate(stats.mode)}</span>
+            </div>
+          </div>
+
+          {/* Date Floor Unit Selector */}
+          <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
+            <DateFloorSelector
+              selectedFloor={floorUnit}
+              onChange={setFloorUnit}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+interface DateStatsCardProps {
+  variableName: string
+  stats: DateStats
+  isExpanded: boolean
+  onToggle: () => void
 }
 
 interface CategoricalStatsCardProps {
