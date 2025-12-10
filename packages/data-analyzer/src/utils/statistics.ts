@@ -223,6 +223,7 @@ export function interpretKurtosis(kurtosis: number): string {
 
 /**
  * Calculate statistics for date/datetime variables
+ * Note: Works with UTC timestamps to avoid timezone-related issues
  */
 export function calculateDateStats(values: (string | null)[]): DateStats {
   // Parse dates and filter out invalid values
@@ -243,23 +244,25 @@ export function calculateDateStats(values: (string | null)[]): DateStats {
     }
   }
 
-  // Find min and max dates
+  // Find min and max dates using timestamps (timezone-agnostic)
   const timestamps = validDates.map(d => d.getTime())
   const minTimestamp = Math.min(...timestamps)
   const maxTimestamp = Math.max(...timestamps)
 
-  // Find mode (most frequent date)
-  const dateMap = new Map<number, number>()
+  // Find mode (most frequent date) - group by date component only
+  // Normalize to UTC midnight to group same dates together
+  const dateMap = new Map<string, number>()
   let maxCount = 0
-  let modeTimestamp = minTimestamp
+  let modeKey = ''
 
   validDates.forEach(d => {
-    const ts = d.getTime()
-    const count = (dateMap.get(ts) || 0) + 1
-    dateMap.set(ts, count)
+    // Use UTC date string as key to avoid timezone shifts
+    const key = d.toISOString().split('T')[0] // YYYY-MM-DD in UTC
+    const count = (dateMap.get(key) || 0) + 1
+    dateMap.set(key, count)
     if (count > maxCount) {
       maxCount = count
-      modeTimestamp = ts
+      modeKey = key
     }
   })
 
@@ -268,12 +271,13 @@ export function calculateDateStats(values: (string | null)[]): DateStats {
     missing,
     min: new Date(minTimestamp),
     max: new Date(maxTimestamp),
-    mode: new Date(modeTimestamp)
+    mode: modeKey ? new Date(modeKey + 'T00:00:00Z') : null
   }
 }
 
 /**
  * Floor a date to a specific unit (year, month, week, day)
+ * Uses UTC methods to avoid timezone-related date shifts
  */
 export function floorDate(
   date: Date,
@@ -283,29 +287,29 @@ export function floorDate(
 
   switch (unit) {
     case 'year':
-      // January 1st of the year
-      d.setMonth(0)
-      d.setDate(1)
-      d.setHours(0, 0, 0, 0)
+      // January 1st of the year (UTC)
+      d.setUTCMonth(0)
+      d.setUTCDate(1)
+      d.setUTCHours(0, 0, 0, 0)
       break
 
     case 'month':
-      // First day of the month
-      d.setDate(1)
-      d.setHours(0, 0, 0, 0)
+      // First day of the month (UTC)
+      d.setUTCDate(1)
+      d.setUTCHours(0, 0, 0, 0)
       break
 
     case 'week':
-      // Monday of the week
-      const day = d.getDay()
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
-      d.setDate(diff)
-      d.setHours(0, 0, 0, 0)
+      // Monday of the week (UTC)
+      const day = d.getUTCDay()
+      const diff = d.getUTCDate() - day + (day === 0 ? -6 : 1) // Adjust when day is Sunday
+      d.setUTCDate(diff)
+      d.setUTCHours(0, 0, 0, 0)
       break
 
     case 'day':
-      // No change, but ensure time is midnight
-      d.setHours(0, 0, 0, 0)
+      // Midnight UTC
+      d.setUTCHours(0, 0, 0, 0)
       break
   }
 
