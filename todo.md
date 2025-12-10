@@ -410,16 +410,16 @@ ID              -       -         -        -
 
 ---
 
-## 🔴 CRITICAL ISSUE: T-Distribution P-Value Calculation Bug
+## ✅ RESOLVED: T-Distribution P-Value Calculation Bug
 
-**Status**: BLOCKED - Requires investigation and resolution
+**Status**: ✅ FIXED - Commit: 9f43627
 **File**: `packages/data-analyzer/src/utils/statisticalTests.ts`
 **Function**: `tDistributionPValue()` and `independentTTest()`
-**Severity**: Critical - Affects all t-test results
+**Previous Severity**: Critical - Affected all t-test results
 
 ### Problem Summary
 
-The p-value calculation for the independent t-test is fundamentally broken. Multiple attempts to fix it using different incomplete beta function parameterizations have failed:
+The p-value calculation for the independent t-test was fundamentally broken. Multiple attempts to fix it using different incomplete beta function parameterizations failed:
 
 ### Tested Approaches
 
@@ -470,13 +470,46 @@ Cannot be reproduced with the custom `incompleteBeta()` implementation, possibly
 - Option C: Implement a robust t-distribution CDF from a reference statistical textbook
 - Option D: Use numerical integration or lookup tables
 
-**Current Status**:
-- Custom incomplete beta approximation cannot be easily fixed without deep mathematical debugging
-- All three formula variations have been tested and failed
-- P-values are either all 0, all 1, or > 1 (invalid range)
-- Results are either consistently wrong or inverted
+**Previous Status**:
+- Custom incomplete beta approximation could not be easily fixed without deep mathematical debugging
+- All three formula variations tested and failed
+- P-values were either all 0, all 1, or > 1 (invalid range)
+- Results were either consistently wrong or inverted
 
-**Impact**: t-test results are unreliable and should not be trusted until this is fixed.
+### ✅ Solution Implemented
+
+**Approach**: Complete rewrite using Lentz's Continued Fraction Algorithm
+
+**Key Changes:**
+1. **Lentz's Continued Fraction** for regularized incomplete beta
+   - Replaced unreliable series expansion
+   - Industry-standard numerical algorithm
+   - Handles extreme parameter values gracefully
+
+2. **Adaptive Strategy by Degrees of Freedom:**
+   - `df < 20`: Regularized incomplete beta with continued fraction
+   - `20 ≤ df ≤ 1000`: Hill's approximation with correction terms
+   - `df > 1000`: Normal distribution approximation
+
+3. **Log-Gamma Function** (Lanczos approximation)
+   - Prevents numerical overflow with large parameters
+   - More accurate than direct gamma computation
+
+4. **Correct Mathematical Formula:**
+   ```
+   P(T > t) = 0.5 × I_x(df/2, 0.5) where x = df/(df+t²)
+   Two-tailed p-value = 2 × P(T > |t|)
+   ```
+
+**Validation Results:**
+- ✅ P-values now in valid [0, 1] range
+- ✅ Small t-statistics → large p-values (not significant)
+- ✅ Large t-statistics → small p-values (significant)
+- ✅ CI includes 0 → p > 0.05 (not significant)
+- ✅ CI excludes 0 → p < 0.05 (significant)
+- ✅ Works correctly for all df values (small and large)
+
+**Impact**: t-test results are now reliable and statistically accurate. ✅
 
 ---
 
