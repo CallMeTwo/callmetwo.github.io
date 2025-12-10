@@ -449,21 +449,48 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
 
   // Mean ± 95% CI Plot
   const renderMeanCIPlot = () => {
-    const mean1 = group1Data.reduce((a, b) => a + b, 0) / group1Data.length
-    const mean2 = group2Data.reduce((a, b) => a + b, 0) / group2Data.length
+    // Calculate statistics for group 1
+    const n1 = group1Data.length
+    const mean1 = group1Data.reduce((a, b) => a + b, 0) / n1
+    const variance1 = group1Data.reduce((sum, val) => sum + Math.pow(val - mean1, 2), 0) / (n1 - 1)
+    const sd1 = Math.sqrt(variance1)
+    const se1 = sd1 / Math.sqrt(n1)
+
+    // Calculate statistics for group 2
+    const n2 = group2Data.length
+    const mean2 = group2Data.reduce((a, b) => a + b, 0) / n2
+    const variance2 = group2Data.reduce((sum, val) => sum + Math.pow(val - mean2, 2), 0) / (n2 - 1)
+    const sd2 = Math.sqrt(variance2)
+    const se2 = sd2 / Math.sqrt(n2)
+
+    // Get t-critical value for 95% CI (two-tailed, alpha=0.05)
+    // Using approximation: for df > 30, t ≈ 1.96
+    const getTCritical = (df: number) => {
+      // Common t-values for 95% CI (two-tailed)
+      const tValues: { [key: number]: number } = {
+        1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+        6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+        15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042
+      }
+      if (tValues[df]) return tValues[df]
+      return df > 30 ? 1.96 : 2.045 // Default for larger df
+    }
+
+    const t1 = getTCritical(n1 - 1)
+    const t2 = getTCritical(n2 - 1)
 
     const data = [
       {
         group: group1Name,
         mean: mean1,
-        errorMin: result.confidenceInterval[0],
-        errorMax: result.confidenceInterval[1]
+        errorMin: mean1 - t1 * se1,
+        errorMax: mean1 + t1 * se1
       },
       {
         group: group2Name,
         mean: mean2,
-        errorMin: result.confidenceInterval[0],
-        errorMax: result.confidenceInterval[1]
+        errorMin: mean2 - t2 * se2,
+        errorMax: mean2 + t2 * se2
       }
     ]
 
