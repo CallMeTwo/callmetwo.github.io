@@ -290,6 +290,7 @@ export function linearRegression(
 
 /**
  * T-distribution p-value (improved approximation with error handling)
+ * OPTION 3b: Using complementary incomplete beta with inverted result
  */
 function tDistributionPValue(t: number, df: number): number {
   // Ensure valid inputs
@@ -300,15 +301,16 @@ function tDistributionPValue(t: number, df: number): number {
   // For very large t values, p-value approaches 0
   if (t > 100) return 0
 
-  // Using Student's t-distribution CDF approximation
-  // P(T > t) = 0.5 * (1 - I_x(0.5, df/2)) where x = df / (df + t²)
-  const x = df / (df + t * t)
-  const betaResult = incompleteBeta(0.5, df / 2, x)
+  // Using Student's t-distribution CDF approximation with complementary probability
+  // y = t² / (df + t²) = 1 - x where x = df / (df + t²)
+  const y = (t * t) / (df + t * t)
+  const betaResult = incompleteBeta(0.5, df / 2, y)
 
   // Handle any NaN results from beta function
   if (!isFinite(betaResult)) return 0
 
-  return Math.max(0, Math.min(1, 0.5 * (1 - betaResult)))
+  // Use complement for correct direction: small t → large p, large t → small p
+  return Math.max(0, Math.min(1, 1 - betaResult))
 }
 
 /**
