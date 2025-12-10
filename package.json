@@ -7,9 +7,12 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspaces",
+    "dev": "npm run dev -w data-analyzer -- --host",
+    "dev:static": "npm run build:copy && python3 -m http.server 5173",
     "build": "npm run build --workspaces",
-    "preview": "npm run preview --workspaces",
+    "build:copy": "npm run build -w data-analyzer && rm -rf data-analyzer/* && cp -r packages/data-analyzer/dist/* data-analyzer/",
+    "preview": "python3 -m http.server 5173",
+    "deploy": "npm run build:copy && git add data-analyzer/ && git commit -m 'Deploy: Update data-analyzer' && git push",
     "test": "vitest",
     "test:run": "vitest run",
     "test:ui": "vitest --ui",

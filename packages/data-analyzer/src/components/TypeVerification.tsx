@@ -8,7 +8,7 @@ interface TypeVerificationProps {
   onBack: () => void
 }
 
-type VariableTypeOption = 'continuous' | 'categorical' | 'datetime' | 'id'
+type VariableTypeOption = 'continuous' | 'categorical' | 'datetime'
 
 const TypeVerification: FC<TypeVerificationProps> = ({
   variables,
@@ -158,7 +158,6 @@ const VariableRow: FC<VariableRowProps> = ({ variable, onTypeChange, onIncludeCh
           <option value="continuous">📈 Continuous</option>
           <option value="categorical">📊 Categorical</option>
           <option value="datetime">📅 DateTime</option>
-          <option value="id">🔑 ID</option>
         </select>
       </td>
 
@@ -185,8 +184,7 @@ function getTypeIcon(type: string): string {
   const iconMap: Record<string, string> = {
     continuous: '📈',
     categorical: '📊',
-    datetime: '📅',
-    id: '🔑'
+    datetime: '📅'
   }
   return iconMap[type] || '❓'
 }
@@ -195,8 +193,7 @@ function getTypeColor(type: string): string {
   const colorMap: Record<string, string> = {
     continuous: '#e3f2fd',
     categorical: '#f3e5f5',
-    datetime: '#fff3e0',
-    id: '#fce4ec'
+    datetime: '#fff3e0'
   }
   return colorMap[type] || '#f5f5f5'
 }

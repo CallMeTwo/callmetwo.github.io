@@ -127,9 +127,7 @@ export const inferVariableType = (
   const numericValues = nonNullValues.filter(v => !isNaN(Number(v)))
   if (numericValues.length / nonNullValues.length > 0.9) {
     // More than 90% numeric and many unique values
-    // Use dynamic threshold: min(50% of data, 10)
-    const threshold = Math.min(Math.ceil(nonNullValues.length * 0.5), 10)
-    if (uniqueCount > threshold) {
+    if (uniqueCount > 10) {
       return 'continuous'
     }
   }

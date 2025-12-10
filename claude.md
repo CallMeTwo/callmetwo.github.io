@@ -282,3 +282,87 @@ export default defineConfig({
 
 **Repository:** https://github.com/CallMeTwo/callmetwo.github.io
 **Live Site:** https://callmetwo.github.io/
+
+---
+
+## Current Dev Server Architecture Problem (2025-12-10)
+
+### Issue Summary
+User wants to access both the home page AND data-analyzer from a single dev server experience, but the current monorepo architecture makes this challenging:
+
+**Current Situation:**
+- Home page (root `index.html`) needs to run as a Vite dev server on port 5173
+- Data-analyzer package is a separate Vite app with `base: '/data-analyzer/'` configuration
+- Data-analyzer also wants port 5173, causing port conflicts
+- When user visits `http://172.29.28.157:5173`, they need to see home page with working links to `/data-analyzer/`
+
+### Attempted Solutions (All went in circles)
+
+1. **Initial approach:** Run root dev server + data-analyzer separately on different ports
+   - Result: Works but requires running `npm run dev -w data-analyzer` on separate terminal, confusing for users
+
+2. **Proxy approach:** Configure root Vite with proxy to forward `/data-analyzer/*` to data-analyzer server on port 5174
+   - **Updated `/vite.config.js`:**
+     ```javascript
+     server: {
+       port: 5173,
+       proxy: {
+         '/data-analyzer': {
+           target: 'http://localhost:5174',
+           changeOrigin: true,
+           rewrite: (path) => path.replace(/^\/data-analyzer/, '')
+         }
+       }
+     }
+     ```
+   - **Updated `/packages/data-analyzer/vite.config.js`:**
+     ```javascript
+     server: {
+       port: 5174,
+       strictPort: false
+     }
+     ```
+   - **Problem:** Vite's port auto-increment and socket issues made servers run on 5173, 5174, 5175 unpredictably, causing proxy target mismatch
+
+3. **Root cause of failure:**
+   - Multiple old background Bash processes still running on those ports
+   - Vite's `strictPort: false` auto-increments when ports occupied
+   - Port binding conflicts not fully resolved before starting new servers
+   - Process killing (`killall npm node`) didn't fully clear zombie processes
+
+### What Needs to Happen
+
+**Option A (Simplest for GitHub Pages):**
+- Remove root Vite dev server entirely
+- Build data-analyzer and copy built files to `/data-analyzer/` directory in root
+- Serve root `index.html` and `/data-analyzer/` files statically
+- For dev: Just run `npm run dev -w data-analyzer` which serves at `/data-analyzer/` on port 5173
+
+**Option B (True Single Server):**
+- Create a unified Vite config that serves both home page AND data-analyzer from the same server
+- Use custom Vite middleware to route `/` to home page and `/data-analyzer/` to data-analyzer app
+- Requires architectural refactor
+
+**Option C (Reverse Proxy):**
+- Use a proper reverse proxy (like nginx) locally to route requests
+- More complex but cleanest solution for production
+
+### Code Changes Made (Before stopping)
+1. Created `/vite.config.js` for root (serves home page)
+2. Updated `/index.html` favicon paths (removed `/public/` prefix)
+3. Updated `/packages/data-analyzer/vite.config.js` to include `server: { port: 5174 }`
+4. Added npm script: `"dev:all": "npm run dev --workspaces"` to original package.json
+
+### Files That Need Review
+- `/vite.config.js` - Root Vite config with proxy (may need adjustment)
+- `/packages/data-analyzer/vite.config.js` - Port configuration
+- `/package.json` - Scripts for `npm run dev` vs `npm run dev:all`
+- `/index.html` - Home page with correct favicon paths
+
+### Recommendation
+Switch to a model with better architectural understanding. This is a **Vite monorepo port binding + process management issue** that requires either:
+1. Accepting two separate dev servers as the expected workflow
+2. Building a static `/data-analyzer/` directory and serving from root
+3. Using a proper reverse proxy or custom Vite middleware solution
+
+The core issue is that Haiku's token limitations and iterative approach led to repeatedly starting/stopping servers without fully cleaning up processes, causing unpredictable port binding behavior.

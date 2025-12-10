@@ -9,8 +9,6 @@ import {
   ContinuousStats,
   CategoricalStats
 } from '../utils/statistics'
-import TooltipIcon from './TooltipIcon'
-import QuartileDisplay from './QuartileDisplay'
 
 interface SummaryStatisticsProps {
   data: ParsedData
@@ -159,21 +157,34 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
             <span style={styles.statValue}>{formatStatistic(stats.mean)}</span>
           </div>
           <div style={styles.statRow}>
+            <span style={styles.statLabel}>Median:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.median)}</span>
+          </div>
+          <div style={styles.statRow}>
             <span style={styles.statLabel}>Std Dev:</span>
             <span style={styles.statValue}>{formatStatistic(stats.sd)}</span>
           </div>
         </div>
 
-        {/* Range & Quartiles - Compact Display */}
+        {/* Range & Quartiles */}
         <div style={styles.statsGroup}>
           <h5 style={styles.groupTitle}>Range & Quartiles</h5>
-          <QuartileDisplay
-            min={stats.min}
-            q1={stats.q1}
-            median={stats.median}
-            q3={stats.q3}
-            max={stats.max}
-          />
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Min:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.min)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Q1 (25%):</span>
+            <span style={styles.statValue}>{formatStatistic(stats.q1)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Q3 (75%):</span>
+            <span style={styles.statValue}>{formatStatistic(stats.q3)}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Max:</span>
+            <span style={styles.statValue}>{formatStatistic(stats.max)}</span>
+          </div>
           <div style={styles.statRow}>
             <span style={styles.statLabel}>IQR:</span>
             <span style={styles.statValue}>{formatStatistic(stats.q3 - stats.q1)}</span>
@@ -184,26 +195,18 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
         <div style={styles.statsGroup}>
           <h5 style={styles.groupTitle}>Distribution</h5>
           <div style={styles.statRow}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={styles.statLabel}>Skewness:</span>
-              <TooltipIcon
-                text="Measures symmetry. Values < -1: highly left-skewed | -1 to 1: fairly symmetric | > 1: highly right-skewed"
-                placement="right"
-                width={180}
-              />
-            </div>
+            <span style={styles.statLabel}>Skewness:</span>
             <span style={styles.statValue}>{formatStatistic(stats.skewness)}</span>
           </div>
+          <div style={styles.interpretText}>
+            {interpretSkewness(stats.skewness)}
+          </div>
           <div style={styles.statRow}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={styles.statLabel}>Kurtosis:</span>
-              <TooltipIcon
-                text="Measures tail heaviness relative to normal. < 0: lighter tails | 3: normal tails | > 3: heavier tails"
-                placement="right"
-                width={180}
-              />
-            </div>
+            <span style={styles.statLabel}>Kurtosis:</span>
             <span style={styles.statValue}>{formatStatistic(stats.kurtosis)}</span>
+          </div>
+          <div style={styles.interpretText}>
+            {interpretKurtosis(stats.kurtosis)}
           </div>
         </div>
 
@@ -216,24 +219,18 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
               <span style={styles.statValue}>{stats.normalityTest.testName}</span>
             </div>
             <div style={styles.statRow}>
-              <span style={styles.statLabel}>Statistic:</span>
+              <span style={styles.statLabel}>JB Statistic:</span>
               <span style={styles.statValue}>{formatStatistic(stats.normalityTest.statistic, 4)}</span>
             </div>
             <div style={styles.statRow}>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={styles.statLabel}>p-value:</span>
-                <TooltipIcon
-                  text="p < 0.05: Data likely non-normal | p ≥ 0.05: Data could be normal"
-                  placement="right"
-                  width={160}
-                />
-              </div>
-              <span style={{
-                ...styles.statValue,
-                ...(stats.normalityTest.pValue < 0.05 ? styles.pValueSignificant : styles.pValueNotSignificant)
-              }}>
-                {formatStatistic(stats.normalityTest.pValue, 4)}
-              </span>
+              <span style={styles.statLabel}>p-value:</span>
+              <span style={styles.statValue}>{formatStatistic(stats.normalityTest.pValue, 4)}</span>
+            </div>
+            <div style={{
+              ...styles.normalityBadge,
+              ...(stats.normalityTest.isNormal ? styles.normalBadge : styles.nonNormalBadge)
+            }}>
+              {stats.normalityTest.isNormal ? '✓ Normal' : '✗ Non-normal'} (α = 0.05)
             </div>
           </div>
         )}
@@ -250,47 +247,8 @@ interface CategoricalStatsCardProps {
   onToggle: () => void
 }
 
-type SortKey = 'value' | 'count' | 'percentage'
-type SortDirection = 'asc' | 'desc' | 'none'
-
 const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, stats, isExpanded, onToggle }) => {
-  const [sortKey, setSortKey] = useState<SortKey>('count')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
-
-  const handleHeaderClick = (key: SortKey) => {
-    if (sortKey === key) {
-      // Toggle direction
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      // New sort key
-      setSortKey(key)
-      setSortDirection('desc')
-    }
-  }
-
-  const getSortedFrequencies = () => {
-    const frequencies = [...stats.frequencies]
-
-    if (sortKey === 'value') {
-      frequencies.sort((a, b) => {
-        const aStr = String(a.value).toLowerCase()
-        const bStr = String(b.value).toLowerCase()
-        return sortDirection === 'asc' ? aStr.localeCompare(bStr) : bStr.localeCompare(aStr)
-      })
-    } else if (sortKey === 'count') {
-      frequencies.sort((a, b) => {
-        return sortDirection === 'asc' ? a.count - b.count : b.count - a.count
-      })
-    } else if (sortKey === 'percentage') {
-      frequencies.sort((a, b) => {
-        return sortDirection === 'asc' ? a.percentage - b.percentage : b.percentage - a.percentage
-      })
-    }
-
-    return frequencies.slice(0, 10)
-  }
-
-  const topFrequencies = getSortedFrequencies()
+  const topFrequencies = stats.frequencies.slice(0, 10) // Show top 10
   const hasMore = stats.frequencies.length > 10
 
   return (
@@ -305,27 +263,25 @@ const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, sta
 
       {isExpanded && (
         <div style={styles.statsGrid}>
-        {/* Basic info - Summary Table */}
-        <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
+        {/* Basic info */}
+        <div style={styles.statsGroup}>
           <h5 style={styles.groupTitle}>Summary</h5>
-          <table style={styles.frequencyTable}>
-            <thead>
-              <tr>
-                <th style={styles.tableHeader}>Count</th>
-                <th style={styles.tableHeader}>Missing</th>
-                <th style={styles.tableHeader}>Unique Values</th>
-                <th style={styles.tableHeader}>Mode</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style={styles.tableRow}>
-                <td style={styles.tableCell}>{stats.count}</td>
-                <td style={styles.tableCell}>{stats.missing}</td>
-                <td style={styles.tableCell}>{stats.uniqueCount}</td>
-                <td style={styles.tableCell}>{String(stats.mode)}</td>
-              </tr>
-            </tbody>
-          </table>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Count:</span>
+            <span style={styles.statValue}>{stats.count}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Missing:</span>
+            <span style={styles.statValue}>{stats.missing}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Unique values:</span>
+            <span style={styles.statValue}>{stats.uniqueCount}</span>
+          </div>
+          <div style={styles.statRow}>
+            <span style={styles.statLabel}>Mode:</span>
+            <span style={styles.statValue}>{String(stats.mode)}</span>
+          </div>
         </div>
 
         {/* Frequency table */}
@@ -334,33 +290,9 @@ const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, sta
           <table style={styles.frequencyTable}>
             <thead>
               <tr>
-                <th
-                  style={{
-                    ...styles.tableHeader,
-                    ...(sortKey === 'value' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
-                  }}
-                  onClick={() => handleHeaderClick('value')}
-                >
-                  Value {sortKey === 'value' && (sortDirection === 'asc' ? '↑' : '↓')}
-                </th>
-                <th
-                  style={{
-                    ...styles.tableHeader,
-                    ...(sortKey === 'count' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
-                  }}
-                  onClick={() => handleHeaderClick('count')}
-                >
-                  Count {sortKey === 'count' && (sortDirection === 'asc' ? '↑' : '↓')}
-                </th>
-                <th
-                  style={{
-                    ...styles.tableHeader,
-                    ...(sortKey === 'percentage' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
-                  }}
-                  onClick={() => handleHeaderClick('percentage')}
-                >
-                  Percentage {sortKey === 'percentage' && (sortDirection === 'asc' ? '↑' : '↓')}
-                </th>
+                <th style={styles.tableHeader}>Value</th>
+                <th style={styles.tableHeader}>Count</th>
+                <th style={styles.tableHeader}>Percentage</th>
                 <th style={styles.tableHeader}>Bar</th>
               </tr>
             </thead>
@@ -510,13 +442,6 @@ const styles = {
     marginTop: '4px',
     marginBottom: '8px'
   } as const,
-  testSubheader: {
-    fontSize: '13px',
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: '8px',
-    marginTop: '4px'
-  } as const,
   normalityBadge: {
     padding: '8px 12px',
     borderRadius: '6px',
@@ -533,14 +458,6 @@ const styles = {
     backgroundColor: '#ffebee',
     color: '#c62828'
   } as const,
-  pValueSignificant: {
-    color: '#c62828',
-    fontWeight: '700' as const
-  } as const,
-  pValueNotSignificant: {
-    color: '#2e7d32',
-    fontWeight: '700' as const
-  } as const,
   frequencyTable: {
     width: '100%',
     borderCollapse: 'collapse',
@@ -553,21 +470,6 @@ const styles = {
     fontWeight: '600',
     color: '#333',
     borderBottom: '2px solid #ddd'
-  } as const,
-  tableHeaderHoverable: {
-    cursor: 'pointer',
-    userSelect: 'none',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: '#e0e0e0'
-    }
-  } as const,
-  tableHeaderActive: {
-    backgroundColor: '#d4e6f1',
-    color: '#1f5a96',
-    fontWeight: '700' as const,
-    cursor: 'pointer',
-    userSelect: 'none'
   } as const,
   tableRow: {
     borderBottom: '1px solid #eee'
