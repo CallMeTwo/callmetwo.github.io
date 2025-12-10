@@ -483,14 +483,12 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
       {
         group: group1Name,
         mean: mean1,
-        errorMin: mean1 - t1 * se1,
-        errorMax: mean1 + t1 * se1
+        error: t1 * se1
       },
       {
         group: group2Name,
         mean: mean2,
-        errorMin: mean2 - t2 * se2,
-        errorMax: mean2 + t2 * se2
+        error: t2 * se2
       }
     ]
 
@@ -506,8 +504,7 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
           />
           <Bar dataKey="mean" fill={CHART_COLORS.primary} radius={[8, 8, 0, 0]}>
             <ErrorBar
-              dataKey="errorMin"
-              errorDataKey="errorMax"
+              dataKey="error"
               direction="y"
               stroke="#333"
               strokeWidth={2}
