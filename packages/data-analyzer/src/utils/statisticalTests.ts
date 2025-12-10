@@ -1,6 +1,11 @@
 import { mean, standardDeviation, variance } from 'simple-statistics'
-import jstat from 'jstat'
+import jStat from 'jstat'
 import { DataRow } from '../types'
+
+// jstat library exports functions directly
+const t = jStat.t
+const chisquare = jStat.chisquare
+const f = jStat.f
 
 export interface TTestResult {
   testType: 'Independent Samples t-test' | 'Paired Samples t-test'
@@ -294,9 +299,9 @@ export function linearRegression(
  * Calculates the cumulative distribution function (CDF) for the t-distribution
  * Returns the right-tailed p-value: P(T > |t|)
  */
-function tDistributionPValue(t: number, df: number): number {
-  // jstat.t.cdf returns P(T <= t), so we use 1 - CDF for right tail
-  return 1 - jstat.t.cdf(t, df)
+function tDistributionPValue(tValue: number, df: number): number {
+  // t.cdf returns P(T <= t), so we use 1 - CDF for right tail
+  return 1 - t.cdf(tValue, df)
 }
 
 /**
@@ -305,23 +310,23 @@ function tDistributionPValue(t: number, df: number): number {
  * Returns the t-value for a given cumulative probability
  */
 function tDistributionInverse(p: number, df: number): number {
-  return jstat.t.inv(p, df)
+  return t.inv(p, df)
 }
 
 /**
  * Chi-square distribution p-value using jstat
  * Returns the right-tailed p-value: P(χ² > chiSquare)
  */
-function chiSquarePValue(chiSquare: number, df: number): number {
-  return 1 - jstat.chisquare.cdf(chiSquare, df)
+function chiSquarePValue(chiSquareValue: number, df: number): number {
+  return 1 - chisquare.cdf(chiSquareValue, df)
 }
 
 /**
  * F-distribution p-value using jstat
  * Returns the right-tailed p-value: P(F > f)
  */
-function fDistributionPValue(f: number, df1: number, df2: number): number {
-  return 1 - jstat.f.cdf(f, df1, df2)
+function fDistributionPValue(fValue: number, df1: number, df2: number): number {
+  return 1 - f.cdf(fValue, df1, df2)
 }
 
 /**
