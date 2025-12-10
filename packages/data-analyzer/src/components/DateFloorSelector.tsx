@@ -51,8 +51,7 @@ const styles = {
     fontWeight: '600',
     color: '#333',
     marginBottom: '10px',
-    display: 'block',
-    marginBottom: '10px'
+    display: 'block'
   } as const,
   optionsContainer: {
     display: 'flex',

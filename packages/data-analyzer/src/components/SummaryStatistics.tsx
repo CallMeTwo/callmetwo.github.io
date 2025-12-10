@@ -132,6 +132,7 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
               stats={stats as DateStats}
               isExpanded={expandedCards.has(variable.name)}
               onToggle={() => toggleCard(variable.name)}
+              data={data}
             />
           ))}
         </div>
@@ -270,13 +271,41 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
   )
 }
 
-const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded, onToggle }) => {
+const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded, onToggle, data }) => {
   const [floorUnit, setFloorUnit] = useState<'year' | 'month' | 'week' | 'day'>('day')
 
   const formatDate = (date: Date | null): string => {
     if (!date) return 'N/A'
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
   }
+
+  // Get frequency distribution based on floor unit
+  const getDateFrequencies = useMemo(() => {
+    const columnValues = data.rows.map(row => row[variableName])
+    const validDates = columnValues
+      .filter(v => v !== null && v !== undefined && v !== '')
+      .map(v => new Date(String(v)))
+      .filter(d => !isNaN(d.getTime()))
+
+    if (validDates.length === 0) return []
+
+    // Floor dates and count frequencies
+    const flooredMap = new Map<string, number>()
+    validDates.forEach(date => {
+      const floored = floorDate(date, floorUnit)
+      const key = floored.toISOString().split('T')[0] // YYYY-MM-DD format
+      flooredMap.set(key, (flooredMap.get(key) || 0) + 1)
+    })
+
+    // Convert to array and sort by date
+    return Array.from(flooredMap.entries())
+      .map(([dateStr, count]) => ({
+        date: new Date(dateStr),
+        count,
+        percentage: (count / validDates.length) * 100
+      }))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+  }, [data, variableName, floorUnit])
 
   return (
     <div style={styles.card}>
@@ -313,7 +342,7 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
             </table>
           </div>
 
-          {/* Mode and Floor Selector */}
+          {/* Mode */}
           <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
             <h5 style={styles.groupTitle}>Date Mode</h5>
             <div style={styles.statRow}>
@@ -329,6 +358,45 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
               onChange={setFloorUnit}
             />
           </div>
+
+          {/* Frequency Distribution Table */}
+          <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
+            <h5 style={styles.groupTitle}>Frequency Distribution</h5>
+            <table style={styles.frequencyTable}>
+              <thead>
+                <tr>
+                  <th style={styles.tableHeader}>Date</th>
+                  <th style={styles.tableHeader}>Count</th>
+                  <th style={styles.tableHeader}>Percentage</th>
+                  <th style={styles.tableHeader}>Bar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getDateFrequencies.slice(0, 20).map((item, idx) => (
+                  <tr key={idx} style={styles.tableRow}>
+                    <td style={styles.tableCell}>{formatDate(item.date)}</td>
+                    <td style={styles.tableCell}>{item.count}</td>
+                    <td style={styles.tableCell}>{formatStatistic(item.percentage, 1)}%</td>
+                    <td style={styles.tableCell}>
+                      <div style={styles.barContainer}>
+                        <div
+                          style={{
+                            ...styles.bar,
+                            width: `${item.percentage}%`
+                          }}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {getDateFrequencies.length > 20 && (
+              <p style={styles.moreText}>
+                ... and {getDateFrequencies.length - 20} more dates
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -340,6 +408,7 @@ interface DateStatsCardProps {
   stats: DateStats
   isExpanded: boolean
   onToggle: () => void
+  data: ParsedData
 }
 
 interface CategoricalStatsCardProps {
