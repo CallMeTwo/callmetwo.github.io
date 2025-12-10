@@ -371,6 +371,7 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
                   <th style={styles.tableHeader}>Missing</th>
                   <th style={styles.tableHeader}>Min Date</th>
                   <th style={styles.tableHeader}>Max Date</th>
+                  <th style={styles.tableHeader}>Mode</th>
                 </tr>
               </thead>
               <tbody>
@@ -379,18 +380,10 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
                   <td style={styles.tableCell}>{stats.missing}</td>
                   <td style={styles.tableCell}>{formatDate(stats.min)}</td>
                   <td style={styles.tableCell}>{formatDate(stats.max)}</td>
+                  <td style={styles.tableCell}>{formatDate(stats.mode)}</td>
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          {/* Mode */}
-          <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
-            <h5 style={styles.groupTitle}>Date Mode</h5>
-            <div style={styles.statRow}>
-              <span style={styles.statLabel}>Most Frequent Date:</span>
-              <span style={styles.statValue}>{formatDate(stats.mode)}</span>
-            </div>
           </div>
 
           {/* Date Floor Unit Selector */}
