@@ -383,55 +383,158 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName }) => {
     return <div style={styles.chart}>No data available for box plot</div>
   }
 
-  // Prepare data for line chart to simulate box plot
-  const plotData = [
-    { name: 'Min', value: boxData.min },
-    { name: 'Q1', value: boxData.q1 },
-    { name: 'Median', value: boxData.median },
-    { name: 'Q3', value: boxData.q3 },
-    { name: 'Max', value: boxData.max }
-  ]
+  // Calculate scales and positions
+  const allValues = [boxData.min, boxData.max, ...boxData.outliers]
+  const minVal = Math.min(...allValues)
+  const maxVal = Math.max(...allValues)
+  const range = maxVal - minVal || 1
+  const padding = range * 0.1
+
+  const scale = (value: number) => ((value - minVal) / (range + padding * 2)) * 100
+
+  const minPos = scale(boxData.min)
+  const q1Pos = scale(boxData.q1)
+  const medianPos = scale(boxData.median)
+  const q3Pos = scale(boxData.q3)
+  const maxPos = scale(boxData.max)
 
   return (
     <div style={styles.chart}>
       <h3 style={styles.chartTitle}>Box Plot: {variableName}</h3>
-      <div style={styles.boxPlotStats}>
-        <div style={styles.boxPlotStat}>
-          <span style={styles.boxPlotLabel}>Min</span>
-          <span style={styles.boxPlotValue}>{boxData.min.toFixed(2)}</span>
-        </div>
-        <div style={styles.boxPlotStat}>
-          <span style={styles.boxPlotLabel}>Q1</span>
-          <span style={styles.boxPlotValue}>{boxData.q1.toFixed(2)}</span>
-        </div>
-        <div style={styles.boxPlotStat}>
-          <span style={styles.boxPlotLabel}>Median</span>
-          <span style={styles.boxPlotValue}>{boxData.median.toFixed(2)}</span>
-        </div>
-        <div style={styles.boxPlotStat}>
-          <span style={styles.boxPlotLabel}>Q3</span>
-          <span style={styles.boxPlotValue}>{boxData.q3.toFixed(2)}</span>
-        </div>
-        <div style={styles.boxPlotStat}>
-          <span style={styles.boxPlotLabel}>Max</span>
-          <span style={styles.boxPlotValue}>{boxData.max.toFixed(2)}</span>
-        </div>
-        {boxData.outliers.length > 0 && (
+      <div style={styles.boxPlotSummary}>
+        <div style={styles.boxPlotStats}>
           <div style={styles.boxPlotStat}>
-            <span style={styles.boxPlotLabel}>Outliers</span>
-            <span style={styles.boxPlotValue}>{boxData.outliers.length}</span>
+            <span style={styles.boxPlotLabel}>Min</span>
+            <span style={styles.boxPlotValue}>{boxData.min.toFixed(2)}</span>
           </div>
-        )}
+          <div style={styles.boxPlotStat}>
+            <span style={styles.boxPlotLabel}>Q1</span>
+            <span style={styles.boxPlotValue}>{boxData.q1.toFixed(2)}</span>
+          </div>
+          <div style={styles.boxPlotStat}>
+            <span style={styles.boxPlotLabel}>Median</span>
+            <span style={styles.boxPlotValue}>{boxData.median.toFixed(2)}</span>
+          </div>
+          <div style={styles.boxPlotStat}>
+            <span style={styles.boxPlotLabel}>Q3</span>
+            <span style={styles.boxPlotValue}>{boxData.q3.toFixed(2)}</span>
+          </div>
+          <div style={styles.boxPlotStat}>
+            <span style={styles.boxPlotLabel}>Max</span>
+            <span style={styles.boxPlotValue}>{boxData.max.toFixed(2)}</span>
+          </div>
+          {boxData.outliers.length > 0 && (
+            <div style={styles.boxPlotStat}>
+              <span style={styles.boxPlotLabel}>Outliers</span>
+              <span style={styles.boxPlotValue}>{boxData.outliers.length}</span>
+            </div>
+          )}
+        </div>
       </div>
-      <ResponsiveContainer width="100%" height={350}>
-        <LineChart data={plotData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis label={{ value: variableName, angle: -90, position: 'insideLeft' }} />
-          <Tooltip />
-          <Line type="monotone" dataKey="value" stroke={CHART_COLORS.primary} strokeWidth={3} />
-        </LineChart>
-      </ResponsiveContainer>
+
+      {/* SVG Box Plot */}
+      <svg style={styles.boxPlotSvg} viewBox="0 0 800 200">
+        {/* Y-axis labels */}
+        <text x="30" y="180" style={styles.boxPlotAxisLabel}>{(minVal).toFixed(1)}</text>
+        <text x="30" y="110" style={styles.boxPlotAxisLabel}>{((minVal + maxVal) / 2).toFixed(1)}</text>
+        <text x="30" y="30" style={styles.boxPlotAxisLabel}>{(maxVal).toFixed(1)}</text>
+
+        {/* Whiskers */}
+        {/* Lower whisker line */}
+        <line
+          x1={minPos + 50}
+          y1="100"
+          x2={minPos + 50}
+          y2="80"
+          stroke={CHART_COLORS.primary}
+          strokeWidth="2"
+        />
+        {/* Lower whisker horizontal */}
+        <line
+          x1={minPos + 45}
+          y1="80"
+          x2={minPos + 55}
+          y2="80"
+          stroke={CHART_COLORS.primary}
+          strokeWidth="2"
+        />
+
+        {/* Whisker to Q1 */}
+        <line
+          x1={minPos + 50}
+          y1="100"
+          x2={q1Pos + 50}
+          y2="100"
+          stroke={CHART_COLORS.primary}
+          strokeWidth="2"
+        />
+
+        {/* Box (Q1 to Q3) */}
+        <rect
+          x={q1Pos + 50}
+          y="80"
+          width={q3Pos - q1Pos}
+          height="40"
+          fill={CHART_COLORS.primary}
+          opacity="0.2"
+          stroke={CHART_COLORS.primary}
+          strokeWidth="2"
+        />
+
+        {/* Median line */}
+        <line
+          x1={medianPos + 50}
+          y1="80"
+          x2={medianPos + 50}
+          y2="120"
+          stroke="#e74c3c"
+          strokeWidth="3"
+        />
+
+        {/* Whisker to Q3 */}
+        <line
+          x1={q3Pos + 50}
+          y1="100"
+          x2={maxPos + 50}
+          y2="100"
+          stroke={CHART_COLORS.primary}
+          strokeWidth="2"
+        />
+
+        {/* Upper whisker line */}
+        <line
+          x1={maxPos + 50}
+          y1="100"
+          x2={maxPos + 50}
+          y2="120"
+          stroke={CHART_COLORS.primary}
+          strokeWidth="2"
+        />
+        {/* Upper whisker horizontal */}
+        <line
+          x1={maxPos + 45}
+          y1="120"
+          x2={maxPos + 55}
+          y2="120"
+          stroke={CHART_COLORS.primary}
+          strokeWidth="2"
+        />
+
+        {/* Outliers */}
+        {boxData.outliers.map((outlier, idx) => {
+          const outPos = scale(outlier)
+          return (
+            <circle
+              key={`outlier-${idx}`}
+              cx={outPos + 50}
+              cy="100"
+              r="3"
+              fill="#e74c3c"
+              opacity="0.8"
+            />
+          )
+        })}
+      </svg>
     </div>
   )
 }
@@ -533,10 +636,12 @@ const styles = {
     color: '#333',
     textAlign: 'center'
   } as const,
+  boxPlotSummary: {
+    marginBottom: '15px'
+  } as const,
   boxPlotStats: {
     display: 'flex',
     justifyContent: 'space-around',
-    marginBottom: '12px',
     padding: '10px',
     backgroundColor: '#f9f9f9',
     borderRadius: '6px',
@@ -560,6 +665,17 @@ const styles = {
     fontWeight: 'bold',
     fontFamily: 'monospace'
   } as const,
+  boxPlotSvg: {
+    width: '100%',
+    height: 'auto',
+    minHeight: '200px',
+    marginTop: '10px'
+  } as const,
+  boxPlotAxisLabel: {
+    fontSize: '12px',
+    fill: '#666',
+    textAnchor: 'end'
+  } as any,
   actions: {
     display: 'flex',
     gap: '15px',
