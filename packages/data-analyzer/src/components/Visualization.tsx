@@ -14,6 +14,7 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts'
+import ReactECharts from 'echarts-for-react'
 import { ParsedData, VariableType } from '../types'
 import {
   createHistogram,
@@ -383,24 +384,94 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName }) => {
     return <div style={styles.chart}>No data available for box plot</div>
   }
 
-  // Calculate scales and positions
-  const allValues = [boxData.min, boxData.max, ...boxData.outliers]
-  const minVal = Math.min(...allValues)
-  const maxVal = Math.max(...allValues)
-  const range = maxVal - minVal || 1
-  const padding = range * 0.1
+  // Prepare data for ECharts box plot
+  // ECharts expects: [min, Q1, median, Q3, max, ...outliers]
+  const boxPlotValues = [
+    boxData.min,
+    boxData.q1,
+    boxData.median,
+    boxData.q3,
+    boxData.max,
+    ...boxData.outliers
+  ]
 
-  const scale = (value: number) => ((value - minVal) / (range + padding * 2)) * 100
-
-  const minPos = scale(boxData.min)
-  const q1Pos = scale(boxData.q1)
-  const medianPos = scale(boxData.median)
-  const q3Pos = scale(boxData.q3)
-  const maxPos = scale(boxData.max)
+  const option = {
+    title: {
+      text: `Box Plot: ${variableName}`,
+      left: 'center',
+      textStyle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333'
+      }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: (params: any) => {
+        if (params.seriesType === 'boxplot') {
+          const [min, q1, median, q3, max] = params.value
+          return `<div style="padding: 5px;">
+            <strong>Statistics</strong><br/>
+            Min: ${min.toFixed(2)}<br/>
+            Q1: ${q1.toFixed(2)}<br/>
+            Median: ${median.toFixed(2)}<br/>
+            Q3: ${q3.toFixed(2)}<br/>
+            Max: ${max.toFixed(2)}
+          </div>`
+        }
+        return params.name
+      }
+    },
+    grid: {
+      left: '10%',
+      right: '10%',
+      bottom: '15%',
+      top: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: [variableName],
+      axisLabel: {
+        fontSize: 12
+      }
+    },
+    yAxis: {
+      type: 'value',
+      name: 'Value',
+      nameTextStyle: {
+        color: '#666',
+        fontSize: 12
+      },
+      axisLabel: {
+        fontSize: 12
+      }
+    },
+    series: [
+      {
+        name: 'Box Plot',
+        type: 'boxplot',
+        data: [boxPlotValues],
+        itemStyle: {
+          color: CHART_COLORS.primary,
+          borderColor: '#333'
+        },
+        boxWidth: ['20%', '50%']
+      },
+      {
+        name: 'Outliers',
+        type: 'scatter',
+        data: boxData.outliers.map(v => [0, v]),
+        symbolSize: 4,
+        itemStyle: {
+          color: '#e74c3c'
+        }
+      }
+    ]
+  }
 
   return (
     <div style={styles.chart}>
-      <h3 style={styles.chartTitle}>Box Plot: {variableName}</h3>
       <div style={styles.boxPlotSummary}>
         <div style={styles.boxPlotStats}>
           <div style={styles.boxPlotStat}>
@@ -432,109 +503,12 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName }) => {
         </div>
       </div>
 
-      {/* SVG Box Plot */}
-      <svg style={styles.boxPlotSvg} viewBox="0 0 800 200">
-        {/* Y-axis labels */}
-        <text x="30" y="180" style={styles.boxPlotAxisLabel}>{(minVal).toFixed(1)}</text>
-        <text x="30" y="110" style={styles.boxPlotAxisLabel}>{((minVal + maxVal) / 2).toFixed(1)}</text>
-        <text x="30" y="30" style={styles.boxPlotAxisLabel}>{(maxVal).toFixed(1)}</text>
-
-        {/* Whiskers */}
-        {/* Lower whisker line */}
-        <line
-          x1={minPos + 50}
-          y1="100"
-          x2={minPos + 50}
-          y2="80"
-          stroke={CHART_COLORS.primary}
-          strokeWidth="2"
-        />
-        {/* Lower whisker horizontal */}
-        <line
-          x1={minPos + 45}
-          y1="80"
-          x2={minPos + 55}
-          y2="80"
-          stroke={CHART_COLORS.primary}
-          strokeWidth="2"
-        />
-
-        {/* Whisker to Q1 */}
-        <line
-          x1={minPos + 50}
-          y1="100"
-          x2={q1Pos + 50}
-          y2="100"
-          stroke={CHART_COLORS.primary}
-          strokeWidth="2"
-        />
-
-        {/* Box (Q1 to Q3) */}
-        <rect
-          x={q1Pos + 50}
-          y="80"
-          width={q3Pos - q1Pos}
-          height="40"
-          fill={CHART_COLORS.primary}
-          opacity="0.2"
-          stroke={CHART_COLORS.primary}
-          strokeWidth="2"
-        />
-
-        {/* Median line */}
-        <line
-          x1={medianPos + 50}
-          y1="80"
-          x2={medianPos + 50}
-          y2="120"
-          stroke="#e74c3c"
-          strokeWidth="3"
-        />
-
-        {/* Whisker to Q3 */}
-        <line
-          x1={q3Pos + 50}
-          y1="100"
-          x2={maxPos + 50}
-          y2="100"
-          stroke={CHART_COLORS.primary}
-          strokeWidth="2"
-        />
-
-        {/* Upper whisker line */}
-        <line
-          x1={maxPos + 50}
-          y1="100"
-          x2={maxPos + 50}
-          y2="120"
-          stroke={CHART_COLORS.primary}
-          strokeWidth="2"
-        />
-        {/* Upper whisker horizontal */}
-        <line
-          x1={maxPos + 45}
-          y1="120"
-          x2={maxPos + 55}
-          y2="120"
-          stroke={CHART_COLORS.primary}
-          strokeWidth="2"
-        />
-
-        {/* Outliers */}
-        {boxData.outliers.map((outlier, idx) => {
-          const outPos = scale(outlier)
-          return (
-            <circle
-              key={`outlier-${idx}`}
-              cx={outPos + 50}
-              cy="100"
-              r="3"
-              fill="#e74c3c"
-              opacity="0.8"
-            />
-          )
-        })}
-      </svg>
+      <ReactECharts
+        option={option}
+        style={{ height: '400px', width: '100%' }}
+        notMerge
+        lazyUpdate
+      />
     </div>
   )
 }
@@ -665,17 +639,6 @@ const styles = {
     fontWeight: 'bold',
     fontFamily: 'monospace'
   } as const,
-  boxPlotSvg: {
-    width: '100%',
-    height: 'auto',
-    minHeight: '200px',
-    marginTop: '10px'
-  } as const,
-  boxPlotAxisLabel: {
-    fontSize: '12px',
-    fill: '#666',
-    textAnchor: 'end'
-  } as any,
   actions: {
     display: 'flex',
     gap: '15px',
