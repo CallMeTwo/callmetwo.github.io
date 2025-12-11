@@ -205,7 +205,7 @@ const styles = {
     color: 'white',
     fontWeight: '600',
     borderBottom: '2px solid #1a252f'
-  } as any,
+  } as React.CSSProperties,
   bodyRow: {
     backgroundColor: 'white'
   } as const,
@@ -216,7 +216,7 @@ const styles = {
     padding: '10px 8px',
     borderBottom: '1px solid #eee',
     color: '#333'
-  } as any,
+  } as React.CSSProperties,
   moreRows: {
     margin: '15px 0 0 0',
     fontSize: '13px',

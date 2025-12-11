@@ -243,7 +243,7 @@ const styles = {
     fontWeight: '600',
     fontSize: '13px',
     borderBottom: '2px solid #1a252f'
-  } as any,
+  } as React.CSSProperties,
   bodyRow: {
     backgroundColor: 'white',
     borderBottom: '1px solid #eee',
@@ -257,7 +257,7 @@ const styles = {
     padding: '12px',
     color: '#333',
     verticalAlign: 'middle'
-  } as any,
+  } as React.CSSProperties,
   checkbox: {
     width: '18px',
     height: '18px',

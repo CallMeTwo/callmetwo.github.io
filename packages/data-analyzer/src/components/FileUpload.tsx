@@ -176,7 +176,7 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     marginBottom: '30px'
-  } as any,
+  } as React.CSSProperties,
   dropZoneActive: {
     borderColor: '#2980b9',
     backgroundColor: '#e7f3ff',

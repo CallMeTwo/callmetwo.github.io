@@ -1,17 +1,20 @@
 import { useState, FC } from 'react'
-import { Navbar } from 'shared'
+import AppHeader from './components/AppHeader'
 import FileUpload from './components/FileUpload'
 import DataPreview from './components/DataPreview'
 import TypeVerification from './components/TypeVerification'
 import SummaryStatistics from './components/SummaryStatistics'
 import Visualization from './components/Visualization'
 import StatisticalTests from './components/StatisticalTests'
+import { RenderErrorBoundary } from './components/ErrorBoundary'
+import { useTheme } from './contexts/ThemeContext'
 import { ParsedData, VariableType } from './types'
 import { inferVariableType, getSampleValues } from './utils/fileParser'
 
 type WorkflowStep = 'upload' | 'preview' | 'exploration' | 'summary' | 'visualization' | 'test-selection'
 
 const App: FC = () => {
+  const { colors } = useTheme()
   const [currentStep, setCurrentStep] = useState<WorkflowStep>('upload')
   const [parsedData, setParsedData] = useState<ParsedData | null>(null)
   const [variables, setVariables] = useState<VariableType[]>([])
@@ -96,13 +99,12 @@ const App: FC = () => {
   }
 
   return (
-    <div style={styles.appContainer}>
-      <Navbar breadcrumbs={[{ label: 'Data Analyzer' }]} />
-
-      <header style={styles.header}>
-        <h1 style={styles.mainTitle}>📊 Data Analyzer</h1>
-        <p style={styles.subtitle}>Upload or paste your data to analyze and visualize it</p>
-      </header>
+    <div style={{
+      ...styles.appContainer,
+      backgroundColor: colors.background,
+      color: colors.text.primary
+    }}>
+      <AppHeader />
 
       {/* Step indicator */}
       <div style={styles.stepsContainer}>
@@ -115,55 +117,57 @@ const App: FC = () => {
       </div>
 
       <main style={styles.mainContent}>
-        {currentStep === 'upload' && (
-          <FileUpload
-            onDataLoaded={handleDataLoaded}
-            isLoading={isLoading}
-          />
-        )}
+        <RenderErrorBoundary>
+          {currentStep === 'upload' && (
+            <FileUpload
+              onDataLoaded={handleDataLoaded}
+              isLoading={isLoading}
+            />
+          )}
 
-        {currentStep === 'preview' && parsedData && (
-          <DataPreview
-            data={parsedData}
-            onContinue={handleContinueFromPreview}
-            onCancel={handleCancelUpload}
-          />
-        )}
+          {currentStep === 'preview' && parsedData && (
+            <DataPreview
+              data={parsedData}
+              onContinue={handleContinueFromPreview}
+              onCancel={handleCancelUpload}
+            />
+          )}
 
-        {currentStep === 'exploration' && variables.length > 0 && (
-          <TypeVerification
-            variables={variables}
-            onVariablesUpdate={handleVariablesUpdate}
-            onContinue={handleContinueFromExploration}
-            onBack={handleBackFromExploration}
-          />
-        )}
+          {currentStep === 'exploration' && variables.length > 0 && (
+            <TypeVerification
+              variables={variables}
+              onVariablesUpdate={handleVariablesUpdate}
+              onContinue={handleContinueFromExploration}
+              onBack={handleBackFromExploration}
+            />
+          )}
 
-        {currentStep === 'summary' && parsedData && variables.length > 0 && (
-          <SummaryStatistics
-            data={parsedData}
-            variables={variables}
-            onContinue={handleContinueFromSummary}
-            onBack={handleBackFromSummary}
-          />
-        )}
+          {currentStep === 'summary' && parsedData && variables.length > 0 && (
+            <SummaryStatistics
+              data={parsedData}
+              variables={variables}
+              onContinue={handleContinueFromSummary}
+              onBack={handleBackFromSummary}
+            />
+          )}
 
-        {currentStep === 'visualization' && parsedData && variables.length > 0 && (
-          <Visualization
-            data={parsedData}
-            variables={variables}
-            onContinue={handleContinueFromVisualization}
-            onBack={handleBackFromVisualization}
-          />
-        )}
+          {currentStep === 'visualization' && parsedData && variables.length > 0 && (
+            <Visualization
+              data={parsedData}
+              variables={variables}
+              onContinue={handleContinueFromVisualization}
+              onBack={handleBackFromVisualization}
+            />
+          )}
 
-        {currentStep === 'test-selection' && parsedData && variables.length > 0 && (
-          <StatisticalTests
-            data={parsedData}
-            variables={variables}
-            onBack={handleBackFromTestSelection}
-          />
-        )}
+          {currentStep === 'test-selection' && parsedData && variables.length > 0 && (
+            <StatisticalTests
+              data={parsedData}
+              variables={variables}
+              onBack={handleBackFromTestSelection}
+            />
+          )}
+        </RenderErrorBoundary>
       </main>
 
       <footer style={styles.footer}>
@@ -326,7 +330,7 @@ const styles = {
     flex: 1,
     width: 'calc(100% - 54px)',
     zIndex: -1
-  } as any,
+  } as React.CSSProperties,
   stepConnectorActive: {
     backgroundColor: '#3498db'
   } as const,
