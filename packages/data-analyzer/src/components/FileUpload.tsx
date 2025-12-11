@@ -1,6 +1,7 @@
 import React, { FC, ChangeEvent, DragEvent, useState } from 'react'
 import { parseFile } from '../utils/fileParser'
 import { ParsedData } from '../types'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface FileUploadProps {
   onDataLoaded: (data: ParsedData) => void
@@ -8,6 +9,7 @@ interface FileUploadProps {
 }
 
 const FileUpload: FC<FileUploadProps> = ({ onDataLoaded, isLoading }) => {
+  const { colors } = useTheme()
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -94,7 +96,13 @@ const FileUpload: FC<FileUploadProps> = ({ onDataLoaded, isLoading }) => {
       <div
         style={{
           ...styles.dropZone,
-          ...(dragOver ? styles.dropZoneActive : {}),
+          border: `3px dashed ${colors.primary}`,
+          backgroundColor: colors.primary + '10',
+          ...(dragOver ? {
+            borderColor: colors.primary,
+            backgroundColor: colors.primary + '20',
+            boxShadow: `0 4px 12px ${colors.primary}33`
+          } : {}),
           ...(isLoading ? styles.dropZoneDisabled : {})
         }}
         onDragOver={handleDragOver}
@@ -102,14 +110,26 @@ const FileUpload: FC<FileUploadProps> = ({ onDataLoaded, isLoading }) => {
         onDrop={handleDrop}
       >
         <div style={styles.icon}>📁</div>
-        <h3 style={styles.title}>Upload Your Data</h3>
-        <p style={styles.subtitle}>
+        <h3 style={{
+          ...styles.title,
+          color: colors.text.primary
+        }}>Upload Your Data</h3>
+        <p style={{
+          ...styles.subtitle,
+          color: colors.text.secondary
+        }}>
           Drag and drop your file here or click to browse
         </p>
-        <p style={styles.formats}>
+        <p style={{
+          ...styles.formats,
+          color: colors.text.secondary
+        }}>
           Supported formats: <strong>CSV, XLSX, XLS</strong>
         </p>
-        <p style={styles.size}>Max file size: <strong>10 MB</strong></p>
+        <p style={{
+          ...styles.size,
+          color: colors.text.secondary
+        }}>Max file size: <strong>10 MB</strong></p>
 
         <input
           type="file"
@@ -120,40 +140,82 @@ const FileUpload: FC<FileUploadProps> = ({ onDataLoaded, isLoading }) => {
           disabled={isLoading}
         />
 
-        <label htmlFor="file-input" style={styles.browseButton}>
+        <label htmlFor="file-input" style={{
+          ...styles.browseButton,
+          backgroundColor: colors.primary
+        }}>
           {isLoading ? 'Processing...' : 'Browse Files'}
         </label>
       </div>
 
       {error && (
-        <div style={styles.errorBox}>
-          <p style={styles.errorTitle}>⚠️ Error</p>
-          <p style={styles.errorMessage}>{error}</p>
+        <div style={{
+          ...styles.errorBox,
+          backgroundColor: colors.warning + '20',
+          border: `1px solid ${colors.warning}`
+        }}>
+          <p style={{
+            ...styles.errorTitle,
+            color: colors.text.primary
+          }}>⚠️ Error</p>
+          <p style={{
+            ...styles.errorMessage,
+            color: colors.text.primary
+          }}>{error}</p>
         </div>
       )}
 
       {/* Sample Data Section */}
       <div style={styles.sampleSection}>
-        <h3 style={styles.sampleTitle}>Or try with sample data:</h3>
+        <h3 style={{
+          ...styles.sampleTitle,
+          color: colors.text.primary
+        }}>Or try with sample data:</h3>
         <div style={styles.sampleCards}>
           <div
-            style={styles.sampleCard}
+            style={{
+              ...styles.sampleCard,
+              backgroundColor: colors.background,
+              border: `2px solid ${colors.border}`
+            }}
             onClick={() => !isLoading && handleSampleDataLoad('small_dataset.csv')}
           >
             <div style={styles.cardIcon}>📄</div>
-            <h4 style={styles.cardTitle}>Small Dataset</h4>
-            <p style={styles.cardDescription}>CSV format • ~10 rows</p>
-            <p style={styles.cardDescription}>Basic example for quick testing</p>
+            <h4 style={{
+              ...styles.cardTitle,
+              color: colors.text.primary
+            }}>Small Dataset</h4>
+            <p style={{
+              ...styles.cardDescription,
+              color: colors.text.secondary
+            }}>CSV format • ~10 rows</p>
+            <p style={{
+              ...styles.cardDescription,
+              color: colors.text.secondary
+            }}>Basic example for quick testing</p>
           </div>
 
           <div
-            style={styles.sampleCard}
+            style={{
+              ...styles.sampleCard,
+              backgroundColor: colors.background,
+              border: `2px solid ${colors.border}`
+            }}
             onClick={() => !isLoading && handleSampleDataLoad('large_dataset.xlsx')}
           >
             <div style={styles.cardIcon}>📊</div>
-            <h4 style={styles.cardTitle}>Large Dataset</h4>
-            <p style={styles.cardDescription}>Excel format • ~1000 rows</p>
-            <p style={styles.cardDescription}>Comprehensive analysis example</p>
+            <h4 style={{
+              ...styles.cardTitle,
+              color: colors.text.primary
+            }}>Large Dataset</h4>
+            <p style={{
+              ...styles.cardDescription,
+              color: colors.text.secondary
+            }}>Excel format • ~1000 rows</p>
+            <p style={{
+              ...styles.cardDescription,
+              color: colors.text.secondary
+            }}>Comprehensive analysis example</p>
           </div>
         </div>
       </div>
@@ -168,20 +230,13 @@ const styles = {
     margin: '0 auto'
   } as const,
   dropZone: {
-    border: '3px dashed #3498db',
     borderRadius: '12px',
     padding: '60px 20px',
     textAlign: 'center' as const,
-    backgroundColor: '#f0f7ff',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
     marginBottom: '30px'
   } as React.CSSProperties,
-  dropZoneActive: {
-    borderColor: '#2980b9',
-    backgroundColor: '#e7f3ff',
-    boxShadow: '0 4px 12px rgba(52, 152, 219, 0.2)'
-  } as const,
   dropZoneDisabled: {
     opacity: 0.6,
     cursor: 'not-allowed'
@@ -193,23 +248,19 @@ const styles = {
   title: {
     margin: '0 0 10px 0',
     fontSize: '24px',
-    fontWeight: 'bold',
-    color: '#333'
+    fontWeight: 'bold'
   } as const,
   subtitle: {
     margin: '0 0 15px 0',
-    fontSize: '16px',
-    color: '#666'
+    fontSize: '16px'
   } as const,
   formats: {
     margin: '10px 0',
-    fontSize: '14px',
-    color: '#555'
+    fontSize: '14px'
   } as const,
   size: {
     margin: '5px 0 20px 0',
-    fontSize: '14px',
-    color: '#666'
+    fontSize: '14px'
   } as const,
   hiddenInput: {
     display: 'none'
@@ -217,7 +268,6 @@ const styles = {
   browseButton: {
     display: 'inline-block',
     padding: '12px 32px',
-    backgroundColor: '#3498db',
     color: 'white',
     fontSize: '16px',
     fontWeight: '600',
@@ -226,8 +276,6 @@ const styles = {
     transition: 'background-color 0.2s'
   } as const,
   errorBox: {
-    backgroundColor: '#fff3cd',
-    border: '1px solid #ffc107',
     borderRadius: '8px',
     padding: '15px',
     marginBottom: '20px'
@@ -235,13 +283,11 @@ const styles = {
   errorTitle: {
     margin: '0 0 8px 0',
     fontSize: '16px',
-    fontWeight: '600',
-    color: '#856404'
+    fontWeight: '600'
   } as const,
   errorMessage: {
     margin: 0,
     fontSize: '14px',
-    color: '#856404',
     lineHeight: '1.5'
   } as const,
   sampleSection: {
@@ -251,7 +297,6 @@ const styles = {
     margin: '0 0 20px 0',
     fontSize: '18px',
     fontWeight: '600',
-    color: '#333',
     textAlign: 'center' as const
   } as const,
   sampleCards: {
@@ -260,8 +305,6 @@ const styles = {
     gap: '20px'
   } as const,
   sampleCard: {
-    backgroundColor: 'white',
-    border: '2px solid #e0e0e0',
     borderRadius: '8px',
     padding: '24px',
     cursor: 'pointer',
@@ -275,13 +318,11 @@ const styles = {
   cardTitle: {
     margin: '0 0 8px 0',
     fontSize: '18px',
-    fontWeight: '600',
-    color: '#333'
+    fontWeight: '600'
   } as const,
   cardDescription: {
     margin: '4px 0',
-    fontSize: '13px',
-    color: '#666'
+    fontSize: '13px'
   } as const
 }
 

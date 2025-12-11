@@ -12,6 +12,7 @@ import {
   CategoricalStats,
   DateStats
 } from '../utils/statistics'
+import { useTheme } from '../contexts/ThemeContext'
 import TooltipIcon from './TooltipIcon'
 import QuartileDisplay from './QuartileDisplay'
 import DateFloorSelector from './DateFloorSelector'
@@ -29,6 +30,7 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
   onContinue,
   onBack
 }) => {
+  const { colors } = useTheme()
   // Filter only included variables
   const includedVariables = variables.filter(v => v.includeInAnalysis)
 
@@ -82,9 +84,18 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Summary Statistics</h2>
-        <p style={styles.subtitle}>
+      <div style={{
+        ...styles.header,
+        borderBottom: `2px solid ${colors.border}`
+      }}>
+        <h2 style={{
+          ...styles.title,
+          color: colors.text.primary
+        }}>Summary Statistics</h2>
+        <p style={{
+          ...styles.subtitle,
+          color: colors.text.secondary
+        }}>
           Descriptive statistics for {includedVariables.length} variables ({continuousStats.length} continuous, {categoricalStats.length} categorical, {dateStats.length} date)
         </p>
       </div>
@@ -92,7 +103,10 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
       {/* Continuous Variables */}
       {continuousStats.length > 0 && (
         <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>📈 Continuous Variables</h3>
+          <h3 style={{
+            ...styles.sectionTitle,
+            color: colors.text.primary
+          }}>📈 Continuous Variables</h3>
           {continuousStats.map(({ variable, stats }) => (
             <ContinuousStatsCard
               key={variable.name}
@@ -100,6 +114,7 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
               stats={stats as ContinuousStats}
               isExpanded={expandedCards.has(variable.name)}
               onToggle={() => toggleCard(variable.name)}
+              colors={colors}
             />
           ))}
         </div>
@@ -108,7 +123,10 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
       {/* Categorical Variables */}
       {categoricalStats.length > 0 && (
         <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>📊 Categorical Variables</h3>
+          <h3 style={{
+            ...styles.sectionTitle,
+            color: colors.text.primary
+          }}>📊 Categorical Variables</h3>
           {categoricalStats.map(({ variable, stats }) => (
             <CategoricalStatsCard
               key={variable.name}
@@ -116,6 +134,7 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
               stats={stats as CategoricalStats}
               isExpanded={expandedCards.has(variable.name)}
               onToggle={() => toggleCard(variable.name)}
+              colors={colors}
             />
           ))}
         </div>
@@ -124,7 +143,10 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
       {/* Date/DateTime Variables */}
       {dateStats.length > 0 && (
         <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>📅 Date/DateTime Variables</h3>
+          <h3 style={{
+            ...styles.sectionTitle,
+            color: colors.text.primary
+          }}>📅 Date/DateTime Variables</h3>
           {dateStats.map(({ variable, stats }) => (
             <DateStatsCard
               key={variable.name}
@@ -133,17 +155,29 @@ const SummaryStatistics: FC<SummaryStatisticsProps> = ({
               isExpanded={expandedCards.has(variable.name)}
               onToggle={() => toggleCard(variable.name)}
               data={data}
+              colors={colors}
             />
           ))}
         </div>
       )}
 
       {/* Actions */}
-      <div style={styles.actions}>
-        <button style={styles.backButton} onClick={onBack}>
+      <div style={{
+        ...styles.actions,
+        borderTop: `2px solid ${colors.border}`
+      }}>
+        <button style={{
+          ...styles.backButton,
+          backgroundColor: colors.surface,
+          color: colors.text.primary,
+          border: `1px solid ${colors.border}`
+        }} onClick={onBack}>
           ← Back
         </button>
-        <button style={styles.continueButton} onClick={onContinue}>
+        <button style={{
+          ...styles.continueButton,
+          backgroundColor: colors.primary
+        }} onClick={onContinue}>
           Continue to Visualization →
         </button>
       </div>
@@ -156,45 +190,111 @@ interface ContinuousStatsCardProps {
   stats: ContinuousStats
   isExpanded: boolean
   onToggle: () => void
+  colors: any
 }
 
-const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats, isExpanded, onToggle }) => {
+const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats, isExpanded, onToggle, colors }) => {
   return (
-    <div style={styles.card}>
-      <div style={styles.cardHeader} onClick={onToggle}>
+    <div style={{
+      ...styles.card,
+      backgroundColor: colors.background,
+      border: `2px solid ${colors.border}`
+    }}>
+      <div style={{
+        ...styles.cardHeader,
+        borderBottom: `1px solid ${colors.border}`
+      }} onClick={onToggle}>
         <div style={styles.cardHeaderLeft}>
-          <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
-          <h4 style={styles.variableName}>{variableName}</h4>
+          <span style={{
+            ...styles.expandIcon,
+            color: colors.text.secondary
+          }}>{isExpanded ? '▼' : '▶'}</span>
+          <h4 style={{
+            ...styles.variableName,
+            color: colors.text.primary
+          }}>{variableName}</h4>
         </div>
-        <span style={styles.badge}>Continuous</span>
+        <span style={{
+          ...styles.badge,
+          backgroundColor: colors.primary + '20',
+          color: colors.text.primary
+        }}>Continuous</span>
       </div>
 
       {isExpanded && (
         <div style={styles.statsGrid}>
         {/* Basic stats */}
-        <div style={styles.statsGroup}>
-          <h5 style={styles.groupTitle}>Basic Statistics</h5>
-          <div style={styles.statRow}>
-            <span style={styles.statLabel}>Count:</span>
-            <span style={styles.statValue}>{stats.count}</span>
+        <div style={{
+          ...styles.statsGroup,
+          backgroundColor: colors.surface
+        }}>
+          <h5 style={{
+            ...styles.groupTitle,
+            color: colors.text.secondary
+          }}>Basic Statistics</h5>
+          <div style={{
+            ...styles.statRow,
+            borderBottom: `1px solid ${colors.border}`
+          }}>
+            <span style={{
+              ...styles.statLabel,
+              color: colors.text.secondary
+            }}>Count:</span>
+            <span style={{
+              ...styles.statValue,
+              color: colors.text.primary
+            }}>{stats.count}</span>
           </div>
-          <div style={styles.statRow}>
-            <span style={styles.statLabel}>Missing:</span>
-            <span style={styles.statValue}>{stats.missing}</span>
+          <div style={{
+            ...styles.statRow,
+            borderBottom: `1px solid ${colors.border}`
+          }}>
+            <span style={{
+              ...styles.statLabel,
+              color: colors.text.secondary
+            }}>Missing:</span>
+            <span style={{
+              ...styles.statValue,
+              color: colors.text.primary
+            }}>{stats.missing}</span>
           </div>
-          <div style={styles.statRow}>
-            <span style={styles.statLabel}>Mean:</span>
-            <span style={styles.statValue}>{formatStatistic(stats.mean)}</span>
+          <div style={{
+            ...styles.statRow,
+            borderBottom: `1px solid ${colors.border}`
+          }}>
+            <span style={{
+              ...styles.statLabel,
+              color: colors.text.secondary
+            }}>Mean:</span>
+            <span style={{
+              ...styles.statValue,
+              color: colors.text.primary
+            }}>{formatStatistic(stats.mean)}</span>
           </div>
-          <div style={styles.statRow}>
-            <span style={styles.statLabel}>Std Dev:</span>
-            <span style={styles.statValue}>{formatStatistic(stats.sd)}</span>
+          <div style={{
+            ...styles.statRow,
+            borderBottom: `1px solid ${colors.border}`
+          }}>
+            <span style={{
+              ...styles.statLabel,
+              color: colors.text.secondary
+            }}>Std Dev:</span>
+            <span style={{
+              ...styles.statValue,
+              color: colors.text.primary
+            }}>{formatStatistic(stats.sd)}</span>
           </div>
         </div>
 
         {/* Range & Quartiles - Compact Display */}
-        <div style={styles.statsGroup}>
-          <h5 style={styles.groupTitle}>Range & Quartiles</h5>
+        <div style={{
+          ...styles.statsGroup,
+          backgroundColor: colors.surface
+        }}>
+          <h5 style={{
+            ...styles.groupTitle,
+            color: colors.text.secondary
+          }}>Range & Quartiles</h5>
           <QuartileDisplay
             min={stats.min}
             q1={stats.q1}
@@ -202,54 +302,117 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
             q3={stats.q3}
             max={stats.max}
           />
-          <div style={styles.statRow}>
-            <span style={styles.statLabel}>IQR:</span>
-            <span style={styles.statValue}>{formatStatistic(stats.q3 - stats.q1)}</span>
+          <div style={{
+            ...styles.statRow,
+            borderBottom: `1px solid ${colors.border}`
+          }}>
+            <span style={{
+              ...styles.statLabel,
+              color: colors.text.secondary
+            }}>IQR:</span>
+            <span style={{
+              ...styles.statValue,
+              color: colors.text.primary
+            }}>{formatStatistic(stats.q3 - stats.q1)}</span>
           </div>
         </div>
 
         {/* Distribution */}
-        <div style={styles.statsGroup}>
-          <h5 style={styles.groupTitle}>Distribution</h5>
-          <div style={styles.statRow}>
+        <div style={{
+          ...styles.statsGroup,
+          backgroundColor: colors.surface
+        }}>
+          <h5 style={{
+            ...styles.groupTitle,
+            color: colors.text.secondary
+          }}>Distribution</h5>
+          <div style={{
+            ...styles.statRow,
+            borderBottom: `1px solid ${colors.border}`
+          }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={styles.statLabel}>Skewness:</span>
+              <span style={{
+                ...styles.statLabel,
+                color: colors.text.secondary
+              }}>Skewness:</span>
               <TooltipIcon
                 text="Measures symmetry. Values < -1: highly left-skewed | -1 to 1: fairly symmetric | > 1: highly right-skewed"
                 placement="right"
                 width={180}
               />
             </div>
-            <span style={styles.statValue}>{formatStatistic(stats.skewness)}</span>
+            <span style={{
+              ...styles.statValue,
+              color: colors.text.primary
+            }}>{formatStatistic(stats.skewness)}</span>
           </div>
-          <div style={styles.statRow}>
+          <div style={{
+            ...styles.statRow,
+            borderBottom: `1px solid ${colors.border}`
+          }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={styles.statLabel}>Kurtosis:</span>
+              <span style={{
+                ...styles.statLabel,
+                color: colors.text.secondary
+              }}>Kurtosis:</span>
               <TooltipIcon
                 text="Measures tail heaviness relative to normal. < 0: lighter tails | 3: normal tails | > 3: heavier tails"
                 placement="right"
                 width={180}
               />
             </div>
-            <span style={styles.statValue}>{formatStatistic(stats.kurtosis)}</span>
+            <span style={{
+              ...styles.statValue,
+              color: colors.text.primary
+            }}>{formatStatistic(stats.kurtosis)}</span>
           </div>
         </div>
 
         {/* Normality Test */}
         {stats.normalityTest && (
-          <div style={styles.statsGroup}>
-            <h5 style={styles.groupTitle}>Normality Test</h5>
-            <div style={styles.statRow}>
-              <span style={styles.statLabel}>Test:</span>
-              <span style={styles.statValue}>{stats.normalityTest.testName}</span>
+          <div style={{
+            ...styles.statsGroup,
+            backgroundColor: colors.surface
+          }}>
+            <h5 style={{
+              ...styles.groupTitle,
+              color: colors.text.secondary
+            }}>Normality Test</h5>
+            <div style={{
+              ...styles.statRow,
+              borderBottom: `1px solid ${colors.border}`
+            }}>
+              <span style={{
+                ...styles.statLabel,
+                color: colors.text.secondary
+              }}>Test:</span>
+              <span style={{
+                ...styles.statValue,
+                color: colors.text.primary
+              }}>{stats.normalityTest.testName}</span>
             </div>
-            <div style={styles.statRow}>
-              <span style={styles.statLabel}>Statistic:</span>
-              <span style={styles.statValue}>{formatStatistic(stats.normalityTest.statistic, 4)}</span>
+            <div style={{
+              ...styles.statRow,
+              borderBottom: `1px solid ${colors.border}`
+            }}>
+              <span style={{
+                ...styles.statLabel,
+                color: colors.text.secondary
+              }}>Statistic:</span>
+              <span style={{
+                ...styles.statValue,
+                color: colors.text.primary
+              }}>{formatStatistic(stats.normalityTest.statistic, 4)}</span>
             </div>
-            <div style={styles.statRow}>
+            <div style={{
+              ...styles.statRow,
+              borderBottom: `1px solid ${colors.border}`
+            }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <span style={styles.statLabel}>p-value:</span>
+                <span style={{
+                  ...styles.statLabel,
+                  color: colors.text.secondary
+                }}>p-value:</span>
                 <TooltipIcon
                   text="p < 0.05: Data likely non-normal | p ≥ 0.05: Data could be normal"
                   placement="right"
@@ -258,6 +421,7 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
               </div>
               <span style={{
                 ...styles.statValue,
+                color: colors.text.primary,
                 ...(stats.normalityTest.pValue < 0.05 ? styles.pValueSignificant : styles.pValueNotSignificant)
               }}>
                 {formatStatistic(stats.normalityTest.pValue, 4)}
@@ -274,7 +438,7 @@ const ContinuousStatsCard: FC<ContinuousStatsCardProps> = ({ variableName, stats
 type DateSortKey = 'date' | 'count' | 'percentage'
 type SortDirectionType = 'asc' | 'desc' | 'none'
 
-const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded, onToggle, data }) => {
+const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded, onToggle, data, colors }) => {
   const [floorUnit, setFloorUnit] = useState<'year' | 'month' | 'week' | 'day'>('day')
   const [sortKey, setSortKey] = useState<DateSortKey>('date')
   const [sortDirection, setSortDirection] = useState<SortDirectionType>('asc')
@@ -468,6 +632,7 @@ interface DateStatsCardProps {
   isExpanded: boolean
   onToggle: () => void
   data: ParsedData
+  colors: any
 }
 
 interface CategoricalStatsCardProps {
@@ -475,12 +640,13 @@ interface CategoricalStatsCardProps {
   stats: CategoricalStats
   isExpanded: boolean
   onToggle: () => void
+  colors: any
 }
 
 type SortKey = 'value' | 'count' | 'percentage'
 type SortDirection = 'asc' | 'desc' | 'none'
 
-const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, stats, isExpanded, onToggle }) => {
+const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, stats, isExpanded, onToggle, colors }) => {
   const [sortKey, setSortKey] = useState<SortKey>('count')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
@@ -631,19 +797,16 @@ const styles = {
   } as const,
   header: {
     marginBottom: '15px',
-    paddingBottom: '10px',
-    borderBottom: '2px solid #eee'
+    paddingBottom: '10px'
   } as const,
   title: {
     margin: '0 0 6px 0',
     fontSize: '28px',
-    fontWeight: 'bold',
-    color: '#333'
+    fontWeight: 'bold'
   } as const,
   subtitle: {
     margin: 0,
     fontSize: '14px',
-    color: '#666',
     lineHeight: '1.4'
   } as const,
   section: {
@@ -652,12 +815,9 @@ const styles = {
   sectionTitle: {
     margin: '0 0 12px 0',
     fontSize: '20px',
-    fontWeight: '600',
-    color: '#2c3e50'
+    fontWeight: '600'
   } as const,
   card: {
-    backgroundColor: 'white',
-    border: '2px solid #e0e0e0',
     borderRadius: '8px',
     padding: '12px',
     marginBottom: '12px'
@@ -668,7 +828,6 @@ const styles = {
     alignItems: 'center',
     marginBottom: '10px',
     paddingBottom: '8px',
-    borderBottom: '1px solid #f0f0f0',
     cursor: 'pointer',
     userSelect: 'none'
   } as const,
@@ -679,22 +838,18 @@ const styles = {
   } as const,
   expandIcon: {
     fontSize: '14px',
-    color: '#666',
     fontWeight: 'bold'
   } as const,
   variableName: {
     margin: 0,
     fontSize: '18px',
-    fontWeight: '600',
-    color: '#333'
+    fontWeight: '600'
   } as const,
   badge: {
     padding: '4px 12px',
-    backgroundColor: '#e3f2fd',
     borderRadius: '12px',
     fontSize: '12px',
-    fontWeight: '600',
-    color: '#333'
+    fontWeight: '600'
   } as const,
   statsGrid: {
     display: 'grid',
@@ -703,36 +858,30 @@ const styles = {
   } as const,
   statsGroup: {
     padding: '10px',
-    backgroundColor: '#f9f9f9',
     borderRadius: '6px'
   } as const,
   groupTitle: {
     margin: '0 0 8px 0',
     fontSize: '13px',
     fontWeight: '600',
-    color: '#666',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
   } as const,
   statRow: {
     display: 'flex',
     justifyContent: 'space-between',
-    padding: '3px 0',
-    borderBottom: '1px solid #eee'
+    padding: '3px 0'
   } as const,
   statLabel: {
-    fontSize: '13px',
-    color: '#666'
+    fontSize: '13px'
   } as const,
   statValue: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#333',
     fontFamily: 'monospace'
   } as const,
   interpretText: {
     fontSize: '12px',
-    color: '#666',
     fontStyle: 'italic',
     marginTop: '4px',
     marginBottom: '8px'
@@ -740,7 +889,6 @@ const styles = {
   testSubheader: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#555',
     marginBottom: '8px',
     marginTop: '4px'
   } as const,
@@ -776,49 +924,36 @@ const styles = {
   tableHeader: {
     textAlign: 'left',
     padding: '6px 8px',
-    backgroundColor: '#f0f0f0',
-    fontWeight: '600',
-    color: '#333',
-    borderBottom: '2px solid #ddd'
+    fontWeight: '600'
   } as const,
   tableHeaderHoverable: {
     cursor: 'pointer',
     userSelect: 'none',
-    transition: 'background-color 0.2s',
-    ':hover': {
-      backgroundColor: '#e0e0e0'
-    }
+    transition: 'background-color 0.2s'
   } as const,
   tableHeaderActive: {
-    backgroundColor: '#d4e6f1',
-    color: '#1f5a96',
-    fontWeight: '700' as const,
     cursor: 'pointer',
-    userSelect: 'none'
+    userSelect: 'none',
+    fontWeight: '700' as const
   } as const,
   tableRow: {
-    borderBottom: '1px solid #eee'
   } as const,
   tableCell: {
-    padding: '6px 8px',
-    color: '#333'
+    padding: '6px 8px'
   } as const,
   barContainer: {
     width: '100%',
     height: '16px',
-    backgroundColor: '#f0f0f0',
     borderRadius: '4px',
     overflow: 'hidden'
   } as const,
   bar: {
     height: '100%',
-    backgroundColor: '#3498db',
     transition: 'width 0.3s ease'
   } as const,
   moreText: {
     marginTop: '6px',
     fontSize: '12px',
-    color: '#999',
     fontStyle: 'italic'
   } as const,
   actions: {
@@ -826,15 +961,11 @@ const styles = {
     gap: '15px',
     justifyContent: 'flex-end',
     paddingTop: '12px',
-    borderTop: '2px solid #eee',
     marginTop: '15px'
   } as const,
   backButton: {
     padding: '12px 24px',
     fontSize: '14px',
-    backgroundColor: '#f0f0f0',
-    color: '#333',
-    border: '1px solid #ddd',
     borderRadius: '6px',
     cursor: 'pointer',
     fontWeight: '600',
@@ -843,7 +974,6 @@ const styles = {
   continueButton: {
     padding: '12px 24px',
     fontSize: '14px',
-    backgroundColor: '#3498db',
     color: 'white',
     border: 'none',
     borderRadius: '6px',

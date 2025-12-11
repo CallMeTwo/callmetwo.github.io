@@ -107,7 +107,11 @@ const App: FC = () => {
       <AppHeader />
 
       {/* Step indicator */}
-      <div style={styles.stepsContainer}>
+      <div style={{
+        ...styles.stepsContainer,
+        backgroundColor: colors.surface,
+        borderBottom: `1px solid ${colors.border}`
+      }}>
         <StepIndicator
           steps={['Upload', 'Preview', 'Type Verification', 'Summary', 'Visualization', 'Statistical Tests']}
           currentStepIndex={getStepIndex(currentStep)}
@@ -170,8 +174,15 @@ const App: FC = () => {
         </RenderErrorBoundary>
       </main>
 
-      <footer style={styles.footer}>
-        <p style={styles.footerText}>
+      <footer style={{
+        ...styles.footer,
+        backgroundColor: colors.surface,
+        borderTop: `1px solid ${colors.border}`
+      }}>
+        <p style={{
+          ...styles.footerText,
+          color: colors.text.secondary
+        }}>
           Data analysis tools for educational and analytical purposes
         </p>
       </footer>
@@ -187,6 +198,7 @@ interface StepIndicatorProps {
 }
 
 const StepIndicator: FC<StepIndicatorProps> = ({ steps, currentStepIndex, onStepClick, dataLoaded }) => {
+  const { colors } = useTheme()
   return (
     <div style={styles.stepIndicator}>
       {steps.map((step, idx) => {
@@ -197,8 +209,19 @@ const StepIndicator: FC<StepIndicatorProps> = ({ steps, currentStepIndex, onStep
             <div
               style={{
                 ...styles.stepCircle,
-                ...(idx <= currentStepIndex ? styles.stepCircleActive : {}),
-                ...(idx === currentStepIndex ? styles.stepCircleCurrent : {}),
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                color: colors.text.secondary,
+                ...(idx <= currentStepIndex ? {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                  color: 'white'
+                } : {}),
+                ...(idx === currentStepIndex ? {
+                  backgroundColor: colors.primary,
+                  borderColor: colors.primary,
+                  boxShadow: `0 0 0 4px ${colors.primary}33`
+                } : {}),
                 ...(isClickable ? styles.stepCircleClickable : {})
               }}
               onClick={handleClick}
@@ -208,6 +231,7 @@ const StepIndicator: FC<StepIndicatorProps> = ({ steps, currentStepIndex, onStep
             <div
               style={{
                 ...styles.stepLabel,
+                color: colors.text.secondary,
                 ...(isClickable ? styles.stepLabelClickable : {})
               }}
               onClick={handleClick}
@@ -218,7 +242,10 @@ const StepIndicator: FC<StepIndicatorProps> = ({ steps, currentStepIndex, onStep
               <div
                 style={{
                   ...styles.stepConnector,
-                  ...(idx < currentStepIndex ? styles.stepConnectorActive : {})
+                  backgroundColor: colors.border,
+                  ...(idx < currentStepIndex ? {
+                    backgroundColor: colors.primary
+                  } : {})
                 }}
               />
             )}
@@ -244,13 +271,11 @@ function getStepIndex(step: WorkflowStep): number {
 const styles = {
   appContainer: {
     minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
     fontFamily: 'Arial, sans-serif',
     display: 'flex',
     flexDirection: 'column'
   } as const,
   header: {
-    backgroundColor: '#2c3e50',
     color: 'white',
     padding: '40px 20px',
     textAlign: 'center' as const
@@ -266,9 +291,7 @@ const styles = {
     opacity: 0.9
   } as const,
   stepsContainer: {
-    backgroundColor: 'white',
     padding: '20px',
-    borderBottom: '1px solid #eee',
     overflowX: 'auto' as const
   },
   stepIndicator: {
@@ -288,25 +311,13 @@ const styles = {
     width: '36px',
     height: '36px',
     borderRadius: '50%',
-    backgroundColor: '#f0f0f0',
-    border: '2px solid #ddd',
+    border: '2px solid',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '12px',
     fontWeight: 'bold',
-    color: '#999',
     flexShrink: 0
-  } as const,
-  stepCircleActive: {
-    backgroundColor: '#3498db',
-    borderColor: '#3498db',
-    color: 'white'
-  } as const,
-  stepCircleCurrent: {
-    backgroundColor: '#2980b9',
-    borderColor: '#2980b9',
-    boxShadow: '0 0 0 4px rgba(52, 152, 219, 0.2)'
   } as const,
   stepCircleClickable: {
     cursor: 'pointer'
@@ -315,7 +326,6 @@ const styles = {
     marginLeft: '10px',
     fontSize: '12px',
     fontWeight: '600',
-    color: '#666',
     whiteSpace: 'nowrap'
   } as const,
   stepLabelClickable: {
@@ -326,14 +336,10 @@ const styles = {
     left: '54px',
     top: '17px',
     height: '2px',
-    backgroundColor: '#ddd',
     flex: 1,
     width: 'calc(100% - 54px)',
     zIndex: -1
   } as React.CSSProperties,
-  stepConnectorActive: {
-    backgroundColor: '#3498db'
-  } as const,
   mainContent: {
     flex: 1,
     padding: '30px 20px'
@@ -342,21 +348,17 @@ const styles = {
     maxWidth: '800px',
     margin: '0 auto',
     padding: '60px 20px',
-    backgroundColor: 'white',
     borderRadius: '8px',
     textAlign: 'center' as const
   },
   footer: {
-    backgroundColor: '#f0f0f0',
     padding: '20px',
     textAlign: 'center' as const,
-    marginTop: 'auto',
-    borderTop: '1px solid #ddd'
+    marginTop: 'auto'
   },
   footerText: {
     margin: 0,
-    fontSize: '13px',
-    color: '#666'
+    fontSize: '13px'
   } as const
 }
 
