@@ -38,6 +38,25 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
   const [variable2, setVariable2] = useState<string>(categoricalVars[0]?.name || '')
   const [testResult, setTestResult] = useState<TestResult>(null)
 
+  // Update variable2 when test type changes to ensure correct variable types
+  React.useEffect(() => {
+    if (selectedTest === 'regression') {
+      // For regression, set variable2 to second continuous variable if available
+      const var2 = continuousVars.find(v => v.name !== variable1)
+      if (var2) {
+        setVariable2(var2.name)
+      }
+    } else if (selectedTest === 'chi-square') {
+      // For chi-square, ensure both are categorical
+      const var2 = categoricalVars[0]?.name || ''
+      setVariable2(var2)
+    } else {
+      // For t-test and anova, ensure variable2 is categorical
+      const var2 = categoricalVars[0]?.name || ''
+      setVariable2(var2)
+    }
+  }, [selectedTest, variable1, continuousVars, categoricalVars])
+
   const handleRunTest = () => {
     try {
       let result: TestResult = null
