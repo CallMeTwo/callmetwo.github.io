@@ -37,6 +37,7 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
   const [variable1, setVariable1] = useState<string>(continuousVars[0]?.name || '')
   const [variable2, setVariable2] = useState<string>(categoricalVars[0]?.name || '')
   const [testResult, setTestResult] = useState<TestResult>(null)
+  const [error, setError] = useState<string>('')
 
   // Update variable2 when test type changes to ensure correct variable types
   React.useEffect(() => {
@@ -77,8 +78,10 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
   }, [selectedTest, variables])
 
   const handleRunTest = () => {
+    setError('')
     try {
       let result: TestResult = null
+      console.log('Running test:', selectedTest)
 
       if (selectedTest === 't-test') {
         // Independent samples t-test: continuous outcome by binary categorical predictor
@@ -86,7 +89,7 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
         const groupNames = Object.keys(groups)
 
         if (groupNames.length !== 2) {
-          alert('T-test requires exactly 2 groups. Please select a binary categorical variable.')
+          setError('T-test requires exactly 2 groups. Please select a binary categorical variable.')
           return
         }
 
@@ -100,10 +103,8 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
         result = oneWayANOVA(groups)
       } else if (selectedTest === 'regression') {
         // Linear regression: continuous outcome by continuous predictor
-        const xValues = extractNumericValues(data.rows, variable2)
-        const yValues = extractNumericValues(data.rows, variable1)
+        console.log('Regression test - variable1:', variable1, 'variable2:', variable2)
 
-        // Match lengths (remove rows with missing values in either variable)
         const paired: { x: number; y: number }[] = []
         data.rows.forEach(row => {
           const x = row[variable2]
@@ -117,23 +118,29 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
           }
         })
 
+        console.log('Paired data points:', paired.length)
+
         if (paired.length < 3) {
-          alert('Regression requires at least 3 data points.')
+          setError(`Regression requires at least 3 data points. Found: ${paired.length}`)
           return
         }
 
+        console.log('Calling linearRegression...')
         result = linearRegression(
           paired.map(p => p.x),
           paired.map(p => p.y),
           variable2,
           variable1
         )
+        console.log('linearRegression result:', result)
       }
 
       setTestResult(result)
+      console.log('Test completed successfully')
     } catch (error) {
-      alert(`Error running test: ${error instanceof Error ? error.message : 'Unknown error'}`)
-      console.error(error)
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      console.error('Test error:', error)
+      setError(`Error running test: ${errorMsg}\n\nStack: ${error instanceof Error ? error.stack : 'N/A'}`)
     }
   }
 
@@ -250,6 +257,25 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
           </button>
         </div>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div style={{
+          backgroundColor: '#fee',
+          border: '2px solid #c33',
+          borderRadius: '8px',
+          padding: '20px',
+          marginBottom: '30px',
+          fontFamily: 'monospace',
+          fontSize: '12px',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          color: '#c33'
+        }}>
+          <h4 style={{ marginTop: 0, color: '#c33' }}>❌ Error</h4>
+          <code>{error}</code>
+        </div>
+      )}
 
       {/* Results Display */}
       {testResult && (
