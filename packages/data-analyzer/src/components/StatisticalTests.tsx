@@ -1257,38 +1257,14 @@ const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, vari
   // Calculate sum of squared deviations of x
   const sumXDevSquared = xValues.reduce((sum, x) => sum + Math.pow(x - xMean, 2), 0)
 
-  // Generate fitted line points
-  const linePoints: any[] = []
-  const step = (xMax - xMin) / 30
-
-  for (let x = xMin; x <= xMax; x += step) {
-    const predicted = intercept + slope * x
-
-    // Calculate prediction interval (95% PI)
-    const getTCritical = (df: number) => {
-      const tValues: { [key: number]: number } = {
-        1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
-        6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
-        15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042
-      }
-      if (tValues[df]) return tValues[df]
-      return df > 30 ? 1.96 : 2.045
-    }
-
-    const t_crit = getTCritical(chartData.length - 2)
-    const sePred = Math.sqrt(residualVariance * (1 + 1/chartData.length + Math.pow(x - xMean, 2) / sumXDevSquared))
-    const piMargin = t_crit * sePred
-
-    linePoints.push({
-      x,
-      predicted,
-      piLower: predicted - piMargin,
-      piUpper: predicted + piMargin
-    })
-  }
+  // Add predicted values to chart data
+  chartData.forEach(point => {
+    point.predicted = intercept + slope * point.x
+  })
 
   // Calculate data bounds for axes
-  const allYValues = [...yValues, ...linePoints.map(p => p.predicted)]
+  const predictedValues = chartData.map(p => p.predicted)
+  const allYValues = [...yValues, ...predictedValues]
   const yMin = Math.min(...allYValues)
   const yMax = Math.max(...allYValues)
   const yRange = yMax - yMin
@@ -1333,19 +1309,9 @@ const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, vari
           />
           <Legend />
 
-          {/* Prediction Interval Band (as area) */}
-          <Line
-            dataKey="piUpper"
-            data={linePoints}
-            stroke="none"
-            fill="none"
-            isAnimationActive={false}
-          />
-
           {/* Fitted Regression Line */}
           <Line
             dataKey="predicted"
-            data={linePoints}
             stroke={CHART_COLORS.accent}
             strokeWidth={2}
             dot={false}
@@ -1354,7 +1320,7 @@ const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, vari
           />
 
           {/* Actual Data Points */}
-          <Scatter dataKey="y" data={chartData} fill={CHART_COLORS.primary} shape="circle" name="Actual Data" />
+          <Scatter dataKey="y" fill={CHART_COLORS.primary} shape="circle" name="Actual Data" />
         </ComposedChart>
       </ResponsiveContainer>
 
