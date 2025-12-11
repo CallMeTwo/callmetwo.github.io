@@ -1,958 +1,329 @@
-# Data Analyzer UI/UX Improvements - Comprehensive Refactor Plan
+# Phase 11: Multiple Linear Regression with R Script Integration
 
-**Date**: 2025-12-10
-**Scope**: Major improvements to Summary Statistics, Visualization, and Statistical Tests displays
-**Priority**: High - Significant UX enhancement
-**Estimated Complexity**: Large refactor touching 6+ components
+**Date**: 2025-12-11
+**Status**: 🚀 Planning Phase
+**Priority**: High - Significant statistical capability enhancement
+**Complexity**: Large - Introduces R integration layer
 
 ---
 
 ## Overview
 
-This document outlines a comprehensive UI/UX improvement plan for the Data Analyzer application, focusing on:
-1. Making displays more compact and information-dense
-2. Adding interactive tooltips and help icons for interpretations
-3. Improving visual hierarchy and data presentation
-4. Enhancing statistical test results with visualizations
-5. Adding support for date variables
-6. Implementing smart variable filtering in visualizations
+Implement Multiple Linear Regression (MLR) in Statistical Tests module using R scripts for computation. This phase introduces R-based statistical analysis to complement TypeScript-based calculations, enabling more sophisticated regression modeling.
+
+**Key Advantage**: Leverage R's robust statistical libraries (lm, summary, confint) instead of implementing complex matrix calculations in TypeScript.
 
 ---
 
-## Phase 1: Summary Statistics Display Refactor ✅
+## Phase 11: Multiple Linear Regression with R Integration
 
-### 1.1 Compact Quartile & Range Display ✅
+### 11.1 Backend Setup: R Script Infrastructure
 
-**File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
-**Current State**: Quartiles, ranges displayed in separate rows
-**Target State**: Merge into compact single-line displays
+**File**: Create `packages/data-analyzer/src/server/regressionServer.ts` (or similar)
 
-#### Changes:
-```
-Before:
-- Median: 50.5
-- Q1: 25.3
-- Q3: 75.8
-- Min: 0.1
-- Max: 100.0
+**Tasks**:
+1. Create R script template file: `packages/data-analyzer/scripts/multipleRegression.R`
+2. Implement R script execution layer in backend
+3. Set up data serialization (CSV → R dataframe)
+4. Parse R output (JSON/CSV) back to TypeScript
 
-After:
-- Median: 50.5
-- Q1 - Q3: 25.3 - 75.8
-- Min - Max: 0.1 - 100.0
-```
+**R Script Structure** (`multipleRegression.R`):
+```r
+# Read arguments
+args <- commandArgs(trailingOnly = TRUE)
+data_file <- args[1]
+outcome_var <- args[2]
+predictor_vars <- args[3]  # comma-separated list
 
-**Implementation**:
-- Create new `QuartileDisplay.tsx` component
-- Update layout logic in `SummaryStatistics.tsx`
-- Reduce vertical space by ~40%
-- Add visual separator (dash) for clarity
+# Load data
+data <- read.csv(data_file)
 
-**Tests**: Verify display with various data ranges
+# Fit model
+model <- lm(formula_string, data = data)
 
----
+# Extract results
+summary_stats <- summary(model)
+coefficients <- coef(summary_stats)
+conf_intervals <- confint(model, level = 0.95)
+r_squared <- summary_stats$r.squared
+adj_r_squared <- summary_stats$adj.r.squared
+f_stat <- summary_stats$fstatistic[1]
+f_pvalue <- pf(f_stat, summary_stats$fstatistic[2], summary_stats$fstatistic[3], lower.tail = FALSE)
 
-## Phase 2: Distribution Metrics Tooltip Enhancement ✅
+# Output as JSON
+results <- list(
+  coefficients = coefficients,
+  conf_intervals = conf_intervals,
+  r_squared = r_squared,
+  adj_r_squared = adj_r_squared,
+  f_statistic = f_stat,
+  f_pvalue = f_pvalue,
+  residual_std_error = summary_stats$sigma,
+  degrees_freedom = c(summary_stats$fstatistic[2], summary_stats$fstatistic[3])
+)
 
-### 2.1 Compact Skewness & Kurtosis with Hover Tooltips ✅
-
-**File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
-**Current State**: Shows skewness and kurtosis with text interpretations
-**Target State**: Show values only, interpretations on hover with question mark icon
-
-#### Changes:
-```
-Before:
-- Skewness: 0.35 (Moderate positive skew)
-- Kurtosis: 2.8 (Slightly leptokurtic)
-
-After:
-- Skewness: 0.35 [?]
-- Kurtosis: 2.8 [?]
+cat(jsonlite::toJSON(results))
 ```
 
-Where `[?]` is a clickable/hoverable icon showing:
-- Interpretation text
-- What values mean
-- Practical implications
-
-**Implementation**:
-- Create `TooltipIcon.tsx` component (reusable)
-- Create `SkewnessKurtosisDisplay.tsx` sub-component
-- Store interpretation text in constants
-- Add CSS for tooltip positioning and styling
-- Make icons keyboard-accessible (tabindex, aria-label)
-
-**Interpretation Texts**:
-- **Skewness**: "Values < -1: highly left-skewed | -1 to 1: fairly symmetric | > 1: highly right-skewed"
-- **Kurtosis**: "Values < 0: lighter tails (platykurtic) | 3: normal tails | > 3: heavier tails (leptokurtic)"
-
----
-
-## Phase 3: Normality Test Display Refactor ✅
-
-### 3.1 Hide Interpretation Card, Color-Code P-Value ✅
-
-**File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
-**Current State**: Shows p-value + large interpretation card (normal/non-normal)
-**Target State**: Hide interpretation card, color p-value based on significance
-
-#### Changes:
-```
-Before:
-- Shapiro-Wilk p-value: 0.042
-- [Large card: "Data is NOT normally distributed (p < 0.05)"]
-
-After:
-- Shapiro-Wilk p-value: 0.042 [RED - indicates p < 0.05]
-- [? icon for interpretation tips]
-```
-
-**Implementation**:
-- Remove interpretation card JSX
-- Add CSS classes for p-value colors:
-  - `p-value-significant` (red) when p < 0.05
-  - `p-value-not-significant` (green) when p ≥ 0.05
-- Add question mark icon with hover tooltip
-- Tooltip shows: "p < 0.05: Data likely non-normal | p ≥ 0.05: Data could be normal"
-
----
-
-## Phase 4: Categorical Variable Enhancements ✅
-
-### 4.1 Sortable Frequency Table Headers ✅
-
-**File**: `packages/data-analyzer/src/components/SummaryStatistics.tsx`
-**Current State**: Static frequency table
-**Target State**: Clickable column headers with sorting
-
-#### Changes:
-- Column headers: "Category", "Frequency", "Percentage"
-- Add hover state: cursor changes to pointer, slight background highlight
-- Add tooltip on header: "Click to sort by this column"
-- Implement sort states: ASC, DESC, NONE
-- Sort icon (↑/↓) appears next to active column
-
-#### Implementation:
-- Create `SortableFrequencyTable.tsx` component
-- Track sort state: `{column: 'category' | 'frequency' | 'percentage', direction: 'asc' | 'desc'}`
-- Add click handlers to headers
-- Re-sort data on each click (toggle direction)
-- Add visual indicators (arrows/icons)
-
-**Sorting Logic**:
-- Category: Alphabetical or by frequency (toggle)
-- Frequency: Numerical ascending/descending
-- Percentage: Numerical ascending/descending
-
----
-
-## Phase 5: Date Variable Support ✅
-
-### 5.1 Date Variable Type Detection & Statistics ✅
-
-**File**: `packages/data-analyzer/src/utils/fileParser.ts`
-**Current State**: No date variable handling
-**Target State**: Detect and analyze date variables
-
-#### Type Detection:
-- In `inferColumnType()`, add date detection:
-  - Check for ISO format (YYYY-MM-DD)
-  - Check for common date patterns (MM/DD/YYYY, DD/MM/YYYY, etc.)
-  - Return type `'datetime'` if detected
-
-#### Summary Statistics for Date Variables:
-```
-Display:
-- Min: [earliest date]
-- Max: [latest date]
-- Mode: [most frequent date]
-- Missing: [count and %]
-```
-
-### 5.2 Date Frequency Distribution with Floor Options
-
-**File**: `packages/data-analyzer/src/components/Visualization.tsx`
-**Current State**: No histogram for date variables
-**Target State**: Histogram with configurable floor unit
-
-#### Floor Unit Choices:
-1. **Year**: Reduce date to Jan 1 of that year
-   - Example: 2023-06-15 → 2023-01-01
-2. **Month**: Reduce date to first day of that month
-   - Example: 2023-06-15 → 2023-06-01
-3. **Week**: Reduce date to Monday of that week
-   - Example: 2023-06-15 → 2023-06-12
-4. **Day**: No floor (each date is separate)
-   - Example: 2023-06-15 → 2023-06-15
-
-#### Implementation:
-- Create `DateFloorSelector.tsx` component
-- Implement `floorDate()` utility function:
-  ```typescript
-  function floorDate(date: Date, unit: 'year' | 'month' | 'week' | 'day'): Date
-  ```
-- Create frequency table from floored dates
-- Display as histogram or bar chart
-- Update as user changes floor unit in real-time
-
----
-
-## Phase 6: Visualization Step Refactor ✅
-
-### 6.1 Show All Chart Types, Smart Variable Filtering ✅
-
-**File**: `packages/data-analyzer/src/components/Visualization.tsx`
-**Current State**: Dropdown to select chart type, then variable selection
-**Target State**: Display all chart type options, filter variables after selection
-
-#### Changes:
-1. **Initial Display**: Show 4 chart type buttons/cards:
-   - 📊 Bar Chart
-   - 📈 Histogram
-   - 📦 Box Plot
-   - 📍 Scatter Plot
-
-2. **After Selection**: Variable dropdowns update to show only compatible variables:
-   - **Bar Chart**: X = Categorical, Y = Numeric (optional)
-   - **Histogram**: X = Numeric only
-   - **Box Plot**: X = Categorical (optional), Y = Numeric
-   - **Scatter Plot**: X = Numeric, Y = Numeric, Group (optional) = Categorical
-
-#### Implementation:
-- Create `ChartTypeSelector.tsx` component (grid/button layout)
-- Update `Visualization.tsx` logic:
-  - Store selected chart type in state
-  - Filter variables based on chart type
-  - Only populate dropdowns with compatible columns
-  - Update chart on selection change
-
-#### Chart Compatibility Matrix:
-```
-              Bar    Histogram  BoxPlot  Scatter
-Numeric         X       X         X        X
-Categorical     X       -         X        -
-DateTime        X       X         X        X
-Boolean         X       -         -        -
-ID              -       -         -        -
-```
-
----
-
-## Phase 6.5: Histogram and Box Plot Group By Enhancement ✅
-
-### 6.5.1 Histogram with Group By Variable (Optional) ✅
-
-**File**: `packages/data-analyzer/src/components/Visualization.tsx`
-**Current State**: Single histogram for numeric variables
-**Target State**: Add optional group by categorical variable with color-filled bars
-
-#### Changes:
-1. **Group By Selection** (optional dropdown):
-   - Dropdown populated with categorical variables
-   - Default: No grouping (single color histogram)
-
-2. **Visual Output**:
-   ```
-   Without grouping:
-   - Single color histogram (gray/blue)
-
-   With grouping (e.g., by "Category"):
-   - Bars filled with different colors for each group
-   - Legend showing group names
-   - Transparent/semi-transparent overlays for overlapping bars
-   - X-axis: Numeric bins
-   - Y-axis: Frequency/Count
-   ```
-
-3. **Data Handling**:
-   - Create histogram bins for the numeric variable
-   - For each bin, subdivide by group categories
-   - Stack or overlay bars (recommend stacked for clarity)
-   - Calculate group-wise counts within each bin
-
-#### Implementation:
-- Add `groupByVariable` to Visualization state
-- Create `GroupBySelector.tsx` component for optional grouping
-- Modify histogram data transformation to handle groups
-- Update Recharts BarChart to use stacked bars when grouping
-- Add legend showing group colors and names
-- Ensure smooth updates when grouping variable changes
-
----
-
-### 6.5.2 Box Plot with Group By Variable (Side-by-Side) ✅
-
-**File**: `packages/data-analyzer/src/components/Visualization.tsx`
-**Current State**: Box plot with optional categorical X-axis
-**Target State**: Enhanced box plot with optional color grouping and side-by-side display
-
-#### Changes:
-1. **Group By Enhancement** (optional, independent of X-axis):
-   - Add optional group by categorical variable selector
-   - When group by variable selected:
-     - Split each box plot by group (different colors)
-     - Side-by-side boxes for each group
-     - Legend showing group names and colors
-
-2. **Visual Output Example**:
-   ```
-   Without X-axis grouping, with Group By (e.g., gender):
-   [M box] [F box]
-
-   With X-axis grouping (categories), with Group By (gender):
-   Category A:             Category B:              Category C:
-   [M box] [F box]        [M box] [F box]         [M box] [F box]
-   ```
-
-3. **Interactions**:
-   - Hover tooltips showing:
-     - Min, Q1, Median, Q3, Max values
-     - Group name (if applicable)
-     - Outliers highlighted
-   - Click legend to show/hide groups
-
-#### Implementation:
-- Modify box plot data structure to support groups
-- Create `GroupedBoxPlot` logic in utility function
-- Update Recharts rendering to support side-by-side boxes
-- Implement color mapping for groups
-- Add legend and interactive filtering
-- Handle edge cases (empty groups, single element groups)
-
-#### Compatibility:
-- **Y-axis**: Numeric (required) - the distribution to visualize
-- **X-axis**: Categorical (optional) - if provided, shows categories on x-axis
-- **Group By**: Categorical (optional) - colors and separates boxes within each category or across full plot
-
-#### Completion Status:
-✅ **COMPLETED** - Commit: 8ce21a5
-
-**Features Implemented:**
-- Grouped histogram with side-by-side (dodged) bars colored by group
-- Grouped box plot with side-by-side boxes colored by group
-- Group by selector available for all chart types (histogram, box plot, bar chart, scatter plot)
-- Dynamic axis limits that don't force zero-start for data far from zero
-- Smart decimal rounding for axis labels based on data range:
-  - Range >= 100: 0 decimals
-  - Range 10-99: 1 decimal
-  - Range < 10: 2 decimals
-  - Range < 1: 3+ decimals
-- Utility functions: `createGroupedHistogram()`, `createGroupedBoxPlotData()`, `getDecimalPlaces()`, `formatAxisLabel()`
-
----
-
-## Phase 7: Statistical Tests - t-Test Enhancements ✅
-
-### 7.1 t-Test Display Restructuring ✅
-
-**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
-**Current State**: Displays results in various orders, limited visualization
-**Target State**: Standardized layout with visualization and rearranged keys
-
-#### Key Order (New):
-1. Mean Difference (diff between groups)
-2. 95% CI (of mean difference)
-3. Effect Size (Cohen's d)
-4. t-statistic
-5. Degrees of Freedom
-6. p-value
-
-#### Implementation:
-- Create `TTestResults.tsx` sub-component ✅
-- Rearrange display to match key order above ✅
-- Fix NaN handling: gracefully display "N/A" or skip if computation fails ✅
-
-### 7.2 t-Test Visualization with User Choices ✅
-
-**Location**: Below statistical results
-**User Options**: Radio buttons to toggle between:
-
-1. **Side-by-Side Boxplot**
-   - Two boxplots: one for each group
-   - X-axis: Group names
-   - Y-axis: Variable values
-   - Interactive tooltips showing quartiles
-
-2. **Mean ± 95% CI Plot**
-   - Point-and-error-bar plot
-   - X-axis: Group names
-   - Y-axis: Mean value
-   - Error bars represent 95% confidence interval
-   - Show exact values on hover
-
-3. **Histogram with Group Fill Colors**
-   - Overlaid histograms for both groups
-   - Different colors for each group
-   - Semi-transparent for visibility
-   - Legend showing group names
-
-#### Implementation:
-- Create `TTestPlot.tsx` component ✅
-- State: `{plotType: 'boxplot' | 'meanCI' | 'histogram'}` ✅
-- Implement each plot type as sub-component ✅
-- Use Recharts for rendering ✅
-- Add computed values for error bar endpoints ✅
-
-#### Completion Status:
-✅ **COMPLETED** - Commit: 75444d1
-
-**Features Implemented:**
-- TTestResults component with rearranged display order (Mean Difference first, p-value last)
-- NaN/null value handling with "N/A" fallback
-- TTestPlot component with 3 visualization types:
-  1. Side-by-Side Boxplot using ECharts with scatter outlier visualization
-  2. Mean ± 95% CI Plot using Recharts BarChart with ErrorBar component
-  3. Histogram with Group Fill Colors using Recharts BarChart with dodged bars
-- Radio button UI for easy plot type selection
-- CSS styles for visualization container, plot selector, and plot container
-- Integrated TTestPlot into StatisticalTests results display
-
----
-
-## ✅ RESOLVED: T-Distribution P-Value Calculation Bug
-
-**Status**: ✅ FIXED - Commit: 9f43627
-**File**: `packages/data-analyzer/src/utils/statisticalTests.ts`
-**Function**: `tDistributionPValue()` and `independentTTest()`
-**Previous Severity**: Critical - Affected all t-test results
-
-### Problem Summary
-
-The p-value calculation for the independent t-test was fundamentally broken. Multiple attempts to fix it using different incomplete beta function parameterizations failed:
-
-### Tested Approaches
-
-1. **Option 1** (Parameters: df/2, 0.5; Formula: 1 - betaResult)
-   - Result: p-values ~2.0 (outside valid range [0,1])
-   - Issue: Formula gives high values when it should give low
-
-2. **Option 2** (Parameters: 0.5, df/2; Formula: 0.5 * betaResult)
-   - Result: All p-values 0.0000
-   - Issue: Formula always returns near-zero values
-
-3. **Option 3** (Parameters: 0.5, df/2; Input: y = t²/(df+t²); Formula: betaResult)
-   - Result: p > 1 for some t values, p=0.0373 when CI includes 0 (inverted logic)
-   - Issue: Formula direction is inverted
-
-4. **Option 3b** (Add complement: 1 - betaResult)
-   - Result: All p-values 1.0000 when clamped
-   - Issue: Clamping causes loss of information
-
-### Key Test Cases Showing the Bug
-
-| t-statistic | df | 95% CI Mean Diff | Current p-value | Expected p-value |
-|-------------|----|--------------------|-----------------|------------------|
-| 1.6565 | 8 | (shows diff) | 1.2028 (invalid) | ~0.05-0.15 |
-| 5.0031 | 8 | (far from 0) | 0.2479 | ~0.001-0.01 |
-| 0.5726 | 998 | -4 to 9 (includes 0) | 0.0373 | > 0.05 |
-
-### Root Cause Analysis
-
-The incomplete beta function parameterization for the t-distribution CDF is not working correctly. The standard mathematical relationship:
-
-```
-P(T ≤ t) = I_x(df/2, 1/2) where x = df / (df + t²)
-P(T > t) = 1 - I_x(df/2, 1/2)
-```
-
-Cannot be reproduced with the custom `incompleteBeta()` implementation, possibly due to:
-1. Numerical stability issues with large df values (e.g., df=998 → df/2=499)
-2. Incorrect implementation of the regularized incomplete beta function
-3. Parameter order or formula interpretation mismatch
-4. The custom approximation algorithm not converging correctly for certain parameter combinations
-
-### What Needs to Be Done
-
-**Recommendation**: Use an external statistical library with proven t-distribution implementations rather than custom approximations:
-- Option A: Use `jstat` library properly (earlier attempts had import issues)
-- Option B: Use `simple-statistics` if it has t-distribution support
-- Option C: Implement a robust t-distribution CDF from a reference statistical textbook
-- Option D: Use numerical integration or lookup tables
-
-**Previous Status**:
-- Custom incomplete beta approximation could not be easily fixed without deep mathematical debugging
-- All three formula variations tested and failed
-- P-values were either all 0, all 1, or > 1 (invalid range)
-- Results were either consistently wrong or inverted
-
-### ✅ Solution Implemented
-
-**Approach**: Complete rewrite using Lentz's Continued Fraction Algorithm
-
-**Key Changes:**
-1. **Lentz's Continued Fraction** for regularized incomplete beta
-   - Replaced unreliable series expansion
-   - Industry-standard numerical algorithm
-   - Handles extreme parameter values gracefully
-
-2. **Adaptive Strategy by Degrees of Freedom:**
-   - `df < 20`: Regularized incomplete beta with continued fraction
-   - `20 ≤ df ≤ 1000`: Hill's approximation with correction terms
-   - `df > 1000`: Normal distribution approximation
-
-3. **Log-Gamma Function** (Lanczos approximation)
-   - Prevents numerical overflow with large parameters
-   - More accurate than direct gamma computation
-
-4. **Correct Mathematical Formula:**
-   ```
-   P(T > t) = 0.5 × I_x(df/2, 0.5) where x = df/(df+t²)
-   Two-tailed p-value = 2 × P(T > |t|)
-   ```
-
-**Validation Results:**
-- ✅ P-values now in valid [0, 1] range
-- ✅ Small t-statistics → large p-values (not significant)
-- ✅ Large t-statistics → small p-values (significant)
-- ✅ CI includes 0 → p > 0.05 (not significant)
-- ✅ CI excludes 0 → p < 0.05 (significant)
-
----
-
-## Phase 7.3: t-Test Visualization Improvements ✅
-
-**Date**: 2025-12-11
-**Status**: ✅ COMPLETED
-**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
-
-### Changes Implemented:
-
-1. **Mean ± 95% CI Plot - Display Style**
-   - Changed from bar chart to scatter points (dots) for mean values
-   - Replaced `BarChart` with `ComposedChart`
-   - Replaced `Bar` with `Scatter` component (circle shape, size 120)
-   - Maintains error bars for confidence intervals
-
-2. **Dynamic Y-Axis Minimum - Boxplot**
-   - Calculates `ymin` based on actual data range (minimum value across both groups)
-   - Adds 10% padding below minimum value
-   - Set via ECharts `yAxis.min` property
-   - Improves visualization for data ranges far from zero
-
-3. **Dynamic Y-Axis Minimum - Mean ± CI Plot**
-   - Calculates `ymin` based on lower bounds of confidence intervals (mean - error)
-   - Adds 10% padding below minimum CI bound
-   - Set via Recharts `YAxis domain={[ymin, 'auto']}`
-   - Better scaling for data not near zero
-
-4. **Y-Axis Label Formatting**
-   - Imported `getDecimalPlaces()` and `formatAxisLabel()` from visualization utils
-   - Dynamically determines decimal places based on data range:
-     - Range >= 100: 0 decimals
-     - Range 10-99: 1 decimal
-     - Range 1-9: 2 decimals
-     - Range 0.1-0.9: 3 decimals
-     - Range < 0.1: 4 decimals
-   - Applied to both boxplot (ECharts `axisLabel.formatter`) and mean ± CI plot (Recharts `tickFormatter`)
-   - Consistent formatting in tooltips
-
-5. **X-Axis Padding - Mean ± CI Plot**
-   - Added `padding={{ left: 150, right: 150 }}` to XAxis
-   - Brings the two group points closer together toward center
-   - Creates more compact and visually balanced layout
-
-### Benefits:
-- Cleaner mean display with dots instead of bars
-- Better y-axis scaling for data far from zero
-- Consistent, appropriate decimal precision across all labels
-- More compact and centered visualization layout
-- ✅ Works correctly for all df values (small and large)
-
-**Impact**: t-test results are now reliable and statistically accurate. ✅
-
----
-
-## Phase 8: Statistical Tests - Chi-Square Enhancements
-
-### 8.1 Chi-Square Results Restructuring
-
-**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
-**Current State**: Basic chi-square results
-**Target State**: Include Odds Ratio and rearranged keys
-
-#### New Calculation: Odds Ratio (2x2 tables only)
-```
-For 2x2 contingency table:
-       Yes    No
-A      a      b
-B      c      d
-
-Odds Ratio = (a × d) / (b × c)
-95% CI of OR: exp(ln(OR) ± 1.96 × SE(ln(OR)))
-where SE(ln(OR)) = sqrt(1/a + 1/b + 1/c + 1/d)
-```
-
-#### Key Order (New):
-1. Odds Ratio (if 2x2 table)
-2. 95% CI of OR
-3. Effect Size (Cramér's V)
-4. Chi-square statistic
-5. Degrees of Freedom
-6. p-value
-
-#### Implementation:
-- Add `calculateOddsRatio()` function to `statisticalTests.ts`
-- Create `ChiSquareResults.tsx` sub-component
-- Only show OR fields if table is 2x2
-- For larger tables, omit OR and show standard results
-
-### 8.2 Chi-Square Visualization with Plot Choices
-
-**Location**: Below statistical results
-**User Options**: Radio buttons for:
-
-1. **Stacked Bar Chart (Count)**
-   - Stack bars by second variable
-   - Height = count
-   - Grouped by first variable
-
-2. **Clustered Bar Chart (Count)**
-   - Side-by-side bars
-   - Height = count
-   - Different colors for each category
-
-3. **Stacked Bar Chart (Percentage)**
-   - Stack bars showing percentage within each group
-   - Normalized to 100%
-   - Shows proportional differences
-
-4. **Clustered Bar Chart (Percentage)**
-   - Side-by-side bars
-   - Height = percentage
-   - Shows proportions with frequency labels
-
-#### Implementation:
-- Create `ChiSquarePlot.tsx` component
-- State: `{plotType: 'stackedCount' | 'clusteredCount' | 'stackedPercent' | 'clusteredPercent'}`
-- Implement data transformation for percentages
-- Use Recharts BarChart component
-- Add value labels on hover/click
-
----
-
-## Phase 9: Statistical Tests - ANOVA Enhancements
-
-### 9.1 ANOVA Results Restructuring
-
-**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
-**Current State**: Basic ANOVA results
-**Target State**: Group means displayed first, pairwise comparisons included
-
-#### Display Structure (New):
-1. **Group Means Section** (at top)
-   - Table showing: Group, N, Mean, SD, Min, Max
-
-2. **ANOVA Test Results**
-   - Effect Size (Eta-squared: η²)
-   - df (between groups)
-   - df (within groups)
-   - F-statistic
-   - p-value
-
-3. **Post-hoc Pairwise Tests** (new)
-   - Table of all pairwise comparisons
-   - Bonferroni correction applied
-   - Columns: Group 1, Group 2, Mean Diff, 95% CI, Adjusted p-value
-   - Significant comparisons highlighted
-
-#### Implementation:
-- Create `AnovaResults.tsx` sub-component
-- Move group summary to top as `GroupMeansTable.tsx`
-- Implement Bonferroni-corrected pairwise t-tests:
-  ```
-  Number of comparisons = k(k-1)/2  (k = number of groups)
-  Bonferroni-corrected α = 0.05 / number of comparisons
-  Apply this α to each pairwise comparison
-  ```
-- Highlight significant comparisons (p < corrected α)
-
-### 9.2 ANOVA Visualization
-
-**Location**: Below test results
-**User Options**: Radio buttons for:
-
-1. **Side-by-Side Boxplot**
-   - One boxplot per group
-   - X-axis: Group names
-   - Y-axis: Variable values
-
-2. **Mean ± 95% CI Plot**
-   - Point-and-error-bar plot
-   - X-axis: Group names
-   - Y-axis: Mean
-   - Error bars: 95% CI for each group
-
-#### Implementation:
-- Create `AnovaPlot.tsx` component
-- Similar structure to TTestPlot
-- Calculate group-level confidence intervals
-- Add interactive tooltips
-
----
-
-## Phase 10: Statistical Tests - Linear Regression Enhancements
-
-### 10.1 Regression Coefficient Table with Confidence Intervals
-
-**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
-**Current State**: Basic regression results
-**Target State**: Comprehensive coefficient table with CIs
-
-#### Display Structure (New):
-
-**1. Coefficient Table**
-Columns: Variable, Coefficient, Std. Error, 95% CI, p-value
-
-Rows:
-- (Intercept): intercept value, SE, CI, p-value
-- [Predictor]: slope value, SE, CI, p-value
-
-Example:
-```
-Variable        | Coef      | Std.Error | 95% CI              | p-value
-(Intercept)     | 2.5       | 0.15      | [2.21, 2.79]       | < 0.001
-Age             | 0.08      | 0.01      | [0.06, 0.10]       | < 0.001
-```
-
-#### 95% CI Calculation for Coefficients:
-```
-CI = coefficient ± (t_critical × std.error)
-where t_critical = t(df=n-2, α=0.025)
-```
-
-**2. Regression Statistics Section**
+**Key Outputs from R**:
+- Coefficients (Intercept + all predictors)
+- 95% Confidence Intervals for each coefficient
+- Standard Errors
+- t-statistics
+- p-values
 - R-squared
 - Adjusted R-squared
-- F-statistic (overall model)
-- p-value (overall model)
+- F-statistic with p-value
+- Residual standard error
+- Model diagnostics (if needed)
 
-**3. Model Interpretation** (text)
-"The model explains X% of variance (R²=...). For every unit increase in [predictor], [outcome] increases by [coefficient] (95% CI: [..., ...], p < 0.05)."
+### 11.2 UI: Multiple Linear Regression Test Option
 
-#### Implementation:
-- Create `RegressionResults.tsx` sub-component
-- Add `calculateRegressionCI()` function:
-  ```typescript
-  function calculateRegressionCI(
-    coefficient: number,
-    stdError: number,
-    df: number,
-    alpha: number = 0.05
-  ): [number, number]
-  ```
-- Create `CoefficientTable.tsx` component
-- Create `RegressionStats.tsx` component
-- Generate interpretation text based on results
-- Highlight significant coefficients (p < 0.05)
+**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
 
-### 10.2 Regression Visualization - Scatter Plot with Fitted Line
+**Changes**:
+1. Add "📊 Multiple Regression" test option to test selection grid
+2. Update variable selection UI:
+   - Outcome Variable: dropdown (continuous only)
+   - Predictor Variables: multi-select checkbox or drag-drop
+     - Allow continuous variables directly
+     - Allow categorical variables (R will auto-encode as dummy variables)
+   - Show selected predictors with ability to add/remove
 
-**Location**: Above coefficient results
-**Display**:
-- Scatter plot: X = predictor, Y = outcome
-- Overlaid linear regression line (fitted line)
-- Interactive tooltips showing actual vs. predicted values
-- Optional: confidence interval band around fitted line (95% prediction interval)
+**Requirements**:
+- Min 1 predictor, at least 3 data points per predictor + 1 for model
+- Validation: n > k + 1 (n = sample size, k = number of predictors)
+- Warn if multicollinearity risk (many predictors)
 
-#### Implementation:
-- Create `RegressionPlot.tsx` component
-- Use Recharts ScatterChart with Line
-- Calculate prediction interval:
-  ```
-  SE_pred = SE × sqrt(1 + 1/n + (x-x_mean)²/Σ(x-x_mean)²)
-  PI = predicted_y ± (t_critical × SE_pred)
-  ```
-- Add ComposedChart to show both scatter and line
-- Highlight fitted line with different color/style
+### 11.3 Data Preparation & R Integration
 
-### 10.3 Phase 10 Completion Summary ✅
+**Function**: `executeRegressionScript()`
 
-**Date**: 2025-12-11
-**Status**: ✅ COMPLETED
-**Files Modified**:
-1. `packages/data-analyzer/src/utils/statisticalTests.ts`
-   - Enhanced `RegressionResult` interface with `fPValue` field
-   - Enhanced `linearRegression()` function to calculate F-statistic p-value
-   - Already had `calculateRegressionCI()` for coefficient CIs
+**Location**: `packages/data-analyzer/src/utils/regressionExecutor.ts` (new)
 
-2. `packages/data-analyzer/src/components/StatisticalTests.tsx`
-   - Created `RegressionPlot` component (lines 1161-1325):
-     - Renders scatter plot with fitted regression line
-     - Calculates prediction intervals (optional visualization)
-     - Uses ComposedChart with Scatter and Line components
-     - Displays regression equation and R² statistics
-     - Dynamic y-axis formatting with `getDecimalPlaces()`
-   - Updated `RegressionResults` component (lines 1328-1425):
-     - Comprehensive coefficient table with (Intercept) and predictors
-     - Columns: Variable, Coefficient, Std. Error, 95% CI, p-value
-     - Significance highlighting for p < 0.05
-     - Regression statistics section (R², Adjusted R², F-stat, p-value)
-   - Integrated `RegressionPlot` into results display (lines 257-267):
-     - Follows pattern from t-test, chi-square, ANOVA phases
-     - RegressionPlot rendered before RegressionResults
-     - Passes `result`, `data`, `variable1`, `variable2` props
+**Implementation Steps**:
+1. **Data Filtering**: Remove rows with missing values in selected variables
+2. **CSV Export**: Write filtered data to temporary CSV file
+3. **Script Execution**: Call R script with parameters:
+   - data_file path
+   - outcome_var name
+   - predictor_vars as comma-separated list
+4. **Result Parsing**: Parse JSON output from R
+5. **Cleanup**: Delete temporary files
 
-### Key Features Implemented:
-- ✅ Regression coefficient estimates with standard errors
-- ✅ 95% confidence intervals for coefficients and intercept
-- ✅ P-values for individual coefficients and intercept
-- ✅ F-statistic and overall model p-value
-- ✅ R² and Adjusted R² statistics
-- ✅ Scatter plot visualization with fitted line
-- ✅ Prediction intervals (95% PI bands)
-- ✅ Interactive tooltips showing actual vs predicted values
-- ✅ Proper number formatting based on data range
-- ✅ Significance highlighting and interpretation
+**Pseudocode**:
+```typescript
+async function executeMultipleRegression(
+  data: DataRow[],
+  outcomeVar: string,
+  predictorVars: string[]
+): Promise<RegressionResult> {
+  // 1. Validate
+  validateInputs(data, outcomeVar, predictorVars)
 
-### Build Status:
-- ✅ No TypeScript compilation errors
-- ✅ All packages build successfully
-- ✅ Hot module reload (HMR) working in dev server
-- ⚠️ Minor: Data-analyzer chunk size warning (non-critical)
+  // 2. Filter data (remove NaN/null/missing)
+  const cleanedData = filterData(data, [outcomeVar, ...predictorVars])
 
----
+  // 3. Export to CSV
+  const csvPath = await exportToCSV(cleanedData)
 
-## Phase 11: Shared Components & Utilities
+  // 4. Execute R script
+  const rOutput = await executeR(csvPath, outcomeVar, predictorVars)
 
-### 11.1 New Reusable Components
+  // 5. Parse results
+  const results = parseROutput(rOutput)
 
-Create these in `packages/data-analyzer/src/components/`:
+  // 6. Cleanup
+  deleteFile(csvPath)
 
-1. **TooltipIcon.tsx**
-   - Props: `{text: string, placement?: 'top' | 'right' | 'bottom' | 'left'}`
-   - Renders a "?" icon with hover tooltip
-   - Keyboard accessible
+  return results
+}
+```
 
-2. **QuartileDisplay.tsx**
-   - Props: `{q1: number, median: number, q3: number, min: number, max: number}`
-   - Renders compact quartile display
+### 11.4 Results Display Component
 
-3. **SortableHeader.tsx**
-   - Props: `{label: string, sortKey: string, onSort: (key) => void, active?: boolean, direction?: 'asc' | 'desc'}`
-   - Clickable header with sort indicators
+**File**: `packages/data-analyzer/src/components/StatisticalTests.tsx`
 
-4. **ChartTypeSelector.tsx**
-   - Props: `{onSelect: (type) => void, selected?: string}`
-   - Displays 4 chart type buttons
+**New Component**: `MultipleRegressionResults`
 
-### 11.2 Utility Function Enhancements
+**Display Structure**:
 
-Update `packages/data-analyzer/src/utils/`:
+**1. Model Summary Box**
+```
+Model: outcome ~ predictor1 + predictor2 + ...
+Observations: 150 | AIC: 123.45 | BIC: 145.67
+```
 
-1. **statisticalTests.ts**
-   - Add `calculateOddsRatio()`
-   - Add `calculateRegressionCI()`
-   - Add `calculateBonferroniPvalue()`
-   - Add `floorDate()`
+**2. Coefficients Table**
+```
+| Variable      | Coefficient | Std. Error | t-statistic | 95% CI          | p-value |
+|---------------|-------------|-----------|------------|-----------------|---------|
+| (Intercept)   | 2.34        | 0.15      | 15.60      | [2.05, 2.63]    | <.001   |
+| Age           | 0.082       | 0.012     | 6.83       | [0.058, 0.106]  | <.001   |
+| Income        | 0.000234    | 0.000089  | 2.63       | [0.000058, 0.41]| 0.009   |
+| Region_North  | 1.23        | 0.45      | 2.73       | [0.35, 2.11]    | 0.007   |
+| Region_South  | -0.89       | 0.42      | -2.12      | [-1.71, -0.07]  | 0.034   |
+```
 
-2. **statistics.ts**
-   - Add date-specific statistics functions
-   - Add `calculateGroupStats()` for ANOVA
+**3. Model Statistics**
+```
+R²: 0.654  |  Adjusted R²: 0.648  |  F-statistic: 128.45  (p < 0.001)
+Residual Std. Error: 2.34 on 145 degrees of freedom
+```
 
----
+**4. Model Interpretation**
+```
+This model explains 65.4% of variance in [outcome]. Significant predictors:
+- Age (p < 0.001): 0.082 increase per year
+- Income (p = 0.009): 0.000234 increase per unit
+- Region_North (p = 0.007): 1.23 higher in North vs reference
+```
 
-## Phase 12: Testing & Quality Assurance
+**5. Diagnostics (Optional Tab)**
+```
+- Residuals plot (predicted vs actual)
+- Q-Q plot (normality check)
+- Scale-Location plot (homoscedasticity check)
+- Residuals vs Leverage plot (influential points)
+```
 
-### 12.1 Unit Tests
-- Test all new utility functions
-- Test tooltip positioning and accessibility
-- Test sorting logic in frequency tables
-- Test date floor calculations
-- Test chart compatibility matrix
+### 11.5 Data Types & Interfaces
 
-### 12.2 Integration Tests
-- Test complete workflow for each variable type
-- Test statistical test result accuracy
-- Test visualization rendering with various data
+**File**: `packages/data-analyzer/src/utils/statisticalTests.ts`
 
-### 12.3 Manual Testing Checklist
-- [ ] Summary statistics display is compact and readable
-- [ ] All tooltip icons work on hover/click
-- [ ] Frequency table sorting works correctly
-- [ ] Date variables display min/max/mode correctly
-- [ ] Date floor unit selector updates histogram in real-time
-- [ ] Visualization chart type selector filters variables correctly
-- [ ] t-Test shows plots and displays results in correct order
-- [ ] Chi-square shows odds ratio for 2x2 tables
-- [ ] ANOVA shows group means and pairwise comparisons
-- [ ] Regression shows coefficient table with CIs and scatter plot
-- [ ] All responsive behavior works on mobile
-- [ ] Color coding for p-values is clear and accessible
-- [ ] No TypeScript errors or console warnings
+**New Interfaces**:
+```typescript
+export interface MultipleRegressionInput {
+  outcomeVariable: string
+  predictorVariables: string[]  // Can be continuous or categorical
+}
 
----
+export interface MultipleRegressionCoefficient {
+  variable: string
+  coefficient: number
+  standardError: number
+  tStatistic: number
+  pValue: number
+  ciLower: number
+  ciUpper: number
+}
 
-## Implementation Order (Recommended)
+export interface MultipleRegressionResult {
+  testType: 'Multiple Linear Regression'
+  formula: string  // e.g., "outcome ~ pred1 + pred2"
+  n: number  // sample size
+  k: number  // number of predictors (excluding intercept)
+  coefficients: MultipleRegressionCoefficient[]
+  rSquared: number
+  adjustedRSquared: number
+  fStatistic: number
+  fPValue: number
+  residualStdError: number
+  degreesOfFreedom: [number, number]  // [model df, residual df]
+  interpretation: string
+  diagnostics?: {
+    residuals: number[]
+    fitted: number[]
+    leverage: number[]
+  }
+}
+```
 
-### Priority 1 (Core Enhancements):
-1. Summary statistics compact display (quartiles, range)
-2. Tooltip icons for skewness/kurtosis and normality tests
-3. Color-coded p-values
-4. Sortable frequency tables
+### 11.6 Validation & Error Handling
 
-### Priority 2 (Visualization):
-5. Chart type selector with variable filtering
-6. Date variable support
-7. Date floor unit selector
+**Validations**:
+1. ✅ Outcome is continuous variable
+2. ✅ At least 1 predictor selected
+3. ✅ Sample size > number of predictors + 1
+4. ✅ No missing values in selected variables
+5. ✅ R is installed and accessible
+6. ✅ JSON parsing from R output
 
-### Priority 3 (Statistical Tests):
-8. t-Test with plots and rearranged keys
-9. Chi-square with odds ratio and plots
-10. ANOVA with pairwise comparisons
-11. Regression with coefficient table and scatter plot
+**Error Scenarios**:
+- R script not found → Show helpful message with installation instructions
+- R not installed → Graceful fallback or redirect
+- Invalid formula → Suggest removing problematic variables
+- Singular matrix → Too many predictors, remove collinear ones
+- Missing values → Show count of rows removed due to missing data
 
-### Priority 4 (Polish):
-12. Component extraction and reusability
-13. Testing and QA
-14. Deployment and documentation
+### 11.7 Implementation Phases
 
----
+**Phase 11.1**: R Script Infrastructure
+- [ ] Create R script file
+- [ ] Set up R execution layer
+- [ ] Test R script locally
+- [ ] Implement CSV export/import
 
-## File Modifications Summary
+**Phase 11.2**: UI Components
+- [ ] Add test option to selection grid
+- [ ] Create multi-select predictor UI
+- [ ] Implement input validation
+- [ ] Add loading state during R execution
 
-### New Files (Components):
-- `TooltipIcon.tsx`
-- `QuartileDisplay.tsx`
-- `SkewnessKurtosisDisplay.tsx`
-- `SortableFrequencyTable.tsx`
-- `DateFloorSelector.tsx`
-- `ChartTypeSelector.tsx`
-- `TTestResults.tsx`
-- `TTestPlot.tsx`
-- `ChiSquarePlot.tsx`
-- `AnovaResults.tsx`
-- `AnovaPlot.tsx`
-- `RegressionResults.tsx`
-- `RegressionPlot.tsx`
+**Phase 11.3**: Results Display
+- [ ] Create MultipleRegressionResults component
+- [ ] Create coefficient table with formatting
+- [ ] Add model statistics display
+- [ ] Add interpretation text generation
 
-### Modified Files:
-- `SummaryStatistics.tsx` (significant refactor)
-- `Visualization.tsx` (refactor chart selection)
-- `StatisticalTests.tsx` (refactor all test displays)
-- `fileParser.ts` (add date detection)
-- `statistics.ts` (add date and group stats functions)
-- `statisticalTests.ts` (add new calculation functions)
-- `types/index.ts` (may need new types)
+**Phase 11.4**: Testing & Refinement
+- [ ] Test with sample datasets
+- [ ] Verify R script outputs
+- [ ] Test edge cases (singular matrix, multicollinearity)
+- [ ] Performance testing with large datasets
+
+**Phase 11.5**: Deployment
+- [ ] Build and test
+- [ ] Deploy to GitHub Pages
+- [ ] Document R dependency requirement
 
 ---
 
-## Estimated Timeline
+## Technical Considerations
 
-- **Priority 1**: 2-3 days (core UI improvements)
-- **Priority 2**: 2 days (visualization + date support)
-- **Priority 3**: 4-5 days (statistical test enhancements)
-- **Priority 4**: 1-2 days (testing + deployment)
+### R Dependency
+- Users need R installed locally (for desktop version)
+- OR: Use cloud R service (RStudio Cloud, etc.)
+- OR: Use Rscript execution through Node.js child_process
 
-**Total**: ~9-13 days of development
+### Platform Support
+- Windows: Rscript.exe
+- Mac/Linux: Rscript command
+- Path handling for cross-platform compatibility
+
+### Performance
+- R script execution overhead (~1-2 seconds per run)
+- Consider caching for repeated runs
+- Timeout handling for long computations
+
+### Security
+- Validate variable names to prevent R injection
+- Sanitize formula construction
+- Limit R script execution resources
+
+### Data Limitations
+- Large datasets (>100k rows): Consider subsampling or warnings
+- Wide data (many predictors): Warn about overfitting/multicollinearity
+- Categorical variables: Auto-encode as dummy variables in R
 
 ---
 
-## Notes
+## Success Criteria
 
-- Keep accessibility in mind (keyboard navigation, ARIA labels)
-- Test with various data types and edge cases
-- Ensure responsive design works on mobile
-- Maintain color accessibility (colorblind-friendly palettes)
-- Document all new components and functions
-- Consider performance with large datasets
+- ✅ MLR test option appears in test selection grid
+- ✅ Multi-variable selection UI works smoothly
+- ✅ R script executes and returns valid results
+- ✅ Coefficients table displays correctly with 95% CIs
+- ✅ R² and F-statistic shown with proper interpretation
+- ✅ Error handling for missing R installation
+- ✅ Works with both continuous and categorical predictors
+- ✅ Handles edge cases (multicollinearity warnings, etc.)
+
+---
+
+## Next Steps After Phase 11
+
+1. **Phase 12**: Logistic Regression (binary outcome)
+2. **Phase 13**: Polynomial Regression (non-linear relationships)
+3. **Phase 14**: Interaction terms (predictor1 × predictor2)
+4. **Phase 15**: Model comparison (ANOVA for nested models)
