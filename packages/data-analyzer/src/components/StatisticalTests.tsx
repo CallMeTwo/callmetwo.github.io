@@ -40,22 +40,41 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
 
   // Update variable2 when test type changes to ensure correct variable types
   React.useEffect(() => {
+    // Compute variable lists inside effect to avoid dependency issues
+    const included = variables.filter(v => v.includeInAnalysis)
+    const continuous = included.filter(v => v.type === 'continuous')
+    const categorical = included.filter(v => v.type === 'categorical' || v.type === 'boolean')
+
     if (selectedTest === 'regression') {
-      // For regression, set variable2 to second continuous variable if available
-      const var2 = continuousVars.find(v => v.name !== variable1)
-      if (var2) {
-        setVariable2(var2.name)
+      // For regression, set variable2 to a continuous variable if current one is not valid
+      const isValid = continuous.some(v => v.name === variable2 && v.name !== variable1)
+      if (!isValid) {
+        // Find first continuous variable that's not variable1
+        const var2 = continuous.find(v => v.name !== variable1)
+        if (var2) {
+          setVariable2(var2.name)
+        }
       }
     } else if (selectedTest === 'chi-square') {
-      // For chi-square, ensure both are categorical
-      const var2 = categoricalVars[0]?.name || ''
-      setVariable2(var2)
+      // For chi-square, ensure variable2 is categorical
+      const isValid = categorical.some(v => v.name === variable2)
+      if (!isValid) {
+        const var2 = categorical[0]?.name || ''
+        if (var2) {
+          setVariable2(var2)
+        }
+      }
     } else {
       // For t-test and anova, ensure variable2 is categorical
-      const var2 = categoricalVars[0]?.name || ''
-      setVariable2(var2)
+      const isValid = categorical.some(v => v.name === variable2)
+      if (!isValid) {
+        const var2 = categorical[0]?.name || ''
+        if (var2) {
+          setVariable2(var2)
+        }
+      }
     }
-  }, [selectedTest, variable1, continuousVars, categoricalVars])
+  }, [selectedTest, variables])
 
   const handleRunTest = () => {
     try {
