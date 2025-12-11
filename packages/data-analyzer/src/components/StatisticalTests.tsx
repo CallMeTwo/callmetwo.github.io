@@ -1,5 +1,5 @@
 import React, { FC, useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ErrorBar, ComposedChart, Scatter } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ErrorBar, ComposedChart, Scatter, Line } from 'recharts'
 import ReactECharts from 'echarts-for-react'
 import { ParsedData, VariableType } from '../types'
 import {
