@@ -22,6 +22,27 @@ export interface ChiSquareResult {
   contingencyTable: { [key: string]: { [key: string]: number } }
   cramersV: number // Effect size
   interpretation: string
+  oddsRatio?: number // Only for 2x2 tables
+  oddsRatioCI?: [number, number] // 95% CI for OR
+}
+
+export interface GroupStats {
+  group: string
+  n: number
+  mean: number
+  sd: number
+  min: number
+  max: number
+}
+
+export interface PairwiseComparison {
+  group1: string
+  group2: string
+  meanDiff: number
+  ciLower: number
+  ciUpper: number
+  adjustedPValue: number
+  isSignificant: boolean
 }
 
 export interface ANOVAResult {
@@ -33,15 +54,34 @@ export interface ANOVAResult {
   groupMeans: { [key: string]: number }
   etaSquared: number // Effect size
   interpretation: string
+  groupStats?: GroupStats[] // Detailed group statistics
+  pairwiseComparisons?: PairwiseComparison[] // Post-hoc pairwise tests
+  bonferroniAlpha?: number // Bonferroni-corrected significance level
+}
+
+export interface RegressionCoefficient {
+  variable: string
+  coefficient: number
+  standardError: number
+  tStatistic?: number
+  pValue: number
+  ciLower?: number
+  ciUpper?: number
 }
 
 export interface RegressionResult {
   testType: 'Linear Regression' | 'Logistic Regression'
-  coefficients: { variable: string; coefficient: number; standardError: number; tStatistic?: number; pValue: number }[]
+  coefficients: RegressionCoefficient[]
   rSquared?: number // For linear regression
   adjustedRSquared?: number
   fStatistic?: number
+  fPValue?: number
   intercept: number
+  interceptSE?: number
+  interceptTStatistic?: number
+  interceptPValue?: number
+  interceptCILower?: number
+  interceptCIUpper?: number
   interpretation: string
 }
 
@@ -92,6 +132,56 @@ export function independentTTest(
     confidenceInterval,
     effectSize: cohensD,
     interpretation: interpretTTest(pValue, cohensD)
+  }
+}
+
+/**
+ * Calculate Odds Ratio and 95% CI for 2x2 contingency table
+ * Returns null if table is not 2x2 or contains zero cells
+ */
+function calculateOddsRatio(
+  contingencyTable: { [key: string]: { [key: string]: number } }
+): { oddsRatio: number; oddsRatioCI: [number, number] } | null {
+  const rowKeys = Object.keys(contingencyTable)
+  const colKeys = new Set<string>()
+
+  // Collect all column keys
+  rowKeys.forEach(rowKey => {
+    Object.keys(contingencyTable[rowKey]).forEach(colKey => colKeys.add(colKey))
+  })
+
+  // Check if table is 2x2
+  if (rowKeys.length !== 2 || colKeys.size !== 2) {
+    return null
+  }
+
+  // Get the 2x2 cells (a, b, c, d)
+  const colKeysArray = Array.from(colKeys)
+  const a = contingencyTable[rowKeys[0]][colKeysArray[0]] || 0
+  const b = contingencyTable[rowKeys[0]][colKeysArray[1]] || 0
+  const c = contingencyTable[rowKeys[1]][colKeysArray[0]] || 0
+  const d = contingencyTable[rowKeys[1]][colKeysArray[1]] || 0
+
+  // Check for zero cells (OR undefined)
+  if (a === 0 || b === 0 || c === 0 || d === 0) {
+    return null
+  }
+
+  // Calculate OR = (a × d) / (b × c)
+  const oddsRatio = (a * d) / (b * c)
+
+  // Calculate 95% CI for OR
+  // SE(ln(OR)) = sqrt(1/a + 1/b + 1/c + 1/d)
+  const seLogOR = Math.sqrt(1/a + 1/b + 1/c + 1/d)
+  const logOR = Math.log(oddsRatio)
+
+  // 95% CI: exp(ln(OR) ± 1.96 × SE(ln(OR)))
+  const ciLower = Math.exp(logOR - 1.96 * seLogOR)
+  const ciUpper = Math.exp(logOR + 1.96 * seLogOR)
+
+  return {
+    oddsRatio,
+    oddsRatioCI: [ciLower, ciUpper]
   }
 }
 
@@ -147,7 +237,10 @@ export function chiSquareTest(
   const minDim = Math.min(rowKeys.length - 1, colKeys.length - 1)
   const cramersV = Math.sqrt(chiSquare / (grandTotal * minDim))
 
-  return {
+  // Calculate Odds Ratio for 2x2 tables
+  const orResult = calculateOddsRatio(contingencyTable)
+
+  const result: ChiSquareResult = {
     testType: 'Chi-Square Test of Independence',
     statistic: chiSquare,
     degreesOfFreedom: df,
@@ -156,6 +249,98 @@ export function chiSquareTest(
     cramersV,
     interpretation: interpretChiSquare(pValue, cramersV)
   }
+
+  // Add OR fields if 2x2 table
+  if (orResult) {
+    result.oddsRatio = orResult.oddsRatio
+    result.oddsRatioCI = orResult.oddsRatioCI
+  }
+
+  return result
+}
+
+/**
+ * Calculate pairwise comparisons with Bonferroni correction
+ */
+function calculatePairwiseComparisons(
+  data: { [group: string]: number[] },
+  msw: number, // Mean sum of squares within (from ANOVA)
+  dfWithin: number // Degrees of freedom within
+): PairwiseComparison[] {
+  const groups = Object.keys(data).sort()
+  const comparisons: PairwiseComparison[] = []
+
+  // Number of comparisons for Bonferroni correction
+  const numComparisons = (groups.length * (groups.length - 1)) / 2
+  const bonferroniAlpha = 0.05 / numComparisons
+
+  // For each pair of groups
+  for (let i = 0; i < groups.length; i++) {
+    for (let j = i + 1; j < groups.length; j++) {
+      const group1 = groups[i]
+      const group2 = groups[j]
+      const data1 = data[group1]
+      const data2 = data[group2]
+
+      const n1 = data1.length
+      const n2 = data2.length
+      const mean1 = mean(data1)
+      const mean2 = mean(data2)
+      const meanDiff = mean1 - mean2
+
+      // Pooled standard error: SE = sqrt(MSW * (1/n1 + 1/n2))
+      const se = Math.sqrt(msw * (1/n1 + 1/n2))
+
+      // Get t-critical value for 95% CI (two-tailed, alpha=0.05)
+      const getTCritical = (df: number) => {
+        const tValues: { [key: number]: number } = {
+          1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+          6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+          15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042
+        }
+        if (tValues[df]) return tValues[df]
+        return df > 30 ? 1.96 : 2.045
+      }
+
+      const t_crit = getTCritical(dfWithin)
+      const ciMargin = t_crit * se
+
+      // Calculate t-statistic and p-value
+      const tStatistic = meanDiff / se
+      const pValue = 2 * (1 - normalCDF(Math.abs(tStatistic))) // Approximation for large df
+
+      comparisons.push({
+        group1,
+        group2,
+        meanDiff,
+        ciLower: meanDiff - ciMargin,
+        ciUpper: meanDiff + ciMargin,
+        adjustedPValue: pValue,
+        isSignificant: pValue < bonferroniAlpha
+      })
+    }
+  }
+
+  return comparisons
+}
+
+/**
+ * Calculate group statistics (N, Mean, SD, Min, Max)
+ */
+function calculateGroupStats(data: { [group: string]: number[] }): GroupStats[] {
+  return Object.keys(data)
+    .sort()
+    .map(group => {
+      const values = data[group]
+      return {
+        group,
+        n: values.length,
+        mean: mean(values),
+        sd: Math.sqrt(variance(values)),
+        min: Math.min(...values),
+        max: Math.max(...values)
+      }
+    })
 }
 
 /**
@@ -209,6 +394,12 @@ export function oneWayANOVA(
   // Effect size (eta squared)
   const etaSquared = ssb / (ssb + ssw)
 
+  // Calculate group statistics and pairwise comparisons
+  const groupStats = calculateGroupStats(data)
+  const numComparisons = (k * (k - 1)) / 2
+  const bonferroniAlpha = 0.05 / numComparisons
+  const pairwiseComparisons = calculatePairwiseComparisons(data, msw, dfWithin)
+
   return {
     testType: 'One-Way ANOVA',
     fStatistic,
@@ -217,8 +408,35 @@ export function oneWayANOVA(
     pValue,
     groupMeans,
     etaSquared,
-    interpretation: interpretANOVA(pValue, etaSquared)
+    interpretation: interpretANOVA(pValue, etaSquared),
+    groupStats,
+    pairwiseComparisons,
+    bonferroniAlpha
   }
+}
+
+/**
+ * Calculate 95% CI for regression coefficient
+ */
+function calculateRegressionCI(
+  coefficient: number,
+  stdError: number,
+  df: number
+): [number, number] {
+  const getTCritical = (df: number) => {
+    const tValues: { [key: number]: number } = {
+      1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+      6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+      15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042
+    }
+    if (tValues[df]) return tValues[df]
+    return df > 30 ? 1.96 : 2.045
+  }
+
+  const t_crit = getTCritical(df)
+  const margin = t_crit * stdError
+
+  return [coefficient - margin, coefficient + margin]
 }
 
 /**
@@ -265,9 +483,20 @@ export function linearRegression(
   const tStatistic = slope / slopeStandardError
   const pValue = tDistributionPValue(Math.abs(tStatistic), n - 2) * 2
 
-  // F-statistic
+  // F-statistic and p-value
   const ssRegression = ssTotal - ssResidual
   const fStatistic = (ssRegression / 1) / (ssResidual / (n - 2))
+  const fPValue = fDistributionPValue(fStatistic, 1, n - 2)
+
+  // Intercept standard error
+  const sumXSquared = x.reduce((sum, xi) => sum + Math.pow(xi, 2), 0)
+  const interceptSE = Math.sqrt(residualVariance * (1/n + Math.pow(xMean, 2) / denominator))
+  const interceptTStatistic = intercept / interceptSE
+  const interceptPValue = tDistributionPValue(Math.abs(interceptTStatistic), n - 2) * 2
+
+  // Calculate CIs
+  const [slopeCILower, slopeCIUpper] = calculateRegressionCI(slope, slopeStandardError, n - 2)
+  const [interceptCILower, interceptCIUpper] = calculateRegressionCI(intercept, interceptSE, n - 2)
 
   return {
     testType: 'Linear Regression',
@@ -277,13 +506,21 @@ export function linearRegression(
         coefficient: slope,
         standardError: slopeStandardError,
         tStatistic,
-        pValue
+        pValue,
+        ciLower: slopeCILower,
+        ciUpper: slopeCIUpper
       }
     ],
     rSquared,
     adjustedRSquared,
     fStatistic,
+    fPValue,
     intercept,
+    interceptSE,
+    interceptTStatistic,
+    interceptPValue,
+    interceptCILower,
+    interceptCIUpper,
     interpretation: interpretRegression(pValue, rSquared)
   }
 }

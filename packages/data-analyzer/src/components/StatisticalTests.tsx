@@ -12,7 +12,10 @@ import {
   TTestResult,
   ChiSquareResult,
   ANOVAResult,
-  RegressionResult
+  RegressionResult,
+  RegressionCoefficient,
+  GroupStats,
+  PairwiseComparison
 } from '../utils/statisticalTests'
 import { createHistogram, createBoxPlotData, getUniqueGroups, CHART_COLORS, getDecimalPlaces, formatAxisLabel } from '../utils/visualization'
 
@@ -228,15 +231,39 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
           )}
 
           {testResult.testType.includes('Chi-Square') && (
-            <ChiSquareResults result={testResult as ChiSquareResult} />
+            <>
+              <ChiSquareResults result={testResult as ChiSquareResult} />
+              <ChiSquarePlot
+                result={testResult as ChiSquareResult}
+                data={data}
+                variable1={variable1}
+                variable2={variable2}
+              />
+            </>
           )}
 
           {testResult.testType.includes('ANOVA') && (
-            <ANOVAResults result={testResult as ANOVAResult} />
+            <>
+              <ANOVAResults result={testResult as ANOVAResult} />
+              <AnovaPlot
+                result={testResult as ANOVAResult}
+                data={data}
+                variable1={variable1}
+                variable2={variable2}
+              />
+            </>
           )}
 
           {testResult.testType.includes('Regression') && (
-            <RegressionResults result={testResult as RegressionResult} />
+            <>
+              <RegressionPlot
+                result={testResult as RegressionResult}
+                data={data}
+                variable1={variable1}
+                variable2={variable2}
+              />
+              <RegressionResults result={testResult as RegressionResult} />
+            </>
           )}
         </div>
       )}
@@ -620,99 +647,790 @@ const TTestPlot: FC<TTestPlotProps> = ({ result, data, variable1, variable2 }) =
   )
 }
 
-// Chi-Square Results
-const ChiSquareResults: FC<{ result: ChiSquareResult }> = ({ result }) => (
-  <div style={styles.resultCard}>
-    <h4 style={styles.resultCardTitle}>{result.testType}</h4>
-    <div style={styles.statsGrid}>
-      <StatItem label="χ² statistic" value={result.statistic.toFixed(4)} />
-      <StatItem label="Degrees of Freedom" value={result.degreesOfFreedom.toString()} />
-      <StatItem label="p-value" value={result.pValue.toFixed(4)} highlight={result.pValue < 0.05} />
-      <StatItem label="Effect Size (Cramér's V)" value={result.cramersV.toFixed(4)} />
-    </div>
-    <div style={styles.interpretation}>
-      <strong>Interpretation:</strong> {result.interpretation}
-    </div>
-  </div>
-)
+// Chi-Square Plot Component with Multiple Visualization Options
+interface ChiSquarePlotProps {
+  result: ChiSquareResult
+  data: ParsedData
+  variable1: string
+  variable2: string
+}
 
-// ANOVA Results
-const ANOVAResults: FC<{ result: ANOVAResult }> = ({ result }) => (
-  <div style={styles.resultCard}>
-    <h4 style={styles.resultCardTitle}>{result.testType}</h4>
-    <div style={styles.statsGrid}>
-      <StatItem label="F-statistic" value={result.fStatistic.toFixed(4)} />
-      <StatItem label="df (between)" value={result.degreesOfFreedomBetween.toString()} />
-      <StatItem label="df (within)" value={result.degreesOfFreedomWithin.toString()} />
-      <StatItem label="p-value" value={result.pValue.toFixed(4)} highlight={result.pValue < 0.05} />
-      <StatItem label="Effect Size (η²)" value={result.etaSquared.toFixed(4)} />
-    </div>
-    <div style={styles.groupMeans}>
-      <strong>Group Means:</strong>
-      <div style={styles.groupMeansGrid}>
-        {Object.entries(result.groupMeans).map(([group, mean]) => (
-          <div key={group} style={styles.groupMeanItem}>
-            <span style={styles.groupName}>{group}:</span>
-            <span style={styles.groupValue}>{mean.toFixed(2)}</span>
-          </div>
-        ))}
+type ChiSquarePlotType = 'stackedCount' | 'clusteredCount' | 'stackedPercent' | 'clusteredPercent'
+
+const ChiSquarePlot: FC<ChiSquarePlotProps> = ({ result, data, variable1, variable2 }) => {
+  const [plotType, setPlotType] = useState<ChiSquarePlotType>('clusteredCount')
+
+  // Transform contingency table to chart data
+  const prepareChartData = (asPercentage: boolean = false) => {
+    const contingencyTable = result.contingencyTable
+    const var1Categories = Object.keys(contingencyTable)
+    const var2Categories = new Set<string>()
+
+    // Collect all var2 categories
+    var1Categories.forEach(cat1 => {
+      Object.keys(contingencyTable[cat1]).forEach(cat2 => var2Categories.add(cat2))
+    })
+
+    const var2CategoriesArray = Array.from(var2Categories)
+
+    // Build chart data array
+    const chartData = var1Categories.map(cat1 => {
+      const row: any = { category: cat1 }
+
+      // Calculate totals if percentage mode
+      let rowTotal = 0
+      if (asPercentage) {
+        var2CategoriesArray.forEach(cat2 => {
+          rowTotal += contingencyTable[cat1][cat2] || 0
+        })
+      }
+
+      // Add counts or percentages for each var2 category
+      var2CategoriesArray.forEach(cat2 => {
+        const count = contingencyTable[cat1][cat2] || 0
+        row[cat2] = asPercentage && rowTotal > 0 ? (count / rowTotal) * 100 : count
+      })
+
+      return row
+    })
+
+    return { chartData, var2Categories: var2CategoriesArray }
+  }
+
+  // Stacked Bar Chart (Count)
+  const renderStackedCount = () => {
+    const { chartData, var2Categories } = prepareChartData(false)
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="category" label={{ value: variable1, position: 'insideBottom', offset: -5 }} />
+          <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+          <Tooltip />
+          <Legend />
+          {var2Categories.map((cat, idx) => (
+            <Bar key={cat} dataKey={cat} stackId="a" fill={CHART_COLORS.palette[idx % CHART_COLORS.palette.length]} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  // Clustered Bar Chart (Count)
+  const renderClusteredCount = () => {
+    const { chartData, var2Categories } = prepareChartData(false)
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="category" label={{ value: variable1, position: 'insideBottom', offset: -5 }} />
+          <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+          <Tooltip />
+          <Legend />
+          {var2Categories.map((cat, idx) => (
+            <Bar key={cat} dataKey={cat} fill={CHART_COLORS.palette[idx % CHART_COLORS.palette.length]} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  // Stacked Bar Chart (Percentage)
+  const renderStackedPercent = () => {
+    const { chartData, var2Categories } = prepareChartData(true)
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="category" label={{ value: variable1, position: 'insideBottom', offset: -5 }} />
+          <YAxis label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft' }} />
+          <Tooltip formatter={(value: any) => `${typeof value === 'number' ? value.toFixed(1) : value}%`} />
+          <Legend />
+          {var2Categories.map((cat, idx) => (
+            <Bar key={cat} dataKey={cat} stackId="a" fill={CHART_COLORS.palette[idx % CHART_COLORS.palette.length]} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  // Clustered Bar Chart (Percentage)
+  const renderClusteredPercent = () => {
+    const { chartData, var2Categories } = prepareChartData(true)
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="category" label={{ value: variable1, position: 'insideBottom', offset: -5 }} />
+          <YAxis label={{ value: 'Percentage (%)', angle: -90, position: 'insideLeft' }} />
+          <Tooltip formatter={(value: any) => `${typeof value === 'number' ? value.toFixed(1) : value}%`} />
+          <Legend />
+          {var2Categories.map((cat, idx) => (
+            <Bar key={cat} dataKey={cat} fill={CHART_COLORS.palette[idx % CHART_COLORS.palette.length]} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  return (
+    <div style={styles.visualizationContainer}>
+      <h4 style={styles.visualizationTitle}>Visualization</h4>
+
+      {/* Plot Type Selection */}
+      <div style={styles.plotTypeSelector}>
+        <label style={styles.label}>Choose Visualization:</label>
+        <div style={styles.radioGroup}>
+          {[
+            { value: 'stackedCount', label: '📊 Stacked Bar Chart (Count)' },
+            { value: 'clusteredCount', label: '📊 Clustered Bar Chart (Count)' },
+            { value: 'stackedPercent', label: '📈 Stacked Bar Chart (%)' },
+            { value: 'clusteredPercent', label: '📈 Clustered Bar Chart (%)' }
+          ].map(option => (
+            <label key={option.value} style={styles.radioLabel}>
+              <input
+                type="radio"
+                value={option.value}
+                checked={plotType === option.value}
+                onChange={(e) => setPlotType(e.target.value as ChiSquarePlotType)}
+                style={styles.radioInput}
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Plot Display */}
+      <div style={styles.plotContainer}>
+        {plotType === 'stackedCount' && renderStackedCount()}
+        {plotType === 'clusteredCount' && renderClusteredCount()}
+        {plotType === 'stackedPercent' && renderStackedPercent()}
+        {plotType === 'clusteredPercent' && renderClusteredPercent()}
       </div>
     </div>
-    <div style={styles.interpretation}>
-      <strong>Interpretation:</strong> {result.interpretation}
+  )
+}
+
+// Chi-Square Results
+const ChiSquareResults: FC<{ result: ChiSquareResult }> = ({ result }) => {
+  const formatValue = (value: number | null | undefined): string => {
+    if (value === null || value === undefined || isNaN(value)) {
+      return 'N/A'
+    }
+    return value.toFixed(4)
+  }
+
+  return (
+    <div style={styles.resultCard}>
+      <h4 style={styles.resultCardTitle}>{result.testType}</h4>
+      <div style={styles.statsGrid}>
+        {/* Show Odds Ratio first if 2x2 table */}
+        {result.oddsRatio !== undefined && (
+          <>
+            <StatItem
+              label="Odds Ratio"
+              value={formatValue(result.oddsRatio)}
+            />
+            <StatItem
+              label="95% CI (OR)"
+              value={
+                result.oddsRatioCI
+                  ? `[${result.oddsRatioCI[0].toFixed(2)}, ${result.oddsRatioCI[1].toFixed(2)}]`
+                  : 'N/A'
+              }
+            />
+          </>
+        )}
+        <StatItem label="Effect Size (Cramér's V)" value={result.cramersV.toFixed(4)} />
+        <StatItem label="χ² statistic" value={result.statistic.toFixed(4)} />
+        <StatItem label="Degrees of Freedom" value={result.degreesOfFreedom.toString()} />
+        <StatItem
+          label="p-value"
+          value={result.pValue.toFixed(4)}
+          highlight={result.pValue < 0.05}
+        />
+      </div>
+      <div style={styles.interpretation}>
+        <strong>Interpretation:</strong> {result.interpretation}
+      </div>
     </div>
-  </div>
-)
+  )
+}
+
+// ANOVA Plot Component with Multiple Visualization Options
+interface AnovaPlotProps {
+  result: ANOVAResult
+  data: ParsedData
+  variable1: string
+  variable2: string
+}
+
+type AnovaPlotType = 'boxplot' | 'meanCI'
+
+const AnovaPlot: FC<AnovaPlotProps> = ({ result, data, variable1, variable2 }) => {
+  const [plotType, setPlotType] = useState<AnovaPlotType>('boxplot')
+
+  // Group the data by variable2
+  const groups = groupNumericData(data.rows, variable1, variable2)
+  const groupNames = Object.keys(groups).sort()
+
+  // Side-by-side Boxplot
+  const renderBoxPlot = () => {
+    const boxPlots = groupNames.map(groupName => {
+      const groupData = groups[groupName]
+      return { groupName, boxData: createBoxPlotData(groupData) }
+    }).filter(item => item.boxData !== null)
+
+    if (boxPlots.length === 0) return null
+
+    const createBoxPlotValues = (boxData: any) => [
+      boxData.min, boxData.q1, boxData.median, boxData.q3, boxData.max, ...boxData.outliers
+    ]
+
+    // Collect all values for ymin calculation
+    const allValues = groupNames.flatMap(name => groups[name])
+    const dataMin = Math.min(...allValues)
+    const dataMax = Math.max(...allValues)
+    const range = dataMax - dataMin
+    const ymin = dataMin - range * 0.1
+
+    const decimals = getDecimalPlaces(dataMin, dataMax)
+
+    const option = {
+      title: {
+        text: `Box Plot: ${variable1} by ${variable2}`,
+        left: 'center',
+        textStyle: { fontSize: 16, fontWeight: 'bold', color: '#333' }
+      },
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: any) => {
+          if (params.seriesType === 'boxplot') {
+            const [min, q1, median, q3, max] = params.value
+            return `<div style="padding: 5px;"><strong>${groupNames[params.dataIndex]}</strong><br/>Min: ${formatAxisLabel(min, decimals)}<br/>Q1: ${formatAxisLabel(q1, decimals)}<br/>Median: ${formatAxisLabel(median, decimals)}<br/>Q3: ${formatAxisLabel(q3, decimals)}<br/>Max: ${formatAxisLabel(max, decimals)}</div>`
+          }
+          return params.name
+        }
+      },
+      grid: { left: '10%', right: '10%', bottom: '15%', top: '15%', containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: groupNames,
+        axisLabel: { fontSize: 12 }
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Value',
+        nameTextStyle: { color: '#666', fontSize: 12 },
+        axisLabel: {
+          fontSize: 12,
+          formatter: (value: number) => formatAxisLabel(value, decimals)
+        },
+        min: ymin
+      },
+      series: [
+        {
+          name: 'Box Plot',
+          type: 'boxplot',
+          data: boxPlots.map(item => createBoxPlotValues(item.boxData)),
+          itemStyle: {
+            color: (params: any) => CHART_COLORS.palette[params.dataIndex % CHART_COLORS.palette.length],
+            borderColor: '#333'
+          },
+          boxWidth: ['15%', '50%']
+        },
+        {
+          name: 'Outliers',
+          type: 'scatter',
+          data: boxPlots.flatMap((item, idx) =>
+            item.boxData!.outliers.map((v: number) => [idx, v])
+          ),
+          symbolSize: 4,
+          itemStyle: { opacity: 0.6, color: '#e74c3c' }
+        }
+      ]
+    }
+
+    return (
+      <ReactECharts
+        option={option}
+        style={{ height: '400px', width: '100%' }}
+        notMerge
+        lazyUpdate
+      />
+    )
+  }
+
+  // Mean ± 95% CI Plot
+  const renderMeanCIPlot = () => {
+    if (!result.groupStats || result.groupStats.length === 0) return null
+
+    const getTCritical = (df: number) => {
+      const tValues: { [key: number]: number } = {
+        1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+        6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+        15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042
+      }
+      if (tValues[df]) return tValues[df]
+      return df > 30 ? 1.96 : 2.045
+    }
+
+    const data = result.groupStats.map(stat => {
+      const t_crit = getTCritical(stat.n - 1)
+      const se = stat.sd / Math.sqrt(stat.n)
+      const error = t_crit * se
+      return {
+        group: stat.group,
+        mean: stat.mean,
+        error
+      }
+    })
+
+    const lowerBounds = data.map(d => d.mean - d.error)
+    const upperBounds = data.map(d => d.mean + d.error)
+    const dataMin = Math.min(...lowerBounds)
+    const dataMax = Math.max(...upperBounds)
+    const range = dataMax - dataMin
+    const ymin = dataMin - range * 0.1
+
+    const decimals = getDecimalPlaces(dataMin, dataMax)
+
+    return (
+      <ResponsiveContainer width="100%" height={400}>
+        <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="group" padding={{ left: 50, right: 50 }} />
+          <YAxis
+            label={{ value: variable1, angle: -90, position: 'insideLeft' }}
+            domain={[ymin, 'auto']}
+            tickFormatter={(value) => formatAxisLabel(value, decimals)}
+          />
+          <Tooltip
+            formatter={(value: any) => (typeof value === 'number' ? formatAxisLabel(value, decimals) : value)}
+            contentStyle={{ backgroundColor: '#fff', border: '1px solid #ccc' }}
+          />
+          <Scatter dataKey="mean" fill={CHART_COLORS.primary} shape="circle" size={120}>
+            <ErrorBar
+              dataKey="error"
+              direction="y"
+              stroke="#333"
+              strokeWidth={2}
+            />
+          </Scatter>
+        </ComposedChart>
+      </ResponsiveContainer>
+    )
+  }
+
+  return (
+    <div style={styles.visualizationContainer}>
+      <h4 style={styles.visualizationTitle}>Visualization</h4>
+
+      {/* Plot Type Selection */}
+      <div style={styles.plotTypeSelector}>
+        <label style={styles.label}>Choose Visualization:</label>
+        <div style={styles.radioGroup}>
+          {[
+            { value: 'boxplot', label: '📦 Side-by-Side Boxplot' },
+            { value: 'meanCI', label: '📊 Mean ± 95% CI Plot' }
+          ].map(option => (
+            <label key={option.value} style={styles.radioLabel}>
+              <input
+                type="radio"
+                value={option.value}
+                checked={plotType === option.value}
+                onChange={(e) => setPlotType(e.target.value as AnovaPlotType)}
+                style={styles.radioInput}
+              />
+              {option.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Plot Display */}
+      <div style={styles.plotContainer}>
+        {plotType === 'boxplot' && renderBoxPlot()}
+        {plotType === 'meanCI' && renderMeanCIPlot()}
+      </div>
+    </div>
+  )
+}
+
+// ANOVA Results
+const ANOVAResults: FC<{ result: ANOVAResult }> = ({ result }) => {
+  return (
+    <div style={styles.resultCard}>
+      <h4 style={styles.resultCardTitle}>{result.testType}</h4>
+
+      {/* Group Means Table (at top) */}
+      {result.groupStats && result.groupStats.length > 0 && (
+        <div style={styles.tableSection}>
+          <strong style={styles.tableSectionTitle}>Group Summary Statistics</strong>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.tableHeader}>Group</th>
+                <th style={styles.tableHeader}>N</th>
+                <th style={styles.tableHeader}>Mean</th>
+                <th style={styles.tableHeader}>SD</th>
+                <th style={styles.tableHeader}>Min</th>
+                <th style={styles.tableHeader}>Max</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.groupStats.map((stat, idx) => (
+                <tr key={idx}>
+                  <td style={styles.tableCell}>{stat.group}</td>
+                  <td style={styles.tableCell}>{stat.n}</td>
+                  <td style={styles.tableCell}>{stat.mean.toFixed(2)}</td>
+                  <td style={styles.tableCell}>{stat.sd.toFixed(2)}</td>
+                  <td style={styles.tableCell}>{stat.min.toFixed(2)}</td>
+                  <td style={styles.tableCell}>{stat.max.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ANOVA Test Results */}
+      <div style={styles.statsGrid}>
+        <StatItem label="Effect Size (η²)" value={result.etaSquared.toFixed(4)} />
+        <StatItem label="df (between)" value={result.degreesOfFreedomBetween.toString()} />
+        <StatItem label="df (within)" value={result.degreesOfFreedomWithin.toString()} />
+        <StatItem label="F-statistic" value={result.fStatistic.toFixed(4)} />
+        <StatItem
+          label="p-value"
+          value={result.pValue.toFixed(4)}
+          highlight={result.pValue < 0.05}
+        />
+      </div>
+
+      {/* Post-hoc Pairwise Comparisons */}
+      {result.pairwiseComparisons && result.pairwiseComparisons.length > 0 && (
+        <div style={styles.tableSection}>
+          <strong style={styles.tableSectionTitle}>
+            Post-hoc Pairwise Comparisons (Bonferroni-corrected)
+          </strong>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={styles.tableHeader}>Group 1</th>
+                <th style={styles.tableHeader}>Group 2</th>
+                <th style={styles.tableHeader}>Mean Diff</th>
+                <th style={styles.tableHeader}>95% CI</th>
+                <th style={styles.tableHeader}>Adjusted p-value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {result.pairwiseComparisons.map((comp, idx) => (
+                <tr
+                  key={idx}
+                  style={
+                    comp.isSignificant
+                      ? { ...styles.tableRow, backgroundColor: '#fff3cd' }
+                      : styles.tableRow
+                  }
+                >
+                  <td style={styles.tableCell}>{comp.group1}</td>
+                  <td style={styles.tableCell}>{comp.group2}</td>
+                  <td style={styles.tableCell}>{comp.meanDiff.toFixed(2)}</td>
+                  <td style={styles.tableCell}>
+                    [{comp.ciLower.toFixed(2)}, {comp.ciUpper.toFixed(2)}]
+                  </td>
+                  <td
+                    style={{
+                      ...styles.tableCell,
+                      ...(comp.isSignificant ? { color: '#e74c3c', fontWeight: 'bold' } : {})
+                    }}
+                  >
+                    {comp.adjustedPValue.toFixed(4)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div style={styles.interpretation}>
+        <strong>Interpretation:</strong> {result.interpretation}
+      </div>
+    </div>
+  )
+}
+
+// Regression Plot Component with Scatter and Fitted Line
+interface RegressionPlotProps {
+  result: RegressionResult
+  data: ParsedData
+  variable1: string
+  variable2: string
+}
+
+const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, variable2 }) => {
+  // Extract x and y values
+  const chartData: any[] = []
+  const xValues: number[] = []
+  const yValues: number[] = []
+
+  data.rows.forEach(row => {
+    const x = row[variable2]
+    const y = row[variable1]
+
+    if (x !== null && x !== undefined && x !== '' && y !== null && y !== undefined && y !== '') {
+      const xNum = typeof x === 'string' ? parseFloat(x) : Number(x)
+      const yNum = typeof y === 'string' ? parseFloat(y) : Number(y)
+
+      if (!isNaN(xNum) && !isNaN(yNum)) {
+        xValues.push(xNum)
+        yValues.push(yNum)
+        chartData.push({ x: xNum, y: yNum, actual: yNum })
+      }
+    }
+  })
+
+  if (chartData.length < 2) return null
+
+  // Get slope and intercept
+  const coef = result.coefficients[0]
+  const slope = coef.coefficient
+  const intercept = result.intercept
+
+  // Calculate fitted values and prediction intervals
+  const xMin = Math.min(...xValues)
+  const xMax = Math.max(...xValues)
+  const xMean = xValues.reduce((a, b) => a + b, 0) / xValues.length
+
+  // Calculate residual variance for prediction intervals
+  let residualVariance = 0
+  chartData.forEach(point => {
+    const predicted = intercept + slope * point.x
+    residualVariance += Math.pow(point.y - predicted, 2)
+  })
+  residualVariance = residualVariance / (chartData.length - 2)
+
+  // Calculate sum of squared deviations of x
+  const sumXDevSquared = xValues.reduce((sum, x) => sum + Math.pow(x - xMean, 2), 0)
+
+  // Generate fitted line points
+  const linePoints: any[] = []
+  const step = (xMax - xMin) / 30
+
+  for (let x = xMin; x <= xMax; x += step) {
+    const predicted = intercept + slope * x
+
+    // Calculate prediction interval (95% PI)
+    const getTCritical = (df: number) => {
+      const tValues: { [key: number]: number } = {
+        1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+        6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+        15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042
+      }
+      if (tValues[df]) return tValues[df]
+      return df > 30 ? 1.96 : 2.045
+    }
+
+    const t_crit = getTCritical(chartData.length - 2)
+    const sePred = Math.sqrt(residualVariance * (1 + 1/chartData.length + Math.pow(x - xMean, 2) / sumXDevSquared))
+    const piMargin = t_crit * sePred
+
+    linePoints.push({
+      x,
+      predicted,
+      piLower: predicted - piMargin,
+      piUpper: predicted + piMargin
+    })
+  }
+
+  // Calculate data bounds for axes
+  const allYValues = [...yValues, ...linePoints.map(p => p.predicted)]
+  const yMin = Math.min(...allYValues)
+  const yMax = Math.max(...allYValues)
+  const yRange = yMax - yMin
+  const yPadding = yRange * 0.1
+
+  const decimals = getDecimalPlaces(yMin, yMax)
+
+  return (
+    <div style={styles.visualizationContainer}>
+      <h4 style={styles.visualizationTitle}>Regression Visualization</h4>
+
+      <ResponsiveContainer width="100%" height={400}>
+        <ComposedChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }} data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="x"
+            label={{ value: variable2, position: 'insideBottom', offset: -5 }}
+            type="number"
+            domain={[xMin - (xMax - xMin) * 0.1, xMax + (xMax - xMin) * 0.1]}
+          />
+          <YAxis
+            label={{ value: variable1, angle: -90, position: 'insideLeft' }}
+            domain={[yMin - yPadding, yMax + yPadding]}
+            tickFormatter={(value) => formatAxisLabel(value, decimals)}
+          />
+          <Tooltip
+            cursor={{ strokeDasharray: '3 3' }}
+            formatter={(value: any) => (typeof value === 'number' ? formatAxisLabel(value, decimals) : value)}
+            content={({ active, payload }) => {
+              if (active && payload && payload[0]) {
+                const data = payload[0].payload
+                return (
+                  <div style={{ backgroundColor: '#fff', border: '1px solid #ccc', padding: '5px' }}>
+                    <p>{`${variable2}: ${formatAxisLabel(data.x, decimals)}`}</p>
+                    <p>{`Actual: ${formatAxisLabel(data.y, decimals)}`}</p>
+                    <p>{`Predicted: ${formatAxisLabel(data.y, decimals)}`}</p>
+                  </div>
+                )
+              }
+              return null
+            }}
+          />
+          <Legend />
+
+          {/* Prediction Interval Band (as area) */}
+          <Line
+            dataKey="piUpper"
+            data={linePoints}
+            stroke="none"
+            fill="none"
+            isAnimationActive={false}
+          />
+
+          {/* Fitted Regression Line */}
+          <Line
+            dataKey="predicted"
+            data={linePoints}
+            stroke={CHART_COLORS.accent}
+            strokeWidth={2}
+            dot={false}
+            isAnimationActive={false}
+            name="Fitted Line"
+          />
+
+          {/* Actual Data Points */}
+          <Scatter dataKey="y" data={chartData} fill={CHART_COLORS.primary} shape="circle" name="Actual Data" />
+        </ComposedChart>
+      </ResponsiveContainer>
+
+      <div style={styles.regressionInfo}>
+        <p>
+          <strong>Regression Equation:</strong> {variable1} = {intercept.toFixed(4)} + {slope.toFixed(4)} × {variable2}
+        </p>
+        <p>
+          <strong>R²:</strong> {(result.rSquared || 0).toFixed(4)} | <strong>Adjusted R²:</strong> {(result.adjustedRSquared || 0).toFixed(4)}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 // Regression Results
-const RegressionResults: FC<{ result: RegressionResult }> = ({ result }) => (
-  <div style={styles.resultCard}>
-    <h4 style={styles.resultCardTitle}>{result.testType}</h4>
-    <div style={styles.statsGrid}>
-      <StatItem label="Intercept" value={result.intercept.toFixed(4)} />
-      {result.coefficients.map((coef, idx) => (
-        <StatItem key={idx} label={`${coef.variable} coefficient`} value={coef.coefficient.toFixed(4)} />
-      ))}
-      {result.rSquared !== undefined && (
-        <>
-          <StatItem label="R²" value={result.rSquared.toFixed(4)} />
-          <StatItem label="Adjusted R²" value={result.adjustedRSquared!.toFixed(4)} />
-        </>
-      )}
-      {result.fStatistic !== undefined && (
-        <StatItem label="F-statistic" value={result.fStatistic.toFixed(4)} />
-      )}
-    </div>
-    <div style={styles.coefficientsTable}>
-      <strong>Coefficient Details:</strong>
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.tableHeader}>Variable</th>
-            <th style={styles.tableHeader}>Coefficient</th>
-            <th style={styles.tableHeader}>Std. Error</th>
-            <th style={styles.tableHeader}>p-value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {result.coefficients.map((coef, idx) => (
-            <tr key={idx}>
-              <td style={styles.tableCell}>{coef.variable}</td>
-              <td style={styles.tableCell}>{coef.coefficient.toFixed(4)}</td>
-              <td style={styles.tableCell}>{coef.standardError.toFixed(4)}</td>
-              <td style={{ ...styles.tableCell, ...(coef.pValue < 0.05 ? styles.significant : {}) }}>
-                {coef.pValue.toFixed(4)}
+const RegressionResults: FC<{ result: RegressionResult }> = ({ result }) => {
+  const formatCI = (lower: number | undefined, upper: number | undefined) => {
+    if (lower === undefined || upper === undefined) return 'N/A'
+    return `[${lower.toFixed(2)}, ${upper.toFixed(2)}]`
+  }
+
+  const formatPValue = (p: number | undefined) => {
+    if (p === undefined) return 'N/A'
+    if (p < 0.001) return '< 0.001'
+    return p.toFixed(4)
+  }
+
+  return (
+    <div style={styles.resultCard}>
+      <h4 style={styles.resultCardTitle}>{result.testType}</h4>
+
+      {/* Coefficient Table (Intercept + Predictors) */}
+      <div style={styles.tableSection}>
+        <strong style={styles.tableSectionTitle}>Coefficient Estimates</strong>
+        <table style={styles.table}>
+          <thead>
+            <tr>
+              <th style={styles.tableHeader}>Variable</th>
+              <th style={styles.tableHeader}>Coefficient</th>
+              <th style={styles.tableHeader}>Std. Error</th>
+              <th style={styles.tableHeader}>95% CI</th>
+              <th style={styles.tableHeader}>p-value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Intercept row */}
+            <tr>
+              <td style={styles.tableCell}>(Intercept)</td>
+              <td style={styles.tableCell}>{result.intercept.toFixed(4)}</td>
+              <td style={styles.tableCell}>{(result.interceptSE || 0).toFixed(4)}</td>
+              <td style={styles.tableCell}>
+                {formatCI(result.interceptCILower, result.interceptCIUpper)}
+              </td>
+              <td
+                style={{
+                  ...styles.tableCell,
+                  ...(result.interceptPValue && result.interceptPValue < 0.05
+                    ? styles.significant
+                    : {})
+                }}
+              >
+                {formatPValue(result.interceptPValue)}
               </td>
             </tr>
-          ))}
-        </tbody>
-      </table>
+            {/* Predictor rows */}
+            {result.coefficients.map((coef, idx) => (
+              <tr key={idx}>
+                <td style={styles.tableCell}>{coef.variable}</td>
+                <td style={styles.tableCell}>{coef.coefficient.toFixed(4)}</td>
+                <td style={styles.tableCell}>{coef.standardError.toFixed(4)}</td>
+                <td style={styles.tableCell}>
+                  {formatCI(coef.ciLower, coef.ciUpper)}
+                </td>
+                <td
+                  style={{
+                    ...styles.tableCell,
+                    ...(coef.pValue < 0.05 ? styles.significant : {})
+                  }}
+                >
+                  {formatPValue(coef.pValue)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Regression Statistics */}
+      <div style={styles.statsGrid}>
+        {result.rSquared !== undefined && (
+          <>
+            <StatItem label="R²" value={result.rSquared.toFixed(4)} />
+            <StatItem label="Adjusted R²" value={result.adjustedRSquared?.toFixed(4) || 'N/A'} />
+          </>
+        )}
+        {result.fStatistic !== undefined && (
+          <>
+            <StatItem label="F-statistic" value={result.fStatistic.toFixed(4)} />
+            <StatItem
+              label="p-value (overall)"
+              value={formatPValue(result.fPValue)}
+              highlight={result.fPValue !== undefined && result.fPValue < 0.05}
+            />
+          </>
+        )}
+      </div>
+
+      <div style={styles.interpretation}>
+        <strong>Interpretation:</strong> {result.interpretation}
+      </div>
     </div>
-    <div style={styles.interpretation}>
-      <strong>Interpretation:</strong> {result.interpretation}
-    </div>
-  </div>
-)
+  )
+}
 
 // Stat Item Component
 const StatItem: FC<{ label: string; value: string; highlight?: boolean }> = ({
@@ -947,6 +1665,28 @@ const styles = {
   significant: {
     color: '#e74c3c',
     fontWeight: 'bold'
+  } as const,
+  tableSection: {
+    marginBottom: '20px'
+  } as const,
+  tableSectionTitle: {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#2c3e50',
+    marginBottom: '10px',
+    marginTop: '15px'
+  } as const,
+  tableRow: {
+    backgroundColor: 'transparent'
+  } as const,
+  regressionInfo: {
+    padding: '15px',
+    backgroundColor: '#f0f8ff',
+    borderRadius: '6px',
+    marginTop: '15px',
+    fontSize: '13px',
+    color: '#333'
   } as const,
   actions: {
     display: 'flex',
