@@ -84,7 +84,6 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
     setError('')
     try {
       let result: TestResult = null
-      console.log('Running test:', selectedTest)
 
       if (selectedTest === 't-test') {
         // Independent samples t-test: continuous outcome by binary categorical predictor
@@ -106,8 +105,6 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
         result = oneWayANOVA(groups)
       } else if (selectedTest === 'regression') {
         // Linear regression: continuous outcome by continuous predictor
-        console.log('Regression test - variable1:', variable1, 'variable2:', variable2)
-
         const paired: { x: number; y: number }[] = []
         data.rows.forEach(row => {
           const x = row[variable2]
@@ -121,29 +118,26 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
           }
         })
 
-        console.log('Paired data points:', paired.length)
-
         if (paired.length < 3) {
           setError(`Regression requires at least 3 data points. Found: ${paired.length}`)
           return
         }
 
-        console.log('Calling linearRegression...')
         result = linearRegression(
           paired.map(p => p.x),
           paired.map(p => p.y),
           variable2,
           variable1
         )
-        console.log('linearRegression result:', result)
       }
 
       setTestResult(result)
-      console.log('Test completed successfully')
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error)
+      // Log full error to console for debugging
       console.error('Test error:', error)
-      setError(`Error running test: ${errorMsg}\n\nStack: ${error instanceof Error ? error.stack : 'N/A'}`)
+      // Show user-friendly error message without stack trace
+      setError(`Error running test: ${errorMsg}. Please check your data and try again.`)
     }
   }
 
