@@ -16,20 +16,14 @@ const AppHeader: FC<AppHeaderProps> = ({ onThemeToggle }) => {
 
   return (
     <>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '12px 20px',
-        backgroundColor: colors.surface,
-        borderBottom: `1px solid ${colors.border}`
-      }}>
-        <div>
-          <Navbar breadcrumbs={[{ label: 'Data Analyzer' }]} />
-        </div>
+      <div style={{ position: 'relative' }}>
+        <Navbar breadcrumbs={[{ label: 'Data Analyzer' }]} />
         <button
           onClick={handleToggleTheme}
           style={{
+            position: 'absolute',
+            top: '12px',
+            right: '20px',
             background: 'none',
             border: 'none',
             cursor: 'pointer',
@@ -37,9 +31,12 @@ const AppHeader: FC<AppHeaderProps> = ({ onThemeToggle }) => {
             padding: '8px 12px',
             borderRadius: '4px',
             transition: 'background-color 0.2s',
-            color: colors.text.primary
+            color: '#ecf0f1',
+            zIndex: 1001
           }}
           title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(52, 152, 219, 0.2)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           {theme === 'light' ? '🌙' : '☀️'}
         </button>
