@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { ParsedData } from '../../../types'
+import { useTheme } from '../../../contexts/ThemeContext'
 import {
   createBoxPlotData,
   createGroupedBoxPlotData,
@@ -16,6 +17,8 @@ interface BoxPlotChartProps {
 }
 
 const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable }) => {
+  const { colors } = useTheme()
+
   if (groupVariable) {
     // Grouped box plot with side-by-side boxes
     const { groups, data: groupedData } = createGroupedBoxPlotData(data.rows, variableName, groupVariable)
@@ -40,7 +43,7 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable
         ],
         itemStyle: {
           color: CHART_COLORS.palette[groupIdx % CHART_COLORS.palette.length],
-          borderColor: '#333'
+          borderColor: colors.text.primary
         }
       }
     }).filter(Boolean)
@@ -119,7 +122,7 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable
         textStyle: {
           fontSize: 16,
           fontWeight: 'bold',
-          color: '#333'
+          color: colors.text.primary
         }
       },
       tooltip: {
@@ -159,19 +162,36 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable
         type: 'category',
         data: groups,
         axisLabel: {
-          fontSize: 12
+          fontSize: 12,
+          color: colors.text.primary
+        },
+        axisLine: {
+          lineStyle: {
+            color: colors.border
+          }
         }
       },
       yAxis: {
         type: 'value',
         name: 'Value',
         nameTextStyle: {
-          color: '#666',
+          color: colors.text.secondary,
           fontSize: 12
         },
         axisLabel: {
           fontSize: 12,
+          color: colors.text.primary,
           formatter: (value: number) => formatAxisLabel(value, yDecimals)
+        },
+        axisLine: {
+          lineStyle: {
+            color: colors.border
+          }
+        },
+        splitLine: {
+          lineStyle: {
+            color: colors.border
+          }
         },
         min: yLimits.min,
         max: yLimits.max
@@ -231,7 +251,7 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable
       textStyle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#333'
+        color: colors.text.primary
       }
     },
     tooltip: {
@@ -262,19 +282,36 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable
       type: 'category',
       data: [variableName],
       axisLabel: {
-        fontSize: 12
+        fontSize: 12,
+        color: colors.text.primary
+      },
+      axisLine: {
+        lineStyle: {
+          color: colors.border
+        }
       }
     },
     yAxis: {
       type: 'value',
       name: 'Value',
       nameTextStyle: {
-        color: '#666',
+        color: colors.text.secondary,
         fontSize: 12
       },
       axisLabel: {
         fontSize: 12,
+        color: colors.text.primary,
         formatter: (value: number) => formatAxisLabel(value, nongroupedYDecimals)
+      },
+      axisLine: {
+        lineStyle: {
+          color: colors.border
+        }
+      },
+      splitLine: {
+        lineStyle: {
+          color: colors.border
+        }
       },
       min: nongroupedYLimits.min,
       max: nongroupedYLimits.max
@@ -286,7 +323,7 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable
         data: [boxPlotValues],
         itemStyle: {
           color: CHART_COLORS.primary,
-          borderColor: '#333'
+          borderColor: colors.text.primary
         },
         boxWidth: ['20%', '50%']
       },
@@ -305,31 +342,71 @@ const BoxPlotChart: FC<BoxPlotChartProps> = ({ data, variableName, groupVariable
   return (
     <div style={styles.chart}>
       <div style={styles.boxPlotSummary}>
-        <div style={styles.boxPlotStats}>
+        <div style={{
+          ...styles.boxPlotStats,
+          backgroundColor: colors.surface,
+          border: `1px solid ${colors.border}`
+        }}>
           <div style={styles.boxPlotStat}>
-            <span style={styles.boxPlotLabel}>Min</span>
-            <span style={styles.boxPlotValue}>{boxData.min.toFixed(2)}</span>
+            <span style={{
+              ...styles.boxPlotLabel,
+              color: colors.text.secondary
+            }}>Min</span>
+            <span style={{
+              ...styles.boxPlotValue,
+              color: colors.text.primary
+            }}>{boxData.min.toFixed(2)}</span>
           </div>
           <div style={styles.boxPlotStat}>
-            <span style={styles.boxPlotLabel}>Q1</span>
-            <span style={styles.boxPlotValue}>{boxData.q1.toFixed(2)}</span>
+            <span style={{
+              ...styles.boxPlotLabel,
+              color: colors.text.secondary
+            }}>Q1</span>
+            <span style={{
+              ...styles.boxPlotValue,
+              color: colors.text.primary
+            }}>{boxData.q1.toFixed(2)}</span>
           </div>
           <div style={styles.boxPlotStat}>
-            <span style={styles.boxPlotLabel}>Median</span>
-            <span style={styles.boxPlotValue}>{boxData.median.toFixed(2)}</span>
+            <span style={{
+              ...styles.boxPlotLabel,
+              color: colors.text.secondary
+            }}>Median</span>
+            <span style={{
+              ...styles.boxPlotValue,
+              color: colors.text.primary
+            }}>{boxData.median.toFixed(2)}</span>
           </div>
           <div style={styles.boxPlotStat}>
-            <span style={styles.boxPlotLabel}>Q3</span>
-            <span style={styles.boxPlotValue}>{boxData.q3.toFixed(2)}</span>
+            <span style={{
+              ...styles.boxPlotLabel,
+              color: colors.text.secondary
+            }}>Q3</span>
+            <span style={{
+              ...styles.boxPlotValue,
+              color: colors.text.primary
+            }}>{boxData.q3.toFixed(2)}</span>
           </div>
           <div style={styles.boxPlotStat}>
-            <span style={styles.boxPlotLabel}>Max</span>
-            <span style={styles.boxPlotValue}>{boxData.max.toFixed(2)}</span>
+            <span style={{
+              ...styles.boxPlotLabel,
+              color: colors.text.secondary
+            }}>Max</span>
+            <span style={{
+              ...styles.boxPlotValue,
+              color: colors.text.primary
+            }}>{boxData.max.toFixed(2)}</span>
           </div>
           {boxData.outliers.length > 0 && (
             <div style={styles.boxPlotStat}>
-              <span style={styles.boxPlotLabel}>Outliers</span>
-              <span style={styles.boxPlotValue}>{boxData.outliers.length}</span>
+              <span style={{
+                ...styles.boxPlotLabel,
+                color: colors.text.secondary
+              }}>Outliers</span>
+              <span style={{
+                ...styles.boxPlotValue,
+                color: colors.text.primary
+              }}>{boxData.outliers.length}</span>
             </div>
           )}
         </div>
@@ -363,7 +440,6 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-around',
     padding: '10px',
-    backgroundColor: '#f9f9f9',
     borderRadius: '6px',
     flexWrap: 'wrap',
     gap: '8px'
@@ -375,13 +451,11 @@ const styles = {
   } as const,
   boxPlotLabel: {
     fontSize: '11px',
-    color: '#666',
     fontWeight: '600',
     marginBottom: '3px'
   } as const,
   boxPlotValue: {
     fontSize: '14px',
-    color: '#333',
     fontWeight: 'bold',
     fontFamily: 'monospace'
   } as const

@@ -11,6 +11,7 @@ import {
   Cell
 } from 'recharts'
 import { ParsedData } from '../../../types'
+import { useTheme } from '../../../contexts/ThemeContext'
 import {
   createBarChartData,
   createGroupedBarData,
@@ -25,6 +26,8 @@ interface BarChartProps {
 }
 
 const BarChart: FC<BarChartProps> = ({ data, variableName, groupVariable }) => {
+  const { colors } = useTheme()
+
   if (groupVariable) {
     // Clustered bar chart with groups
     const groupedBarData = createGroupedBarData(data.rows, variableName, '', groupVariable)
@@ -60,18 +63,25 @@ const BarChart: FC<BarChartProps> = ({ data, variableName, groupVariable }) => {
 
     return (
       <div style={styles.chart}>
-        <h3 style={styles.chartTitle}>Bar Chart: {variableName} (grouped by {groupVariable})</h3>
+        <h3 style={{
+          ...styles.chartTitle,
+          color: colors.text.primary
+        }}>Bar Chart: {variableName} (grouped by {groupVariable})</h3>
         <ResponsiveContainer width="100%" height={400}>
           <RechartsBarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
             <XAxis
               dataKey="category"
-              label={{ value: variableName, position: 'insideBottom', offset: -5 }}
+              label={{ value: variableName, position: 'insideBottom', offset: -5, fill: colors.text.primary }}
               angle={-45}
               textAnchor="end"
               height={100}
+              tick={{ fill: colors.text.primary }}
             />
-            <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+            <YAxis
+              label={{ value: 'Count', angle: -90, position: 'insideLeft', fill: colors.text.primary }}
+              tick={{ fill: colors.text.primary }}
+            />
             <Tooltip />
             <Legend />
             {groups.map((group, idx) => (
@@ -93,18 +103,25 @@ const BarChart: FC<BarChartProps> = ({ data, variableName, groupVariable }) => {
 
   return (
     <div style={styles.chart}>
-      <h3 style={styles.chartTitle}>Bar Chart: {variableName}</h3>
+      <h3 style={{
+        ...styles.chartTitle,
+        color: colors.text.primary
+      }}>Bar Chart: {variableName}</h3>
       <ResponsiveContainer width="100%" height={400}>
         <RechartsBarChart data={barData}>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
           <XAxis
             dataKey="category"
-            label={{ value: variableName, position: 'insideBottom', offset: -5 }}
+            label={{ value: variableName, position: 'insideBottom', offset: -5, fill: colors.text.primary }}
             angle={-45}
             textAnchor="end"
             height={100}
+            tick={{ fill: colors.text.primary }}
           />
-          <YAxis label={{ value: 'Count', angle: -90, position: 'insideLeft' }} />
+          <YAxis
+            label={{ value: 'Count', angle: -90, position: 'insideLeft', fill: colors.text.primary }}
+            tick={{ fill: colors.text.primary }}
+          />
           <Tooltip />
           <Bar dataKey="count" fill={CHART_COLORS.secondary}>
             {barData.map((entry, index) => (
@@ -125,7 +142,6 @@ const styles = {
     margin: '0 0 12px 0',
     fontSize: '16px',
     fontWeight: '600',
-    color: '#333',
     textAlign: 'center'
   } as const
 }

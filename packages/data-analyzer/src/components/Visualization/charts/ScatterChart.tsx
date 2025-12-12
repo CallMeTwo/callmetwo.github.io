@@ -10,6 +10,7 @@ import {
   ResponsiveContainer
 } from 'recharts'
 import { ParsedData } from '../../../types'
+import { useTheme } from '../../../contexts/ThemeContext'
 import {
   createScatterPlotData,
   getUniqueGroups,
@@ -31,6 +32,7 @@ const ScatterChart: FC<ScatterChartProps> = ({
   yVariable,
   groupVariable
 }) => {
+  const { colors } = useTheme()
   const scatterData = createScatterPlotData(data.rows, xVariable, yVariable, groupVariable)
 
   // Calculate dynamic axis limits with padding
@@ -58,25 +60,30 @@ const ScatterChart: FC<ScatterChartProps> = ({
   if (!groupVariable) {
     return (
       <div style={styles.chart}>
-        <h3 style={styles.chartTitle}>Scatter Plot: {yVariable} vs {xVariable}</h3>
+        <h3 style={{
+          ...styles.chartTitle,
+          color: colors.text.primary
+        }}>Scatter Plot: {yVariable} vs {xVariable}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <RechartsScatterChart>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
             <XAxis
               type="number"
               dataKey="x"
               name={xVariable}
-              label={{ value: xVariable, position: 'insideBottom', offset: -5 }}
+              label={{ value: xVariable, position: 'insideBottom', offset: -5, fill: colors.text.primary }}
               domain={[xLimits.min, xLimits.max]}
               tickFormatter={(value) => formatAxisLabel(value, xDecimals)}
+              tick={{ fill: colors.text.primary }}
             />
             <YAxis
               type="number"
               dataKey="y"
               name={yVariable}
-              label={{ value: yVariable, angle: -90, position: 'insideLeft' }}
+              label={{ value: yVariable, angle: -90, position: 'insideLeft', fill: colors.text.primary }}
               domain={[yLimits.min, yLimits.max]}
               tickFormatter={(value) => formatAxisLabel(value, yDecimals)}
+              tick={{ fill: colors.text.primary }}
             />
             <Tooltip cursor={{ strokeDasharray: '3 3' }} />
             <Scatter name={yVariable} data={scatterData} fill={CHART_COLORS.primary} />
@@ -95,25 +102,30 @@ const ScatterChart: FC<ScatterChartProps> = ({
 
   return (
     <div style={styles.chart}>
-      <h3 style={styles.chartTitle}>Scatter Plot: {yVariable} vs {xVariable} (grouped by {groupVariable})</h3>
+      <h3 style={{
+        ...styles.chartTitle,
+        color: colors.text.primary
+      }}>Scatter Plot: {yVariable} vs {xVariable} (grouped by {groupVariable})</h3>
       <ResponsiveContainer width="100%" height={400}>
         <RechartsScatterChart>
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
           <XAxis
             type="number"
             dataKey="x"
             name={xVariable}
-            label={{ value: xVariable, position: 'insideBottom', offset: -5 }}
+            label={{ value: xVariable, position: 'insideBottom', offset: -5, fill: colors.text.primary }}
             domain={[xLimits.min, xLimits.max]}
             tickFormatter={(value) => formatAxisLabel(value, xDecimals)}
+            tick={{ fill: colors.text.primary }}
           />
           <YAxis
             type="number"
             dataKey="y"
             name={yVariable}
-            label={{ value: yVariable, angle: -90, position: 'insideLeft' }}
+            label={{ value: yVariable, angle: -90, position: 'insideLeft', fill: colors.text.primary }}
             domain={[yLimits.min, yLimits.max]}
             tickFormatter={(value) => formatAxisLabel(value, yDecimals)}
+            tick={{ fill: colors.text.primary }}
           />
           <Tooltip cursor={{ strokeDasharray: '3 3' }} />
           <Legend />
@@ -139,7 +151,6 @@ const styles = {
     margin: '0 0 12px 0',
     fontSize: '16px',
     fontWeight: '600',
-    color: '#333',
     textAlign: 'center'
   } as const
 }
