@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Navbar } from 'shared'
+import ThemedNavbar from './ThemedNavbar'
 import { useTheme } from '../contexts/ThemeContext'
 
 interface AppHeaderProps {
@@ -17,7 +17,7 @@ const AppHeader: FC<AppHeaderProps> = ({ onThemeToggle }) => {
   return (
     <>
       <div style={{ position: 'relative' }}>
-        <Navbar breadcrumbs={[{ label: 'Data Analyzer' }]} />
+        <ThemedNavbar breadcrumbs={[{ label: 'Data Analyzer' }]} />
         <button
           onClick={handleToggleTheme}
           style={{
@@ -31,11 +31,11 @@ const AppHeader: FC<AppHeaderProps> = ({ onThemeToggle }) => {
             padding: '8px 12px',
             borderRadius: '4px',
             transition: 'background-color 0.2s',
-            color: '#ecf0f1',
+            color: colors.text.primary,
             zIndex: 1001
           }}
           title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(52, 152, 219, 0.2)'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primary + '20'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           {theme === 'light' ? '🌙' : '☀️'}
