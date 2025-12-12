@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { useTheme } from '../../../contexts/ThemeContext'
 import { ParsedData } from '../../../types'
 import { ChiSquareResult } from '../../../utils/statisticalTests'
 import { CHART_COLORS } from '../../../utils/visualization'
@@ -14,6 +15,7 @@ interface ChiSquarePlotProps {
 type ChiSquarePlotType = 'stackedCount' | 'clusteredCount' | 'stackedPercent' | 'clusteredPercent'
 
 const ChiSquarePlot: FC<ChiSquarePlotProps> = ({ result, data, variable1, variable2 }) => {
+  const { colors } = useTheme()
   const [plotType, setPlotType] = useState<ChiSquarePlotType>('clusteredCount')
 
   // Transform contingency table to chart data
@@ -139,12 +141,26 @@ const ChiSquarePlot: FC<ChiSquarePlotProps> = ({ result, data, variable1, variab
   }
 
   return (
-    <div style={styles.visualizationContainer}>
-      <h4 style={styles.visualizationTitle}>Visualization</h4>
+    <div style={{
+      ...styles.visualizationContainer,
+      backgroundColor: colors.surface,
+      border: `1px solid ${colors.border}`
+    }}>
+      <h4 style={{
+        ...styles.visualizationTitle,
+        color: colors.text.primary
+      }}>Visualization</h4>
 
       {/* Plot Type Selection */}
-      <div style={styles.plotTypeSelector}>
-        <label style={styles.label}>Choose Visualization:</label>
+      <div style={{
+        ...styles.plotTypeSelector,
+        backgroundColor: colors.background,
+        border: `1px solid ${colors.border}`
+      }}>
+        <label style={{
+          ...styles.label,
+          color: colors.text.secondary
+        }}>Choose Visualization:</label>
         <div style={styles.radioGroup}>
           {[
             { value: 'stackedCount', label: '📊 Stacked Bar Chart (Count)' },
@@ -152,7 +168,10 @@ const ChiSquarePlot: FC<ChiSquarePlotProps> = ({ result, data, variable1, variab
             { value: 'stackedPercent', label: '📈 Stacked Bar Chart (%)' },
             { value: 'clusteredPercent', label: '📈 Clustered Bar Chart (%)' }
           ].map(option => (
-            <label key={option.value} style={styles.radioLabel}>
+            <label key={option.value} style={{
+              ...styles.radioLabel,
+              color: colors.text.primary
+            }}>
               <input
                 type="radio"
                 value={option.value}
@@ -167,7 +186,11 @@ const ChiSquarePlot: FC<ChiSquarePlotProps> = ({ result, data, variable1, variab
       </div>
 
       {/* Plot Display */}
-      <div style={styles.plotContainer}>
+      <div style={{
+        ...styles.plotContainer,
+        backgroundColor: colors.background,
+        border: `1px solid ${colors.border}`
+      }}>
         {plotType === 'stackedCount' && renderStackedCount()}
         {plotType === 'clusteredCount' && renderClusteredCount()}
         {plotType === 'stackedPercent' && renderStackedPercent()}
@@ -180,29 +203,23 @@ const ChiSquarePlot: FC<ChiSquarePlotProps> = ({ result, data, variable1, variab
 const styles = {
   visualizationContainer: {
     padding: '20px',
-    backgroundColor: '#f9f9f9',
     borderRadius: '8px',
-    border: '1px solid #e0e0e0',
     marginTop: '20px'
   } as const,
   visualizationTitle: {
     margin: '0 0 15px 0',
     fontSize: '18px',
-    fontWeight: '600',
-    color: '#2c3e50'
+    fontWeight: '600'
   } as const,
   plotTypeSelector: {
     marginBottom: '20px',
     padding: '15px',
-    backgroundColor: 'white',
-    borderRadius: '6px',
-    border: '1px solid #e0e0e0'
+    borderRadius: '6px'
   } as const,
   label: {
     display: 'block',
     fontSize: '13px',
     fontWeight: '600',
-    color: '#666',
     marginBottom: '8px',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
@@ -217,7 +234,6 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     fontSize: '14px',
-    color: '#333',
     cursor: 'pointer',
     gap: '8px'
   } as const,
@@ -226,9 +242,7 @@ const styles = {
     marginRight: '4px'
   } as const,
   plotContainer: {
-    backgroundColor: 'white',
     borderRadius: '6px',
-    border: '1px solid #e0e0e0',
     padding: '15px',
     minHeight: '450px'
   } as const

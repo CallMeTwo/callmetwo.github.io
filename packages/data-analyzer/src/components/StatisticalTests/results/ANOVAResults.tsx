@@ -1,4 +1,5 @@
 import React, { FC } from 'react'
+import { useTheme } from '../../../contexts/ThemeContext'
 import { ANOVAResult } from '../../../utils/statisticalTests'
 
 interface StatItemProps {
@@ -7,48 +8,126 @@ interface StatItemProps {
   highlight?: boolean
 }
 
-const StatItem: FC<StatItemProps> = ({ label, value, highlight = false }) => (
-  <div style={styles.statItem}>
-    <span style={styles.statItemLabel}>{label}:</span>
-    <span style={{ ...styles.statItemValue, ...(highlight ? styles.statItemHighlight : {}) }}>
-      {value}
-    </span>
-  </div>
-)
+const StatItem: FC<StatItemProps> = ({ label, value, highlight = false }) => {
+  const { colors } = useTheme()
+  return (
+    <div style={{
+      ...styles.statItem,
+      backgroundColor: colors.background,
+      border: `1px solid ${colors.border}`
+    }}>
+      <span style={{
+        ...styles.statItemLabel,
+        color: colors.text.secondary
+      }}>{label}:</span>
+      <span style={{
+        ...styles.statItemValue,
+        color: highlight ? '#e74c3c' : colors.text.primary
+      }}>
+        {value}
+      </span>
+    </div>
+  )
+}
 
 interface ANOVAResultsProps {
   result: ANOVAResult
 }
 
 const ANOVAResults: FC<ANOVAResultsProps> = ({ result }) => {
+  const { colors } = useTheme()
   return (
-    <div style={styles.resultCard}>
-      <h4 style={styles.resultCardTitle}>{result.testType}</h4>
+    <div style={{
+      ...styles.resultCard,
+      backgroundColor: colors.surface,
+      border: `1px solid ${colors.border}`
+    }}>
+      <h4 style={{
+        ...styles.resultCardTitle,
+        color: colors.text.primary
+      }}>{result.testType}</h4>
 
       {/* Group Means Table (at top) */}
       {result.groupStats && result.groupStats.length > 0 && (
         <div style={styles.tableSection}>
-          <strong style={styles.tableSectionTitle}>Group Summary Statistics</strong>
+          <strong style={{
+            ...styles.tableSectionTitle,
+            color: colors.text.primary
+          }}>Group Summary Statistics</strong>
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.tableHeader}>Group</th>
-                <th style={styles.tableHeader}>N</th>
-                <th style={styles.tableHeader}>Mean</th>
-                <th style={styles.tableHeader}>SD</th>
-                <th style={styles.tableHeader}>Min</th>
-                <th style={styles.tableHeader}>Max</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Group</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>N</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Mean</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>SD</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Min</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Max</th>
               </tr>
             </thead>
             <tbody>
               {result.groupStats.map((stat, idx) => (
                 <tr key={idx}>
-                  <td style={styles.tableCell}>{stat.group}</td>
-                  <td style={styles.tableCell}>{stat.n}</td>
-                  <td style={styles.tableCell}>{stat.mean.toFixed(2)}</td>
-                  <td style={styles.tableCell}>{stat.sd.toFixed(2)}</td>
-                  <td style={styles.tableCell}>{stat.min.toFixed(2)}</td>
-                  <td style={styles.tableCell}>{stat.max.toFixed(2)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stat.group}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stat.n}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stat.mean.toFixed(2)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stat.sd.toFixed(2)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stat.min.toFixed(2)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stat.max.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -72,17 +151,45 @@ const ANOVAResults: FC<ANOVAResultsProps> = ({ result }) => {
       {/* Post-hoc Pairwise Comparisons */}
       {result.pairwiseComparisons && result.pairwiseComparisons.length > 0 && (
         <div style={styles.tableSection}>
-          <strong style={styles.tableSectionTitle}>
+          <strong style={{
+            ...styles.tableSectionTitle,
+            color: colors.text.primary
+          }}>
             Post-hoc Pairwise Comparisons (Bonferroni-corrected)
           </strong>
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.tableHeader}>Group 1</th>
-                <th style={styles.tableHeader}>Group 2</th>
-                <th style={styles.tableHeader}>Mean Diff</th>
-                <th style={styles.tableHeader}>95% CI</th>
-                <th style={styles.tableHeader}>Adjusted p-value</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Group 1</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Group 2</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Mean Diff</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>95% CI</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  backgroundColor: colors.surface,
+                  color: colors.text.primary,
+                  borderBottom: `2px solid ${colors.border}`
+                }}>Adjusted p-value</th>
               </tr>
             </thead>
             <tbody>
@@ -91,20 +198,38 @@ const ANOVAResults: FC<ANOVAResultsProps> = ({ result }) => {
                   key={idx}
                   style={
                     comp.isSignificant
-                      ? { ...styles.tableRow, backgroundColor: '#fff3cd' }
+                      ? { ...styles.tableRow, backgroundColor: colors.primary + '20' }
                       : styles.tableRow
                   }
                 >
-                  <td style={styles.tableCell}>{comp.group1}</td>
-                  <td style={styles.tableCell}>{comp.group2}</td>
-                  <td style={styles.tableCell}>{comp.meanDiff.toFixed(2)}</td>
-                  <td style={styles.tableCell}>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{comp.group1}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{comp.group2}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{comp.meanDiff.toFixed(2)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>
                     [{comp.ciLower.toFixed(2)}, {comp.ciUpper.toFixed(2)}]
                   </td>
                   <td
                     style={{
                       ...styles.tableCell,
-                      ...(comp.isSignificant ? { color: '#e74c3c', fontWeight: 'bold' } : {})
+                      color: comp.isSignificant ? '#e74c3c' : colors.text.primary,
+                      fontWeight: comp.isSignificant ? 'bold' : 'normal',
+                      borderBottom: `1px solid ${colors.border}`
                     }}
                   >
                     {comp.adjustedPValue.toFixed(4)}
@@ -116,7 +241,11 @@ const ANOVAResults: FC<ANOVAResultsProps> = ({ result }) => {
         </div>
       )}
 
-      <div style={styles.interpretation}>
+      <div style={{
+        ...styles.interpretation,
+        backgroundColor: colors.primary + '20',
+        color: colors.text.primary
+      }}>
         <strong>Interpretation:</strong> {result.interpretation}
       </div>
     </div>
@@ -126,15 +255,12 @@ const ANOVAResults: FC<ANOVAResultsProps> = ({ result }) => {
 const styles = {
   resultCard: {
     padding: '20px',
-    backgroundColor: '#f9f9f9',
-    borderRadius: '8px',
-    border: '1px solid #e0e0e0'
+    borderRadius: '8px'
   } as const,
   resultCardTitle: {
     margin: '0 0 15px 0',
     fontSize: '18px',
-    fontWeight: '600',
-    color: '#2c3e50'
+    fontWeight: '600'
   } as const,
   statsGrid: {
     display: 'grid',
@@ -144,32 +270,23 @@ const styles = {
   } as const,
   statItem: {
     padding: '10px',
-    backgroundColor: 'white',
-    borderRadius: '6px',
-    border: '1px solid #e0e0e0'
+    borderRadius: '6px'
   } as const,
   statItemLabel: {
     display: 'block',
     fontSize: '12px',
-    color: '#666',
     marginBottom: '5px'
   } as const,
   statItemValue: {
     display: 'block',
     fontSize: '18px',
     fontWeight: 'bold',
-    color: '#333',
     fontFamily: 'monospace'
-  } as const,
-  statItemHighlight: {
-    color: '#e74c3c'
   } as const,
   interpretation: {
     padding: '15px',
-    backgroundColor: '#e8f5e9',
     borderRadius: '6px',
     fontSize: '14px',
-    color: '#333',
     lineHeight: '1.6',
     marginTop: '15px'
   } as const,
@@ -180,7 +297,6 @@ const styles = {
     display: 'block',
     fontSize: '14px',
     fontWeight: '600',
-    color: '#2c3e50',
     marginBottom: '10px',
     marginTop: '15px'
   } as const,
@@ -192,17 +308,12 @@ const styles = {
   tableHeader: {
     textAlign: 'left',
     padding: '10px',
-    backgroundColor: '#f0f0f0',
     fontWeight: '600',
-    fontSize: '13px',
-    color: '#333',
-    borderBottom: '2px solid #ddd'
+    fontSize: '13px'
   } as const,
   tableCell: {
     padding: '10px',
     fontSize: '13px',
-    color: '#333',
-    borderBottom: '1px solid #eee',
     fontFamily: 'monospace'
   } as const,
   tableRow: {

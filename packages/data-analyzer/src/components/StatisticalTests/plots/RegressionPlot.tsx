@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart, Scatter, Line } from 'recharts'
+import { useTheme } from '../../../contexts/ThemeContext'
 import { ParsedData } from '../../../types'
 import { RegressionResult } from '../../../utils/statisticalTests'
 import { CHART_COLORS, getDecimalPlaces, formatAxisLabel } from '../../../utils/visualization'
@@ -19,6 +20,7 @@ interface ChartDataPoint {
 }
 
 const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, variable2 }) => {
+  const { colors } = useTheme()
   // Extract x and y values
   const chartData: ChartDataPoint[] = []
   const xValues: number[] = []
@@ -79,8 +81,15 @@ const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, vari
   const decimals = getDecimalPlaces(yMin, yMax)
 
   return (
-    <div style={styles.visualizationContainer}>
-      <h4 style={styles.visualizationTitle}>Regression Visualization</h4>
+    <div style={{
+      ...styles.visualizationContainer,
+      backgroundColor: colors.surface,
+      border: `1px solid ${colors.border}`
+    }}>
+      <h4 style={{
+        ...styles.visualizationTitle,
+        color: colors.text.primary
+      }}>Regression Visualization</h4>
 
       <ResponsiveContainer width="100%" height={400}>
         <ComposedChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }} data={chartData}>
@@ -130,7 +139,11 @@ const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, vari
         </ComposedChart>
       </ResponsiveContainer>
 
-      <div style={styles.regressionInfo}>
+      <div style={{
+        ...styles.regressionInfo,
+        backgroundColor: colors.primary + '20',
+        color: colors.text.primary
+      }}>
         <p>
           <strong>Regression Equation:</strong> {variable1} = {intercept.toFixed(4)} + {slope.toFixed(4)} × {variable2}
         </p>
@@ -145,24 +158,19 @@ const RegressionPlot: FC<RegressionPlotProps> = ({ result, data, variable1, vari
 const styles = {
   visualizationContainer: {
     padding: '20px',
-    backgroundColor: '#f9f9f9',
     borderRadius: '8px',
-    border: '1px solid #e0e0e0',
     marginTop: '20px'
   } as const,
   visualizationTitle: {
     margin: '0 0 15px 0',
     fontSize: '18px',
-    fontWeight: '600',
-    color: '#2c3e50'
+    fontWeight: '600'
   } as const,
   regressionInfo: {
     padding: '15px',
-    backgroundColor: '#f0f8ff',
     borderRadius: '6px',
     marginTop: '15px',
-    fontSize: '13px',
-    color: '#333'
+    fontSize: '13px'
   } as const
 }
 
