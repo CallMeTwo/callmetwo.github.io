@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
 import { formatStatistic } from '../utils/statistics'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface QuartileDisplayProps {
   min: number
@@ -20,6 +21,32 @@ const QuartileDisplay: FC<QuartileDisplayProps> = ({
   q3,
   max
 }) => {
+  const { colors } = useTheme()
+
+  const styles = {
+    container: {
+      display: 'flex',
+      flexDirection: 'column' as const,
+      gap: '6px'
+    },
+    row: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      padding: '6px 0',
+      borderBottom: `1px solid ${colors.border}`
+    } as const,
+    label: {
+      fontSize: '13px',
+      color: colors.text.secondary
+    } as const,
+    value: {
+      fontSize: '13px',
+      fontWeight: '600' as const,
+      color: colors.text.primary,
+      fontFamily: 'monospace'
+    } as const
+  }
+
   return (
     <div style={styles.container}>
       <div style={styles.row}>
@@ -40,30 +67,6 @@ const QuartileDisplay: FC<QuartileDisplayProps> = ({
       </div>
     </div>
   )
-}
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '6px'
-  },
-  row: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    padding: '6px 0',
-    borderBottom: '1px solid #eee'
-  } as const,
-  label: {
-    fontSize: '13px',
-    color: '#666'
-  } as const,
-  value: {
-    fontSize: '13px',
-    fontWeight: '600' as const,
-    color: '#333',
-    fontFamily: 'monospace'
-  } as const
 }
 
 export default QuartileDisplay
