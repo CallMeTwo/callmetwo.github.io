@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react'
 import { ParsedData, VariableType } from '../../types'
+import { useTheme } from '../../contexts/ThemeContext'
 import {
   independentTTest,
   chiSquareTest,
@@ -32,6 +33,7 @@ type TestType = 't-test' | 'chi-square' | 'anova' | 'regression'
 type TestResult = TTestResult | ChiSquareResult | ANOVAResult | RegressionResult | null
 
 const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }) => {
+  const { colors } = useTheme()
   const includedVariables = variables.filter(v => v.includeInAnalysis)
   const continuousVars = includedVariables.filter(v => v.type === 'continuous')
   const categoricalVars = includedVariables.filter(v => v.type === 'categorical' || v.type === 'boolean')
@@ -143,17 +145,33 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Statistical Tests</h2>
-        <p style={styles.subtitle}>
+      <div style={{
+        ...styles.header,
+        borderBottom: `2px solid ${colors.border}`
+      }}>
+        <h2 style={{
+          ...styles.title,
+          color: colors.text.primary
+        }}>Statistical Tests</h2>
+        <p style={{
+          ...styles.subtitle,
+          color: colors.text.secondary
+        }}>
           Select a statistical test and variables to analyze relationships in your data
         </p>
       </div>
 
       {/* Test Selection */}
-      <div style={styles.controls}>
+      <div style={{
+        ...styles.controls,
+        backgroundColor: colors.surface,
+        border: `2px solid ${colors.border}`
+      }}>
         <div style={styles.controlGroup}>
-          <label style={styles.label}>Select Statistical Test</label>
+          <label style={{
+            ...styles.label,
+            color: colors.text.secondary
+          }}>Select Statistical Test</label>
           <div style={styles.testGrid}>
             <TestOption
               value="t-test"
@@ -197,13 +215,21 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
         {/* Variable Selection */}
         <div style={styles.variableSelection}>
           <div style={styles.controlGroup}>
-            <label style={styles.label}>
+            <label style={{
+              ...styles.label,
+              color: colors.text.secondary
+            }}>
               {selectedTest === 'regression' ? 'Outcome Variable (Y)' : 'Variable 1'}
             </label>
             <select
               value={variable1}
               onChange={(e) => setVariable1(e.target.value)}
-              style={styles.select}
+              style={{
+                ...styles.select,
+                backgroundColor: colors.background,
+                border: `1px solid ${colors.border}`,
+                color: colors.text.primary
+              }}
             >
               {selectedTest === 'chi-square' ? (
                 <>
@@ -222,7 +248,10 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
           </div>
 
           <div style={styles.controlGroup}>
-            <label style={styles.label}>
+            <label style={{
+              ...styles.label,
+              color: colors.text.secondary
+            }}>
               {selectedTest === 'regression' ? 'Predictor Variable (X)' :
                 selectedTest === 't-test' ? 'Grouping Variable' :
                   selectedTest === 'anova' ? 'Grouping Variable' :
@@ -231,7 +260,12 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
             <select
               value={variable2}
               onChange={(e) => setVariable2(e.target.value)}
-              style={styles.select}
+              style={{
+                ...styles.select,
+                backgroundColor: colors.background,
+                border: `1px solid ${colors.border}`,
+                color: colors.text.primary
+              }}
             >
               {selectedTest === 'regression' ? (
                 <>
@@ -249,7 +283,10 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
             </select>
           </div>
 
-          <button style={styles.runButton} onClick={handleRunTest}>
+          <button style={{
+            ...styles.runButton,
+            backgroundColor: colors.primary
+          }} onClick={handleRunTest}>
             Run Test
           </button>
         </div>
@@ -277,8 +314,15 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
       {/* Results Display */}
       {testResult && (
         <RenderErrorBoundary>
-          <div style={styles.resultsContainer}>
-            <h3 style={styles.resultsTitle}>Test Results</h3>
+          <div style={{
+            ...styles.resultsContainer,
+            backgroundColor: colors.surface,
+            border: `2px solid ${colors.border}`
+          }}>
+            <h3 style={{
+              ...styles.resultsTitle,
+              color: colors.text.primary
+            }}>Test Results</h3>
 
             {testResult.testType.includes('t-test') && (
               <>
@@ -332,8 +376,16 @@ const StatisticalTests: FC<StatisticalTestsProps> = ({ data, variables, onBack }
       )}
 
       {/* Actions */}
-      <div style={styles.actions}>
-        <button style={styles.backButton} onClick={onBack}>
+      <div style={{
+        ...styles.actions,
+        borderTop: `2px solid ${colors.border}`
+      }}>
+        <button style={{
+          ...styles.backButton,
+          backgroundColor: colors.surface,
+          color: colors.text.primary,
+          border: `1px solid ${colors.border}`
+        }} onClick={onBack}>
           ← Back to Visualization
         </button>
       </div>
@@ -349,26 +401,21 @@ const styles = {
   } as const,
   header: {
     marginBottom: '30px',
-    paddingBottom: '20px',
-    borderBottom: '2px solid #eee'
+    paddingBottom: '20px'
   } as const,
   title: {
     margin: '0 0 10px 0',
     fontSize: '28px',
-    fontWeight: 'bold',
-    color: '#333'
+    fontWeight: 'bold'
   } as const,
   subtitle: {
     margin: 0,
-    fontSize: '14px',
-    color: '#666'
+    fontSize: '14px'
   } as const,
   controls: {
-    backgroundColor: 'white',
     padding: '20px',
     borderRadius: '8px',
-    marginBottom: '30px',
-    border: '2px solid #e0e0e0'
+    marginBottom: '30px'
   } as const,
   controlGroup: {
     marginBottom: '20px'
@@ -377,7 +424,6 @@ const styles = {
     display: 'block',
     fontSize: '13px',
     fontWeight: '600',
-    color: '#666',
     marginBottom: '8px',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
@@ -397,14 +443,11 @@ const styles = {
     width: '100%',
     padding: '10px',
     fontSize: '14px',
-    border: '1px solid #ddd',
-    borderRadius: '6px',
-    backgroundColor: 'white'
+    borderRadius: '6px'
   } as const,
   runButton: {
     padding: '10px 30px',
     fontSize: '14px',
-    backgroundColor: '#2ecc71',
     color: 'white',
     border: 'none',
     borderRadius: '6px',
@@ -413,31 +456,24 @@ const styles = {
     height: '42px'
   } as const,
   resultsContainer: {
-    backgroundColor: 'white',
     padding: '20px',
     borderRadius: '8px',
-    border: '2px solid #e0e0e0',
     marginBottom: '30px'
   } as const,
   resultsTitle: {
     margin: '0 0 20px 0',
     fontSize: '20px',
-    fontWeight: '600',
-    color: '#333'
+    fontWeight: '600'
   } as const,
   actions: {
     display: 'flex',
     gap: '15px',
     justifyContent: 'flex-end',
-    paddingTop: '20px',
-    borderTop: '2px solid #eee'
+    paddingTop: '20px'
   } as const,
   backButton: {
     padding: '12px 24px',
     fontSize: '14px',
-    backgroundColor: '#f0f0f0',
-    color: '#333',
-    border: '1px solid #ddd',
     borderRadius: '6px',
     cursor: 'pointer',
     fontWeight: '600'

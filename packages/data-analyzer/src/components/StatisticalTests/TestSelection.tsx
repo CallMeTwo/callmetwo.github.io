@@ -1,4 +1,5 @@
 import React, { FC } from 'react'
+import { useTheme } from '../../contexts/ThemeContext'
 
 interface TestOptionProps {
   value: string
@@ -18,19 +19,35 @@ const TestOption: FC<TestOptionProps> = ({
   disabled,
   onClick
 }) => {
+  const { colors } = useTheme()
   return (
     <button
       style={{
         ...styles.testOption,
-        ...(selected ? styles.testOptionSelected : {}),
+        border: `2px solid ${colors.border}`,
+        backgroundColor: colors.background,
+        color: colors.text.primary,
+        ...(selected ? {
+          borderColor: colors.primary,
+          backgroundColor: colors.primary + '20'
+        } : {}),
         ...(disabled ? styles.testOptionDisabled : {})
       }}
       onClick={onClick}
       disabled={disabled}
     >
-      <div style={styles.testLabel}>{label}</div>
-      <div style={styles.testDescription}>{description}</div>
-      <div style={styles.testRequirements}>{requirements}</div>
+      <div style={{
+        ...styles.testLabel,
+        color: colors.text.primary
+      }}>{label}</div>
+      <div style={{
+        ...styles.testDescription,
+        color: colors.text.secondary
+      }}>{description}</div>
+      <div style={{
+        ...styles.testRequirements,
+        color: colors.text.secondary
+      }}>{requirements}</div>
     </button>
   )
 }
@@ -38,16 +55,10 @@ const TestOption: FC<TestOptionProps> = ({
 const styles = {
   testOption: {
     padding: '15px',
-    border: '2px solid #e0e0e0',
     borderRadius: '8px',
-    backgroundColor: 'white',
     cursor: 'pointer',
     textAlign: 'left',
     transition: 'all 0.2s'
-  } as const,
-  testOptionSelected: {
-    borderColor: '#3498db',
-    backgroundColor: '#f0f8ff'
   } as const,
   testOptionDisabled: {
     opacity: 0.5,
@@ -56,17 +67,14 @@ const styles = {
   testLabel: {
     fontSize: '16px',
     fontWeight: '600',
-    color: '#333',
     marginBottom: '8px'
   } as const,
   testDescription: {
     fontSize: '13px',
-    color: '#666',
     marginBottom: '8px'
   } as const,
   testRequirements: {
     fontSize: '11px',
-    color: '#999',
     fontStyle: 'italic'
   } as const
 }

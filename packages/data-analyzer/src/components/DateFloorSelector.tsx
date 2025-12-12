@@ -1,4 +1,5 @@
 import React, { FC } from 'react'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface DateFloorSelectorProps {
   selectedFloor: 'year' | 'month' | 'week' | 'day'
@@ -10,6 +11,7 @@ interface DateFloorSelectorProps {
  * Allows user to choose how to group dates: year, month, week, or day
  */
 const DateFloorSelector: FC<DateFloorSelectorProps> = ({ selectedFloor, onChange }) => {
+  const { colors } = useTheme()
   const options: Array<{ value: 'year' | 'month' | 'week' | 'day'; label: string; description: string }> = [
     { value: 'year', label: 'Year', description: 'Group by year (Jan 1st)' },
     { value: 'month', label: 'Month', description: 'Group by month (1st day)' },
@@ -18,15 +20,32 @@ const DateFloorSelector: FC<DateFloorSelectorProps> = ({ selectedFloor, onChange
   ]
 
   return (
-    <div style={styles.container}>
-      <label style={styles.label}>Date Floor Unit:</label>
+    <div style={{
+      ...styles.container,
+      backgroundColor: colors.surface,
+      border: `1px solid ${colors.border}`
+    }}>
+      <label style={{
+        ...styles.label,
+        color: colors.text.secondary
+      }}>Date Floor Unit:</label>
       <div style={styles.optionsContainer}>
         {options.map(option => (
           <button
             key={option.value}
             style={{
               ...styles.button,
-              ...(selectedFloor === option.value ? styles.buttonActive : styles.buttonInactive)
+              border: `1px solid ${colors.border}`,
+              ...(selectedFloor === option.value ? {
+                backgroundColor: colors.primary,
+                color: 'white',
+                borderColor: colors.primary,
+                fontWeight: '600' as const
+              } : {
+                backgroundColor: colors.background,
+                color: colors.text.primary,
+                borderColor: colors.border
+              })
             }}
             onClick={() => onChange(option.value)}
             title={option.description}
@@ -43,13 +62,11 @@ const styles = {
   container: {
     marginBottom: '15px',
     padding: '15px',
-    backgroundColor: '#f9f9f9',
     borderRadius: '6px'
   } as const,
   label: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#333',
     marginBottom: '10px',
     display: 'block'
   } as const,
@@ -61,22 +78,10 @@ const styles = {
   button: {
     padding: '8px 16px',
     fontSize: '13px',
-    border: '1px solid #ddd',
     borderRadius: '4px',
     cursor: 'pointer',
     fontWeight: '500',
     transition: 'all 0.2s'
-  } as const,
-  buttonActive: {
-    backgroundColor: '#3498db',
-    color: 'white',
-    borderColor: '#3498db',
-    fontWeight: '600' as const
-  } as const,
-  buttonInactive: {
-    backgroundColor: 'white',
-    color: '#333',
-    borderColor: '#ddd'
   } as const
 }
 

@@ -81,7 +81,7 @@ const DataPreview: FC<DataPreviewProps> = ({ data, onContinue, onCancel }) => {
             <thead>
               <tr style={{
                 ...styles.headerRow,
-                backgroundColor: colors.text.primary
+                backgroundColor: colors.primary
               }}>
                 <th style={{
                   ...styles.headerCell,
@@ -143,7 +143,7 @@ const DataPreview: FC<DataPreviewProps> = ({ data, onContinue, onCancel }) => {
               <thead>
                 <tr style={{
                   ...styles.headerRow,
-                  backgroundColor: colors.text.primary
+                  backgroundColor: colors.primary
                 }}>
                   <th style={{
                     ...styles.headerCell,

@@ -1,5 +1,6 @@
 import React, { FC, useState, useMemo } from 'react'
 import { ParsedData, VariableType } from '../../types'
+import { useTheme } from '../../contexts/ThemeContext'
 import ChartSelector, { ChartType } from './ChartSelector'
 import HistogramChart from './charts/HistogramChart'
 import BarChart from './charts/BarChart'
@@ -19,6 +20,7 @@ const Visualization: FC<VisualizationProps> = ({
   onContinue,
   onBack
 }) => {
+  const { colors } = useTheme()
   const includedVariables = variables.filter(v => v.includeInAnalysis)
   const continuousVars = includedVariables.filter(v => v.type === 'continuous')
   const categoricalVars = includedVariables.filter(v => v.type === 'categorical' || v.type === 'boolean')
@@ -63,9 +65,18 @@ const Visualization: FC<VisualizationProps> = ({
 
   return (
     <div style={styles.container}>
-      <div style={styles.header}>
-        <h2 style={styles.title}>Data Visualization</h2>
-        <p style={styles.subtitle}>
+      <div style={{
+        ...styles.header,
+        borderBottom: `2px solid ${colors.border}`
+      }}>
+        <h2 style={{
+          ...styles.title,
+          color: colors.text.primary
+        }}>Data Visualization</h2>
+        <p style={{
+          ...styles.subtitle,
+          color: colors.text.secondary
+        }}>
           Explore your data through interactive charts and visualizations
         </p>
       </div>
@@ -77,16 +88,28 @@ const Visualization: FC<VisualizationProps> = ({
       />
 
       {/* Variable Controls (filtered by chart type) */}
-      <div style={styles.controls}>
+      <div style={{
+        ...styles.controls,
+        backgroundColor: colors.surface,
+        border: `2px solid ${colors.border}`
+      }}>
         <div style={styles.controlRow}>
           <div style={styles.controlGroup}>
-            <label style={styles.label}>
+            <label style={{
+              ...styles.label,
+              color: colors.text.secondary
+            }}>
               {chartType === 'scatter' ? 'X-Axis Variable' : 'Variable'}
             </label>
             <select
               value={selectedVariable}
               onChange={(e) => setSelectedVariable(e.target.value)}
-              style={styles.select}
+              style={{
+                ...styles.select,
+                backgroundColor: colors.background,
+                border: `1px solid ${colors.border}`,
+                color: colors.text.primary
+              }}
             >
               {compatibleVariables.map(v => (
                 <option key={v.name} value={v.name}>{v.name}</option>
@@ -96,11 +119,19 @@ const Visualization: FC<VisualizationProps> = ({
 
           {chartType === 'scatter' && continuousVars.length >= 2 && (
             <div style={styles.controlGroup}>
-              <label style={styles.label}>Y-Axis Variable</label>
+              <label style={{
+                ...styles.label,
+                color: colors.text.secondary
+              }}>Y-Axis Variable</label>
               <select
                 value={selectedVariable2}
                 onChange={(e) => setSelectedVariable2(e.target.value)}
-                style={styles.select}
+                style={{
+                  ...styles.select,
+                  backgroundColor: colors.background,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text.primary
+                }}
               >
                 {continuousVars.map(v => (
                   <option key={v.name} value={v.name}>{v.name}</option>
@@ -111,11 +142,19 @@ const Visualization: FC<VisualizationProps> = ({
 
           {(chartType === 'bar' || chartType === 'scatter' || chartType === 'histogram' || chartType === 'box') && categoricalVars.length > 0 && (
             <div style={styles.controlGroup}>
-              <label style={styles.label}>Group By (Optional)</label>
+              <label style={{
+                ...styles.label,
+                color: colors.text.secondary
+              }}>Group By (Optional)</label>
               <select
                 value={groupVariable}
                 onChange={(e) => setGroupVariable(e.target.value)}
-                style={styles.select}
+                style={{
+                  ...styles.select,
+                  backgroundColor: colors.background,
+                  border: `1px solid ${colors.border}`,
+                  color: colors.text.primary
+                }}
               >
                 <option value="">None</option>
                 {categoricalVars.map(v => (
@@ -128,7 +167,11 @@ const Visualization: FC<VisualizationProps> = ({
       </div>
 
       {/* Chart Display */}
-      <div style={styles.chartContainer}>
+      <div style={{
+        ...styles.chartContainer,
+        backgroundColor: colors.surface,
+        border: `2px solid ${colors.border}`
+      }}>
         {chartType === 'histogram' && (
           <HistogramChart
             data={data}
@@ -164,11 +207,22 @@ const Visualization: FC<VisualizationProps> = ({
       </div>
 
       {/* Actions */}
-      <div style={styles.actions}>
-        <button style={styles.backButton} onClick={onBack}>
+      <div style={{
+        ...styles.actions,
+        borderTop: `2px solid ${colors.border}`
+      }}>
+        <button style={{
+          ...styles.backButton,
+          backgroundColor: colors.surface,
+          color: colors.text.primary,
+          border: `1px solid ${colors.border}`
+        }} onClick={onBack}>
           ← Back
         </button>
-        <button style={styles.continueButton} onClick={onContinue}>
+        <button style={{
+          ...styles.continueButton,
+          backgroundColor: colors.primary
+        }} onClick={onContinue}>
           Continue to Statistical Tests →
         </button>
       </div>
@@ -184,26 +238,21 @@ const styles = {
   } as const,
   header: {
     marginBottom: '15px',
-    paddingBottom: '10px',
-    borderBottom: '2px solid #eee'
+    paddingBottom: '10px'
   } as const,
   title: {
     margin: '0 0 10px 0',
     fontSize: '28px',
-    fontWeight: 'bold',
-    color: '#333'
+    fontWeight: 'bold'
   } as const,
   subtitle: {
     margin: 0,
-    fontSize: '14px',
-    color: '#666'
+    fontSize: '14px'
   } as const,
   controls: {
-    backgroundColor: 'white',
     padding: '15px',
     borderRadius: '8px',
-    marginBottom: '15px',
-    border: '2px solid #e0e0e0'
+    marginBottom: '15px'
   } as const,
   controlGroup: {
     marginBottom: '0'
@@ -217,7 +266,6 @@ const styles = {
     display: 'block',
     fontSize: '13px',
     fontWeight: '600',
-    color: '#666',
     marginBottom: '6px',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
@@ -226,15 +274,11 @@ const styles = {
     width: '100%',
     padding: '8px',
     fontSize: '14px',
-    border: '1px solid #ddd',
-    borderRadius: '6px',
-    backgroundColor: 'white'
+    borderRadius: '6px'
   } as const,
   chartContainer: {
-    backgroundColor: 'white',
     padding: '15px',
     borderRadius: '8px',
-    border: '2px solid #e0e0e0',
     marginBottom: '15px'
   } as const,
   actions: {
@@ -242,15 +286,11 @@ const styles = {
     gap: '15px',
     justifyContent: 'flex-end',
     paddingTop: '12px',
-    borderTop: '2px solid #eee',
     marginTop: '15px'
   } as const,
   backButton: {
     padding: '10px 20px',
     fontSize: '14px',
-    backgroundColor: '#f0f0f0',
-    color: '#333',
-    border: '1px solid #ddd',
     borderRadius: '6px',
     cursor: 'pointer',
     fontWeight: '600'
@@ -258,7 +298,6 @@ const styles = {
   continueButton: {
     padding: '10px 20px',
     fontSize: '14px',
-    backgroundColor: '#3498db',
     color: 'white',
     border: 'none',
     borderRadius: '6px',

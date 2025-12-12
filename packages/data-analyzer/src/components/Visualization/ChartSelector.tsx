@@ -1,4 +1,5 @@
 import React, { FC } from 'react'
+import { useTheme } from '../../contexts/ThemeContext'
 
 type ChartType = 'histogram' | 'bar' | 'scatter' | 'box'
 
@@ -8,6 +9,7 @@ interface ChartSelectorProps {
 }
 
 const ChartSelector: FC<ChartSelectorProps> = ({ chartType, onChartTypeChange }) => {
+  const { colors } = useTheme()
   const chartOptions = [
     { type: 'histogram', icon: '📈', label: 'Histogram', desc: 'Distribution of continuous data' },
     { type: 'box', icon: '📦', label: 'Box Plot', desc: 'Five-number summary' },
@@ -16,22 +18,39 @@ const ChartSelector: FC<ChartSelectorProps> = ({ chartType, onChartTypeChange })
   ]
 
   return (
-    <div style={styles.controls}>
+    <div style={{
+      ...styles.controls,
+      backgroundColor: colors.surface,
+      border: `2px solid ${colors.border}`
+    }}>
       <div style={styles.controlGroup}>
-        <label style={styles.label}>Select Chart Type</label>
+        <label style={{
+          ...styles.label,
+          color: colors.text.secondary
+        }}>Select Chart Type</label>
         <div style={styles.chartTypeGrid}>
           {chartOptions.map(chart => (
             <button
               key={chart.type}
               style={{
                 ...styles.chartTypeButton,
-                ...(chartType === chart.type ? styles.chartTypeButtonActive : {})
+                border: `2px solid ${colors.border}`,
+                backgroundColor: colors.background,
+                color: colors.text.primary,
+                ...(chartType === chart.type ? {
+                  borderColor: colors.primary,
+                  backgroundColor: colors.primary + '20',
+                  fontWeight: '600' as const
+                } : {})
               }}
               onClick={() => onChartTypeChange(chart.type as ChartType)}
               title={chart.desc}
             >
               <div>{chart.icon} {chart.label}</div>
-              <div style={styles.chartTypeDesc}>{chart.desc}</div>
+              <div style={{
+                ...styles.chartTypeDesc,
+                color: colors.text.secondary
+              }}>{chart.desc}</div>
             </button>
           ))}
         </div>
@@ -42,11 +61,9 @@ const ChartSelector: FC<ChartSelectorProps> = ({ chartType, onChartTypeChange })
 
 const styles = {
   controls: {
-    backgroundColor: 'white',
     padding: '15px',
     borderRadius: '8px',
-    marginBottom: '15px',
-    border: '2px solid #e0e0e0'
+    marginBottom: '15px'
   } as const,
   controlGroup: {
     marginBottom: '0'
@@ -55,7 +72,6 @@ const styles = {
     display: 'block',
     fontSize: '13px',
     fontWeight: '600',
-    color: '#666',
     marginBottom: '6px',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
@@ -67,23 +83,15 @@ const styles = {
   } as const,
   chartTypeButton: {
     padding: '12px',
-    border: '2px solid #ddd',
     borderRadius: '8px',
-    backgroundColor: 'white',
     cursor: 'pointer',
     textAlign: 'center',
     transition: 'all 0.2s',
     fontSize: '13px',
     fontWeight: '500'
   } as const,
-  chartTypeButtonActive: {
-    borderColor: '#3498db',
-    backgroundColor: '#e3f2fd',
-    fontWeight: '600' as const
-  } as const,
   chartTypeDesc: {
     fontSize: '11px',
-    color: '#666',
     marginTop: '4px'
   } as const
 }

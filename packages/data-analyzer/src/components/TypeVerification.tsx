@@ -82,7 +82,7 @@ const TypeVerification: FC<TypeVerificationProps> = ({
           <thead>
             <tr style={{
               ...styles.headerRow,
-              backgroundColor: colors.text.primary
+              backgroundColor: colors.primary
             }}>
               <th style={{
                 ...styles.headerCell,
@@ -221,7 +221,8 @@ const VariableRow: FC<VariableRowProps> = ({ variable, onTypeChange, onIncludeCh
           style={{
             ...styles.select,
             border: `1px solid ${colors.border}`,
-            backgroundColor: colors.background
+            backgroundColor: colors.background,
+            color: colors.text.primary
           }}
           disabled={!variable.includeInAnalysis}
         >

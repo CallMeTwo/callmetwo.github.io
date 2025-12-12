@@ -514,37 +514,98 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
   const hasMoreDates = rawDateFrequencies.length > 20
 
   return (
-    <div style={styles.card}>
-      <div style={styles.cardHeader} onClick={onToggle}>
+    <div style={{
+      ...styles.card,
+      backgroundColor: colors.background,
+      border: `2px solid ${colors.border}`
+    }}>
+      <div style={{
+        ...styles.cardHeader,
+        borderBottom: `1px solid ${colors.border}`
+      }} onClick={onToggle}>
         <div style={styles.cardHeaderLeft}>
-          <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
-          <h4 style={styles.variableName}>{variableName}</h4>
+          <span style={{
+            ...styles.expandIcon,
+            color: colors.text.secondary
+          }}>{isExpanded ? '▼' : '▶'}</span>
+          <h4 style={{
+            ...styles.variableName,
+            color: colors.text.primary
+          }}>{variableName}</h4>
         </div>
-        <span style={{ ...styles.badge, backgroundColor: '#f3e5f5' }}>Date/DateTime</span>
+        <span style={{
+          ...styles.badge,
+          backgroundColor: colors.primary + '20',
+          color: colors.text.primary
+        }}>Date/DateTime</span>
       </div>
 
       {isExpanded && (
         <div style={styles.statsGrid}>
           {/* Summary Statistics */}
-          <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
-            <h5 style={styles.groupTitle}>Summary</h5>
+          <div style={{
+            ...styles.statsGroup,
+            gridColumn: '1 / -1',
+            backgroundColor: colors.surface
+          }}>
+            <h5 style={{
+              ...styles.groupTitle,
+              color: colors.text.secondary
+            }}>Summary</h5>
             <table style={styles.frequencyTable}>
               <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Count</th>
-                  <th style={styles.tableHeader}>Missing</th>
-                  <th style={styles.tableHeader}>Min Date</th>
-                  <th style={styles.tableHeader}>Max Date</th>
-                  <th style={styles.tableHeader}>Mode</th>
+                <tr style={{
+                  backgroundColor: colors.primary
+                }}>
+                  <th style={{
+                    ...styles.tableHeader,
+                    color: 'white'
+                  }}>Count</th>
+                  <th style={{
+                    ...styles.tableHeader,
+                    color: 'white'
+                  }}>Missing</th>
+                  <th style={{
+                    ...styles.tableHeader,
+                    color: 'white'
+                  }}>Min Date</th>
+                  <th style={{
+                    ...styles.tableHeader,
+                    color: 'white'
+                  }}>Max Date</th>
+                  <th style={{
+                    ...styles.tableHeader,
+                    color: 'white'
+                  }}>Mode</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style={styles.tableRow}>
-                  <td style={styles.tableCell}>{stats.count}</td>
-                  <td style={styles.tableCell}>{stats.missing}</td>
-                  <td style={styles.tableCell}>{formatDate(stats.min)}</td>
-                  <td style={styles.tableCell}>{formatDate(stats.max)}</td>
-                  <td style={styles.tableCell}>{formatDate(stats.mode)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stats.count}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{stats.missing}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{formatDate(stats.min)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{formatDate(stats.max)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{formatDate(stats.mode)}</td>
                 </tr>
               </tbody>
             </table>
@@ -559,14 +620,24 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
           </div>
 
           {/* Frequency Distribution Table */}
-          <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
-            <h5 style={styles.groupTitle}>Frequency Distribution</h5>
+          <div style={{
+            ...styles.statsGroup,
+            gridColumn: '1 / -1',
+            backgroundColor: colors.surface
+          }}>
+            <h5 style={{
+              ...styles.groupTitle,
+              color: colors.text.secondary
+            }}>Frequency Distribution</h5>
             <table style={styles.frequencyTable}>
               <thead>
-                <tr>
+                <tr style={{
+                  backgroundColor: colors.primary
+                }}>
                   <th
                     style={{
                       ...styles.tableHeader,
+                      color: 'white',
                       ...(sortKey === 'date' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
                     }}
                     onClick={() => handleDateHeaderClick('date')}
@@ -576,6 +647,7 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
                   <th
                     style={{
                       ...styles.tableHeader,
+                      color: 'white',
                       ...(sortKey === 'count' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
                     }}
                     onClick={() => handleDateHeaderClick('count')}
@@ -585,26 +657,49 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
                   <th
                     style={{
                       ...styles.tableHeader,
+                      color: 'white',
                       ...(sortKey === 'percentage' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
                     }}
                     onClick={() => handleDateHeaderClick('percentage')}
                   >
                     Percentage {sortKey === 'percentage' && (sortDirection === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th style={styles.tableHeader}>Bar</th>
+                  <th style={{
+                    ...styles.tableHeader,
+                    color: 'white'
+                  }}>Bar</th>
                 </tr>
               </thead>
               <tbody>
                 {sortedDateFrequencies.map((item, idx) => (
                   <tr key={idx} style={styles.tableRow}>
-                    <td style={styles.tableCell}>{formatDate(item.date)}</td>
-                    <td style={styles.tableCell}>{item.count}</td>
-                    <td style={styles.tableCell}>{formatStatistic(item.percentage, 1)}%</td>
-                    <td style={styles.tableCell}>
-                      <div style={styles.barContainer}>
+                    <td style={{
+                      ...styles.tableCell,
+                      color: colors.text.primary,
+                      borderBottom: `1px solid ${colors.border}`
+                    }}>{formatDate(item.date)}</td>
+                    <td style={{
+                      ...styles.tableCell,
+                      color: colors.text.primary,
+                      borderBottom: `1px solid ${colors.border}`
+                    }}>{item.count}</td>
+                    <td style={{
+                      ...styles.tableCell,
+                      color: colors.text.primary,
+                      borderBottom: `1px solid ${colors.border}`
+                    }}>{formatStatistic(item.percentage, 1)}%</td>
+                    <td style={{
+                      ...styles.tableCell,
+                      borderBottom: `1px solid ${colors.border}`
+                    }}>
+                      <div style={{
+                        ...styles.barContainer,
+                        backgroundColor: colors.border
+                      }}>
                         <div
                           style={{
                             ...styles.bar,
+                            backgroundColor: colors.primary,
                             width: `${item.percentage}%`
                           }}
                         />
@@ -615,7 +710,10 @@ const DateStatsCard: FC<DateStatsCardProps> = ({ variableName, stats, isExpanded
               </tbody>
             </table>
             {hasMoreDates && (
-              <p style={styles.moreText}>
+              <p style={{
+                ...styles.moreText,
+                color: colors.text.secondary
+              }}>
                 ... and {rawDateFrequencies.length - 20} more dates
               </p>
             )}
@@ -687,49 +785,113 @@ const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, sta
   const hasMore = stats.frequencies.length > 10
 
   return (
-    <div style={styles.card}>
-      <div style={styles.cardHeader} onClick={onToggle}>
+    <div style={{
+      ...styles.card,
+      backgroundColor: colors.background,
+      border: `2px solid ${colors.border}`
+    }}>
+      <div style={{
+        ...styles.cardHeader,
+        borderBottom: `1px solid ${colors.border}`
+      }} onClick={onToggle}>
         <div style={styles.cardHeaderLeft}>
-          <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>
-          <h4 style={styles.variableName}>{variableName}</h4>
+          <span style={{
+            ...styles.expandIcon,
+            color: colors.text.secondary
+          }}>{isExpanded ? '▼' : '▶'}</span>
+          <h4 style={{
+            ...styles.variableName,
+            color: colors.text.primary
+          }}>{variableName}</h4>
         </div>
-        <span style={{ ...styles.badge, backgroundColor: '#f3e5f5' }}>Categorical</span>
+        <span style={{
+          ...styles.badge,
+          backgroundColor: colors.primary + '20',
+          color: colors.text.primary
+        }}>Categorical</span>
       </div>
 
       {isExpanded && (
         <div style={styles.statsGrid}>
         {/* Basic info - Summary Table */}
-        <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
-          <h5 style={styles.groupTitle}>Summary</h5>
+        <div style={{
+          ...styles.statsGroup,
+          gridColumn: '1 / -1',
+          backgroundColor: colors.surface
+        }}>
+          <h5 style={{
+            ...styles.groupTitle,
+            color: colors.text.secondary
+          }}>Summary</h5>
           <table style={styles.frequencyTable}>
             <thead>
-              <tr>
-                <th style={styles.tableHeader}>Count</th>
-                <th style={styles.tableHeader}>Missing</th>
-                <th style={styles.tableHeader}>Unique Values</th>
-                <th style={styles.tableHeader}>Mode</th>
+              <tr style={{
+                backgroundColor: colors.primary
+              }}>
+                <th style={{
+                  ...styles.tableHeader,
+                  color: 'white'
+                }}>Count</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  color: 'white'
+                }}>Missing</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  color: 'white'
+                }}>Unique Values</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  color: 'white'
+                }}>Mode</th>
               </tr>
             </thead>
             <tbody>
               <tr style={styles.tableRow}>
-                <td style={styles.tableCell}>{stats.count}</td>
-                <td style={styles.tableCell}>{stats.missing}</td>
-                <td style={styles.tableCell}>{stats.uniqueCount}</td>
-                <td style={styles.tableCell}>{String(stats.mode)}</td>
+                <td style={{
+                  ...styles.tableCell,
+                  color: colors.text.primary,
+                  borderBottom: `1px solid ${colors.border}`
+                }}>{stats.count}</td>
+                <td style={{
+                  ...styles.tableCell,
+                  color: colors.text.primary,
+                  borderBottom: `1px solid ${colors.border}`
+                }}>{stats.missing}</td>
+                <td style={{
+                  ...styles.tableCell,
+                  color: colors.text.primary,
+                  borderBottom: `1px solid ${colors.border}`
+                }}>{stats.uniqueCount}</td>
+                <td style={{
+                  ...styles.tableCell,
+                  color: colors.text.primary,
+                  borderBottom: `1px solid ${colors.border}`
+                }}>{String(stats.mode)}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         {/* Frequency table */}
-        <div style={{ ...styles.statsGroup, gridColumn: '1 / -1' }}>
-          <h5 style={styles.groupTitle}>Frequency Distribution</h5>
+        <div style={{
+          ...styles.statsGroup,
+          gridColumn: '1 / -1',
+          backgroundColor: colors.surface
+        }}>
+          <h5 style={{
+            ...styles.groupTitle,
+            color: colors.text.secondary
+          }}>Frequency Distribution</h5>
           <table style={styles.frequencyTable}>
             <thead>
-              <tr>
+              <tr style={{
+                backgroundColor: colors.primary
+              }}>
                 <th
                   style={{
                     ...styles.tableHeader,
+                    color: 'white',
                     ...(sortKey === 'value' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
                   }}
                   onClick={() => handleHeaderClick('value')}
@@ -739,6 +901,7 @@ const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, sta
                 <th
                   style={{
                     ...styles.tableHeader,
+                    color: 'white',
                     ...(sortKey === 'count' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
                   }}
                   onClick={() => handleHeaderClick('count')}
@@ -748,26 +911,49 @@ const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, sta
                 <th
                   style={{
                     ...styles.tableHeader,
+                    color: 'white',
                     ...(sortKey === 'percentage' ? styles.tableHeaderActive : styles.tableHeaderHoverable)
                   }}
                   onClick={() => handleHeaderClick('percentage')}
                 >
                   Percentage {sortKey === 'percentage' && (sortDirection === 'asc' ? '↑' : '↓')}
                 </th>
-                <th style={styles.tableHeader}>Bar</th>
+                <th style={{
+                  ...styles.tableHeader,
+                  color: 'white'
+                }}>Bar</th>
               </tr>
             </thead>
             <tbody>
               {topFrequencies.map((item, idx) => (
                 <tr key={idx} style={styles.tableRow}>
-                  <td style={styles.tableCell}>{String(item.value)}</td>
-                  <td style={styles.tableCell}>{item.count}</td>
-                  <td style={styles.tableCell}>{formatStatistic(item.percentage, 1)}%</td>
-                  <td style={styles.tableCell}>
-                    <div style={styles.barContainer}>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{String(item.value)}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{item.count}</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    color: colors.text.primary,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>{formatStatistic(item.percentage, 1)}%</td>
+                  <td style={{
+                    ...styles.tableCell,
+                    borderBottom: `1px solid ${colors.border}`
+                  }}>
+                    <div style={{
+                      ...styles.barContainer,
+                      backgroundColor: colors.border
+                    }}>
                       <div
                         style={{
                           ...styles.bar,
+                          backgroundColor: colors.primary,
                           width: `${item.percentage}%`
                         }}
                       />
@@ -778,7 +964,10 @@ const CategoricalStatsCard: FC<CategoricalStatsCardProps> = ({ variableName, sta
             </tbody>
           </table>
           {hasMore && (
-            <p style={styles.moreText}>
+            <p style={{
+              ...styles.moreText,
+              color: colors.text.secondary
+            }}>
               ... and {stats.frequencies.length - 10} more values
             </p>
           )}
