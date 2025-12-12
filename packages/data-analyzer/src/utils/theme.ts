@@ -48,7 +48,7 @@ export const lightTheme: ThemeColors = {
 
 // Dark theme definition
 export const darkTheme: ThemeColors = {
-  primary: '#5dade2',
+  primary: '#4a9bd6',
   secondary: '#58d68d',
   accent: '#f85a47',
   success: '#52be80',
@@ -63,7 +63,7 @@ export const darkTheme: ThemeColors = {
     secondary: '#bdc3c7'
   },
   chart: [
-    '#5dade2', '#58d68d', '#f85a47', '#f8b739', '#bb8fce',
+    '#4a9bd6', '#58d68d', '#f85a47', '#f8b739', '#bb8fce',
     '#52be80', '#85c1e9', '#f8b88b', '#aed6f1', '#f5b041'
   ]
 }
