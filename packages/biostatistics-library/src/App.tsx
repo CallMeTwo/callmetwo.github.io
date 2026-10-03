@@ -14,7 +14,7 @@ function hasArticle(sectionId: string, title: string): boolean {
   return published.has(articlePath(sectionId, title))
 }
 
-interface ArticlePreview { title: string; section: string; group: string }
+interface ArticlePreview { title: string; section: string; group: string; href: string | null }
 
 export default function App() {
   const [query, setQuery] = useState('')
@@ -72,7 +72,7 @@ export default function App() {
           <div className="library-meta"><span><strong>{sections.length}</strong> subject areas</span><span><strong>{topicCount}</strong> planned articles</span><span>From foundations to practice</span></div>
         </header>
 
-        <div className="prototype-note"><span className="note-symbol" aria-hidden="true">i</span><p><strong>First look: the library’s structure.</strong> This is a draft topic map. Published articles open on their own page; the rest preview the article layout — full content and references will come later.</p></div>
+        <div className="prototype-note"><span className="note-symbol" aria-hidden="true">i</span><p><strong>First look: the library’s structure.</strong> This is a draft topic map. Select any topic to preview its article layout — published articles include a “Visit page” button, full content and references for the rest will come later.</p></div>
 
         <section className="index-tools" aria-label="Find topics">
           <label className="search-label" htmlFor="topic-search">Find a topic</label>
@@ -90,10 +90,7 @@ export default function App() {
                 <span className="section-number">{String(number).padStart(2, '0')}</span><span className="section-title">{section.title}<span className="section-description">{section.description}</span></span><span className="article-count">{count} {count === 1 ? 'topic' : 'topics'}</span><span className={`chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span>
               </button></h3>
               <div id={`${section.id}-topics`} hidden={!isOpen}>
-                <div className="topic-groups">{section.groups.map(group => <div className="topic-group" key={group.title}><h4>{group.title}</h4><ul>{group.topics.map(topic => hasArticle(section.id, topic)
-                  ? <li key={topic}><a className="topic-link" href={articleHref(section.id, topic)}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></a></li>
-                  : <li key={topic}><button className="topic-link" onClick={() => setArticle({ title: topic, section: section.title, group: group.title })}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></button></li>
-                )}</ul></div>)}</div>
+                <div className="topic-groups">{section.groups.map(group => <div className="topic-group" key={group.title}><h4>{group.title}</h4><ul>{group.topics.map(topic => <li key={topic}><button className="topic-link" onClick={() => setArticle({ title: topic, section: section.title, group: group.title, href: hasArticle(section.id, topic) ? articleHref(section.id, topic) : null })}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></button></li>)}</ul></div>)}</div>
               </div>
             </section>
           })}
@@ -104,7 +101,7 @@ export default function App() {
     </div>
 
     <dialog ref={dialog} className="article-dialog" aria-labelledby="article-title" onCancel={closeArticle} onClose={() => setArticle(null)}>
-      {article && <><div className="dialog-top"><span>ARTICLE PREVIEW</span><button autoFocus onClick={closeArticle} aria-label="Close article preview">Close ×</button></div><p className="article-breadcrumb">{article.section} / {article.group}</p><h2 id="article-title">{article.title}</h2><span className="draft-badge">Planned article</span><p className="article-intro">This page is a placeholder. The article will explain the topic with examples, interpretation notes and sources.</p><div className="article-outline"><h3>On this page</h3><ol><li>Overview and key ideas</li><li>When to use it</li><li>Assumptions and limitations</li><li>Worked example</li><li>Interpretation and common pitfalls</li><li>References and further reading</li></ol></div><p className="article-note">Dummy content for reviewing the library structure.</p><button className="primary-button" onClick={closeArticle}>Back to topic map</button></>}
+      {article && <><div className="dialog-top"><span>ARTICLE PREVIEW</span><button autoFocus onClick={closeArticle} aria-label="Close article preview">Close ×</button></div><p className="article-breadcrumb">{article.section} / {article.group}</p><h2 id="article-title">{article.title}</h2>{article.href ? <span className="draft-badge published-badge">Published article</span> : <span className="draft-badge">Planned article</span>}<p className="article-intro">{article.href ? 'This article is published. Use “Visit page” to read it in full.' : 'This page is a placeholder. The article will explain the topic with examples, interpretation notes and sources.'}</p><div className="article-outline"><h3>On this page</h3><ol><li>Overview and key ideas</li><li>When to use it</li><li>Assumptions and limitations</li><li>Worked example</li><li>Interpretation and common pitfalls</li><li>References and further reading</li></ol></div>{!article.href && <p className="article-note">Dummy content for reviewing the library structure.</p>}{article.href && <a className="primary-button" href={article.href}>Visit page</a>}<button className="secondary-button" onClick={closeArticle}>Back to topic map</button></>}
     </dialog>
   </>
 }
