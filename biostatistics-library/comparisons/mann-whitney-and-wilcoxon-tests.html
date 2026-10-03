@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Nonparametric tests for whether two groups differ in distribution, using ranks instead of raw values." />
+    <title>Mann–Whitney and Wilcoxon tests · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Comparing groups <span class="sep">/</span> Numerical outcomes <span class="sep">/</span> <strong style="color:#273e3b">Mann–Whitney and Wilcoxon tests</strong></div>
+        <h1 class="article-title">Mann–Whitney and Wilcoxon tests</h1>
+        <p class="article-summary">Nonparametric tests for whether two groups differ in distribution, using ranks instead of raw values.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>The Mann–Whitney test (independent samples) and the Wilcoxon signed-rank
+test (paired samples) are the rank-based counterparts of the independent and
+paired t-tests. Instead of comparing means, they rank all observations and
+compare where one group tends to fall within the overall ordering.</p>
+<p>For the <strong>Mann–Whitney test</strong> (also called the Wilcoxon rank-sum test), pool
+both groups, rank all values from smallest to largest, and sum the ranks in
+one group. The test statistic W measures how far that rank sum is from what
+it would be if the groups were exchangeable. Under the null hypothesis the
+groups have the same distribution, so a patient in group A is equally likely
+to be larger or smaller than a patient in group B. The statistic P(X &gt; Y) —
+the probability that a randomly chosen group-A observation exceeds a
+randomly chosen group-B observation — is often the most interpretable
+summary: it is a stochastic effect size, sometimes called &quot;common language&quot;
+effect size.</p>
+<p>For the <strong>Wilcoxon signed-rank test</strong>, rank the absolute values of the
+n within-pair differences, then sum the ranks of positive differences
+versus negative ones. A large imbalance in rank sums indicates a consistent
+direction of change within subjects.</p>
+<p>Because only ranks are used, both tests are insensitive to outliers and do
+not require normality. They test whether the distributions <em>differ</em>, not
+whether the medians or means differ, though when the two distributions have
+the same shape the tests reduce to a test of a shift in location.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Skewed continuous outcome, two groups</td>
+<td>Does the new regimen shorten time to remission in a small, skewed dataset?</td>
+</tr>
+<tr>
+<td>Ordinal scale, two groups</td>
+<td>Do two wound-classification systems assign different severity grades to the same wounds?</td>
+</tr>
+<tr>
+<td>Paired skewed differences</td>
+<td>Does a rehab programme improve a functional score (0–100) within the same patients when the gains are skewed?</td>
+</tr>
+<tr>
+<td>Outlier-prone measurements</td>
+<td>Does the biomarker differ between controls and patients when a few patients have extreme values?</td>
+</tr>
+</tbody></table>
+<p>Use Mann–Whitney for two independent groups and Wilcoxon signed-rank for
+paired data. For three or more independent groups use the Kruskal–Wallis
+test; for paired data across three or more time points use Friedman&#39;s test.</p>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Independence</strong> — the same as for the t-tests: independent subjects
+(Mann–Whitney) or independent pairs (Wilcoxon). Clusters and repeated
+measurements still violate this.</li>
+<li><strong>No normality required</strong>, but the null hypothesis is that the two
+distributions are identical, not merely that the medians are equal. If the
+groups differ in shape (one is skewed, the other symmetric) the test can
+be significant even when the medians are the same, and it can be
+non-significant when the medians differ but the distributions cross.</li>
+<li><strong>Equal sample sizes help.</strong> With very unequal group sizes the
+Mann–Whitney test is more sensitive to differences in shape than in
+location, so interpret the p-value cautiously and report the P(X &gt; Y)
+effect size as well.</li>
+<li><strong>Small samples</strong> — exact (permutation) p-values are available and are
+preferred over the normal approximation when either group has fewer than
+about 10–20 observations.</li>
+<li><strong>Ties</strong> — common in ordinal data or rounded measurements; standard
+tie-corrected formulas handle them, but heavy tying (many identical
+values) reduces the effective sample size and the interpretability of the
+test.</li>
+</ul>
+<p>Neither test reports a difference in medians or means; report the medians
+(and interquartile ranges) of both groups alongside the test result.</p>
+<h2>Worked example</h2>
+<p>In 10 patients with rheumatoid arthritis and 10 age-matched controls, a
+skewed disease-activity score (median 12, IQR 8–19 in patients; median 3,
+IQR 1–5 in controls) was recorded. Pooling and ranking all 20 values, the
+rank sum for the patient group is W = 186.</p>
+<ul>
+<li>Under the null the expected rank sum is 10 × (20 + 1) / 2 = 105.</li>
+<li>Using the normal approximation with tie correction, z ≈ 3.4, two-sided
+p &lt; 0.001.</li>
+<li>The stochastic effect size P(patient &gt; control) = 0.88: a randomly chosen
+patient&#39;s score exceeds a randomly chosen control&#39;s score about 88% of the
+time.</li>
+</ul>
+<p>The patient group&#39;s distribution lies well above the controls&#39; (p &lt; 0.001),
+consistent with higher disease activity. Because the outcome is skewed and
+sample sizes are small, the rank test is more trustworthy here than a
+t-test, which would be sensitive to the upper-tail values.</p>
+<p><strong>Paired variant.</strong> In 9 COPD patients, an 8-point breathlessness scale was
+measured before and after 6 weeks of pulmonary rehab. The signed-rank sum of
+positive (improved) differences is 36 of a possible 45; the signed-rank test
+gives p = 0.036. Breathlessness improved consistently within patients,
+though the improvement was not uniform across all 9.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>This is not a &quot;test of medians.&quot;</strong> The null is identical distributions.
+Reporting &quot;the medians were significantly different (Mann–Whitney
+p = ...)&quot; overstates what the test shows; report the medians as
+descriptive summaries, not as the estimand.</li>
+<li><strong>Ranks discard magnitude.</strong> Two datasets can give the same p-value with
+very different clinical differences. Always report the group medians, IQRs
+(or means if appropriate), and a P(X &gt; Y) effect size.</li>
+<li><strong>Do not use the test just because n is small.</strong> With large samples and
+roughly normal data, the t-test is more powerful. The rank tests are
+preferable when normality is genuinely doubtful or the outcome is ordinal.</li>
+<li><strong>Ties and rounding matter.</strong> If many subjects share the same value (e.g.
+integer scores), the standard formulas still work but the effective
+information is lower; check the number of ties and consider whether the
+ordinal scale is carrying enough resolution.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis
+and Other Advanced Topics</em>. Brooks/Cole.</li>
+<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
+<li>The topic map&#39;s &quot;Kruskal–Wallis test&quot; article extends the rank approach
+to three or more groups.</li>
+</ul>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

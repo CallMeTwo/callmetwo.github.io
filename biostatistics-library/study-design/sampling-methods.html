@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="How to choose a subset of a population so that the inferences drawn from it are valid, unbiased, and appropriately precise." />
+    <title>Sampling methods · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Planning and validity <span class="sep">/</span> <strong style="color:#273e3b">Sampling methods</strong></div>
+        <h1 class="article-title">Sampling methods</h1>
+        <p class="article-summary">How to choose a subset of a population so that the inferences drawn from it are valid, unbiased, and appropriately precise.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>A <strong>sample</strong> is the subset of a population from which data are actually collected; the <strong>population</strong> (or <strong>target population</strong>) is the group to which inferences are to be generalised. The choice of sampling method determines which population the results apply to and how much error is introduced by the sampling process itself. The two broad families are <strong>probability sampling</strong> (every member of the population has a known, non-zero chance of selection) and <strong>non-probability sampling</strong> (selection is based on researcher judgment or convenience).</p>
+<ul>
+<li><strong>Simple random sampling.</strong> Each member has the same probability of selection. Easy to describe; inefficient when the population is large or spread out.</li>
+<li><strong>Stratified sampling.</strong> The population is divided into subgroups (strata) — e.g., by age group, sex, hospital ward — and a separate random sample is drawn from each stratum. This reduces variance for stratum-specific estimates and ensures representation of small but important subgroups.</li>
+<li><strong>Cluster sampling.</strong> Instead of sampling individual units, randomly select groups (clusters) — e.g., schools, primary care practices, villages — and measure all (or a sample of) individuals within the selected clusters. Efficient when a full list of individuals is unavailable; introduces intra-class correlation, which inflates variance.</li>
+<li><strong>Systematic sampling.</strong> Select every kth member from an ordered list (k = population size / desired sample size). Efficient and easy to implement; valid only if the list order is unrelated to the variable of interest.</li>
+<li><strong>Convenience and volunteer sampling.</strong> No probability framework; results cannot be generalised to a defined population without strong additional assumptions.</li>
+</ul>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Sampling method</th>
+<th>Typical clinical or research setting</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Stratified random sampling</td>
+<td>Estimating the prevalence of diabetes in a city, stratified by age group and sex, to ensure adequate representation of each age stratum.</td>
+</tr>
+<tr>
+<td>Cluster sampling</td>
+<td>A school-based programme to reduce obesity: randomly select 20 schools from a district, then measure BMI in all students in the selected schools.</td>
+</tr>
+<tr>
+<td>Systematic sampling</td>
+<td>Estimating mean blood pressure in a health screen: every 5th patient on the registration list over a one-week period.</td>
+</tr>
+<tr>
+<td>Convenience sampling</td>
+<td>A pilot study of 30 patients recruited from one hospital&#39;s outpatient clinic to estimate feasibility and rough effect size before a definitive trial.</td>
+</tr>
+<tr>
+<td>Two-stage stratified cluster sampling</td>
+<td>National health surveys (e.g., NHANES): stratify by geography, cluster by census tract, random sample of households within each tract.</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Representativeness.</strong> The sample must be drawn from the target population. If the frame (list from which sampling starts) is incomplete or outdated, no sampling technique will fix the bias.</li>
+<li><strong>Response rate.</strong> A high non-response rate, particularly if related to the outcome (sick people are less likely to attend a screening), introduces selection bias regardless of the sampling method.</li>
+<li><strong>Intra-class correlation (ICC) in cluster sampling.</strong> Individuals within the same cluster tend to be more similar to each other than to individuals in other clusters; the effective sample size is smaller than the raw count, and standard errors must be adjusted.</li>
+<li><strong>Stratification must be on a variable related to the outcome.</strong> Stratifying by a variable unrelated to the outcome adds cost and complexity without reducing variance.</li>
+<li><strong>Non-probability samples</strong> cannot support population-level inference; they are acceptable for pilot studies, qualitative work, or when the research question is explicitly limited to the sampled group.</li>
+</ul>
+<h2>Worked example</h2>
+<p>A hospital wants to estimate the mean HbA1c of its adult diabetic outpatients. The practice has 4,000 registered diabetic adults: 1,200 aged 18–40, 2,000 aged 41–60, 1,800 aged 61+.</p>
+<p>Using <strong>stratified sampling</strong> with proportional allocation and a desired total sample of 400:</p>
+<ul>
+<li>18–40: n = 400 × 1,200/4,000 = 120</li>
+<li>41–60: n = 400 × 2,000/4,000 = 200</li>
+<li>61+: n = 400 × 1,800/4,000 = 180</li>
+</ul>
+<p>A random sample of 120, 200, and 180 patients is drawn from each stratum. Suppose the mean HbA1c is 7.4% (SD 1.1) in the 18–40 group, 8.1% (SD 1.3) in the 41–60 group, and 8.5% (SD 1.4) in the 61+ group.</p>
+<p>Stratified mean = (120/400 × 7.4) + (200/400 × 8.1) + (180/400 × 8.5) = 2.22 + 4.05 + 3.825 = <strong>8.1%</strong>.</p>
+<p>The standard error of the stratified mean is smaller than it would be for a simple random sample of 400 because the between-stratum variance is large; stratification on age (strongly related to HbA1c) improves precision.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>Confusing the sample frame with the target population.</strong> A sample of hospital inpatients cannot support inferences about the general community; the target population must be stated explicitly in the methods section.</li>
+<li><strong>Ignoring non-response.</strong> If 40% of a convenience sample does not attend and the non-respondents are systematically sicker, the mean HbA1c will be biased low; the non-response rate and any evidence about its direction must be reported.</li>
+<li><strong>Using a raw count to estimate precision in cluster sampling.</strong> If 20 schools are sampled with 100 students each (n = 2,000) and the ICC is 0.05, the design effect is 1 + (100 − 1) × 0.05 ≈ 6.0; the effective sample size is about 333, not 2,000. Standard errors computed from n = 2,000 will be far too small.</li>
+<li><strong>Treating a convenience sample as random.</strong> Recruiting &quot;the first 50 patients who came to clinic today&quot; does not produce a random sample of the clinic&#39;s diabetic population; generalisability beyond the sampled group is not supported.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
+<li>Bland M. <em>An Introduction to Medical Statistics</em>. Oxford University Press.</li>
+<li>Lohr L. <em>Sampling: Design and Analysis</em>. Wiley.</li>
+</ul>
+<p><em>The planned &quot;Bias and confounding&quot; article in this library covers how selection bias — including sampling-related bias — distorts study results.</em></p>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

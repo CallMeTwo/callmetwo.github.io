@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Percentiles, quartiles and the IQR as robust summaries of position and spread, plus Tukey fences for outlier screening." />
+    <title>Quantiles and the interquartile range · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Descriptive statistics <span class="sep">/</span> <strong style="color:#273e3b">Quantiles and the interquartile range</strong></div>
+        <h1 class="article-title">Quantiles and the interquartile range</h1>
+        <p class="article-summary">Percentiles, quartiles and the IQR as robust summaries of position and spread, plus Tukey fences for outlier screening.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>A <strong>quantile</strong> cuts a distribution into equal-probability pieces: the p-th quantile is the value below which a proportion p of observations falls. The 50th percentile (p = 0.5) is the median; the 25th and 75th percentiles are the first and third quartiles (Q1, Q3); the 95th percentile (P95) is the value exceeded by only 5% of the sample. The <strong>interquartile range (IQR)</strong> is Q3 − Q1, the width of the box containing the middle 50% of the data.</p>
+<p>Unlike the mean and SD, the quartiles and IQR are <strong>resistant</strong>: shifting a few extreme values barely moves them. That is exactly why they are the default summary for skewed clinical variables — lengths of stay, biomarker concentrations, income, waiting times — and why the box plot is built from them. Quantiles are also the inverse of the cumulative distribution: where the CDF answers &quot;what proportion is below x?&quot;, the quantile answers &quot;which value is exceeded by 1 − p of the population?&quot; — the natural language of reference ranges.</p>
+<ul>
+<li>Q1, median and Q3 locate where patients cluster, without assuming any distribution shape.</li>
+<li>The IQR measures spread in the variable&#39;s own units, covering the middle 50% rather than an arbitrary 95%.</li>
+<li>Tukey&#39;s outlier rule flags observations beyond Q1 − 1.5×IQR or Q3 + 1.5×IQR for review.</li>
+<li>Percentiles underlie reference intervals: the commonly used adult reference range is the 2.5th–97.5th centile of a healthy population.</li>
+</ul>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Skewed continuous variable in a baseline table</td>
+<td>How spread are CRP values when most sit near the lower limit of detection?</td>
+</tr>
+<tr>
+<td>Outlier screening before modelling</td>
+<td>Which patients fall beyond 1.5×IQR of a covariate&#39;s distribution?</td>
+</tr>
+<tr>
+<td>Establishing reference intervals</td>
+<td>What are the 2.5th and 97.5th centiles of this laboratory analyte?</td>
+</tr>
+<tr>
+<td>Growth or dosing data</td>
+<td>How does the 90th percentile of body weight change with age?</td>
+</tr>
+<tr>
+<td>Comparing groups without normality</td>
+<td>Do the middle 50% of outcomes differ between treatments?</td>
+</tr>
+<tr>
+<td>Reporting skewed trial endpoints</td>
+<td>How do the 25th, 50th and 75th percentiles of time-to-recovery compare between arms?</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li>No distributional assumption is needed to <em>report</em> quartiles, but individual quantile estimates are unstable in small samples; the 2.5th and 97.5th centiles in particular need large samples to be precise.</li>
+<li>Several slightly different algorithms exist for sample quantiles (linear interpolation vs nearest-rank; inclusive vs exclusive halves), so Q1 and Q3 can differ a little between software packages; state the method when exact values matter.</li>
+<li>The IQR describes only the middle half. A variable with identical quartiles but very different tails is not fully characterised; pair the IQR with the range or a histogram.</li>
+<li>A bimodal distribution can have a wide IQR that spans a gap between two clusters, so the IQR can hide the very structure a histogram would reveal.</li>
+<li>Tukey&#39;s 1.5×IQR fences are a screening heuristic, not a test of abnormality; in a small or skewed sample, values beyond the fence can be entirely expected and legitimate.</li>
+<li>Percentiles are order statistics of the sample, not properties of a fitted model: two samples from the same population can give noticeably different P95s.</li>
+</ul>
+<h2>Worked example</h2>
+<p>Eleven patients with suspected hypercholesterolaemia had total cholesterol (mmol/L) of 3.8, 4.1, 4.4, 4.6, 4.9, 5.2, 5.5, 5.8, 6.2, 6.9, 8.4. The median (6th value) is 5.2; the median of the lower five values is Q1 = 4.4 and the median of the upper five is Q3 = 5.8, so the IQR is 5.8 − 4.4 = 1.4 mmol/L. Equivalently, 50% of patients had cholesterol below 5.2 and 75% below 5.8 mmol/L — the reading a clinician most often wants.</p>
+<p>Tukey&#39;s fences are 4.4 − 1.5×1.4 = 2.3 and 5.8 + 1.5×1.4 = 7.9. The 8.4 mmol/L result lies above the upper fence and is flagged for review — worth checking for an acute-phase illness, a lab artefact, or a genuinely different patient, rather than deleting automatically. The summary &quot;median 5.2 (IQR 4.4–5.8) mmol/L&quot; tells a more faithful story than the mean of 5.4, which is pulled upward by the single high value. Note that with 11 values the &quot;exclusive halves&quot; method is used here (drop the median, take the median of each remaining half); inclusive methods give slightly different Q1/Q3 — another reason to state the method.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li>Treating the IQR as comparable to the SD. For a normal distribution the IQR ≈ 1.35×SD, so the two are not interchangeable and should not be mixed within one table.</li>
+<li>Flagging every value beyond the Tukey fence as an error. In skewed or small data, roughly 1–2% of legitimate observations fall outside; investigate, don&#39;t delete.</li>
+<li>Comparing IQRs across variables on different scales, as if they were unit-free like the coefficient of variation.</li>
+<li>Reporting percentiles from small samples as though they were stable; a P95 estimated from 30 observations carries a very wide uncertainty.</li>
+<li>Assuming the median is the mean. In skewed data the two differ, and readers substitute whichever they see — report both or state the convention.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
+<li>Greenland S, Rothman K, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
+</ul>
+<p><em>The &quot;Histograms and box plots&quot; article in this library shows these quantities plotted (article planned).</em></p>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="How well a test detects and excludes disease — and why a positive result's meaning depends on how common the disease is." />
+    <title>Sensitivity, specificity and predictive values · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Clinical research &amp; evidence <span class="sep">/</span> Risk and diagnostic accuracy <span class="sep">/</span> <strong style="color:#273e3b">Sensitivity, specificity and predictive values</strong></div>
+        <h1 class="article-title">Sensitivity, specificity and predictive values</h1>
+        <p class="article-summary">How well a test detects and excludes disease — and why a positive result's meaning depends on how common the disease is.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>A diagnostic test is summarised against a reference standard in a 2×2 table. <strong>Sensitivity</strong> = TP / (TP + FN) is the proportion of truly diseased people the test detects; <strong>specificity</strong> = TN / (TN + FP) is the proportion of healthy people correctly called negative. <strong>Positive predictive value (PPV)</strong> = TP / (TP + FP) is the probability that a positive result is truly positive; <strong>negative predictive value (NPV)</strong> = TN / (TN + FN) is the corresponding probability for a negative result.</p>
+<p>Sensitivity and specificity are (nearly) properties of the test itself at a given threshold, while PPV and NPV are properties of the test in a particular population — they move with the prevalence of disease. This is the practical heart of diagnostic reasoning: a clinician can never &quot;look up&quot; the probability that a positive result is real, because it is not a fixed property of the test; it is a function of how sick the tested population is.</p>
+<p>The clean bridge between the two worlds is the likelihood ratio: LR+ = sensitivity / (1 − specificity) and LR− = (1 − sensitivity) / specificity, which convert a pre-test probability into a post-test probability via Bayes&#39; theorem without needing to know prevalence.</p>
+<p>Rough clinical heuristics for likelihood ratios (Fagan&#39;s nomogram logic): LR− near 0.1 (e.g. a very sensitive test) can effectively rule disease out; LR+ near 10 can effectively rule it in; LRs between 1 and 10 shift the probability only modestly and are usually not enough for a decision on their own.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Emergency rule-out</td>
+<td>How well does D-dimer exclude pulmonary embolism in low-risk chest pain?</td>
+</tr>
+<tr>
+<td>Rule-in strategy</td>
+<td>Which biomarker best confirms myocardial infarction in an ED chest pain cohort?</td>
+</tr>
+<tr>
+<td>Test selection</td>
+<td>Rapid antigen test versus throat culture for suspected streptococcal pharyngitis — which trade-off fits the setting?</td>
+</tr>
+<tr>
+<td>Follow-up of screening</td>
+<td>In a 50-year-old woman with an abnormal mammogram, what is the probability of cancer?</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Reference-standard assumptions</strong> — sensitivity and specificity assume every participant is classified by a gold standard applied to everyone; if the reference standard is imperfect, or is applied conditionally on the test result (verification bias), both estimates are distorted.</li>
+<li><strong>Spectrum effects</strong> — test performance changes with disease stage and severity; a 95% sensitivity in symptomatic patients may be far lower in an asymptomatic screening population.</li>
+<li><strong>Transportability of predictive values</strong> — PPV and NPV computed in one study apply at that study&#39;s prevalence; moving them to your clinic requires re-computing at your local pre-test probability.</li>
+<li><strong>A single threshold</strong> — for a continuous marker, the numbers summarise one chosen cut-off; the full sensitivity–specificity trade-off is shown by the ROC curve (see the article on ROC curves and AUC).</li>
+</ul>
+<h2>Worked example</h2>
+<p>D-dimer is measured in 400 emergency chest pain patients, of whom 40 (prevalence 10%) have pulmonary embolism confirmed on CT angiography. The test has sensitivity 95% and specificity 55%:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>PE present</th>
+<th>PE absent</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Test positive</td>
+<td>38</td>
+<td>162</td>
+</tr>
+<tr>
+<td>Test negative</td>
+<td>2</td>
+<td>198</td>
+</tr>
+</tbody></table>
+<ul>
+<li>Sensitivity = 38/40 = <strong>95%</strong>; specificity = 198/360 = <strong>55%</strong>.</li>
+<li>PPV = 38 / (38 + 162) = <strong>19%</strong> — most positive D-dimers are false positives.</li>
+<li>NPV = 198 / (198 + 2) = <strong>99%</strong> — a negative D-dimer virtually excludes PE.</li>
+<li>LR+ = 0.95 / 0.45 = <strong>2.1</strong>; LR− = 0.05 / 0.55 = <strong>0.09</strong>.</li>
+</ul>
+<p>If the target population has a lower 2% prevalence, PPV falls to 8 / (8 + 176) ≈ <strong>4%</strong> while NPV stays near 99.5%. Interpretation: the test is built for exclusion — its high sensitivity gives a small LR−, so a negative result sharply lowers post-test probability, while a positive result (LR+ 2.1) moves it little and the correct next step is CTPA. The example shows that a &quot;95% sensitive&quot; test can still generate 81% false positives, because the accuracy of a positive result is a property of the patient population, not the test.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li>Quoting one study&#39;s PPV as if it applied in your clinic; PPV moves with prevalence, so recompute it at your patient&#39;s pre-test probability.</li>
+<li>Reading sensitivity and specificity as one &quot;accuracy&quot;: a 95%/55% test is excellent for ruling out and poor for ruling in — the two numbers answer different questions.</li>
+<li>Forgetting the cut-off: for continuous markers, raising the threshold raises specificity and lowers sensitivity; always state which cut-off the quoted values refer to.</li>
+<li>Confusing test characteristics with post-test probability — sensitivity is not the probability that a positive result is true; that is the PPV.</li>
+<li>Comparing two tests by their sum of sensitivity and specificity, or by &quot;accuracy,&quot; in a lopsided population where most people are healthy (or sick); accuracy can be deceptively high and tells you little about the errors that matter.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BNP Books.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Vickers AJ, Elkin EB. &quot;Understanding the area under the receiver operating characteristic curve.&quot; <em>BMC Medical Informatics and Decision Making</em>. 2006.</li>
+<li>The library&#39;s &quot;ROC curves and AUC&quot; article shows how to compare thresholds across the full range of cut-offs.</li>
+</ul>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

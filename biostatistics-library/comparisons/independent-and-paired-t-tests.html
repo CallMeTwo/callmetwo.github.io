@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Comparing the means of two groups, using separate samples or matched before-and-after measurements from the same subjects." />
+    <title>Independent and paired t-tests · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Comparing groups <span class="sep">/</span> Numerical outcomes <span class="sep">/</span> <strong style="color:#273e3b">Independent and paired t-tests</strong></div>
+        <h1 class="article-title">Independent and paired t-tests</h1>
+        <p class="article-summary">Comparing the means of two groups, using separate samples or matched before-and-after measurements from the same subjects.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>The t-test asks whether the difference between two group means is larger than
+would be expected from sampling variability alone. The test statistic
+t = (difference in means) / (standard error of that difference) follows
+Student&#39;s t distribution with a suitable number of degrees of freedom under
+the null hypothesis of no true difference.</p>
+<p>Two situations call for two versions:</p>
+<ul>
+<li><strong>Independent (two-sample) t-test</strong> — the two groups come from separate
+subjects, e.g. a drug arm versus a placebo arm. The variability of each
+group is estimated from its own data, and the difference is compared
+against a combined standard error (classical Student) or an
+uncombined one (Welch&#39;s t-test).</li>
+<li><strong>Paired (matched) t-test</strong> — each subject contributes two measurements,
+e.g. systolic blood pressure before and after treatment, or the two eyes of
+the same patient. The analysis is a one-sample t-test on the n
+within-subject differences, which removes between-subject variability and
+usually gives much more power.</li>
+</ul>
+<p>The choice between the two is a design question: does a pairing exist in the
+data or not? A paired test on unrelated groups, or an independent test on
+clearly paired data, wastes information or misstates the uncertainty.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Randomised trial, two arms</td>
+<td>Does drug A lower systolic BP more than standard care after 12 weeks?</td>
+</tr>
+<tr>
+<td>Before-and-after study</td>
+<td>Does a 4-week exercise programme reduce fasting glucose within the same patients?</td>
+</tr>
+<tr>
+<td>Matched controls</td>
+<td>Does a biomarker differ between cases and age-, sex- and site-matched controls?</td>
+</tr>
+<tr>
+<td>Contralateral comparison</td>
+<td>Is function better in the treated limb than in the untreated limb of the same patient?</td>
+</tr>
+</tbody></table>
+<p>Use the independent version when the groups are different people (or
+clusters), and the paired version when each subject or matched set produces
+both measurements. If you have more than two groups, use one-way ANOVA
+instead of a series of t-tests.</p>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Independence</strong> — observations within and between groups are independent;
+this is violated by clustered sampling (several patients from the same
+clinic, family members) or by analysing repeated measurements as if they
+were independent.</li>
+<li><strong>Approximate normality of the outcome</strong> — with small samples (roughly
+n &lt; 20 per group), strong skewness or outliers make the t-test
+unreliable; for large n the central limit theorem makes it robust. For the
+paired test it is the <em>differences</em> that should be plausibly normal, which
+is often easier to satisfy than the raw measurements.</li>
+<li><strong>Equal variances</strong> — the classical Student two-sample t-test assumes equal
+group variances. Welch&#39;s t-test, which does not, is the safer default in
+most software and is preferred unless you have a good reason otherwise.</li>
+<li><strong>Small-sample fragility</strong> — with very small n the p-value can be carried
+by a single outlier; always report the data (means, SDs, ideally a plot)
+alongside the test.</li>
+</ul>
+<p>Neither test estimates more than a difference in mean locations: if the two
+distributions differ in shape rather than level, the mean difference may not
+summarise what you care about.</p>
+<h2>Worked example</h2>
+<p><strong>Paired example.</strong> In 8 patients with hypertension, diastolic BP (mmHg) was
+measured before and after 8 weeks of a new beta-blocker. The within-patient
+differences (before − after) were: 4, 6, 5, 8, 7, 6, 9, 3.</p>
+<ul>
+<li>Mean difference d-bar = 6.0 mmHg; SD of the differences s_d = 2.0</li>
+<li>SE = s_d / sqrt(n) = 2.0 / sqrt(8) = 0.71</li>
+<li>t = 6.0 / 0.71 = 8.5 on 7 degrees of freedom, two-sided p &lt; 0.001</li>
+<li>95% CI for the mean difference: 6.0 ± 2.365 × 0.71 = (4.3, 7.7) mmHg</li>
+</ul>
+<p>The treatment lowered diastolic BP by about 6 mmHg on average (95% CI 4.3 to
+7.7), a highly significant reduction. Note that the analysis uses only the 8
+differences — the before and after values are never compared as two separate
+groups, which would have been wrong.</p>
+<p><strong>Independent example.</strong> In a parallel placebo group (n = 8) the mean
+reduction was 1.5 mmHg (SD 2.2). Welch&#39;s t-test gives
+t = (6.0 − 1.5) / sqrt(2.0²/8 + 2.2²/8) = 4.5 / 1.05 = 4.3, p &lt; 0.001: the
+new drug reduces BP more than placebo does.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>Pairing is a design feature, not an analysis choice.</strong> If you measured
+the same people twice, use the paired test; choosing the independent test
+because it &quot;gave a cleaner result&quot; is wrong and usually underpowered.</li>
+<li><strong>Significance is not equivalence.</strong> A non-significant t-test means you
+could not detect a difference, not that the true difference is zero —
+report the confidence interval and consider the study&#39;s power.</li>
+<li><strong>Do not run several t-tests for 3+ groups.</strong> Comparing three arms
+pairwise inflates the family-wise type I error; use one-way ANOVA (or
+pre-planned contrasts) instead.</li>
+<li><strong>Check the assumptions before trusting small-sample p-values.</strong> A single
+extreme outlier can carry the whole result; look at the data, not just the
+test output.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Chow S, Lu J, Jehessel M. <em>Design and Analysis of Clinical Trials</em>. Wiley.</li>
+<li>Bland J, Altman D. <em>Statistics with Confidence</em>. BMJ Books.</li>
+</ul>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

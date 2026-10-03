@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="The symmetric bell-shaped distribution, its role in reference ranges and z-scores, and how to check whether data deserve it." />
+    <title>Normal distribution · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Common distributions <span class="sep">/</span> <strong style="color:#273e3b">Normal distribution</strong></div>
+        <h1 class="article-title">Normal distribution</h1>
+        <p class="article-summary">The symmetric bell-shaped distribution, its role in reference ranges and z-scores, and how to check whether data deserve it.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>The <strong>normal (Gaussian) distribution</strong> with mean μ and standard deviation σ is the
+symmetric bell-shaped distribution that appears throughout biology — both as the
+shape of measured variables and as an approximation for sampling distributions.
+Its practical properties:</p>
+<ul>
+<li>About <strong>68%</strong> of values fall within μ ± σ, <strong>95%</strong> within μ ± 1.96σ, and
+<strong>99.7%</strong> within μ ± 3σ.</li>
+<li>Any value can be standardised to a <strong>z-score</strong>: z = (x − μ) / σ. A z-score is
+how many standard deviations x lies from the mean; under a true normal model it
+follows the standard normal distribution.</li>
+<li><strong>Reference ranges</strong> (e.g. laboratory &quot;normal&quot; intervals) are typically built
+as the central 95%: μ ± 1.96σ.</li>
+<li>The normal distribution is unbounded in both directions, so for quantities
+that cannot be negative or zero (counts, concentrations), it is a model, not a
+law — often after a log transformation.</li>
+</ul>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reference intervals</td>
+<td>What systolic blood pressure range covers the central 95% of a reference population?</td>
+</tr>
+<tr>
+<td>Z-scores and growth charts</td>
+<td>Is a child&#39;s height unusual for age and sex?</td>
+</tr>
+<tr>
+<td>Dose–response and thresholds</td>
+<td>What proportion of patients exceeds a treatment threshold if the variable is approximately normal?</td>
+</tr>
+<tr>
+<td>Checking other methods</td>
+<td>Is the outcome approximately normal enough for a t-test or a parametric model?</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Many clinical variables are not normal.</strong> Skewed examples — CRP, waiting
+times, lengths of stay, income, most biomarkers in undiagnosed populations —
+should not be summarised with a mean and SD, and thresholds computed as
+mean ± k×SD are misleading.</li>
+<li><strong>Check before assuming:</strong> a Q–Q plot, the pattern of mean vs median and
+skewness, and a histogram are the standard diagnostic tools. A log or other
+transformation often restores approximate normality.</li>
+<li>The 68–95–99.7 rule is exact only for a true normal; it is a rough guide for
+&quot;approximately normal&quot; data.</li>
+<li>Using the normal model for a single subject&#39;s value (e.g. judging one lab
+result) is different from using it for a <em>distribution of sample means</em> — the
+latter is covered by the central limit theorem and is far more forgiving.</li>
+</ul>
+<h2>Worked example</h2>
+<p>In a clinic population, systolic blood pressure has mean μ = 120 mmHg and
+standard deviation σ = 15 mmHg, approximately normally distributed.</p>
+<ul>
+<li>Proportion above the hypertension threshold of 140: z = (140 − 120)/15 =
+1.33, so P(X &gt; 140) = 1 − Φ(1.33) = 1 − 0.9082 ≈ 0.092, or about 9% of
+patients.</li>
+<li>The central 95% reference interval is 120 ± 1.96 × 15, i.e. roughly
+90.6 to 149.4 mmHg.</li>
+</ul>
+<p>Interpretation: about 1 in 11 people in this population would exceed 140 mmHg
+purely from the spread of values, even though the mean is 120 — which is why
+reference ranges are wider than most people expect, and why a single high
+reading is not the same as a diagnosis. The same calculation with a skewed
+distribution (say, one with a long upper tail) would put far more than 9% above
+140, so the shape matters.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>Assuming normality without checking</strong> — a Q–Q plot with heavy tails or a
+marked skew should stop the analysis, not start it.</li>
+<li><strong>Confusing SD with SE</strong> — SD describes the spread of individual values; the
+standard error (SD/√n) describes the uncertainty of the <em>mean</em>. Reference
+ranges use SD; confidence intervals use SE.</li>
+<li><strong>Mean ± 2SD is not &quot;normal&quot;</strong> — it is the central 95% of a <em>reference</em>
+population, not a disease threshold, and it is only valid if the distribution
+is actually symmetric.</li>
+<li><strong>Applying z-scores outside their reference population</strong> — a z-score of +1 in
+children is not +1 in elderly adults; the mean and SD used must match the
+group being compared against.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</li>
+<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</li>
+</ul>
+<p><em>The &quot;Sampling distributions and the central limit theorem&quot; article in this
+library explains why sample means are normal even when individual values are not
+(article planned).</em></p>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

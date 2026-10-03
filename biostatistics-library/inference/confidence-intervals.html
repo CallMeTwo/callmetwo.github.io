@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A 95% confidence interval is a random interval that, over repeated samples, covers the true parameter 95% of the time - not a probability statement about this particular interval." />
+    <title>Confidence intervals · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Estimation <span class="sep">/</span> <strong style="color:#273e3b">Confidence intervals</strong></div>
+        <h1 class="article-title">Confidence intervals</h1>
+        <p class="article-summary">A 95% confidence interval is a random interval that, over repeated samples, covers the true parameter 95% of the time - not a probability statement about this particular interval.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>A <strong>confidence interval (CI)</strong> gives a range of plausible values for an unknown parameter, computed from the sample. For a mean (normal data or large n), a 95% CI is x-bar +/- 1.96 x SE; for a proportion, the large-sample interval is p-hat +/- 1.96 x sqrt(p-hat (1 - p-hat) / n). The width of the interval, roughly 4 x SE, is a direct measure of precision: a wide interval signals an imprecise estimate.</p>
+<p>The interpretation trips up most readers. In the frequentist framework the parameter (the true mean, say) is <strong>fixed</strong>, and it is the interval that is <strong>random</strong>. &quot;95% confidence&quot; means: if the study were repeated many times, each time computing an interval with the same rule, then 95% of those intervals would contain the true parameter. Once your interval has been computed, it either contains the true value or it does not - so saying &quot;there is a 95% probability that the true mean lies in this interval&quot; is strictly wrong.</p>
+<p>A CI also doubles as a hypothesis test: for a two-sided test at level alpha, the null value is rejected exactly when the 100(1 - alpha)% CI excludes it. A 95% CI for a risk ratio that does not include 1 corresponds to a p-value below 0.05.</p>
+<p>Three practical notes round out the picture. First, for small samples the multiplier 1.96 is replaced by the appropriate t critical value with n - 1 degrees of freedom, giving a slightly wider interval. Second, wider is not inherently worse: a wide interval for a rare outcome may be an honest reflection of limited information, and the remedy is usually a larger sample or a longer follow-up, not a different calculation. Third, all of this presumes the model is right: a confidence interval inherits the assumptions of the estimator that produced it, so a model with strong confounding produces a precise interval around the wrong target.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Randomised trial</td>
+<td>By how much does the new drug lower LDL, and how precise is that estimate?</td>
+</tr>
+<tr>
+<td>Non-inferiority trial</td>
+<td>Is the upper limit of the CI below the prespecified non-inferiority margin?</td>
+</tr>
+<tr>
+<td>Epidemiological cohort</td>
+<td>What range of relative risks is compatible with the observed association?</td>
+</tr>
+<tr>
+<td>Regression analysis</td>
+<td>What is the plausible range for a regression coefficient after adjustment?</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li>The x-bar +/- 1.96 x SE formula is exact for normal data and approximate otherwise through the central limit theorem. With small n and skewed data (biomarkers with long right tails, for example), a log transformation or a t-based interval is more reliable.</li>
+<li>The normal-approximation CI for a proportion misbehaves near 0 or 1; use a Wilson or exact (Clopper-Pearson) interval when the event count is small.</li>
+<li>For ratio measures (risk ratio, odds ratio, hazard ratio) the CI is computed on the log scale and back-transformed, producing an asymmetric interval.</li>
+<li>A CI assumes the analysis model is correct and the sample is representative of the target population. A biased study produces a narrow interval centred in the wrong place.</li>
+</ul>
+<h2>Worked example</h2>
+<p>In a single-arm study, 45 of 100 patients on a statin had their LDL lowered by at least 20% at 12 months, so p-hat = 0.45. The standard error is sqrt(0.45 x 0.55 / 100) = 0.0497, giving a 95% CI of 0.45 +/- 1.96 x 0.0497, that is 0.353 to 0.548 (35% to 55%). The correct reading: across many repetitions of this 100-patient study, 95% of the intervals computed this way would cover the true proportion of patients who respond. It is <em>not</em> correct to say &quot;there is a 95% probability that the true response rate is between 35% and 55%&quot;; the frequentist 95% attaches to the long-run performance of the procedure, not to this particular realised interval.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>&quot;There is a 95% probability the parameter is in this interval.&quot;</strong> Under the frequentist reading the interval is fixed once observed and the parameter is fixed; the 95% refers to repeated sampling, not to this interval.</li>
+<li><strong>Equating &quot;the CI crosses the null&quot; with &quot;equivalence.&quot;</strong> A wide interval that includes both clinically beneficial and harmful values is evidence of imprecision, not of harmlessness. Declaring equivalence requires a formal equivalence or non-inferiority design with prespecified margins.</li>
+<li><strong>Using the CI only as a disguised p-value.</strong> The interval also conveys the range of clinically plausible effects; if it spans values that would change management, the study is too imprecise to be decisive whatever the p-value says.</li>
+<li><strong>Taking a narrow CI as proof of accuracy.</strong> Width reflects sample size and variability, not freedom from bias.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott-Raven.</li>
+<li>The topic map&#39;s &quot;Statistical inference&quot; section develops estimation and uncertainty in detail (article planned).</li>
+</ul>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

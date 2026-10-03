@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="The p-value is the probability of data at least this extreme under the null hypothesis, compared with a prespecified threshold alpha to decide whether to reject it." />
+    <title>P-values and significance levels · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Hypothesis testing <span class="sep">/</span> <strong style="color:#273e3b">P-values and significance levels</strong></div>
+        <h1 class="article-title">P-values and significance levels</h1>
+        <p class="article-summary">The p-value is the probability of data at least this extreme under the null hypothesis, compared with a prespecified threshold alpha to decide whether to reject it.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>The <strong>p-value</strong> is the probability, assuming the null hypothesis is true, of obtaining a test statistic at least as extreme as the one actually observed. It measures incompatibility between the data and the null: a small p means that, if the null were true, data this extreme would be unusual.</p>
+<p>The <strong>significance level (alpha)</strong> - conventionally 0.05, and often 0.025 one-sided in confirmatory trials - is the threshold chosen before the data are examined. If p is at most alpha, the null is rejected; otherwise it is not rejected. For a two-sided test the level is split across both tails, so the p-value is twice the one-tail probability for a symmetric test statistic.</p>
+<p>The p-value is a property of the data under the null, not a probability about hypotheses: it is not P(H0 is true | data), and it is not the probability that the observed effect is &quot;real&quot;.</p>
+<p>A useful way to build intuition for what a p-value does and does not say is to fix the true state of the world and ask what p-values the procedure would produce. If the null is exactly true, a p-value at or below 0.05 appears in exactly 5% of repetitions. If the null is false and the effect is large, p-values concentrate far below 0.05. If the null is false but the effect is tiny, p-values scatter around and above the threshold and the test will often &quot;fail&quot;. The p-value of your one study is a single draw from whichever of these distributions applies - and without knowing the true effect and the power of the design, you cannot say which draw you have.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Role of the p-value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Confirmatory trial, prespecified primary endpoint</td>
+<td>Decision rule at a prespecified alpha, often one-sided 0.025</td>
+</tr>
+<tr>
+<td>Trial secondary and exploratory endpoints</td>
+<td>Descriptive only; interpret cautiously with multiplicity in mind</td>
+</tr>
+<tr>
+<td>Observational study</td>
+<td>Screening for associations worth investigating, not proof of causation</td>
+</tr>
+<tr>
+<td>Meta-analysis</td>
+<td>Combining study-level evidence on a common scale</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li>The p-value is valid only under the test&#39;s conditions: correct randomisation or error model, independent observations, and the prespecified analysis. Optional stopping, switching endpoints, or subgroup fishing makes the nominal p-value too small.</li>
+<li>The p-value depends heavily on sample size: with a very large n a trivially small effect becomes &quot;significant&quot;, and with a small n a clinically large effect may not reach significance. The p-value says nothing about the magnitude of the effect.</li>
+<li>The 0.05 threshold is a convention, not a boundary of evidence: p = 0.051 and p = 0.049 are almost indistinguishable in strength of evidence but are treated categorically differently.</li>
+<li>The p-value is computed as if the null were exactly true; in practice it is only approximately true, which matters most when interpreting borderline values.</li>
+</ul>
+<h2>Worked example</h2>
+<p>A trial randomises 80 patients per arm to an antihypertensive or to placebo. Over six months, systolic blood pressure falls 4.2 mmHg more in the treatment arm, with a standard error of the difference of 2.0 mmHg. The test statistic is z = 4.2 / 2.0 = 2.10, giving a two-sided p-value of about 0.036. Because 0.036 is below 0.05, the null hypothesis of no difference is rejected. The correct reading is: if the drug truly had no effect, a difference of 4.2 mmHg or more would occur in about 3.6% of similarly sized trials - not &quot;there is a 96.4% probability the drug works&quot;. The 95% CI for the difference, 4.2 +/- 1.96 x 2.0, that is 0.3 to 8.1 mmHg, should be reported alongside, because it shows the range of clinically plausible effects rather than a pass/fail verdict at 0.05.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>&quot;The p-value is the probability that the null is true.&quot;</strong> It is P(data this extreme | H0 true), computed with the null assumed; reversing the conditioning gives a different (Bayesian) quantity.</li>
+<li><strong>&quot;p = 0.03 means a 3% chance the result is due to chance.&quot;</strong> The p-value is the tail probability of the test statistic under H0, not a probability that randomness produced the study.</li>
+<li><strong>Dichotomising at 0.05.</strong> &quot;Significant&quot; and &quot;not significant&quot; are administrative labels, not a categorical difference in evidence; report the p-value and the effect size with its CI.</li>
+<li><strong>P-hacking.</strong> Optional stopping, selective outcome reporting, and subgroup fishing all push p-values down and invalidate the nominal alpha.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott-Raven.</li>
+<li>The topic map&#39;s &quot;Statistical inference&quot; section develops hypothesis testing in detail (article planned).</li>
+</ul>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

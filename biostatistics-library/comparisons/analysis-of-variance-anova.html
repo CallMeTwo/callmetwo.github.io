@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Comparing the means of three or more groups with a single F-test, then locating which pairs differ." />
+    <title>Analysis of variance (ANOVA) · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Comparing groups <span class="sep">/</span> Numerical outcomes <span class="sep">/</span> <strong style="color:#273e3b">Analysis of variance (ANOVA)</strong></div>
+        <h1 class="article-title">Analysis of variance (ANOVA)</h1>
+        <p class="article-summary">Comparing the means of three or more groups with a single F-test, then locating which pairs differ.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>When you want to compare the means of three or more groups, a string of
+pairwise t-tests inflates the type I error rate (three comparisons at 5% each
+give about a 14% chance of at least one false positive). One-way analysis of
+variance (ANOVA) makes a single omnibus test of whether all group means are
+equal by partitioning the total variation into two components:</p>
+<ul>
+<li><strong>Between-group variation</strong> — how far each group mean lies from the overall
+mean, summarised by MS_between = SSB / (k − 1).</li>
+<li><strong>Within-group variation</strong> — the scatter of individuals around their group
+mean, summarised by MS_within = SSW / (N − k).</li>
+</ul>
+<p>Under the null hypothesis that all k group means are equal, the ratio
+F = MS_between / MS_within follows an F distribution with (k − 1, N − k)
+degrees of freedom. A large F means the group means are more spread out than
+can be explained by the within-group scatter alone. If the omnibus test is
+significant, a post-hoc procedure (e.g. Tukey&#39;s HSD) identifies which pairs
+of groups differ while controlling the family-wise error rate.</p>
+<p>ANOVA is not a different kind of question from the t-test: for exactly two
+groups it is algebraically equivalent (F = t²). It extends the same logic to
+k groups, and to two-way designs (e.g. treatment × sex) that add main effects
+and an interaction term.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Multi-arm clinical trial</td>
+<td>Do three glucose-lowering strategies produce different HbA1c at 12 months?</td>
+</tr>
+<tr>
+<td>Dose-response study</td>
+<td>Does the outcome differ across four dose levels of the same drug?</td>
+</tr>
+<tr>
+<td>Two-way design</td>
+<td>Do readmission rates differ by hospital and by patient age group, and do they interact?</td>
+</tr>
+<tr>
+<td>Quality improvement</td>
+<td>Are length-of-stay distributions equivalent across four surgical units?</td>
+</tr>
+</tbody></table>
+<p>Use one-way ANOVA for one factor with three or more independent groups. Use
+two-way ANOVA when you want to model two factors and their interaction
+simultaneously. For non-normal or ordinal outcomes use the Kruskal–Wallis
+test instead; for repeated measurements within subjects use
+repeated-measures ANOVA.</p>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Independence</strong> — each subject contributes exactly one observation.
+Repeated measures, matched groups, or clustering violate this and need
+repeated-measures ANOVA, mixed models, or cluster-robust methods.</li>
+<li><strong>Approximate normality within groups</strong> — the F-test is reasonably robust
+for moderate sample sizes; with small or heavily skewed groups, extreme
+outliers can distort the result. Check group boxplots or Q–Q plots.</li>
+<li><strong>Homogeneity of variances</strong> — the groups should have similar variances.
+With roughly equal group sizes the F-test tolerates mild
+heteroscedasticity; with very unequal n and unequal variances, Welch&#39;s
+ANOVA is the safer default. Levene&#39;s test screens for variance
+differences.</li>
+<li><strong>Fixed vs random effects</strong> — the classical one-way ANOVA treats group
+membership as fixed (you care about exactly these k groups). If the groups
+are a random sample from a larger population, a random-effects model
+changes both the hypothesis and the test.</li>
+</ul>
+<p>The test tells you only that <em>some</em> means differ, not which ones or by how
+much — plan your post-hoc comparisons before looking at the data.</p>
+<h2>Worked example</h2>
+<p>A 12-month trial randomised 30 type 2 diabetes patients to three
+glucose-lowering strategies (n = 10 per arm). Mean HbA1c at 12 months was
+7.0% (standard care), 6.5% (drug A) and 6.0% (drug B), with each group&#39;s SD
+about 0.7.</p>
+<ul>
+<li>SSB = 10[(7.0 − 6.5)² + (6.5 − 6.5)² + (6.0 − 6.5)²] = 5.0, so
+MS_between = 5.0 / 2 = 2.5</li>
+<li>SSW = 27 × 0.7² = 13.23, so MS_within = 13.23 / 27 = 0.49</li>
+<li>F(2, 27) = 2.5 / 0.49 = 5.1, p ≈ 0.013</li>
+</ul>
+<p>The three strategies do not all give the same mean HbA1c. Tukey&#39;s HSD (with
+a critical difference of about 0.78%) separates standard care from drug B
+(1.0% apart, significant) but not the other pairs: drug A and drug B (0.5%
+apart) are not distinguishable at this sample size. Report all three group
+means with 95% CIs, not just the F statistic.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>A significant ANOVA is not the end of the analysis.</strong> It only says at
+least one mean differs; without post-hoc comparisons you cannot say which.</li>
+<li><strong>Do not &quot;test down&quot; with unadjusted pairwise t-tests.</strong> Running all
+pairwise t-tests after a significant ANOVA inflates the type I error; use
+Tukey, Dunnett (versus a single control), or pre-planned contrasts.</li>
+<li><strong>Unequal group sizes are a risk factor.</strong> Very unequal n combined with
+unequal variances can make the F-test anti-conservative or
+over-conservative — check Levene&#39;s test and consider Welch&#39;s ANOVA.</li>
+<li><strong>ANOVA compares means, not variances.</strong> If the groups differ mainly in
+spread rather than location, the F-test can mislead; inspect the
+distributions before interpreting.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Chow S, Lu J, Jehessel M. <em>Design and Analysis of Clinical Trials</em>. Wiley.</li>
+<li>Bland J, Altman D. <em>Statistics with Confidence</em>. BMJ Books.</li>
+<li>The topic map&#39;s &quot;Multiple testing&quot; section develops post-hoc correction
+in detail (article planned).</li>
+</ul>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

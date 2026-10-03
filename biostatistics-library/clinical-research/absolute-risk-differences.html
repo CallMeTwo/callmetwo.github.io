@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="The simple difference in event risk between two groups — the effect size most directly tied to clinical decisions." />
+    <title>Absolute risk differences · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Clinical research &amp; evidence <span class="sep">/</span> Risk and diagnostic accuracy <span class="sep">/</span> <strong style="color:#273e3b">Absolute risk differences</strong></div>
+        <h1 class="article-title">Absolute risk differences</h1>
+        <p class="article-summary">The simple difference in event risk between two groups — the effect size most directly tied to clinical decisions.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>The <strong>absolute risk difference</strong> (ARD, or risk difference) is the arithmetic difference between two risks: ARD = risk(group 1) − risk(group 2). Unlike a ratio, it incorporates the baseline risk, so it answers the patient&#39;s real question — &quot;how much better (or worse) will I actually do?&quot; — and it is the quantity from which the number needed to treat (NNT = 1/absolute risk reduction) and number needed to harm are computed.</p>
+<p>The two measures are linked by RR = 1 + ARD / baseline risk, so they diverge systematically: the same relative effect produces a small ARD on a low baseline risk and a large one on a high baseline risk. Trials and guidelines therefore report both — the relative measure for consistency across populations, the absolute measure for decision-making.</p>
+<p>A worked pair makes the link concrete. The same drug, RR = 0.75, applied to two populations:</p>
+<table>
+<thead>
+<tr>
+<th>Population</th>
+<th>Baseline risk</th>
+<th>Treated risk</th>
+<th>ARD</th>
+<th>NNT</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>High-risk (age 70+, prior MI)</td>
+<td>20%</td>
+<td>15%</td>
+<td>5%</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Low-risk (age 50, no comorbidity)</td>
+<td>4%</td>
+<td>3%</td>
+<td>1%</td>
+<td>100</td>
+</tr>
+</tbody></table>
+<p>One relative effect, two very different absolute effects — the reason NNT is quoted alongside a trial&#39;s relative risk.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Trial of a new antihypertensive</td>
+<td>How many patients per 1,000 avoid a stroke over 10 years compared with standard therapy?</td>
+</tr>
+<tr>
+<td>Screening programme</td>
+<td>How many breast cancer deaths are averted per 10,000 women screened over 10 years?</td>
+</tr>
+<tr>
+<td>Safety monitoring (NNH)</td>
+<td>How many patient-years of a drug are needed to cause one case of drug-induced liver injury?</td>
+</tr>
+<tr>
+<td>Public health policy</td>
+<td>What is the population-level impact of a 5% relative risk reduction for a rare disease?</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Same time horizon and outcome definition</strong> — the risks must be cumulative incidences over an identical follow-up in both groups; comparing a 5-year risk with a 10-year risk is meaningless.</li>
+<li><strong>Cell counts for the interval</strong> — the normal-approximation CI uses SE = sqrt(p1(1−p1)/n1 + p2(1−p2)/n2); with few events, exact (e.g. Newcombe) intervals are more reliable.</li>
+<li><strong>Population-specific</strong> — the same drug can have different ARDs in different populations even if its RR is constant, so the NNT from a trial is only a guide for your own patient.</li>
+<li><strong>Statistical ≠ clinical</strong> — on a very low baseline risk the ARD may be statistically significant yet clinically trivial; the reverse pattern (impressive ARD, wide CI crossing zero) is common in small trials.</li>
+</ul>
+<h2>Worked example</h2>
+<p>Consider 10-year follow-up in 10,000 women aged 50–69 per arm of a mammography screening trial: 100 breast cancer deaths among screened women versus 120 among unscreened controls.</p>
+<ul>
+<li>Absolute risk reduction = 120/10,000 − 100/10,000 = <strong>0.2 percentage points</strong>.</li>
+<li>Relative risk = 0.010 / 0.012 = <strong>0.83</strong> — a 17% relative reduction, which sounds much larger than the 0.2-point absolute reduction.</li>
+<li>95% CI: SE = sqrt(0.012 × 0.988/10,000 + 0.010 × 0.990/10,000) = 0.0015, so CI = 0.002 ± 1.96 × 0.0015 → roughly <strong>−0.1% to +0.5%</strong>, crossing zero.</li>
+<li>NNT = 1/0.002 = <strong>500</strong>: 500 women need 10 years of screening to avert one breast cancer death.</li>
+</ul>
+<p>Interpretation: the relative framing (17% reduction) and the absolute framing (0.2 points, about one death averted per 500 women screened) describe the same trial; the interval crossing zero means the reduction is not statistically conclusive at 5%, which is exactly the tension at the heart of real screening debates. For contrast: antibiotics versus placebo for sore throat resolve by day 6 in 74% versus 62% — the same modest relative effect (RR ≈ 1.19) is a large 12-point absolute difference because the baseline risk is high (NNT = 8).</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li>Reporting only the relative risk: &quot;17% reduction&quot; sounds striking, while 0.2 percentage points is the number a patient can weigh against harms and costs.</li>
+<li>Misapplying NNT: it assumes your patient matches the trial population; NNT scales inversely with baseline risk, so it is much larger for a low-risk individual.</li>
+<li>Ignoring the confidence interval: an absolute risk reduction whose interval crosses zero does not support a claim of benefit (or harm) at the 5% level.</li>
+<li>Mixing ARD with incidence rates or different follow-up windows; the difference is only valid when both risks are cumulative over the same period.</li>
+<li>Reporting the ARD as a stable constant: it is an estimate with its own sampling variability, and small studies of rare outcomes give ARD intervals wide enough to span both harm and benefit.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Greenland S, Rothman KJ, Lachin JM. &quot;Measures of Occurrence and Effect.&quot; In Rothman KJ, Greenland S, Lash TL (eds), <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
+<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BNP Books.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>The library&#39;s &quot;Risk ratios and odds ratios&quot; article contrasts relative measures with these absolute ones.</li>
+</ul>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

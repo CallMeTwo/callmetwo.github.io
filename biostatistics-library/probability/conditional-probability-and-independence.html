@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Probability of one event given another, how to test independence from a two-way table, and why conditioning changes the risk you see." />
+    <title>Conditional probability and independence · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Probability essentials <span class="sep">/</span> <strong style="color:#273e3b">Conditional probability and independence</strong></div>
+        <h1 class="article-title">Conditional probability and independence</h1>
+        <p class="article-summary">Probability of one event given another, how to test independence from a two-way table, and why conditioning changes the risk you see.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>A <strong>conditional probability</strong> answers: <em>among those for whom B is known to be
+true, how likely is A?</em> Formally, P(A|B) = P(A and B) / P(B), defined for
+P(B) &gt; 0. The vertical bar is read &quot;given&quot;. Clinically, nearly every quoted risk
+is conditional: the risk of readmission <em>given</em> discharge on a new medication,
+the risk of infection <em>given</em> ICU stay.</p>
+<p>Two events are <strong>independent</strong> when knowing B changes nothing about the chance of
+A: P(A|B) = P(A), equivalently P(A and B) = P(A)P(B). Independence is a statement
+about a population; in a two-way (2×2) table you check it by comparing a
+conditional probability with its marginal counterpart. If they differ, A and B
+are associated — and that association is what most epidemiologic studies try to
+quantify.</p>
+<h2>When to use it</h2>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Subgroup risk</td>
+<td>Is the 30-day mortality risk the same in patients over 80 as in those under?</td>
+</tr>
+<tr>
+<td>Screening follow-up</td>
+<td>Given a positive test, what is the chance of true disease? (prevents the base-rate error)</td>
+</tr>
+<tr>
+<td>Association in a 2×2 table</td>
+<td>Does vaccination status change the probability of infection?</td>
+</tr>
+<tr>
+<td>Stratified analysis</td>
+<td>Within each stratum, is the exposure associated with the outcome? (see Simpson&#39;s paradox)</td>
+</tr>
+</tbody></table>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>Conditioning changes the reference population.</strong> P(readmission) and
+P(readmission | treated) are risks in different groups; comparing them is only
+meaningful if both are estimated from the same underlying population.</li>
+<li><strong>Conditional independence ≠ marginal independence.</strong> Two variables can be
+independent overall yet dependent within strata, or vice versa (Simpson&#39;s
+paradox), usually because of a common cause (confounder).</li>
+<li>Independence is a <em>model assumption</em>, not something data can prove — only
+disprove. In observational studies it is typically unverifiable (e.g.
+treatment assignment being independent of prognosis without randomisation).</li>
+<li>Very small conditioning sets (e.g. &quot;given the patient is a 97-year-old smoker
+with CKD stage 4&quot;) make estimates unstable even when mathematically valid.</li>
+</ul>
+<h2>Worked example</h2>
+<p>A hospital tracked readmission within 30 days. Of 400 discharged patients on a
+pharmacist follow-up programme, 120 were readmitted; of 1000 patients without it,
+180 were readmitted.</p>
+<ul>
+<li>P(readmitted | programme) = 120/400 = 0.30</li>
+<li>P(readmitted | no programme) = 180/1000 = 0.18</li>
+<li>P(readmitted) overall = 300/1400 ≈ 0.214</li>
+</ul>
+<p>Because P(readmitted | programme) = 0.30 ≠ 0.214 = P(readmitted), readmission and
+programme participation are <strong>not independent</strong> in this data. A more meaningful
+comparison is the two conditional risks: programme participants had a higher
+readmission rate (30% vs 18%). That is exactly the kind of pattern that prompts
+looking for confounding — if participants were sicker at baseline, the
+association may not reflect the programme itself.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li><strong>Base-rate neglect</strong> — P(disease | positive test) can be far below the test&#39;s
+sensitivity when disease is rare; the prior probability matters as much as the
+test.</li>
+<li><strong>Confusing independence with mutual exclusivity</strong> — mutually exclusive events
+are maximally <em>dependent</em> (one occurring rules the other out); independent
+events can co-occur freely.</li>
+<li><strong>Marginal vs conditional association</strong> — declaring &quot;no association&quot; from the
+overall table can be wrong when a confounder differs between groups; always
+check stratum-specific conditional probabilities.</li>
+<li><strong>Direction of conditioning</strong> — P(A|B) and P(B|A) are generally different;
+writing the wrong one reverses the whole interpretation.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</li>
+</ul>
+<p><em>The &quot;Bayes&#39; theorem&quot; article in this library shows how conditioning updates
+beliefs with test results (article planned).</em></p>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

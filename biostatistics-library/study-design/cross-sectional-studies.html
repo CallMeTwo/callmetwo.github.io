@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A design that measures exposure and outcome simultaneously, producing a snapshot of disease and risk-factor prevalence in a population." />
+    <title>Cross-sectional studies · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-body p{margin:0 0 16px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="sidebar" aria-label="Library navigation">
+  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="nav-label">CONTENTS</div>
+  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
+  <nav aria-label="Topic sections" class="section-nav">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>10</span>Statistical practice</a>
+  </nav>
+  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Designing a study <span class="sep">/</span> <strong style="color:#273e3b">Cross-sectional studies</strong></div>
+        <h1 class="article-title">Cross-sectional studies</h1>
+        <p class="article-summary">A design that measures exposure and outcome simultaneously, producing a snapshot of disease and risk-factor prevalence in a population.</p>
+        <article class="article-body">
+          <h2>Overview and key ideas</h2>
+<p>A cross-sectional (prevalence) study measures both the exposure of interest and the outcome in each individual at a single point in time — or over a short, well-defined window. Unlike cohort or case-control designs, it does not follow people forward in time: it photographs the population, and each person contributes exactly one exposure–outcome pair. The central quantity is the <strong>prevalence</strong> of the outcome in the population, and among people with the outcome, the <strong>cross-sectional odds ratio</strong> (or prevalence ratio) comparing exposure between those with and without the outcome.</p>
+<p>Because the same sample supplies both denominators, a cross-sectional survey is usually the cheapest design for questions of the form &quot;how common is this, and who has it?&quot;</p>
+<p>Prevalence and association are summarised on different scales: the disease itself is described by a proportion (the prevalence), while exposure is compared between diseased and non-diseased people, giving a cross-sectional odds ratio — or, with the log-binomial model, a prevalence ratio. The choice matters for interpretation: an odds ratio of 2 for a common outcome looks striking but corresponds to a much smaller prevalence ratio.</p>
+<h2>When to use it</h2>
+<p>Cross-sectional designs fit questions about the burden of disease at one point in time, not about temporal causality.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example question</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>National or local health surveys</td>
+<td>What proportion of adults in this district meet the case definition of undiagnosed hypertension?</td>
+</tr>
+<tr>
+<td>Occupational and service planning</td>
+<td>How prevalent is low back pain among nurses in this hospital, and how is it associated with years worked?</td>
+</tr>
+<tr>
+<td>Screening evaluation</td>
+<td>What is the prevalence of diabetic retinopathy in this clinic&#39;s diabetic population, and is it associated with HbA1c?</td>
+</tr>
+<tr>
+<td>Public health surveillance</td>
+<td>What proportion of adolescents reports less than the recommended physical activity, by socioeconomic stratum?</td>
+</tr>
+</tbody></table>
+<p>Cross-sectional data also supply prior probabilities for diagnostic-accuracy studies and baseline characteristics for later cohort work.</p>
+<h2>Assumptions and limitations</h2>
+<ul>
+<li><strong>No temporal ordering.</strong> Exposure and outcome are measured together, so the design cannot establish which came first: a survey of smoking and depression cannot distinguish whether smoking causes depression or depressed people start smoking.</li>
+<li><strong>Prevalence, not incidence.</strong> Prevalence reflects both new-onset incidence and duration; a fast-fatal or fast-resolving disease looks rare even with high incidence.</li>
+<li><strong>Prevalent-case (Neyman) bias.</strong> Only people who survived and remain in the survey population are counted, so long-surviving or chronic cases are over-represented.</li>
+<li><strong>Prevalence–incidence–duration relation.</strong> Prevalence ≈ incidence × average duration of disease; a cross-sectional estimate therefore conflates three quantities, and comparing prevalence across populations with different survival or remission patterns can mislead.</li>
+<li><strong>New cases are missed.</strong> Cases arising after the measurement window are not captured, so cross-sectional data cannot support statements about incident disease.</li>
+<li><strong>Small-cell approximation.</strong> Confidence intervals for proportions rely on the normal approximation; with fewer than about 5 expected events the interval is unreliable and an exact (Clopper–Pearson) method should be used instead.</li>
+<li>All estimates assume the sample is representative of the target population; a low response rate or convenience sample invalidates the prevalence estimate (see the library&#39;s sampling article).</li>
+</ul>
+<h2>Worked example</h2>
+<p>A health screening examined 1,200 adults aged 40–75 in one city district. Ninety-six of them had diabetes. Among the 96 diabetics, 41 reported regular physical activity; among the 1,104 non-diabetics, 512 did.</p>
+<ul>
+<li>Diabetes prevalence = 96 / 1,200 = 8.0% (95% CI by the normal approximation for a proportion: 6.6%–9.7%).</li>
+<li>Cross-sectional odds ratio for diabetes, regular vs irregular activity = (41 × 592) / (55 × 512) ≈ 0.86 (95% CI ≈ 0.59–1.26).</li>
+</ul>
+<p>The point estimate is near 1 and the interval includes 1, so regular activity shows no detectable cross-sectional association with diabetes in this survey — and the design cannot say whether inactivity, if anything, preceded the diabetes, since both were measured on the same day.</p>
+<h2>Interpretation and common pitfalls</h2>
+<ul>
+<li>Reporting a cross-sectional odds ratio as if it were causal: because exposure and disease coexist, there is no evidence about which came first.</li>
+<li>Confusing prevalence with incidence: a 20% prevalence may mean many short-lived cases or a few long-lived ones; they have very different public-health meanings.</li>
+<li>Assuming non-responders are missing at random: people who refuse a health survey are often systematically different (worse health, different income), which can bias prevalence in either direction.</li>
+<li>Ignoring survey weights: in a two-stage cluster survey (as in most national health surveys), unweighted means are not population prevalences; weighted estimates and design-adjusted standard errors are required.</li>
+<li>Generalising a single-site snapshot: a one-time survey in one district says nothing about prevalence in another population with different age structure, healthcare access, or referral patterns.</li>
+</ul>
+<h2>References and further reading</h2>
+<ul>
+<li>Rothman K, Greenland S, Lash TL. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
+</ul>
+<p><em>The planned &quot;Sampling methods&quot; article in this library covers how a survey sample is turned into an unbiased population estimate.</em></p>
+
+        </article>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub ↗</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>
