@@ -88,6 +88,43 @@ export const sections: TopicSection[] = [
 export const topicCount = sections.reduce((total, section) =>
   total + section.groups.reduce((count, group) => count + group.topics.length, 0), 0)
 
+// Turn a topic title into a URL-safe slug, e.g.
+// 'What is biostatistics?' -> 'what-is-biostatistics'
+// 'Fisher’s exact test' -> 'fishers-exact-test'
+export function topicSlug(title: string): string {
+  return title
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/['\u2019\u2018]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+// Article location relative to the app root, e.g. 'foundations/what-is-biostatistics'
+export function articlePath(sectionId: string, title: string): string {
+  return `${sectionId}/${topicSlug(title)}`
+}
+
+// href from the topic index page to a published article page
+export function articleHref(sectionId: string, title: string): string {
+  return `${articlePath(sectionId, title)}.html`
+}
+
+export interface TopicLocation { section: TopicSection; group: TopicGroup; title: string }
+
+// Find the topic that owns a given slug (used by the article generator and tests).
+export function findTopicBySlug(slug: string): TopicLocation | null {
+  for (const section of sections) {
+    for (const group of section.groups) {
+      for (const title of group.topics) {
+        if (topicSlug(title) === slug) return { section, group, title }
+      }
+    }
+  }
+  return null
+}
+
 export function filterSections(query: string): TopicSection[] {
   const terms = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean)
   if (!terms.length) return sections

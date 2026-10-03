@@ -1,6 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import Navbar from '../../shared/Navbar'
-import { filterSections, sections, topicCount } from './topics'
+import { articleHref, articlePath, filterSections, sections, topicCount } from './topics'
+import publishedTopics from './published-topics.json'
+
+// Topics that have a markdown article in content/ — regenerated before every
+// build by scripts/list-published.mjs. Used to render real <a> links instead
+// of the "planned article" placeholder dialog.
+const published = new Set(
+  publishedTopics.map(({ sectionId, slug }) => `${articlePath(sectionId, slug)}`)
+)
+
+function hasArticle(sectionId: string, title: string): boolean {
+  return published.has(articlePath(sectionId, title))
+}
 
 interface ArticlePreview { title: string; section: string; group: string }
 
@@ -60,7 +72,7 @@ export default function App() {
           <div className="library-meta"><span><strong>{sections.length}</strong> subject areas</span><span><strong>{topicCount}</strong> planned articles</span><span>From foundations to practice</span></div>
         </header>
 
-        <div className="prototype-note"><span className="note-symbol" aria-hidden="true">i</span><p><strong>First look: the library’s structure.</strong> This is a draft topic map. Select any topic to preview the article layout; full content and references will come later.</p></div>
+        <div className="prototype-note"><span className="note-symbol" aria-hidden="true">i</span><p><strong>First look: the library’s structure.</strong> This is a draft topic map. Published articles open on their own page; the rest preview the article layout — full content and references will come later.</p></div>
 
         <section className="index-tools" aria-label="Find topics">
           <label className="search-label" htmlFor="topic-search">Find a topic</label>
@@ -78,7 +90,10 @@ export default function App() {
                 <span className="section-number">{String(number).padStart(2, '0')}</span><span className="section-title">{section.title}<span className="section-description">{section.description}</span></span><span className="article-count">{count} {count === 1 ? 'topic' : 'topics'}</span><span className={`chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span>
               </button></h3>
               <div id={`${section.id}-topics`} hidden={!isOpen}>
-                <div className="topic-groups">{section.groups.map(group => <div className="topic-group" key={group.title}><h4>{group.title}</h4><ul>{group.topics.map(topic => <li key={topic}><button className="topic-link" onClick={() => setArticle({ title: topic, section: section.title, group: group.title })}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></button></li>)}</ul></div>)}</div>
+                <div className="topic-groups">{section.groups.map(group => <div className="topic-group" key={group.title}><h4>{group.title}</h4><ul>{group.topics.map(topic => hasArticle(section.id, topic)
+                  ? <li key={topic}><a className="topic-link" href={articleHref(section.id, topic)}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></a></li>
+                  : <li key={topic}><button className="topic-link" onClick={() => setArticle({ title: topic, section: section.title, group: group.title })}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></button></li>
+                )}</ul></div>)}</div>
               </div>
             </section>
           })}

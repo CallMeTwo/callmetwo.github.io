@@ -7,6 +7,8 @@ yarn.lock
 packages/*/dist/
 build/
 *.tsbuildinfo
+# Generated manifest of published article topics (rebuilt by scripts/list-published.mjs)
+packages/biostatistics-library/src/published-topics.json
 
 # Development
 .DS_Store

@@ -93,7 +93,22 @@ App.tsx                    # Main workflow coordinator
 
 ---
 
-### 2. Clinical Calculator
+### 2. Biostatistics Library
+**URL:** https://callmetwo.github.io/biostatistics-library/
+**Purpose:** Wiki-style biostatistics topic map (10 sections, ~64 planned articles) with published articles as static pages.
+
+#### Article content pipeline (SSG)
+- **Source of truth for the taxonomy:** `packages/biostatistics-library/src/topics.ts` (sections → groups → topic titles).
+- **Article content:** one markdown file per topic at `packages/biostatistics-library/content/<section-id>/<slug>.md`. Slug = kebab-case of the topic title (apostrophes stripped), e.g. `foundations/what-is-biostatistics.md`. Format documented in `content/README.md`. Frontmatter: `title` (must match the topic title) and optional `summary`.
+- **Build** (`npm run build -w biostatistics-library`):
+  1. `scripts/list-published.mjs` → `src/published-topics.json` (gitignored; lists published slugs so the SPA knows which topics get real links).
+  2. `vite build` → SPA (topic map).
+  3. `scripts/build-articles.mjs` → renders each `.md` with `marked` into `dist/<section-id>/<slug>.html` (self-contained page: navbar + sidebar + article CSS). Bundles `topics.ts` with esbuild, so a `.md` file that doesn't match a topic title (or is in the wrong section folder) **fails the build**.
+- **Published topics** render as `<a href>` in the map (e.g. `biostatistics-library/foundations/what-is-biostatistics.html`); unpublished topics open the "Planned article" placeholder dialog.
+- **Tests:** `scripts/content.test.js` keeps content files and the topic map in sync (slug mapping, section placement, frontmatter titles).
+- **Adding an article:** drop a `.md` in `content/<section-id>/`, run `bash deploy.sh`, commit & push.
+
+### 3. Clinical Calculator
 **URL:** https://callmetwo.github.io/clinical-calculator/
 **Purpose:** Clinical model calculations (placeholder implementation)
 **Tech Stack:** React + Vite
@@ -101,7 +116,7 @@ App.tsx                    # Main workflow coordinator
 
 ---
 
-### 3. Shared Package
+### 4. Shared Package
 **Purpose:** Reusable utilities across apps
 **Exports:**
 - `Navbar` component with breadcrumbs
