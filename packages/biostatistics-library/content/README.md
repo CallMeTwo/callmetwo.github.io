@@ -24,6 +24,17 @@ card blurb).
 Standard markdown: headings, lists, tables, code blocks, math in `<p>` text.
 Use `##` for section headings (the title itself becomes the `<h1>`).
 
+### Links
+
+Markdown links are fully supported. During the build:
+
+- **External links** (`http`/`https`) open in a new tab and get a small ↗
+  marker.
+- **Internal links** to other articles work with relative paths, e.g.
+  `[Confidence intervals](../inference/confidence-intervals.html)`. Keep the
+  `.html` extension in internal links — the static page exists at exactly that
+  path.
+
 ## Adding an article
 
 1. Write `content/<section-id>/<slug>.md`

@@ -42,6 +42,17 @@ function escAttr(value) {
   return String(value ?? '').replace(/"/g, '&quot;')
 }
 
+// External (http/https) links open in a new tab and get a small arrow so
+// readers can tell where they'll land. Internal cross-article links (relative
+// hrefs) stay in the same tab, like a normal site.
+function decorateLinks(html) {
+  return html.replace(/<a href="([^"]*)">/g, (match, href) => {
+    const external = /^https?:\/\//.test(href)
+    if (!external) return match
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="ext-link">`
+  })
+}
+
 // Bundle topics.ts once and import it (keeps a single source of truth for the
 // taxonomy — the article generator and the React app share the same file).
 async function loadTopics() {
@@ -152,6 +163,9 @@ function articleCss() {
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
   .article-body p{margin:0 0 16px}
+  .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body a:hover{border-bottom-color:var(--teal)}
+  .article-body a.ext-link::after{content:'\\2197';font-size:11px;margin-left:2px}
   .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
   .article-body li{margin-bottom:7px}
   .article-body li::marker{color:#78a388}
@@ -243,7 +257,7 @@ async function main() {
       fail(`Frontmatter title "${data.title}" in ${rel} must match the topic title "${location.title}" exactly.`)
     }
     const summary = data.summary || ''
-    const bodyHtml = marked.parse(body)
+    const bodyHtml = decorateLinks(marked.parse(body))
 
     const breadcrumb = [
       `<a href="../">Biostatistics Library</a>`,

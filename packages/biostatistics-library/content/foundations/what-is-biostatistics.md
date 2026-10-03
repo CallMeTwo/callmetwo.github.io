@@ -5,11 +5,13 @@ summary: The branch of statistics applied to biological and medical research —
 
 ## Overview and key ideas
 
-Biostatistics (or biometry) is the application of statistical methods to
-biology, medicine and public health. Where general statistics develops the
-mathematics of inference, biostatistics focuses on the practical problems of
-real research: how to design a study, how to summarise what was measured, how
-to quantify uncertainty, and how to report findings honestly.
+[Biostatistics](https://en.wikipedia.org/wiki/Biostatistics) (also
+[biometry](https://en.wikipedia.org/wiki/Biometry)) is the application of
+statistical methods to biology, medicine and public health. Where general
+statistics develops the mathematics of inference, biostatistics focuses on
+the practical problems of real research: how to design a study, how to
+summarise what was measured, how to quantify uncertainty, and how to report
+findings honestly.
 
 A biostatistician works at every stage of a study:
 
@@ -66,5 +68,6 @@ clinical importance.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
   and Other Advanced Topics*. Brooks/Cole.
-- The topic map's *Statistical inference* section develops hypothesis testing
-  in detail (article planned).
+- See also: the [Confidence intervals](../inference/confidence-intervals.html)
+  article in the *Statistical inference* section, and the
+  [Biostatistics entry on Wikipedia](https://en.wikipedia.org/wiki/Biostatistics).
