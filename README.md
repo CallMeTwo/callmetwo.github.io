@@ -6,6 +6,15 @@ A monorepo hosting multiple web applications on GitHub Pages, with automatic CI/
 
 ## 📱 Applications
 
+### 📚 Biostatistics Library
+- **URL**: https://callmetwo.github.io/biostatistics-library/
+- **Description**: Wiki-style topic index with 10 subject areas, nested subtopics, search, and placeholder article previews.
+- **Status**: First-page prototype; article content and references are planned.
+- **Development**: `npm run dev -w biostatistics-library`
+- **Build**: `npm run build -w biostatistics-library`
+- **Deployment**: Copy `packages/biostatistics-library/dist/` into `biostatistics-library/` (also included in `deploy.sh`).
+- **Edit the topic hierarchy**: `packages/biostatistics-library/src/topics.ts`
+
 ### 📊 Data Analyzer
 - **URL**: https://callmetwo.github.io/data-analyzer/
 - **Description**: Data exploration, visualization, and analysis tools
