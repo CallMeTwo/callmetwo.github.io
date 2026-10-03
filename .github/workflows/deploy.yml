@@ -43,6 +43,9 @@ jobs:
       - name: Copy clinical-calculator build
         run: cp -r packages/clinical-calculator/dist dist/clinical-calculator
 
+      - name: Copy biostatistics-library build
+        run: cp -r packages/biostatistics-library/dist dist/biostatistics-library
+
       - name: Create index page
         run: |
           cat > dist/index.html << 'EOF'
@@ -117,6 +120,11 @@ jobs:
               <p style="text-align: center; color: #666;">Access all your web applications</p>
 
               <div class="projects">
+                <a href="/biostatistics-library/" class="project-card">
+                  <h2>📚 Biostatistics Library</h2>
+                  <p>Explore a wiki-style topic map, from statistical foundations to applied research methods.</p>
+                  <span class="link">Browse the library →</span>
+                </a>
                 <a href="/data-analyzer/" class="project-card">
                   <h2>📊 Data Analyzer</h2>
                   <p>Upload and analyze your data with interactive visualizations and statistical insights.</p>
@@ -141,6 +149,8 @@ jobs:
           mkdir -p data-analyzer clinical-calculator
           cp -r packages/data-analyzer/dist/* data-analyzer/
           cp -r packages/clinical-calculator/dist/* clinical-calculator/
+          mkdir -p biostatistics-library
+          cp -r packages/biostatistics-library/dist/* biostatistics-library/
           ls -la
 
       - name: Deploy to main branch
@@ -150,6 +160,7 @@ jobs:
           echo "✓ Build artifacts prepared:"
           echo "  - clinical-calculator/ (ready to deploy)"
           echo "  - data-analyzer/ (ready to deploy)"
+          echo "  - biostatistics-library/ (ready to deploy)"
           echo ""
           echo "To deploy:"
           echo "  npm run build"

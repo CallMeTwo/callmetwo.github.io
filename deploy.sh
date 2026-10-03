@@ -20,6 +20,8 @@ echo ""
 echo "📂 Copying build artifacts to deployment directories..."
 cp -r packages/clinical-calculator/dist/* clinical-calculator/
 cp -r packages/data-analyzer/dist/* data-analyzer/
+mkdir -p biostatistics-library
+cp -r packages/biostatistics-library/dist/* biostatistics-library/
 
 echo "✅ Build artifacts copied"
 echo ""
