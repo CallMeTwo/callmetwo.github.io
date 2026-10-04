@@ -5,14 +5,17 @@
   const colors = ['yellow', 'blue', 'pink']
   const highlightNames = Object.fromEntries(colors.map(color => [color, `reader-highlight-${color}`]))
   const storageKey = `biostatistics-library:highlights:v1:${location.pathname}`
+  const quickModeKey = 'biostatistics-library:quick-highlight:v1'
   const statusId = 'article-highlight-status'
   let highlights = readHighlights()
+  let quickMode = readQuickMode()
   let pending = null
   let selectionTimer = null
+  let pointerDown = false
 
   const controls = document.createElement('div')
   controls.className = 'article-highlight-controls'
-  controls.innerHTML = `<span id="${statusId}" aria-live="polite"></span><button type="button" data-clear-highlights>Clear highlights</button>`
+  controls.innerHTML = `<span id="${statusId}" aria-live="polite"></span><button type="button" data-quick-highlight aria-pressed="false">Quick highlight: Off</button><button type="button" data-clear-highlights>Clear highlights</button>`
   const toc = document.querySelector('.article-toc')
   if (toc) toc.insertAdjacentElement('afterend', controls)
 
@@ -30,6 +33,14 @@
       return Array.isArray(value) ? value.filter(item => item && typeof item.quote === 'string' && colors.includes(item.color)) : []
     } catch {
       return []
+    }
+  }
+
+  function readQuickMode() {
+    try {
+      return localStorage.getItem(quickModeKey) === 'true'
+    } catch {
+      return false
     }
   }
 
@@ -143,6 +154,9 @@
       ? `${highlights.length} highlight${highlights.length === 1 ? '' : 's'} saved on this device.`
       : 'Select text to highlight. Highlights are saved on this device.'
     controls.querySelector('[data-clear-highlights]').disabled = highlights.length === 0
+    const quickButton = controls.querySelector('[data-quick-highlight]')
+    quickButton.textContent = `Quick highlight: ${quickMode ? 'On' : 'Off'}`
+    quickButton.setAttribute('aria-pressed', String(quickMode))
   }
 
   function makeAnchor(range) {
@@ -178,6 +192,15 @@
     const anchor = makeAnchor(range)
     if (anchor.quote.length < 2 || anchor.quote.length > 2000) return hideToolbar()
     pending = { range: range.cloneRange(), anchor }
+    if (quickMode) {
+      const existingIndex = findExisting(anchor)
+      if (existingIndex === -1) highlights.push({ ...anchor, color: 'yellow' })
+      else highlights.splice(existingIndex, 1)
+      if (saveHighlights()) renderHighlights()
+      selection.removeAllRanges()
+      hideToolbar()
+      return
+    }
     toolbar.querySelector('[data-remove-highlight]').hidden = findExisting(anchor) === -1
     toolbar.hidden = false
   }
@@ -205,10 +228,33 @@
     renderHighlights()
   })
 
+  controls.querySelector('[data-quick-highlight]').addEventListener('click', () => {
+    quickMode = !quickMode
+    try {
+      localStorage.setItem(quickModeKey, String(quickMode))
+    } catch {
+      status.textContent = 'Could not save this preference in the browser.'
+    }
+    renderHighlights()
+    if (quickMode) hideToolbar()
+  })
+
   document.addEventListener('selectionchange', () => {
     clearTimeout(selectionTimer)
-    selectionTimer = setTimeout(updateToolbar, 140)
+    selectionTimer = setTimeout(() => {
+      if (!quickMode || !pointerDown) updateToolbar()
+    }, 140)
   })
+
+  document.addEventListener('pointerdown', () => { pointerDown = true }, true)
+  document.addEventListener('pointerup', () => {
+    pointerDown = false
+    if (quickMode) {
+      clearTimeout(selectionTimer)
+      selectionTimer = setTimeout(updateToolbar, 80)
+    }
+  }, true)
+  document.addEventListener('pointercancel', () => { pointerDown = false }, true)
 
   renderHighlights()
 })()
