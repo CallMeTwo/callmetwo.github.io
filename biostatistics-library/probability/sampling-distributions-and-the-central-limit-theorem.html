@@ -58,8 +58,17 @@
   .article-highlight-controls{max-width:72ch;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin:-16px 0 24px;color:var(--muted);font-size:12px}
   .article-highlight-controls button{border:1px solid var(--line);border-radius:5px;background:#fff;color:#34594c;padding:6px 10px;font:inherit;cursor:pointer}
   .article-highlight-controls button[data-quick-highlight][aria-pressed="true"]{background:#fff2b8;border-color:#d7b844;color:#453a12}
-  .article-highlight-controls select[data-quick-color]{border:1px solid var(--line);border-radius:5px;background:#fff;color:#34594c;padding:6px 9px;font:inherit}
-  .article-highlight-controls select[hidden]{display:none}
+  .article-highlight-controls [data-quick-color-group]{display:flex;align-items:center;gap:5px;margin:0;padding:0;border:0}
+  .article-highlight-controls [data-quick-color-group][hidden]{display:none}
+  .article-highlight-controls [data-quick-color-group] legend{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .article-highlight-controls .quick-color-option{display:inline-flex;cursor:pointer}
+  .article-highlight-controls .quick-color-option input{position:absolute;opacity:0;width:1px;height:1px}
+  .article-highlight-controls .quick-color-option span{width:23px;height:23px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #9ba9a1;box-sizing:border-box}
+  .article-highlight-controls .quick-color-yellow span{background:#ffe58a}
+  .article-highlight-controls .quick-color-blue span{background:#b9e1ff}
+  .article-highlight-controls .quick-color-pink span{background:#ffc8dc}
+  .article-highlight-controls .quick-color-option input:checked+span{box-shadow:0 0 0 2px #34594c}
+  .article-highlight-controls .quick-color-option input:focus-visible+span{outline:2px solid #34594c;outline-offset:3px}
   .article-highlight-controls button:disabled{display:none}
   .article-highlight-toolbar{position:fixed;z-index:3000;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:7px;max-width:calc(100vw - 20px);padding:9px 11px;border:1px solid #cbd6ce;border-radius:12px;background:#fff;color:#203f37;box-shadow:0 5px 24px rgba(20,40,32,.2);font:13px system-ui,sans-serif}
   .article-highlight-toolbar[hidden]{display:none}

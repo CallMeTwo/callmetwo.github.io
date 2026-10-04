@@ -18,7 +18,7 @@
 
   const controls = document.createElement('div')
   controls.className = 'article-highlight-controls'
-  controls.innerHTML = `<span id="${statusId}" aria-live="polite"></span><button type="button" data-quick-highlight aria-pressed="false">Quick highlight: Off</button><select data-quick-color aria-label="Quick highlight color" hidden><option value="yellow">Yellow</option><option value="blue">Blue</option><option value="pink">Pink</option></select><button type="button" data-clear-highlights>Clear highlights</button>`
+  controls.innerHTML = `<span id="${statusId}" aria-live="polite"></span><button type="button" data-quick-highlight aria-pressed="false">Quick highlight: Off</button><fieldset data-quick-color-group aria-label="Quick highlight color" hidden><legend>Color</legend>${colors.map(color => `<label class="quick-color-option quick-color-${color}" title="${color}"><input type="radio" name="quick-highlight-color" value="${color}" aria-label="${color}"><span aria-hidden="true"></span></label>`).join('')}</fieldset><button type="button" data-clear-highlights>Clear highlights</button>`
   const toc = document.querySelector('.article-toc')
   if (toc) toc.insertAdjacentElement('afterend', controls)
 
@@ -183,9 +183,10 @@
     const quickButton = controls.querySelector('[data-quick-highlight]')
     quickButton.textContent = `Quick highlight: ${quickMode ? 'On' : 'Off'}`
     quickButton.setAttribute('aria-pressed', String(quickMode))
-    const colorSelect = controls.querySelector('[data-quick-color]')
-    colorSelect.hidden = !quickMode
-    colorSelect.value = quickColor
+    const colorGroup = controls.querySelector('[data-quick-color-group]')
+    colorGroup.hidden = !quickMode
+    const colorRadio = controls.querySelector(`[name="quick-highlight-color"][value="${quickColor}"]`)
+    if (colorRadio) colorRadio.checked = true
   }
 
   function makeAnchor(range) {
@@ -288,7 +289,8 @@
     if (quickMode) hideToolbar()
   })
 
-  controls.querySelector('[data-quick-color]').addEventListener('change', event => {
+  controls.querySelector('[data-quick-color-group]').addEventListener('change', event => {
+    if (!event.target.matches('[name="quick-highlight-color"]')) return
     quickColor = event.target.value
     syncQuickModeStyles()
     try {
