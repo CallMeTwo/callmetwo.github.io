@@ -1,164 +1,146 @@
 ---
 title: Interaction and effect modification
-summary: Quantifying whether the effect of one exposure differs across levels of a second variable, using product terms in regression models.
+summary: Assess whether associations differ across levels of another variable, distinguish statistical interaction from causal effect modification, and report contrasts on useful scales.
 ---
 
-## Overview and key ideas
+## Overview
 
-Effect modification — the phenomenon that the effect of an exposure on an outcome differs depending on the level of a second variable — is a genuine feature of the biology or system under study: a drug may work in younger patients but not in older ones, a genetic risk variant may matter only under environmental exposure. Interaction is the *statistical* expression of this: a term in the model whose presence changes the estimated effect of another term across levels of a third variable.
+Effect modification occurs when an exposure or treatment effect differs across levels of another variable. Interaction is the statistical representation of that variation on a chosen model scale. Because effect measures are scale-dependent, “there is an interaction” is incomplete unless the scale and target contrast are stated.
 
-In a linear model, the interaction between a continuous X and a binary Z enters as a product term: Y = β₀ + β₁X + β₂Z + β₃(X·Z) + ε. The effect of X is then β₁ when Z = 0 and β₁ + β₃ when Z = 1; β₃ is the *difference in slopes*. In logistic regression the interaction is written on the log-odds scale: logit(p) = β₀ + β₁X + β₂Z + β₃(X·Z) + ε, so the odds ratio for X is e^β₁ in the Z = 0 group and e^(β₁+β₃) in the Z = 1 group; e^β₃ is the ratio of those two ORs (the "interaction contrast"). A statistically significant interaction means the association is not homogeneous across groups — it says nothing about whether either association is itself significant.
+Interactions can be scientifically important: a treatment may help patients with high baseline risk more in absolute terms, an environmental exposure may affect children differently than adults, or a diagnostic test may perform differently by disease stage. Analyses should be motivated by mechanism or decisions, not discovered by searching many subgroups after seeing the data.
 
-## When to use it
+## Product terms and contrast calculations
 
-| Setting | Example question |
-| --- | --- |
-| Precision medicine | Does the treatment effect on HbA1c differ by baseline genotype? |
-| Safety pharmacology | Is the bleeding risk of anticoagulation modified by age stratum? |
-| Gene–environment studies | Does the dietary factor modify the association between a SNP and a disease? |
-| Trial stratification | Is the drug's effect on event rate different in men versus women? |
+For continuous outcome (Y), a linear model with binary treatment (A) and continuous modifier (Z) is \(E(Y\mid A,Z)=\beta_0+\beta_AA+\beta_ZZ+\beta_{AZ}AZ\). The treatment contrast at (Z=z) is \(\beta_A+\beta_{AZ}z\). Thus \(\beta_A\) is the treatment effect only at (Z=0); centering (Z) at a meaningful value makes that main effect useful.
 
-Add an interaction term when there is a substantive hypothesis or a strong prior signal of modification — not as a default. When the modifier is a continuous variable (e.g. age), consider whether the effect is plausibly linear in it or whether a categorical stratum (or spline) is more honest.
-
-## Assumptions and limitations
-
-- **Power**: interaction tests are often imprecise because they estimate a contrast between effects. There is no universal sample-size multiplier: power depends on exposure and modifier distributions, event rate or outcome variance, effect scale, and the interaction magnitude. Plan around a clinically meaningful interaction and report its interval.
-- **Scale dependence**: a "non-significant" interaction in logistic regression (log-odds scale) can coexist with a significant one on the risk-difference scale, and vice versa; state the scale explicitly.
-- **Model specification**: for continuous modifiers the product term assumes the modification is linear in the modifier; check by stratified estimates at several values.
-- **Collinearity**: the product term is correlated with its components; centring the continuous variables before forming X·Z makes the main-effect coefficients interpretable and slightly stabilises estimation.
-- **Confounding vs modification**: a stratified estimate can differ across strata because of *confounding* by variables that differ between strata, not because of true modification; adjustment within each stratum is needed to separate the two.
-
-## Worked example
-
-A trial randomises 800 patients with hypertension to a drug or placebo. The primary outcome is change in systolic blood pressure over 12 weeks (continuous). A model with drug, age (>65 vs ≤65), and their product gives: ΔSBP = −6.2·(drug) + 1.1·(age>65) + 3.8·(drug × age>65). In patients aged ≤65 the drug lowers SBP by 6.2 mmHg; in those >65 by 6.2 − 3.8 = 2.4 mmHg. The interaction coefficient 3.8 (p = 0.031, 95% CI 0.4 to 7.2) means the drug's effect is about 3.8 mmHg smaller in older patients — a genuine effect modification. If the same model were logistic (binary outcome: SBP reduction ≥ 10 mmHg) with an interaction p = 0.14, the data would be compatible with modification but not precise enough to conclude it; reporting the two stratum-specific ORs (1.9 for ≤65, 1.3 for >65) alongside the non-significant interaction is the honest summary.
-
-## Interpretation and common pitfalls
-
-- "Interaction" and "effect modification" are not synonyms in casual use: interaction is the model term; effect modification is the substantive claim that the effect genuinely varies. The former requires the latter to be scientifically meaningful.
-- A non-significant interaction test does not mean "no modification" — it means the data are compatible with a range of modifications, including large ones. Report the CI on the interaction contrast.
-- Do not report only the overall (pooled) effect when modification is present; the average of two different effects can mask a large effect in a subgroup.
-- In logistic regression, testing for interaction by comparing nested models (with and without the product term) via a likelihood-ratio test is the standard approach; do not rely on the Wald p-value of the product term alone when n is small.
-- Centring continuous predictors before forming a product term is cosmetic for the interaction estimate but important for the interpretability of the main effects; document it.
-
-For a binary outcome, additive interaction has direct public-health meaning: compare risks under the joint exposure states. With risk ratios, the relative excess risk due to interaction is RERI = RR11 − RR10 − RR01 + 1; RERI = 0 denotes no additive interaction under this measure. This is not interchangeable with a product-term test on the logistic (multiplicative odds) scale. Estimate stratum-specific risks or standardized contrasts with confidence intervals, and name the target scale before testing. In trials, subgroup estimates are often imprecise; formal interaction tests and prespecified hypotheses are more informative than comparing whether each subgroup's p-value crosses 0.05.
-
-## Product terms and conditional effects
-
-For continuous X and binary Z∈{0,1}, linear regression E(Y|X,Z)=β0+β1X+β2Z+β3XZ. At Z=0 the slope is β1; at Z=1 it is β1+β3; β3 is the difference in slopes. For binary X and Z, the four expected means combine into a difference-in-differences contrast β3. For categorical factors with multiple levels, an interaction is a set of parameters and is tested jointly. A single coefficient's p-value may not test the scientific interaction hypothesis.
-
-In logistic regression, the product term is on the log-odds scale. For modifier Z=0, OR_X=e^β1; for Z=1, OR_X=e^(β1+β3); their ratio is e^β3. The effect on probabilities is not constant because inverse-logit is nonlinear. Even with no product term in a logistic model, risk differences can vary across baseline risk. Thus “no interaction” is scale-specific.
-
-### Worked example: interpret the blood-pressure model
-
-The model gives drug slope −6.2 mmHg in younger patients and −6.2+3.8=−2.4 mmHg in older patients. The interaction contrast is 3.8 mmHg: treatment-associated lowering is 3.8 mmHg less in the older stratum. Its stated 95% CI (0.4,7.2) excludes zero, but inference should use the prespecified contrast and account for model design. To estimate uncertainty of the older slope, Var(β1+β3)=Var(β1)+Var(β3)+2Cov(β1,β3); one cannot add separate confidence interval endpoints.
+Suppose treatment coefficient is −2.0 points, interaction with age-per-decade is 0.6, and age is centered at 60. At age 60, treatment contrast is −2.0. At age 70, it is −2.0+0.6=−1.4. If lower outcome is better, treatment benefit is smaller at older age on the additive scale. The standard error at age 70 is \(\sqrt{Var(\hat\beta_A)+Var(\hat\beta_{AZ})+2Cov(\hat\beta_A,\hat\beta_{AZ})}\), not a combination of separate confidence intervals.
 
 ```r
-fit <- lm(change_sbp ~ drug * older + baseline_sbp, data = dat)
+fit <- lm(outcome ~ treatment * age10 + baseline, data = dat)
 coef(fit)
-# younger treatment slope is coef["drug"]
-# older slope is coef["drug"] + coef["drug:older"]
+# Use emmeans or a model-matrix contrast to estimate treatment effects
+# at age10 = 0 and age10 = 1, with intervals.
 ```
 
-Use `emmeans` or a linear contrast to calculate estimates and intervals. The code assumes drug and older are coded as intended; inspect factor reference levels. Adjusting for baseline outcome may improve precision if prespecified, while conditioning on post-treatment variables can bias total-effect estimates.
+The `*` formula includes both main effects and their interaction. Do not fit the product term while omitting constituent main effects unless there is a compelling constrained model. Calculate contrasts at values with data support and show confidence intervals. For logistic or Cox models, interaction coefficients are on log-odds or log-hazard scales, not automatically on risk difference or survival probability scales.
 
-## Additive and multiplicative interaction
+## Scale dependence: additive and multiplicative interaction
 
-For a binary outcome, additive interaction asks whether joint exposure risk exceeds the sum of separate excess risks. With risks p11, p10, p01, p00, RERI=p11−p10−p01+p00; equivalently relative-risk form RR11−RR10−RR01+1 after scaling by p00. RERI=0 indicates no additive interaction, positive values indicate super-additivity, and negative values sub-additivity. The attributable proportion due to interaction is RERI/RR11 when meaningful. These quantities concern absolute excess risk and can have direct public-health relevance.
+Two exposures can interact on an additive scale but not multiplicative scale, or vice versa. Additive interaction asks whether the joint excess risk exceeds the sum of separate excess risks; it is often relevant to public-health burden. Multiplicative interaction asks whether the joint relative effect differs from the product of individual relative effects. The choice should follow the scientific and decision question.
 
-Multiplicative interaction compares ratios, such as RR11/(RR10×RR01), or the product-term coefficient in a log-link model. Logistic regression gives interaction on odds scale; with common outcomes, odds interaction may differ from risk interaction. Report scale and absolute risks. In case-control designs, OR-based RERI may approximate risk-based measures only under rare-disease and other assumptions.
+For binary exposures (A) and (B), let risks be (p_{00},p_{10},p_{01},p_{11}). Additive interaction contrast is \(IC=p_{11}-p_{10}-p_{01}+p_{00}\). If risks are 0.05, 0.10, 0.12, and 0.22 respectively, IC=0.22−0.10−0.12+0.05=0.05: five percentage points of excess joint risk beyond additivity. The relative excess risk due to interaction (RERI) uses risk ratios and equals \(RR_{11}-RR_{10}-RR_{01}+1\) under a common reference risk.
 
-### Calculation example
+Logistic regression product terms assess interaction on odds scale. When outcomes are common, odds ratios differ from risk ratios, so a nonsignificant product term does not show no additive interaction. Estimate standardized risks under each exposure combination and calculate additive contrasts with uncertainty. Delta method or bootstrap can obtain intervals; bootstrap must resample the independent unit.
 
-Suppose risks are p00=.10 (neither exposure), p10=.15 (A only), p01=.20 (B only), and p11=.32 (both). Additive interaction contrast=.32−.15−.20+.10=.07, meaning seven excess percentage points beyond additive separate risk increments. The multiplicative ratio is (.32/.10)/[(.15/.10)(.20/.10)]=3.2/3.0=1.067, a much smaller relative departure. These answer different questions and both estimates need uncertainty intervals.
+### Uncertainty for additive interaction
 
-```r
-p00 <- .10; p10 <- .15; p01 <- .20; p11 <- .32
-reri <- (p11-p00) - (p10-p00) - (p01-p00)
-mult_int <- (p11/p00) / ((p10/p00)*(p01/p00))
-c(RERI = reri, multiplicative_interaction = mult_int)
-```
+For the risk interaction contrast \(IC=p_{11}-p_{10}-p_{01}+p_{00}\), estimate four risks and their joint covariance. The variance of the contrast depends on covariance among predicted risks, especially when the same participants contribute to model-based standardization. A bootstrap that resamples participants and recomputes all four risks is often straightforward; resample clusters if assignment or sampling is clustered. Do not combine four separate confidence limits as though estimates were independent.
 
-The calculation assumes risks are standardized to a common target population and exposure states are well-defined. Confounding and sparse joint-exposure groups can undermine estimates.
+For RERI based on adjusted risk ratios, calculate all ratios relative to the same reference group and propagate uncertainty on the joint coefficient vector. Delta-method intervals can be asymmetric or cross impossible values in sparse data. Bootstrap or simulation-based intervals may be more stable, but sparse cells remain a limitation. Report underlying risks and counts so readers can see data support.
 
-## Design, power, and interpretation
+The additive interaction contrast can be negative, zero, or positive. Its interpretation depends on which outcome is coded as adverse and on the reference exposure categories. A positive RERI for a harmful outcome indicates excess joint risk beyond the sum of separate excess risks under the chosen scale; it does not by itself identify a biological mechanism.
 
-Interaction tests generally require more information than main-effect tests. Power depends on modifier prevalence, exposure distribution within strata, outcome frequency or residual variance, effect scale, and interaction size. Do not rely on a universal sample-size multiplier. Prespecify a small number of biologically motivated interactions, plan sample size or precision around the contrast, and report intervals even if tests are nonsignificant. Absence of significance is not evidence of homogeneity.
+## Effect modification in randomized trials
 
-Effect modification is not confounding. Confounding is bias in an exposure-outcome association due to a common cause; effect modification is variation in the effect across a subgroup or covariate. A variable can do both. Within-stratum contrasts may still be confounded; adjust appropriately within strata or use standardized estimates. A significant subgroup result and nonsignificant result elsewhere do not prove an interaction; test the difference directly.
+Randomization supports an unbiased average treatment contrast, but subgroup estimates are less precise and can be vulnerable to chance. Prespecify a small number of plausible modifiers based on biology, baseline risk, or treatment mechanism. Test the interaction directly; “significant in one subgroup, not significant in another” is not evidence that subgroup effects differ.
 
-## Continuous modifiers and visualization
+Display subgroup-specific treatment effects and intervals, interaction estimate, scale, and p-value or interval. Consider baseline risk stratification: even a constant relative effect yields larger absolute benefit for high-risk patients. This is clinically meaningful absolute-effect heterogeneity, though not necessarily relative-effect interaction. A treatment rule should use calibrated absolute benefits and harms, not subgroup p-values alone.
 
-A product X×Z with continuous Z assumes the X slope changes linearly with Z. Center Z at a meaningful value so the X main effect refers to that value. If modification is nonlinear, use spline interactions or prespecified categories, but degrees of freedom and power increase. Plot predicted outcomes or contrasts with confidence bands over observed modifier values, showing data density; do not extrapolate into sparse ranges. Categorical cutoffs lose information and can manufacture apparent subgroup differences.
+## Confounding and causal effect modification
 
-In randomized trials, subgroup effects are causal under trial assumptions but often imprecise; multiplicity and selective reporting remain concerns. In observational studies, causal effect modification additionally requires control of confounding within modifier strata and positivity. Report prespecified versus exploratory analyses and avoid deterministic claims from average subgroup effects.
+In observational studies, apparent effect modification can arise from confounding that differs across modifier strata, measurement error, selection, or model misspecification. Causal effect modification is defined in terms of potential outcomes and requires identification assumptions within relevant subgroups. Ensure positivity in each stratum: if no older patients receive treatment, the older-patient effect is not identified from data.
 
+The modifier should generally be measured before exposure for baseline effect modification. Stratifying on a post-treatment variable can induce collider bias or change the estimand. For time-varying modifiers or treatment, longitudinal methods may be necessary. Define whether effects are conditional or standardized to subgroup covariate distributions.
 
-## Estimating interaction uncertainty
+In a randomized trial, treatment is randomized overall, but small subgroups can have chance imbalance and wide intervals. Randomization within strata supports subgroup contrasts only if allocation and analysis account for those strata. Post hoc cut points, selective reporting, and multiple subgroup looks weaken confirmatory claims. An interaction p-value should be interpreted together with the effect estimates and prior plausibility.
 
-For the older-group treatment slope β1+β3, standard error is sqrt[Var(β1)+Var(β3)+2Cov(β1,β3)]. For a difference-in-differences, use a linear contrast and the fitted covariance matrix. For RERI, which is a nonlinear function of risk ratios, use delta-method or bootstrap intervals; sparse joint-exposure groups can make normal approximations unreliable. A point estimate alone is insufficient, especially when interaction power is low.
+When treatment is assigned at cluster level, subgroup effect analysis may have few clusters in each category. Participant count can obscure the true precision constraint. Use design-based or mixed modeling that respects cluster assignment and avoid overinterpreting apparent subgroup variation from a handful of clinics.
 
-```r
-# General linear contrast from an lm/glm coefficient covariance matrix
-b <- coef(fit); V <- vcov(fit)
-L <- rep(0, length(b)); names(L) <- names(b)
-L[c("drug", "drug:older")] <- 1
-estimate <- sum(L*b)
-se <- sqrt(drop(t(L) %*% V %*% L))
-c(estimate = estimate, lower = estimate-1.96*se,
-  upper = estimate+1.96*se)
-```
+Subgroup-specific estimates can be standardized to a common covariate distribution, making comparisons less confounded by different covariate mixes across subgroups. This is especially useful in observational studies. The target distribution should be stated; standardizing each subgroup to its own composition answers a different question than using a shared target.
 
-Confirm coefficient names from `names(coef(fit))`; factor coding can alter names and contrast signs. In nonlinear models, predicted risk contrasts should be calculated on the probability scale with uncertainty propagated, rather than interpreting only a logit product coefficient.
+## Continuous modifiers and nonlinear interaction
 
-## Subgroup analysis safeguards
+Dichotomizing a continuous modifier at the median discards information and creates an arbitrary threshold. Model continuous modifiers continuously, using splines if effect variation may be nonlinear. Interaction between treatment and spline basis terms requires joint testing and contrasts across the range. Plot treatment effect with uncertainty against modifier values, marking data density and avoiding unsupported tails.
 
-Predefine subgroup rationale, modifier scale, outcome, and interaction scale. Limit the number of hypotheses, report all planned subgroup findings, and distinguish exploratory analyses. Avoid dichotomizing continuous modifiers at data-derived thresholds. Show treatment effects and intervals by subgroup, plus the formal interaction estimate. Do not infer interaction from separate within-subgroup significance tests. Consider whether subgroup definitions are available at clinical decision time and whether sample sizes support usable estimates.
+Centering a modifier changes main-effect interpretation but not fitted values. Scaling per decade or standard deviation can aid communication. If the modifier has nonlinear main effect, include that main effect alongside interaction terms. Use hierarchical principles: retain lower-order terms when including higher-order interactions.
 
-## Joint tests and presentation
+## Multiplicity and overfitting
 
-For a categorical modifier with multiple levels, interaction has several product coefficients. Use a joint likelihood-ratio, score, or Wald test for all interaction terms rather than selecting the most favorable coefficient. Report stratum-specific adjusted effects with intervals and the interaction test on the prespecified scale. Graph predicted outcomes or effect contrasts across modifier values with uncertainty; include a histogram or rug for modifier distribution so readers can see where data support estimates.
+If 20 subgroup interactions are tested at 0.05, chance findings are expected. Predefine primary modifiers, adjust or control false discovery for broad screening, and label exploratory signals. Replicate candidate heterogeneity in independent data. Do not use a forest plot of many noisy subgroup estimates to imply stable individual treatment effects.
 
-On an absolute scale, interaction may be important even when multiplicative interaction is absent, particularly when baseline risk is high. Conversely, multiplicative effect modification can occur with small absolute differences in low-risk populations. Public health prioritization often values excess cases (additive scale), while mechanistic or transport questions may focus on relative effects. State which interpretation motivates the analysis.
+Interaction terms consume sample size quickly. Power is generally lower for interaction than main effect because information is spread across cells and modifier values. Use simulation or dedicated sample-size calculations that account for prevalence of modifier, outcome rate, and correlation. A null interaction with a wide interval is inconclusive, not evidence of homogeneous effects.
 
-## Continuous modifier example
+In logistic regression, the treatment-by-modifier coefficient is a difference in log odds ratios per modifier unit. Suppose treatment log OR is −0.50 at modifier zero and interaction coefficient is 0.15 per 10 years. At 10 units above zero, log OR is −0.35 and OR is 0.70. The risk difference still depends on baseline risk. Generate predicted risks for each treatment and modifier value, then contrast them on the absolute scale.
 
-Suppose treatment contrast in SBP is modeled as β_T+β_TA(A−60), where age A is centered at 60. If β_T=−5 and β_TA=.08 mmHg per year, predicted treatment effect is −5 mmHg at age 60, −3.4 at age 80, and −6.6 at age 40. The interaction coefficient says the treatment effect becomes .08 mmHg less negative per additional year under this linear specification. Plot the contrast and interval across observed ages; do not assume the linear trend continues indefinitely.
+In Cox models, a treatment-by-modifier term represents variation in log hazard ratio, assuming proportional hazards within each modifier level unless time interactions are added. A constant HR interaction can coexist with varying absolute survival differences because baseline hazards differ. If PH is violated, both treatment and modifier effects may vary over time; report time-specific or RMST effects.
 
-```r
-ages <- seq(40, 80, by = 5)
-effect <- -5 + .08*(ages - 60)
-plot(ages, effect, type = "b", xlab = "Age",
-     ylab = "Treatment contrast in SBP (mmHg)")
-abline(h = 0, lty = 2)
-```
+For ordinal outcomes, effect modification may be assessed on cumulative odds scale, which assumes proportional odds across thresholds. If proportional odds fails, interaction interpretation depends on threshold-specific effects. For count outcomes, log-link interactions are multiplicative on rates; additive rate differences may be more relevant for resource planning. Always name the effect scale.
 
-This is a point-estimate illustration; add confidence bands using the coefficient covariance matrix. If age modification is nonlinear, use spline interactions and prespecify degrees of freedom to limit overfitting.
+### Power and precision for interactions
 
-## Power and uncertainty in subgroup estimates
+Interaction power depends on modifier prevalence, predictor measurement reliability, event frequency, and treatment allocation. A continuous modifier generally retains more information than a median split, but measurement error attenuates interaction estimates. For a binary modifier with only 10% in one subgroup, that subgroup's treatment contrast is imprecise even in a moderate trial. Plan sample size by simulation under realistic joint distributions and report expected interval width.
 
-If a modifier is rare, the stratum with few participants can dominate uncertainty even when the total trial is large. For binary modifier prevalence q, expected information on an interaction is often greatest when groups are reasonably balanced, but clinical prevalence cannot be manipulated in an observational setting. Report subgroup denominators and event counts. If interaction is a key objective, recruit or enrich relevant strata where ethical and plan the analysis prospectively.
+Main-effect power calculations do not guarantee adequate power for effect modification. If interaction is central to a treatment rule, recruit enough participants across modifier ranges and ensure both treatment options are represented. Enrichment designs can improve information in a target subgroup but change generalizability; describe the target population.
 
-Subgroup estimates should be viewed with intervals rather than as a leaderboard of p-values. A benefit estimate in one stratum and a null estimate in another can have overlapping intervals and no evidence of interaction. Conversely, a clinically important interaction may have a wide interval because the trial was powered only for an overall effect. State this precision limitation explicitly.
+Failure to detect interaction should be reported with its interval. If the interval rules out only very large heterogeneity but includes clinically important variation, evidence of homogeneity is weak. Equivalence-style reasoning for treatment-effect variation requires prespecified margins and adequate precision.
 
-For reproducible interaction reporting, state the model family and link, coding and centering of each term, scale of effect modification, joint test used, subgroup sample sizes, and whether the hypothesis was prespecified. Include the main-effect interpretation at the modifier reference value. A product term without these details cannot be reliably translated into subgroup effects.
+## Example: absolute benefit by baseline risk
 
-If a treatment's effect differs by modifier, the overall average effect remains a valid target for the trial population but may not guide decisions for every subgroup. Report both the population-average effect and prespecified subgroup contrasts when useful. Avoid converting exploratory heterogeneity into a treatment recommendation without independent confirmation and sufficient absolute-risk information.
+Suppose treatment reduces relative risk by 20% across baseline risk strata. For baseline risk 5%, treated risk is 4%, absolute reduction 1 percentage point (NNT 100). For baseline risk 25%, treated risk is 20%, reduction 5 points (NNT 20). There is no relative-risk modification, yet absolute benefit differs fivefold. A treatment-allocation decision may appropriately prioritize high baseline risk if treatment harms and costs are similar.
 
-A confidence interval for an interaction contrast is often more informative than a binary test result. If the interval includes both clinically important benefit and harm modification, conclude that heterogeneity remains uncertain rather than that effects are equal. Consider whether the modifier is measured reliably and whether its categories were defined before outcome analysis.
+This calculation assumes the relative risk transports across strata and baseline risks are calibrated. If treatment effect varies or risks are estimated with error, derive standardized risks and uncertainty by subgroup. NNT is unstable when risk difference is near zero and should include a horizon and interval.
 
-## Report the target contrast in plain language
+An additive interaction calculation can make the public-health implication concrete. Let baseline risk be 5%, risk with exposure A alone 10%, with B alone 12%, and with both 22%. The observed joint risk exceeds the additive expectation (0.10+0.12-0.05=0.17) by 0.05. Among 1,000 people with both exposures, this corresponds to 50 excess events relative to additivity, if risks transport and the causal assumptions hold. The interval for that excess should be reported; point estimates can be unstable when cell counts are small.
 
-Translate estimates back to the clinical scale: for the trial example, “drug-associated SBP reduction was estimated 3.8 mmHg smaller in older participants, with a 95% interval from 0.4 to 7.2 mmHg smaller.” Avoid saying the drug “works only” in one subgroup unless the data support both within-group effects and a formal contrast. Statistical interaction can reflect scale choice; biological explanation requires external evidence and replication.
+For a treatment modifier analysis, show both relative and absolute contrasts if they inform different decisions. A constant relative effect can justify prioritizing high baseline risk even without biological interaction; a relative interaction can alter absolute benefit in more complex ways. Avoid using “responders” unless response is defined prospectively and the treatment rule is validated.
+
+## Reporting effect modification
+
+State modifier scale and timing, interaction scale and model term, prespecification, number of analyses, and covariate adjustment. Report subgroup estimates with intervals and the interaction contrast, not separate significance labels. Give absolute effects when relevant and show data support. Explain whether interpretation is causal, predictive, or associational.
+
+For logistic models, distinguish odds-scale interaction from risk-scale interaction. For survival models, distinguish hazard-ratio interaction from survival-probability or RMST differences. For continuous outcomes, state outcome units and modifier centering. A statement that “effect varied by age” should specify how much and on what scale.
+
+Report the full interaction specification and lower-order terms, modifier coding, model sample size, and events or observations across modifier ranges. If a result is exploratory, say so where the claim is made. Provide code or contrast definitions sufficient for an independent analyst to reproduce the subgroup estimates.
+
+For multiple subgroups, a forest plot should use a common effect scale and show interaction tests or an overall heterogeneity test where appropriate. Do not visually rank noisy subgroup point estimates without showing uncertainty. Clinical recommendations require validated absolute benefits and harms, not only statistical heterogeneity.
+
+When a modifier is centered, state its centering value so readers understand the reference treatment effect. If standardized, report the standard deviation and population used for scaling.
+
+Confidence intervals for subgroup effects and their differences should reflect the original randomization or sampling unit. If data are clustered, resample clusters or use a design-aware variance estimator; treating each participant as independent can make apparent heterogeneity look more precise than it is.
+
+An interaction interval should be compared with a clinically meaningful heterogeneity threshold, not only zero. Prespecify the scale and threshold when treatment personalization is the goal.
+
+Report risk and harm contrasts together when both affect the same decision.
+
+## Interpreting plots of conditional effects
+
+A plot of treatment effect across a modifier should state the scale, show a confidence band, and mark the distribution of observed modifier values. If the model is logistic, distinguish conditional odds-ratio curve from standardized absolute-risk difference curve. The same underlying model can produce curves with different shapes on different scales. Choose the scale tied to the decision and make alternative scales available when they reveal materially different patterns.
+
+Do not infer effect modification by checking whether pointwise confidence intervals overlap. Overlap of two 95% intervals is not a formal interaction test; non-overlap is conservative and also not equivalent. Estimate the difference between subgroup effects directly, with its standard error or interval. For a continuous modifier, use a joint test of interaction terms and display the effect curve.
+
+Predicted subgroup effects near the edge of observed support are often unstable. A smooth curve may conceal sparse data. Show a rug, histogram, or density by treatment, and avoid highlighting unsupported extremes. If data coverage differs by exposure, restrict or standardize to common support and state how the target population changes.
+
+## Interaction in survival and repeated-measures models
+
+In a Cox model, treatment-by-modifier interaction describes modification of a conditional hazard ratio if proportional hazards holds. If the treatment effect also changes over time, a treatment-by-time term and potentially modifier-by-treatment-by-time term are needed. Such models can become data-hungry. Report time-specific hazard contrasts and absolute survival or RMST differences where clinically meaningful.
+
+For repeated measures, treatment-by-modifier-by-time interactions assess whether treatment trajectories vary across modifier values. Specify whether time is numeric or categorical and calculate treatment contrasts at each relevant time. A significant three-way interaction does not identify when or how large the differences are; predicted trajectories with intervals help.
+
+For count outcomes, a product term in log-link model tests multiplicative rate modification. If the clinical question is excess events, standardize rates and report additive rate differences. Interaction conclusions should not be transferred automatically from one outcome family to another.
+
+## Multiplicity and selective subgroup claims
+
+Subgroup analyses are especially vulnerable to selective reporting because researchers can choose modifiers, cut points, outcomes, and scales. List all planned interactions in the protocol or analysis plan. If exploratory screening generates a candidate modifier, report the full search and treat it as hypothesis-generating; validate in independent data before changing treatment policy.
+
+Adjusting for multiplicity can control false positives but does not solve low power or confounding. A hierarchical model can partially pool subgroup effects, reducing extreme noisy estimates, though results depend on the heterogeneity prior. Report the distribution of subgroup effects and uncertainty rather than declaring each subgroup winner or loser.
 
 ## References and further reading
+The interaction contrast should be expressed in units that clinicians can act on, such as additional cases prevented or mean score points gained, when the data support that translation. Relative-scale heterogeneity alone may not indicate a useful change in policy.
 
+When modifying a clinical guideline, validate the proposed subgroup rule prospectively and assess calibration, net benefit, and harms. Exploratory heterogeneity estimates should not directly become treatment eligibility criteria.
+
+- Rothman KJ, Greenland S, Walker AM. Concepts of interaction. *American Journal of Epidemiology*. 1980;112:467–470. [doi:10.1093/oxfordjournals.aje.a113015](https://doi.org/10.1093/oxfordjournals.aje.a113015)
 - Knol MJ, VanderWeele TJ. Recommendations for presenting analyses of effect modification and interaction. *International Journal of Epidemiology*. 2012;41:514–520. [doi:10.1093/ije/dyr218](https://doi.org/10.1093/ije/dyr218)
-
-- Agresti A. *Categorical Data Analysis*. Wiley.
-- Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
-- Fox J. *Applied Regression Analysis and Generalized Linear Models*. SAGE.
-- The companion [linear regression article](simple-and-multiple-linear-regression.html) covers the base model to which interaction terms are added.
-
-Effect modification can guide targeting only when subgroup membership is known before treatment and estimates are sufficiently precise. A modifier defined after treatment can introduce selection bias. Consider feasibility, harms, and absolute baseline risk before translating heterogeneity estimates into clinical rules.
-
-The interaction estimate is itself a statistical quantity whose confidence interval reflects uncertainty in both subgroup effects and their covariance. If that interval is wide, avoid ranking subgroup responses. Seek replication, use partial pooling for multiple related subgroups when justified, and preserve the overall randomized comparison as the primary evidence unless a subgroup hypothesis was prespecified and adequately supported.
+- VanderWeele TJ. *Explanation in Causal Inference: Methods for Mediation and Interaction*. Oxford University Press; 2015.
+- Altman DG, Bland JM. Interaction revisited: the difference between two estimates. *BMJ*. 2003;326:219. [doi:10.1136/bmj.326.7382.219](https://doi.org/10.1136/bmj.326.7382.219)
+- The [simple and multiple linear regression article](simple-and-multiple-linear-regression.html) discusses regression contrasts and model terms.

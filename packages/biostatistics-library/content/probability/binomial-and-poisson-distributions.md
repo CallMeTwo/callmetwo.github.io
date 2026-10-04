@@ -3,216 +3,227 @@ title: Binomial and Poisson distributions
 summary: Probability models for counts of events — fixed cohorts (binomial) and rare events over time (Poisson) — and when one approximates the other.
 ---
 
-## Overview and key ideas
+## Overview
 
-The **binomial distribution** models the count X of "successes" (events) among a
-fixed number n of independent trials, each with event probability p:
+The binomial distribution models the number of events among a fixed number n of independent trials, each with the same event probability p. The Poisson distribution models a count over a defined interval or exposure when events occur at average rate λ under assumptions approximating independent increments and constant intensity. Both are foundational for adverse events, infections, readmissions, and mortality, but their denominators and interpretations differ.
 
-P(X = k) = n choose k × p^k × (1 − p)^(n − k), with mean np and variance np(1 − p).
+## Binomial model for a fixed cohort
 
-The **Poisson distribution** models counts of rare events occurring in a fixed
-interval of time or space, with average rate λ (expected number of events):
-
-P(X = k) = e^(−λ) × λ^k / k!, with mean = variance = λ.
-
-The two are linked: when n is large and p is small, with λ = np, the binomial
-is well approximated by the Poisson(λ). This is why rare-event data (adverse
-reactions, outbreaks, deaths per 100,000 person-years) are usually analysed with
-Poisson models even though the underlying process is binomial at its core.
-
-## When to use it
-
-| Setting | Example question |
-| --- | --- |
-| Binomial | Of 400 patients screened, how many will test positive if the true prevalence is 2%? |
-| Binomial | Is the observed proportion of adverse events in a trial arm compatible with a stated baseline risk? |
-| Poisson | How many nosocomial infections per 1000 patient-days are expected after an intervention? |
-| Poisson | Is the number of rare serious adverse events in a safety signal higher than the historical rate? |
-
-## Assumptions and limitations
-
-- **Binomial:** n is fixed in advance; trials are independent; p is the same for
-  every trial. Clustering (e.g. infection outbreaks within a ward) or heterogeneity
-  in p violates the model.
-- **Poisson:** events occur independently, at a constant average rate, and are
-  rare enough that two events effectively cannot occur "at the same time".
-- **Overdispersion** — when the observed variance exceeds the mean, Poisson-based
-  inference is anti-conservative; quasi-Poisson or negative-binomial models are
-  then appropriate.
-- The Poisson *approximation* to the binomial works when n ≥ 20 and p ≤ 0.05
-  (roughly); it is poor when p is moderate, no matter how large n is.
-- For rate data, the Poisson model must be anchored to the right units
-  (events per patient-days, per person-years) and the exposure time must be
-  recorded for each subject.
-
-### Counts, rates and model checking
-
-The binomial denominator is a fixed number of eligible independent trials; its
-parameter p is a probability, not a rate. A Poisson rate model allows unequal
-follow-up by adding log person-time as an offset, so exp(β) represents a rate
-ratio. The Poisson assumption equates conditional mean and variance; observed
-overdispersion can arise from unmeasured risk heterogeneity, clustering or
-serial dependence. Check residual variation and exposure definitions before
-interpreting a narrow model-based interval. If the event probability varies
-between patients, a beta-binomial or random-effects model may address extra
-binomial variation more directly than treating each trial as having one common
-p.
-
-## Worked example
-
-A clinic plans to screen 400 patients for a condition with true prevalence
-p = 0.02. X ~ Binomial(400, 0.02), so the expected number of positives is
-np = 8. Suppose the clinic would flag the screen as anomalous at 10 or more
-positives. The exact binomial calculation gives
-
-P(X ≥ 10) = 0.282.
-
-The Poisson approximation with λ = np = 8 gives P(X ≥ 10) = 0.283 — virtually
-identical, which is the approximation at work. Interpretation: even if the true
-prevalence is exactly 2%, a result of 10+ positives would occur in roughly 28%
-of such screens by chance alone, so a threshold of 10 is far too low to signal a
-genuine rise in prevalence. A second, smaller example: if a rare adverse event
-occurs at a mean rate of λ = 3 per 1000 patient-days, the chance of 5 or more in
-a given 1000-day window is P(X ≥ 5) ≈ 0.185 — again, ordinary variation, not an
-automatic alarm.
-
-## Interpretation and common pitfalls
-
-- **Treating Poisson counts as normal when λ is small** — with λ < 10 the
-  distribution is visibly right-skewed; exact Poisson probabilities or the
-  Poisson model itself are safer.
-- **Ignoring overdispersion** — real clinical counts often vary more than the
-  Poisson allows (clustering, patient heterogeneity), which understates
-  uncertainty.
-- **Using the Poisson approximation in the wrong regime** — with p = 0.3, no
-  amount of n makes the Poisson a good approximation to the binomial.
-- **Confusing the mean rate with the probability of a single event** — λ = 3
-  events per window does not mean a 300% probability; for rare events the
-  single-event probability is approximately λ divided by the number of
-  opportunities.
-
-## Choosing between binomial counts and Poisson rates
-
-The binomial model describes the number of successes in a fixed number n of independent Bernoulli trials with common success probability p. Its mean is np and variance np(1−p). The number of patients with an event among 100 followed participants is naturally binomial if follow-up and outcome definitions are comparable and observations are independent. If risks differ substantially across patients or observations cluster by clinic, the simple binomial variance can be too small.
-
-The Poisson model describes a count N over a specified exposure E with rate λ, so E(N)=λE and Var(N)=λE. A rate is events per person-time, not a probability. Under a constant hazard, the probability of at least one event over time t is 1−exp(−λt), which is approximately λt only for small λt. A Poisson regression with log exposure offset models rates: log E(N_i)=log(E_i)+x_iβ. The offset coefficient is fixed at one, ensuring longer observation contributes proportionally more expected events.
-
-Poisson assumptions include conditional independence of event increments, a constant rate over the modeled interval, and equality of mean and variance conditional on covariates. Overdispersion can arise from unmeasured heterogeneity, clustering, or recurrent events; a negative-binomial model adds a dispersion parameter. Zero inflation is not a diagnosis based solely on many zeros: first ask whether the sampling process permits structural zeros and whether the mean model is misspecified. For common binary outcomes, do not substitute a Poisson model without robust variance and a clear reason; direct binomial models are often preferable.
-
-### Worked example: events per person-time
-
-A cohort contributes 1,200 person-years and experiences 36 first events. The crude incidence rate is 36/1,200=0.03 per person-year, or 3 per 100 person-years. Under a constant Poisson rate, the one-year probability is 1−exp(−0.03)=0.0296 (about 3%). Over five years it is 1−exp(−0.15)=0.139, not simply 5×3%=15%, although the linear approximation is close at low cumulative risk.
+For X~Binomial(n,p), P(X=k)=choose(n,k)pᵏ(1−p)ⁿ⁻ᵏ; mean=np and variance=np(1−p). The model assumes a fixed number of units, binary event status for each, independence, and a common probability. If 12 of 200 patients experience an event, observed risk is 6%; uncertainty can be summarized with Wilson or exact intervals.
 
 ```r
-events <- 36
-person_years <- 1200
-rate <- events / person_years
-risk_1y <- 1 - exp(-rate * 1)
-risk_5y <- 1 - exp(-rate * 5)
-c(rate_per_100_py = 100 * rate, risk_1y = risk_1y, risk_5y = risk_5y)
+binom.test(12, 200)                 # exact interval and test
+prop.test(12, 200, correct = FALSE) # score-based approximation
+pbinom(12, size = 200, prob = .08)  # probability count <= 12 under p=.08
 ```
 
-This conversion assumes a constant hazard and no competing risk. In real follow-up, hazards may change with time and censoring may be informative. A cumulative incidence estimator or survival model is then more appropriate. The crude rate's confidence interval can be computed from a Poisson count interval divided by person-time; using a normal interval near zero is unreliable.
+The binomial model is appropriate for a common follow-up horizon with fully observed status. Unequal follow-up, censoring, competing events, or recurrent events require other methods.
 
-### Comparing two rates with an offset
+## Poisson model for counts and rates
 
-Suppose 20 events occur during 800 person-years in a control group and 15 during 1,000 person-years in a treatment group. Rates are 2.5 and 1.5 per 100 person-years; the crude rate ratio is 0.60. A Poisson regression can adjust for covariates while accounting for unequal observation time through an offset. It estimates a conditional rate ratio under the log-linear rate model; it is not automatically a risk ratio.
+For X~Poisson(λ), P(X=k)=e^(−λ)λᵏ/k!, with equal mean and variance λ. If observation time or population at risk differs, model a rate λ per exposure and include log(exposure) as an offset. A rate ratio compares event rates per person-time, not cumulative risk. Poisson counts can exceed the number of people when recurrent events occur.
+
+A binomial count is approximated by Poisson when n is large, p is small, and λ=np is moderate. The approximation is useful for rare events, but it is not exact and may fail when risk is not small or events are dependent.
+
+### Limitations and interpretation
+
+Overdispersion occurs when variance exceeds the Poisson mean, often because risks vary across people, events cluster, or rates change over time. Use quasi-Poisson, negative binomial, random effects, or robust variance as appropriate. Excess zeros may arise from a separate structural process or simply a low mean; do not adopt zero-inflated models automatically. Check residuals and predicted counts.
+
+State count, denominator or person-time, rate units, and event definition. Distinguish event count from number of participants with ≥1 event. Poisson and binomial models describe sampling distributions; neither establishes causation without design and confounding control.
+
+## Worked binomial probability
+
+If adverse-event risk is .08 in each of 50 independent participants, expected event count is np=4 and variance np(1−p)=3.68, SD≈1.92. The probability of at least one event is 1−.92⁵⁰≈.984, while chance of exactly four can be evaluated with the binomial mass function. Expected counts do not guarantee that the observed count will be near the mean in a small sample.
 
 ```r
-d <- data.frame(events = c(20, 15), py = c(800, 1000),
-                treatment = c(0, 1))
-fit <- glm(events ~ treatment + offset(log(py)),
-           family = poisson(), data = d)
+n <- 50; p <- .08
+c(mean = n*p, variance = n*p*(1-p),
+  exactly4 = dbinom(4, n, p),
+  at_least1 = 1 - dbinom(0, n, p))
+```
+
+The independence/common-probability assumptions can fail if risks differ by age or site or outcomes cluster. A beta-binomial or logistic model can represent heterogeneity; a single binomial model may understate predictive variation.
+
+## Worked Poisson rate
+
+Suppose 18 admissions occur over 600 person-years. Estimated rate is .03 per person-year, or 30 per 1,000 person-years. A Poisson model uses log(person-time) as offset. If groups have rates λ₁ and λ₀, the exponentiated treatment coefficient estimates rate ratio under the model.
+
+```r
+fit <- glm(events ~ arm + offset(log(person_years)),
+           family = poisson, data = dat)
 exp(coef(fit))
 ```
 
-Two aggregate rows are insufficient for meaningful regression or variance estimation; this code only demonstrates model syntax. Fit such a model to participant- or stratum-level data, inspect residual deviance and overdispersion, and use robust or clustered uncertainty when the design requires it. A zero-event group can produce unstable maximum-likelihood estimates; exact methods or suitable Bayesian models may be needed.
+The coefficient for `arm` is log rate ratio relative to its reference group. Check overdispersion and include confounders only according to the design and estimand. Person-time offsets assume rate proportional to exposure duration, which can fail if hazards change strongly over time.
 
-### Model checks and communication
+## Binomial versus Poisson
 
-Show event counts, denominators, person-time, and rates with intervals. State whether recurrent events count once or repeatedly, and how death or loss to follow-up ends exposure time. Check whether rates vary by calendar time or follow-up duration. If mean counts greatly exceed variance, the Poisson model may be inadequate; if variance exceeds mean, investigate clustering and heterogeneity before selecting a dispersion adjustment. References such as Cameron and Trivedi provide deeper count-model treatment.
+Binomial denominators are fixed individuals observed over a common window; Poisson denominators are exposure time or space, often with recurrent counts. A rare event in a fixed cohort can be approximated by Poisson with λ=np, but risk and rate are conceptually different. For mortality by a horizon, cumulative risk or survival probability is often preferable; for recurrent events, rate may be appropriate.
 
+## Overdispersion and dependence
 
-## Binomial inference and confidence intervals
+Poisson equidispersion Var(X)=E(X) is restrictive. Patient heterogeneity, clustering, contagion, or unmodeled time variation can inflate variance. Pearson dispersion statistic divided by residual df can flag overdispersion, but inspect fit and design. Negative binomial adds a dispersion parameter; quasi-Poisson scales variance but does not define a full likelihood; random effects model heterogeneity. Robust standard errors address some inference but not predictive distribution shape.
 
-For X~Binomial(n,p), the probability mass at x is choose(n,x)p^x(1−p)^(n−x). The sample proportion X/n estimates p with SE approximately sqrt[p(1−p)/n]. A Wald interval uses the estimated SE and can extend below zero or above one, with poor coverage near the boundaries. The Wilson score interval inverts a score test and generally has more reliable coverage; the exact Clopper–Pearson interval guarantees at least nominal coverage but can be conservative.
+Excess zeros can arise because some patients are not at risk, through low rates, or through detection limits. Zero-inflated and hurdle models distinguish processes but require scientific rationale. Do not use them simply because a dataset contains many zeros.
 
-### Worked example: uncertainty for an event risk
+### Exact uncertainty and interpretation
 
-If 12 of 80 patients experience an adverse event, p̂=.15. The Wald interval is .15±1.96√(.15×.85/80), approximately .071 to .229. A Wilson interval is approximately .087 to .248. The difference is noticeable because the sample is modest. Always report numerator and denominator with the interval and clarify whether the denominator is all randomized participants, treated participants, or those with observed follow-up.
+For binomial counts, exact Clopper–Pearson intervals have at least nominal coverage but can be conservative; Wilson intervals often perform well. For Poisson counts, an exact interval for event count can be translated to a rate by dividing by person-time. State exposure denominator and units. These models quantify uncertainty in counts under assumptions; they do not adjust for confounding, informative follow-up, or competing events.
 
-```r
-x <- 12; n <- 80
-wald <- x/n + c(-1, 1) * qnorm(.975) * sqrt((x/n)*(1-x/n)/n)
-w <- prop.test(x, n, correct = FALSE)$conf.int
-c(wald_lower = wald[1], wald_upper = wald[2],
-  wilson_lower = w[1], wilson_upper = w[2])
-```
+### Exact and approximate calculations
 
-`prop.test` uses a score-based method without continuity correction in this example. For very small expected counts or an exact coverage requirement, `binom.test` provides the Clopper–Pearson interval. Neither method corrects bias from missing outcomes or unequal follow-up.
-
-## Poisson uncertainty and overdispersion
-
-For a Poisson count X with mean μ, the variance equals μ. A confidence interval for a rate λ with x events over exposure T can be formed from a Poisson interval for μ divided by T. If x=0, the maximum-likelihood rate is zero, but the true rate is not known to be zero; an upper confidence bound is essential. The “rule of three” gives an approximate 95% upper bound of 3/T after zero events under a Poisson model.
+For binomial X with n=50 and p=.08, mean=4 and variance=3.68. The probability of observing at most two events is P(X≤2), computed by summing binomial probabilities; a Poisson approximation with λ=4 gives a nearby but not identical value. Approximation is best when p is small and n large at fixed np. If p=.30, Poisson can be poor because events are no longer rare.
 
 ```r
-x <- 0; exposure <- 500 # person-years
-upper_rate_95 <- qchisq(.95, df = 2*(x + 1)) / (2 * exposure)
-1000 * upper_rate_95 # upper bound per 1,000 person-years
+pbinom(2, size = 50, prob = .08)
+ppois(2, lambda = 50 * .08)
 ```
 
-For x events, the exact two-sided interval uses chi-square quantiles with 2x and 2(x+1) degrees of freedom for lower and upper limits, divided by 2T. This assumes a constant rate and independent Poisson increments. With heterogeneity across patients, variation may exceed the mean. Examine Pearson dispersion or residual deviance relative to degrees of freedom, but investigate cause: omitted covariates, clusters, and repeated events call for different models.
+Check the tail of interest rather than assuming the approximation is acceptable from mean agreement alone. Exact binomial probabilities are inexpensive in most ordinary applications.
 
-A negative-binomial distribution can be parameterized with mean μ and dispersion α, giving variance μ+αμ². As α approaches zero it converges toward Poisson. Robust sandwich standard errors can address some variance misspecification for coefficient uncertainty, but they do not fix incorrect mean structure or guarantee good small-sample inference. For clustered counts, use cluster-robust methods or hierarchical random effects; for recurrent events, explicitly define the event process and dependence.
+### Event rates, offsets, and follow-up
 
-## Exposure offsets and interpretation
+If one group contributes 500 person-years and another 300, raw counts are not directly comparable. A Poisson regression uses log person-time as an offset: log(E[count])=β₀+β₁treatment+log(time). Exponentiating β₁ gives rate ratio under the model. Exposure time should represent actual time at risk; pauses, loss to follow-up, or competing death change the denominator.
 
-If participant i contributes person-time Ti, the Poisson model uses log(Ti) as offset so E(Xi)=Ti exp(xiβ). Exponentiating β gives a rate ratio conditional on covariates. A one-unit increase in a continuous predictor multiplies the rate by exp(β); for a binary treatment, exp(β) compares rates under treatment and control. This contrast is not a cumulative risk ratio except under restrictive constant-hazard conditions and a shared follow-up horizon.
+A constant rate assumes expected counts increase proportionally with exposure. If early and late hazards differ, a single offset model may not fit. Stratify time or use survival/recurrent-event methods. If only first event matters and censoring occurs, ordinary Poisson regression on total events may not estimate cumulative risk.
 
-The denominator person-time should stop at a clearly specified event, censoring, or competing event. Death prevents later occurrence of nonfatal outcomes and can make crude rates hard to compare if mortality differs by group. Cause-specific rates and cumulative incidence answer different questions. Calendar time, recurrent events, and staggered enrollment can also violate a constant rate. Use piecewise rates or flexible survival methods when hazards vary materially.
+### Overdispersion and predictive uncertainty
 
-## Model diagnostics
+If variance exceeds mean, standard Poisson SEs may be too small. Calculate residual deviance/df or Pearson chi-square/df as a rough diagnostic, then inspect mean-variance patterns and clustering. Negative binomial variance often takes μ+αμ². Quasi-Poisson estimates a scale factor for SEs but lacks a full likelihood for likelihood-ratio tests or AIC. Random effects can represent heterogeneity across patients or sites.
 
-Plot observed counts versus fitted means, examine residuals by time and exposure, and assess excess zeros and influential observations. Check whether adding covariates explains apparent overdispersion. Compare Poisson and negative-binomial fits using substantive interpretation and diagnostics rather than a test alone. Report dispersion assumptions, offset definition, and uncertainty method. Cite Cameron and Trivedi for count regression and Rothman for rate interpretation; the survival-analysis articles extend the treatment of person-time and censoring.
+Prediction intervals for future counts should account for rate uncertainty and extra-Poisson variation. A confidence interval for mean rate is not a prediction interval for an individual site’s future events. Explain which target is reported.
 
+## Confidence intervals and zero-event studies
 
-## Exact tails and planning probabilities
+For k events among n independent participants with common follow-up, Wilson intervals generally perform better than the simple Wald interval p̂±1.96√[p̂(1−p̂)/n], especially near 0 or 1. Exact binomial intervals guarantee at least nominal coverage but can be conservative. If zero events occur, the upper 95% risk bound is approximately 3/n under the rule of three. Zero observed events do not establish zero risk.
 
-The binomial distribution calculates probabilities for a fixed number of independent opportunities. If an adverse event probability is .03 per dose over 20 doses, the expected count is .6 but the probability of at least one event is 1−.97^20=.456. The Poisson approximation with mean np=.6 gives 1−e^(−.6)=.451, close because p is small and n is moderate. For common events or small n, calculate binomial probabilities directly.
+For a Poisson count k over exposure T, estimated rate is k/T. An exact confidence interval for λ can be calculated from chi-square quantiles and divided by T. With zero counts, an approximate upper 95% bound is 3/T. This bound assumes a stable Poisson process and complete event ascertainment.
+
+### Model diagnostics in R
 
 ```r
-n <- 20; p <- .03
-c(binomial_at_least_one = 1 - dbinom(0, n, p),
-  poisson_approximation = 1 - exp(-n*p))
+fit <- glm(events ~ treatment + offset(log(person_years)),
+           family = poisson, data = dat)
+dispersion <- sum(residuals(fit, type = "pearson")^2) / df.residual(fit)
+c(dispersion = dispersion, deviance = deviance(fit),
+  residual_df = df.residual(fit))
 ```
 
-This comparison assumes each dose has the same independent risk. Repeated dosing may create cumulative susceptibility, tolerance, or treatment discontinuation; the independent-trial model then misstates risk. Use the formula for planning only when the per-opportunity model fits the process.
+Dispersion near one is compatible with the model but does not prove it. Inspect residuals by fitted value and time, influential observations, and zero patterns. If overdispersion exists, use negative binomial, quasi-likelihood, random effects, or robust variance according to the data process.
 
-## Choosing binomial, Poisson, or survival analysis
+### Person-time interpretation
 
-Use binomial likelihood for a fixed number of people with a binary outcome over a common time horizon. Use Poisson regression for counts with exposure time when an event rate is meaningful and the log-linear rate structure is plausible. Use survival analysis when time to first event and censoring matter. These frameworks are related but estimate different quantities. A Poisson model with person-time is not automatically a substitute for Kaplan–Meier risk, particularly when hazards vary or competing events occur.
+A rate of 30 per 1,000 person-years does not mean 3% risk in every participant. Converting rate to risk requires a hazard model and time horizon. Under constant hazard with no competing event, risk at one year is 1−exp(−.03)=2.96%, but varying hazards or competing mortality alter cumulative incidence. State rate units and avoid “percent” language for rates.
 
-For common binary outcomes, modified Poisson regression with robust variance can estimate risk ratios, but predicted means may exceed one and the model is an estimating approach rather than a literal Poisson data model. Log-binomial regression directly models risk ratios but can have convergence problems. Logistic regression is stable but produces odds ratios. State the target measure and method explicitly.
+### Binomial versus Poisson regression
 
-## Overdispersion and predictive calibration
+A binomial logistic model can estimate odds of at least one event over fixed follow-up; Poisson with offset models event rate over person-time. Modified Poisson regression with robust variance can estimate risk ratios for common fixed-horizon binary outcomes, but it is not the same as recurrent-event Poisson modeling. Choose model by outcome definition and denominator. Recurrent counts within individuals may require negative binomial or Andersen–Gill/frailty survival methods.
 
-A residual deviance much larger than degrees of freedom may suggest overdispersion, but investigate mean misspecification and dependence. Plot residuals against fitted values and covariates; check site-level patterns, time trends, and zero counts. For prediction, compare observed and expected counts across risk groups. Confidence intervals for coefficients do not prove that predicted event counts are calibrated. For sparse outcomes, penalized likelihood or Bayesian regularization may stabilize estimates, but external validation remains necessary.
+### Assumptions and interpretation
 
-## Rate ratios and absolute rates together
+Binomial trials assume a common p; heterogeneous risks create beta-binomial overdispersion. Poisson assumes conditionally independent increments and a modeled intensity; clustering and unmeasured heterogeneity violate this. Both models can be extended, but extensions require assumptions and diagnostics. Report the event definition, window or person-time, count, denominator, effect measure, interval, and covariates. A rate ratio is an association unless design supports causal inference.
 
-A rate ratio of 0.60 can arise from rates 2.5 versus 1.5 per 100 person-years, or from 25 versus 15 per 100 person-years. Relative effects match, absolute burden differs tenfold. Report both rates, their uncertainty, person-time, and a clinically interpretable time horizon. If hazards are roughly constant, convert rate to risk with 1−exp(−λt), but explain that this assumes a stable rate and no competing events.
+### Independence and common-risk assumptions
 
-For a rate ratio from two independent Poisson counts, the approximate standard error of the log ratio is sqrt(1/x1+1/x0). With few events, use exact methods or profile likelihood. Zero counts create an infinite or zero ratio; arbitrary continuity corrections can materially change results. Bayesian priors or exact conditional procedures can handle sparse data more transparently.
+Binomial variance np(1−p) assumes each trial has same p and independent outcomes. If patient risks vary, marginal count variance can exceed binomial variance even without direct interaction; this is heterogeneity. Household transmission, shared clinic practice, and common exposures create dependence. Beta-binomial models allow p to vary across clusters; logistic mixed models can condition on covariates and random effects.
 
-## Excess zeros require a process explanation
+Poisson counts assume independent increments conditional on rate and constant intensity within modeled strata. Epidemic contagion violates independence as infections create future infections. A negative-binomial model can accommodate extra-Poisson variance but not necessarily represent transmission mechanism. For outbreaks, branching-process or transmission models may be appropriate.
 
-A zero-inflated model posits two processes: a structural-zero state and a count-generating state. A hurdle model separately models any event versus positive count and then the positive count distribution. These models can be useful when some participants are not at risk at all, but can overfit if zeros are merely expected under a low Poisson mean. Compare predicted and observed zero proportions and assess whether the proposed “never event” group makes clinical sense. Model complexity should be supported by enough positive counts.
+### Rate ratios and absolute rates
 
-A final model report should distinguish the observed count, expected count, and estimated parameter. For a binomial result, give events/participants and risk; for a Poisson result, give events/person-time and rate. Include confidence intervals and state any offset, overdispersion correction, clustering, or exact method. This simple format makes it harder to confuse incidence proportion with incidence rate.
+A Poisson rate ratio compares events per person-time; report each arm’s rate as well as the ratio. A twofold rate increase from 1 to 2 per 1,000 person-years has a small absolute increment; from 100 to 200 has a much larger one. If person-time differs because of competing death or informative dropout, simple offsets may be biased. Describe follow-up and risk set.
 
-## Follow-up windows and person-time accounting
+### Zero inflation and hurdle processes
 
-Person-time should accrue only while a participant is observable and at risk for the event under the analysis definition. If an event is counted once, stop at the first event; if recurrent events are counted, specify how time after the first event contributes. Death, withdrawal, and end of study may end observation at different times. Incorrectly retaining time after an event or omitting unequal exposure creates a biased rate. Provide a flow diagram or table showing events and person-time by group.
+A zero-inflated model assumes a latent structural-zero group and a count-generating group; a hurdle model separately models any event and positive count intensity. These models can describe situations where some patients are not at risk or never use a service, but identification can be weak. Compare to negative binomial and assess predictive fit. Excess zeros alone are not sufficient evidence for a mixture mechanism.
+
+## Choosing an analysis from the sampling frame
+
+If each enrolled participant is followed for 30 days and event status is complete, a binomial risk is natural. If follow-up varies and total events accrue over person-time, a rate model may be more appropriate. If only time to first event matters with censoring, survival analysis is often preferable. If patients can have recurrent episodes, count models or recurrent-event methods may be needed. Write the event unit and time denominator before selecting a distribution.
+
+### Data visualization
+
+Plot observed counts against person-time or group, and compare mean and variance. A Poisson Q-Q plot or rootogram can show lack of fit; residuals by fitted value can reveal overdispersion. Show zero frequency and upper tail. Diagnostics should prompt model assessment, not automatic adoption of complex zero-inflated models.
+
+### Confidence intervals for rates
+
+For k Poisson events over T person-years, maximum-likelihood rate is k/T. A central exact 95% interval for the count mean is approximately [0.5χ²(2k,.025), 0.5χ²(2(k+1),.975)]; divide both bounds by T for a rate interval. For k=0, the lower bound is zero and the upper remains positive. This reinforces that no observed events does not mean risk is absent.
+
+```r
+k <- 18; T <- 600
+rate <- k / T
+ci <- c(.5 * qchisq(.025, 2*k),
+        .5 * qchisq(.975, 2*(k+1))) / T
+c(rate = rate, lower = ci[1], upper = ci[2])
+```
+
+Use a method appropriate to exposure process and event independence. Recurrent event counts from the same person may require robust or frailty variance, not an ordinary exact Poisson interval.
+
+### Predictive versus inferential questions
+
+A confidence interval for λ estimates uncertainty in the underlying rate. A predictive interval for a future count includes Poisson variation plus parameter uncertainty and is wider. For planning, probability of exceeding a safety threshold may be more useful than a rate interval. Simulate posterior or likelihood-based rates and counts under an explicit follow-up scenario.
+
+### Worked comparison of risk and rate
+
+If 12 of 200 participants have at least one event by 30 days, observed risk is 6%. If 18 events occur over 600 person-years, rate is 0.03 per person-year or 30 per 1,000 person-years. They need not describe the same estimand: the first counts participants, the second recurrent event episodes per time. A patient can contribute several Poisson events but only one binary “any event” outcome.
+
+### Missing exposure time
+
+Person-time should stop at event, loss to follow-up, death, or end of observation according to the estimand. Informative censoring can bias rate estimates if high-risk patients leave early. Use survival or inverse-probability methods where appropriate. An offset handles different exposure amounts under proportional rate assumption; it does not solve informative observation.
+
+### Heterogeneity in event risk
+
+A common binomial p assumes participants are exchangeable with equal conditional risk. Age, disease stage, and treatment adherence create risk variation; marginal event counts then show extra-binomial variation. Stratifying or modeling predictors can explain some heterogeneity. Random effects or beta-binomial models account for residual variation, but prediction for a new cluster must include between-cluster uncertainty.
+
+### Model choice checklist
+
+Define whether the outcome counts people, episodes, or time to first event; specify denominator and horizon; inspect variance and zero pattern; identify clustering and censoring; then choose binomial, Poisson, survival, or recurrent-event model. Report effect measure and units. No distribution choice substitutes for a meaningful event definition.
+
+### Interpreting model coefficients
+
+In logistic regression, exponentiated treatment coefficients are conditional odds ratios. In Poisson regression with a log offset, exponentiated coefficients are rate ratios. Neither is automatically a risk ratio. For common outcomes, the odds ratio can be far from the risk ratio; for fixed-window binary events, modified Poisson or marginal standardization may estimate risk ratios. State the link and outcome denominator.
+
+### Descriptive and model-based summaries
+
+Observed proportions and rates are useful descriptive anchors. Regression adjusts for covariates and can standardize to a target population, but depends on model form and positivity. Present absolute risks/rates with relative contrasts where possible. Model-based precision does not remove confounding or measurement error.
+
+### A sample-size illustration
+
+For a binomial risk near .10, a rough normal-approximation sample size for a 95% margin of error .04 is n≈1.96²(.10)(.90)/.04²≈216. Exact or Wilson precision differs, and attrition increases enrollment. For Poisson rates, expected event count determines relative precision; the approximate relative SE is 1/√k, so about 100 events yield roughly 10% relative SE before other design effects. Rare outcomes may require long follow-up or pooled evidence.
+
+### Reporting checklist
+
+Give event definition, participant count or person-time, observed count, rate/risk units, interval method, model family and offset, overdispersion assessment, and dependence structure. Include absolute rates and relative contrasts. This makes assumptions and denominator visible.
+
+### Interpretation and causality
+
+A binomial risk or Poisson rate is a descriptive or model-based outcome measure. The distribution specifies sampling variability; it does not establish that an exposure caused a difference. In observational data, adjust for confounding based on the causal question and discuss residual bias. Show event counts and absolute measures before interpreting a relative coefficient.
+
+When presenting a count model, make clear whether “zero” means no event observed during complete follow-up or missing/unknown ascertainment. These cases have different likelihood contributions.
+
+
+
+For person-time rates, state units such as events per 1,000 person-years and the observation window; never present the rate as a percent risk.
+
+
+A rate ratio should be presented with each arm’s event count and person-time so the scale and denominator remain visible.
+
+When follow-up differs by group, state how person-time was accumulated and whether event-dependent censoring could alter observed rates.
+
+Include confidence intervals for both absolute risk/rate and relative treatment effect, and explain their distinct interpretations.
+
+A model-based rate is conditional on the specified exposure process and may not transport across populations with different case mix.
+
+Choose the denominator before interpreting a count.
+
+Account for censoring when time at risk differs across participants.
+
+
+
+### Summary of model assumptions
+
+Binomial inference requires a fixed denominator and common event probability; Poisson inference requires an exposure-based count process with an appropriate rate structure. Clustering, heterogeneity, censoring, and recurrent outcomes may require extensions. Report the observed count and denominator so readers can judge the model’s context.
+
 
 ## References and further reading
 

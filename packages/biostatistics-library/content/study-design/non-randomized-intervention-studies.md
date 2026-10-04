@@ -3,155 +3,129 @@ title: Non-randomized intervention studies
 summary: How to estimate intervention effects when assignment is not randomized, using explicit causal questions and quasi-experimental designs.
 ---
 
-## Overview and key ideas
+## Overview
 
-A **non-randomized intervention study** evaluates an intervention whose assignment is determined by clinicians, patients, institutions, policy, or logistics rather than chance. Examples include a new discharge program introduced at selected hospitals, a law implemented in some regions, or a treatment chosen according to clinical severity. These studies may be prospective or retrospective and may include comparison groups and repeated measurements.
+Non-randomized intervention studies evaluate programs, policies, services, or treatments when people or organizations receive them through clinical decisions, personal choice, geography, administrative rules, or practical constraints rather than chance. These studies are often the only way to assess a policy operating at scale or a treatment that cannot ethically be withheld. Their central difficulty is that intervention and comparison groups may have different outcomes even if the intervention had no effect.
 
-Because the intervention groups can differ before treatment, an observed outcome difference mixes the intervention effect with **selection and confounding**. Statistical adjustment can help only for measured, adequately modeled factors. A useful starting point is to specify the target question as if a trial could be run: eligible population, treatment strategies, assignment time, follow-up, outcome, and causal contrast. This target-trial framing helps avoid immortal-time bias, misaligned eligibility and treatment assignment, and inappropriate comparator selection.
+Statistical adjustment does not erase that difficulty. A causal conclusion requires a credible comparison representing the outcome that would have occurred under the alternative strategy. The strongest analyses begin with the assignment mechanism: who became treated, when, and why? They define a target trial, choose a design whose assumptions fit that mechanism, and make the assumptions testable where possible. A sophisticated model applied to a weak comparison remains a weak design.
 
-**Quasi-experimental designs** strengthen causal inference by exploiting a policy threshold, rollout timing, comparison series, or other assignment mechanism. They do not remove assumptions; they make the identifying assumptions more explicit and sometimes more plausible.
+## Reconstruct the trial you wish had been run
 
-## When to use it
+Before opening the outcome results, specify the target population, eligibility criteria, treatment strategies, assignment time, follow-up start and end, outcome, and causal contrast. This target-trial protocol exposes mismatches between eligibility and treatment initiation. If follow-up begins after treatment starts, patients must survive or remain event-free during the gap to be classified as treated, creating immortal-time or selection bias. A new-user, active-comparator design often aligns the eligibility and treatment decisions better than a comparison of prevalent users with untreated people.
 
-Use these designs when randomization is infeasible, unethical, or unavailable, or when evaluating real-world policies and service changes. Common approaches include:
+Potential outcomes give a precise target. Let (Y^1) and (Y^0) denote the outcome under strategies 1 and 0. The average treatment effect is (E(Y^1-Y^0)) in the eligible population; the average effect among treated is (E(Y^1-Y^0\mid A=1)). They differ when effects vary or when the treated population differs from the full target population. Specify whether the question concerns initiating treatment, sustained adherence, assignment to a program, or actual receipt. These are distinct interventions, and each needs its own handling of discontinuation, crossover, and competing events.
 
-| Design | Core comparison | Key identifying idea |
-| --- | --- | --- |
-| Difference-in-differences | Change in treated units versus change in comparison units | In the absence of intervention, average outcome trends would have been parallel |
-| Interrupted time series | Outcome level and trend before versus after intervention | No coincident event or change in measurement explains the post-intervention shift |
-| Regression discontinuity | Units just above versus below an assignment cutoff | Near the cutoff, potential outcomes vary smoothly and the cutoff is not manipulated |
-| Instrumental variables | Outcome differences induced by an instrument | Instrument affects treatment, is independent of potential outcomes, and affects outcome only through treatment (plus design-specific assumptions) |
-| Propensity score weighting or matching | Outcomes among measured-covariate comparable groups | Conditional exchangeability, positivity, consistency, and correct enough estimation |
+Identification commonly relies on consistency, conditional exchangeability, and positivity. Consistency means the observed outcome under the received strategy corresponds to that strategy's potential outcome, and treatment versions are sufficiently well defined. Conditional exchangeability says that after controlling for measured pre-treatment covariates (L), assignment is independent of potential outcomes. Positivity requires a nonzero chance of each strategy at every covariate pattern in the target population. Interference may violate the assumption that one person's treatment leaves another's outcome unchanged, especially for vaccination, hospital policy, and community programs. These conditions are substantive, not properties a regression diagnostic can prove.
 
-When treatment starts at different times across places, the analysis must account for treatment timing and potentially different effects by cohort and time since adoption. A simple two-way fixed-effects coefficient can be misleading under staggered adoption and heterogeneous effects.
+## Let the assignment process choose the design
 
-## Assumptions and limitations
+Draw a timeline and a causal diagram. Include determinants of intervention uptake and outcome, the timing of each measure, and variables changed by earlier exposure. Ask whether assignment arose from a cutoff, a rollout schedule, a clinical choice, a capacity constraint, or a secular trend. This history determines which comparisons are plausible and what effect they estimate.
 
-- **Exchangeability / no unmeasured confounding:** Conditional on measured covariates or the quasi-experimental design, treatment assignment is independent of relevant potential outcomes. This cannot generally be verified from observed data alone.
-- **Consistency and well-defined treatment:** “Intervention” must represent sufficiently clear strategies. Different versions, uptake, and co-interventions can make the causal contrast ambiguous.
-- **Positivity:** For covariate patterns in the target population, there must be a realistic chance of receiving each strategy. Extreme propensity weights signal weak overlap and unstable extrapolation.
-- **Difference-in-differences:** Parallel trends concerns the untreated potential outcomes, not merely similar observed baseline levels. Similar pre-trends are supportive but cannot prove future parallel trends. Anticipation, spillovers, changing group composition, or concurrent policies can violate the design.
-- **Interrupted time series:** Enough observations are needed before and after; seasonality, autocorrelation, secular trends, and concurrent events must be modeled. A single before-after contrast is not a robust time-series analysis.
-- **Regression discontinuity:** The assignment rule must be enforced around a known cutoff; inspect manipulation and covariate continuity. The effect is local to units near that cutoff.
-- **Instrumental variables:** The exclusion restriction is especially demanding and usually not testable directly. The estimate often applies to compliers, not every patient.
-- **Outcome and follow-up:** Differential outcome ascertainment, loss to follow-up, and competing events can bias estimates even when the assignment design is credible.
+If treatment is selected based on observed baseline risk and there is overlap, matching, weighting, standardization, or outcome regression may adjust measured confounders. If a policy is introduced at a known date with enough pre- and post-period observations, interrupted time series may be more credible. If treated and comparison groups are observed before and after a change, difference-in-differences may remove common time shocks under a parallel-trends assumption. If a threshold changes assignment sharply, regression discontinuity may identify a local effect. If an external instrument shifts treatment but otherwise has no outcome pathway, instrumental variables may identify an effect among compliers. These methods do not estimate interchangeable quantities.
 
-## Worked example
+Describe the comparator's access to services and other concurrent changes. “Untreated” may mean usual care, delayed access, ineligible, or not yet exposed; each creates a different contrast. A historical control can differ in diagnostic criteria, coding, staffing, referral patterns, and background prognosis. A concurrent active comparator may improve comparability but change the question to one treatment versus another. Explain why this group approximates the counterfactual, rather than relying on its label.
 
-A health system introduces a pharmacist-led discharge service at 8 hospitals. Eight similar hospitals do not introduce it during the same period. Thirty-day readmission falls from 18% to 14% in intervention hospitals and from 16% to 15% in comparison hospitals.
+## Adjustment for measured baseline confounding
 
-The unadjusted difference-in-differences estimate is:
-
-`(14% − 18%) − (15% − 16%) = −4% − (−1%) = −3 percentage points.`
-
-This estimate says readmission declined 3 percentage points more in the intervention hospitals, under the parallel-trends and other assumptions. It is not automatically causal: the service may have been introduced in hospitals already improving faster, or another discharge policy may have changed at the same time. Several pre-intervention periods, a prespecified comparison group, case-mix trends, implementation timing, and negative-control outcomes can help assess credibility. The standard error must reflect hospital-level assignment; treating every patient as independent would overstate precision.
-
-## Interpretation and common pitfalls
-
-- Label the estimate as causal only when the design's assumptions are credible, not because a regression adjusted for many covariates.
-- Draw a causal diagram or write the assignment process in words before choosing adjustment variables. Adjusting for mediators or colliders can introduce bias.
-- Avoid “significant pre-trend test = parallel trends.” Such tests can have low power; substantively assess pre-intervention trajectories and use sensitivity analysis.
-- Do not compare a post-intervention group with a historically convenient control without addressing secular change and composition.
-- Report the target population, treatment strategies, estimand, assumptions, diagnostics, and sensitivity analyses. If assumptions are weak, present the finding as an association and explain what would change the conclusion.
-- For staggered adoption, select methods suited to treatment timing and heterogeneous effects rather than relying automatically on a conventional two-way fixed-effects model.
-
-## Target trial specification and causal estimands
-
-Begin by writing a target trial protocol even when only observational records are available. Specify eligibility, treatment strategies, assignment time (“time zero”), follow-up start and end, outcome, causal contrast, and analysis. Alignment matters: if eligibility is assessed before treatment but follow-up begins after treatment, selected patients must survive or remain event-free long enough to enter one arm, creating immortal-time or selection bias. A new-user, active-comparator cohort often aligns treatment initiation better than comparing prevalent users with untreated people.
-
-Potential outcomes clarify the estimand. For a binary strategy `a`, let `Y^a` be the outcome that would occur if a person followed strategy `a`. The average treatment effect is `E(Y^1 − Y^0)` in a stated target population; the average treatment effect among treated is `E(Y^1 − Y^0 | A=1)`. These differ when effects vary and populations differ. In observational data, treatment received may depart from treatment initiated; specify whether the target is an initiation effect, a sustained-strategy effect, or a per-protocol effect. The intention-to-treat contrast is natural under random assignment, but not automatically defined in the same way for nonrandomized treatment receipt.
-
-Identification typically invokes consistency, conditional exchangeability, and positivity. Consistency requires that observed outcomes under the received strategy equal the corresponding potential outcome and that versions of treatment are sufficiently well-defined. Exchangeability states that, conditional on measured pre-treatment covariates `L`, treatment is independent of potential outcomes. Positivity requires both strategies to occur with positive probability at each covariate pattern in the target population. These assumptions are substantive; model fit does not prove them. Interference also matters when one unit's treatment affects another's outcome, as with hospital policies or vaccination. Define exposure mappings or use group-level estimands when spillovers are expected.
-
-## Adjustment methods and what they estimate
-
-In a simple baseline-treatment setting, the propensity score `e(L)=P(A=1|L)` can support matching, stratification, or weighting. Inverse probability weights create a pseudo-population in which measured baseline covariates are balanced in expectation. For an ATE, stabilized weights may use `P(A=a)/P(A=a|L)`; for an ATT, treated observations receive weight 1 and controls receive `e(L)/(1-e(L))`. Weighted outcome contrasts target different populations, so always state the estimand. Examine propensity overlap, standardized mean differences, weight distributions, and effective sample size. Weight truncation can reduce variance but changes the bias-variance tradeoff and may change the target. It should be prespecified and reported.
-
-A small executable example for baseline binary exposure:
+For a baseline exposure (A) and covariates (L), the propensity score (e(L)=P(A=1\mid L)) can be used for matching, stratification, weighting, or as a covariate. Inverse-probability weighting creates a pseudo-population where measured baseline covariates are balanced in expectation. Stabilized ATE weights are (P(A=a)/P(A=a\mid L)); ATT weights assign 1 to treated and (e(L)/(1-e(L))) to controls. The estimand follows the weighting scheme, so say whether the result targets all eligible people or those treated.
 
 ```r
-ps_fit <- glm(A ~ age + severity + comorbidity, family = binomial(), data = d)
+ps_fit <- glm(A ~ age + severity + comorbidity + prior_use,
+              family = binomial(), data = d)
 d$ps <- predict(ps_fit, type = "response")
-# Stabilized ATE weights
-d$sw <- ifelse(d$A == 1, mean(d$A) / d$ps,
-               (1 - mean(d$A)) / (1 - d$ps))
+p_treat <- mean(d$A == 1)
+d$sw <- ifelse(d$A == 1, p_treat / d$ps,
+               (1 - p_treat) / (1 - d$ps))
 weighted_fit <- glm(Y ~ A, family = binomial(), data = d, weights = sw)
 summary(weighted_fit)
 ```
 
-This code illustrates weight construction; it is not a complete analysis. Standard model-based standard errors from weighted `glm` generally do not account for estimated weights or clustering. Use robust/sandwich or bootstrap inference appropriate to the sampling and assignment structure, and diagnose positivity before fitting an outcome model. For risk differences, estimate standardized risks under each treatment rather than interpreting a logistic coefficient as a risk difference. Doubly robust estimators combine treatment and outcome models and can remain consistent if one of the two is correctly specified under the other identification assumptions; “doubly robust” does not protect against unmeasured confounding or positivity violations.
+This code illustrates stabilized weights for a binary outcome, not a complete causal analysis. Inspect covariate balance after weighting using standardized differences, score overlap, the weight distribution, and effective sample size. Near-zero propensity scores create huge weights and indicate that the data contain little support for one strategy in some strata. Trimming weights can reduce variance but changes the bias-variance trade-off and may alter the target population. State the rule and show sensitivity to plausible choices.
 
-When treatment and confounders evolve over time, ordinary regression adjustment can be biased if time-varying confounders are affected by prior treatment. Marginal structural models use inverse-probability weights for treatment and censoring histories; the g-formula models longitudinal outcomes under specified treatment regimes; structural nested models are another option. These approaches require sequential exchangeability, consistency, and positivity at each time. Extreme longitudinal weights are common and often reveal weak support for the target regime. State whether the estimand concerns sustained treatment, a dynamic strategy, or initiation.
+The model-based standard error printed by this weighted `glm` may not account adequately for estimated weights or clustering. Use an inference method suited to the design, such as a robust sandwich estimator or bootstrap that repeats propensity estimation and respects the assignment unit. For a risk difference, predict standardized risks under each treatment and subtract them; a logistic regression coefficient is an odds ratio and is not a risk difference. Doubly robust estimators combine treatment and outcome models and may remain consistent if one model is correctly specified, given the identification assumptions. They do not protect against unmeasured confounding, poor overlap, or ill-defined interventions.
 
-## Quasi-experimental designs in greater detail
+## When exposure changes over time
+
+Ordinary adjustment can fail when a time-varying covariate predicts later treatment and outcome but is itself affected by earlier treatment. Adjusting for it in a conventional regression can block part of the treatment effect or open a biased path. Marginal structural models use inverse probability weights for treatment and censoring histories; the parametric g-formula models the outcome process under specified treatment regimes; structural nested models provide another option. These methods require sequential exchangeability, consistency, and positivity at each time point. Extreme longitudinal weights are common and signal weak support for sustained regimes.
+
+Define treatment histories clearly: initiation, duration, adherence, switching, and discontinuation. Censoring at treatment deviation can create selection bias; inverse probability of censoring weights may address it under additional assumptions. Report how the strategy handles death, competing events, and loss to follow-up. A per-protocol effect and an initiation effect are not the same estimand.
+
+## Use natural experiments with explicit assumptions
 
 ### Difference-in-differences
 
-With two groups and two periods, the contrast is `(Y_T,post − Y_T,pre) − (Y_C,post − Y_C,pre)`. Its causal interpretation requires parallel counterfactual trends: absent intervention, treated and comparison outcomes would have changed equally on the chosen scale. The assumption concerns untreated potential outcomes and cannot be proven by a non-significant pretrend test. Plot multiple pre-periods, examine substantive comparability, investigate concurrent shocks and anticipation, and consider placebo dates/outcomes. With staggered adoption and heterogeneous treatment effects, traditional two-way fixed-effects regression can mix comparisons and assign unintuitive weights. Cohort-time estimators or event-study methods designed for staggered adoption are usually preferable. Cluster uncertainty at the level treatment is assigned; a large patient count does not compensate for a small number of treated hospitals.
+With treated and comparison groups measured before and after intervention, the basic estimator is
+
+\[
+\widehat{\tau}_{DID}=(Y_{T,post}-Y_{T,pre})-(Y_{C,post}-Y_{C,pre}).
+\]
+
+For example, if treated districts fall from 18 to 14 admissions per 10,000 and comparison districts fall from 16 to 15, then DID is ((14-18)-(15-16)=-3) admissions per 10,000. The estimate says the treated group's rate declined by three more than the comparison group's over the period, under the model. A causal reading requires that, absent the policy, the groups would have followed parallel trends on the chosen scale.
+
+Plot multiple pre-intervention periods and assess their substantive comparability. A non-significant pretrend test does not prove parallel trends; such tests can have low power. Check anticipation, concurrent programs, composition changes, and spillovers. Cluster uncertainty at the policy assignment unit. With staggered adoption and heterogeneous effects, a conventional two-way fixed-effects regression can mix comparisons and produce difficult-to-interpret weights. Cohort-time methods or event-study estimators designed for staggered rollout are generally preferable. Define which cohorts and post-treatment periods contribute to the target contrast.
 
 ### Interrupted time series
 
-Segmented regression estimates immediate level and slope changes, for example `Y_t = β0 + β1 time + β2 post + β3 time_after + ε_t`. `β2` is an immediate level shift and `β3` a slope change, given the specified model. Seasonal patterns, autocorrelation, changing outcome definitions, and concurrent interventions can imitate intervention effects. A control series can strengthen the design if it shares background shocks but is not affected by the intervention. Report the number and spacing of observations and use a plausible functional form; segmented regression cannot turn a coincident event into an identified treatment effect.
+Segmented regression models an expected level and trend change at implementation, for example (Y_t=\beta_0+\beta_1t+\beta_2I(t\ge T)+\beta_3(t-T)_++\epsilon_t). Here β₂ is an immediate level change and β₃ a change in slope, conditional on the model. Choose the time scale and functional form before examining a set of candidate breakpoints. Consider autocorrelation, seasonality, overdispersion for counts, missing observations, and delayed effects. A control series exposed to similar background conditions but not to the intervention can strengthen the comparison. A coincident shock, altered coding system, or changing population can still mimic the intervention.
 
-### Regression discontinuity and instrumental variables
+### Regression discontinuity
 
-Regression discontinuity estimates a local effect near an assignment cutoff. It needs continuity of potential outcomes at the threshold, no precise manipulation of the running variable, and a treatment probability jump. Show the assignment rule, density and covariate continuity diagnostics, bandwidth sensitivity, and functional-form sensitivity. In fuzzy RD, assignment changes treatment probability and is used as an instrument; the estimand is local to compliers near the cutoff under additional assumptions.
+When treatment eligibility changes at a threshold in a running variable, compare units just above and below the cutoff. The local effect is credible if potential outcomes evolve smoothly through the threshold, units cannot precisely manipulate assignment, and treatment probability actually changes there. Plot outcome and covariate patterns, inspect the running-variable density, justify the bandwidth, and report sensitivity to polynomial form and bandwidth. A fuzzy design uses the assignment jump as an instrument for treatment; it identifies a local effect for compliers near the cutoff under additional assumptions, not an average effect for everyone.
 
-Instrumental-variable analysis requires relevance, independence, exclusion, and often monotonicity for a local average treatment effect interpretation. The exclusion restriction—that the instrument affects the outcome only through treatment—is generally not empirically testable. Weak instruments produce unstable estimates and poor coverage. Explain the substantive mechanism and the population of compliers rather than calling IV a generic solution to confounding.
+### Instrumental variables
 
-## Sensitivity, missingness, and design credibility
+An instrument must predict treatment (relevance), be independent of potential outcomes (independence), affect the outcome only through treatment (exclusion), and often satisfy monotonicity for a local average treatment effect interpretation. The exclusion restriction is usually not empirically testable. Explain why the instrument exists and why alternative pathways are implausible. Weak instruments produce unstable estimates and poor confidence-interval coverage. Do not call an instrument a generic fix for confounding; its estimate answers a particular local question for people whose treatment changes with the instrument.
 
-Observed balance is not the same as exchangeability. Negative controls can reveal some residual bias if their assumptions are defensible; quantitative bias analysis can show how strong an unmeasured confounder would need to be to alter conclusions. Compare results across plausible specifications and report where estimates depend on modeling choices. Do not use a single “robustness” result to imply all bias has been removed.
+## Diagnose what the data can and cannot tell you
 
-Missing outcomes and censoring can be informative. Inverse probability-of-censoring weights require that predictors of censoring and outcome be measured and modeled; multiple imputation requires a credible missingness model. Competing events alter the estimand: a cause-specific hazard ratio is not the same as cumulative incidence under competing risks. State the outcome scale and how death, switching, adherence, and loss to follow-up are handled.
+Check covariate balance and overlap, missingness, measurement quality, outcome definition stability, and influential observations. For quasi-experimental designs, examine pre-trends, cutoff manipulation, placebo dates, negative-control outcomes, and alternative windows where justified. Diagnostics can uncover violations, but a passed diagnostic is not proof of the identifying assumption. Use negative controls only when their own causal relationships are understood.
 
-A credible nonrandomized estimate is a joint product of design, subject-matter knowledge, measurement, and analysis. Present a causal diagram or explicit adjustment rationale, assess overlap before adjustment, and distinguish prespecified from exploratory decisions. If assumptions remain weak, communicate an adjusted association with sensitivity bounds rather than overstating a causal effect.
+Quantify sensitivity to unmeasured confounding where feasible. State a plausible confounder, its associations with exposure and outcome, and how strong those associations would need to be to change the estimate. Compare alternative specifications that follow a causal rationale, not a search for the most favorable p-value. Consider how differential exposure misclassification, outcome ascertainment, censoring, and selection into linked data could bias results. Missing covariates should not be treated as resolved merely by complete-case analysis or imputation; explain the assumptions each approach requires.
 
+For small treated-cluster counts, conventional standard errors can be anti-conservative even with many people per cluster. Use small-sample corrections, randomization-based inference when the assignment mechanism supports it, or design-specific methods. Report the number of independent assignment units. Precision should be discussed in light of the effective comparison, not only the record count.
 
-## Choosing among designs and preventing common analytic failures
+## Worked analysis and interpretation
 
-Choose the design from the intervention's assignment process, not from whichever regression is easiest. If allocation follows a sharp threshold, an RD design may be more credible than broad covariate adjustment. If rollout timing is external to local outcome trends, DiD or event-study methods may help. If a policy affects an entire system with a clear implementation date, interrupted time series with adequate pre/post observations and a control series can be informative. Where none of these mechanisms is credible, a carefully designed cohort emulation may still estimate an association, but causal interpretation depends heavily on measured confounding assumptions.
+Imagine a vaccination reminder is introduced in 12 clinics while 10 comparable clinics continue usual outreach. The primary question is the policy effect on completed vaccination by six months among eligible patients registered before rollout. Define clinic-level implementation date as assignment, preserve the pre-rollout eligibility cohort, and compare clinic rates over several periods. If reminders spill across clinics or patients move between them, document that exposure contamination. Adjusting for baseline clinic and patient characteristics may help, but the policy's nonrandom adoption may depend on leadership, staffing, and local need.
 
-Do not select covariates by whether their p-values change after adjustment. Use subject-matter knowledge and a causal diagram. Adjust for pre-treatment common causes of exposure and outcome; avoid conditioning on consequences of treatment when estimating total effects. Some post-treatment variables can be needed for per-protocol strategies or mediation questions, but their roles and estimands differ. “More covariates” can increase bias through collider conditioning, amplify measurement error, or destroy positivity.
+For DID, estimate the change in treated clinics relative to comparison clinics and cluster uncertainty by clinic, the level of assignment. Plot pre-period vaccination trends, test sensitivity to excluding clinics with concurrent campaigns, and report absolute percentage-point differences. If rollout is staggered, use an estimator that handles treatment timing and heterogeneous effects rather than interpreting an unqualified two-way fixed-effects coefficient. If pre-trends diverge substantially, the causal interpretation weakens; additional covariate adjustment does not automatically repair it.
 
-Treatment and comparator definitions should account for adherence and co-intervention. A policy may be assigned at hospital level but only partly implemented; intention-to-treat-like assignment effects and effects of actually receiving the service are different estimands. If uptake is influenced by prognosis, naive as-treated comparisons reintroduce confounding. Instrumental variables, per-protocol weighting, or implementation models may be appropriate, but each adds assumptions. State whether contamination between groups is possible and whether spillovers are part of the policy effect.
+R's `lm()` can fit a basic two-period contrast, but a real analysis should reflect repeated clinics, patient denominators, and uncertainty at assignment level. For counts, use an appropriate binomial or count model; standardize predictions to the target patient population. Report both the model contrast and the raw clinic-period data so readers can inspect the comparison. A confidence interval quantifies sampling uncertainty conditional on the model, not uncertainty from every design assumption.
 
-Sample size in quasi-experimental studies is constrained by the number of independent assignment units and the strength of the natural experiment. A study with thousands of patients in two treated hospitals may have much less information than its patient count suggests. Cluster robust standard errors need adequate clusters; with few clusters use small-sample corrections or randomization-based methods where justified, and acknowledge remaining uncertainty. Report the number of clusters and intervention timing, not only participant counts.
+## Explain the strength of evidence without overstating it
 
-### Difference-in-differences calculation in R
+Use language matched to design: “was associated with,” “the adjusted estimate,” or “under the parallel-trends assumption” when assumptions remain uncertain. Reserve direct causal language for settings where the design and supporting evidence make the counterfactual credible. Report the estimate, interval, absolute scale, target population, follow-up period, and assumptions. Show how alternative reasonable choices affect conclusions, and distinguish confirmatory analyses from exploratory subgroup and outcome searches.
 
-A minimal two-group/two-period illustration can estimate the interaction contrast:
+Transparent reporting should include the target-trial protocol, assignment process, inclusion flow, treatment definitions, time zero, confounder rationale, missing-data handling, model specification, diagnostics, and sensitivity analyses. State deviations from protocol and whether they were outcome-informed. Describe generalizability: a local cutoff effect or clinic-specific rollout may not transfer to other thresholds, care systems, or populations. A careful quasi-experiment can be more informative than an underpowered randomized trial, but design credibility comes from the assignment mechanism and the data, not from a method name.
+
+## A practical route from question to estimator
+
+Use the assignment mechanism to narrow the design before trying multiple models. If treatment depends on a measured clinical score and every score range has treated and untreated patients, baseline adjustment may be plausible. If treatment is assigned by a sharp eligibility cutoff, use a regression-discontinuity design rather than extrapolating a global regression across the entire score range. If a policy starts on a known date and a comparable unaffected outcome series exists, an interrupted time series or controlled time series may better account for secular change. If adoption timing varies across locations, determine whether a staggered difference-in-differences method fits the rollout and effect heterogeneity. If none of these mechanisms offers a believable comparison, report a descriptive association and explain what stronger data would be required.
+
+This decision is not a competition to use the most sophisticated estimator. The estimand, support in the observed data, and assumptions should drive the choice. A propensity model can balance measured covariates while leaving severe unmeasured confounding. A quasi-experimental design can be more credible with fewer observations when assignment near a threshold or timing rule is plausibly as-if random. Conversely, a natural-experiment label does not rescue an invalid exclusion restriction or clearly nonparallel trends.
+
+## Diagnostics as questions, not certification
+
+After fitting, ask whether the data show features that contradict the design story. For propensity weighting, inspect score overlap and balance before and after weighting, then quantify effective sample size (ESS=(\sum_iw_i)^2/\sum_iw_i^2). If a nominal cohort of 20,000 has weighted ESS of 900, the estimate behaves more like a sample of that scale for some purposes. For DID, plot outcomes for every pre-period, check changes in composition, and examine whether a placebo intervention date creates a similar “effect.” For regression discontinuity, inspect the running-variable density and covariate continuity near the threshold. For ITS, plot the full series and residual autocorrelation. These checks can identify weaknesses, but none certifies the unobserved counterfactual.
 
 ```r
-# d has group (treated/control), post (0/1), and outcome columns
-fit <- lm(outcome ~ treated * post, data = d)
-coef(fit)["treated:post"]
+ess <- function(w) sum(w)^2 / sum(w^2)
+ess(d$sw)
 ```
 
-The interaction coefficient is the difference-in-differences estimate in this simple model. With repeated observations, inference must reflect assignment clustering; ordinary `lm` standard errors above are not appropriate for clustered treatment. With many periods or staggered adoption, use a method designed for the adoption structure, include event-time estimates, and avoid interpreting a single pooled coefficient without checking effect heterogeneity. The code estimates an algebraic contrast; it does not test the parallel trends assumption.
+Report diagnostics that could change how a reader interprets the estimate, not only a large panel of routine tests. A non-significant pretrend test can reflect low power; show the estimated trend differences and intervals. A balanced covariate table only covers measured covariates. Negative-control outcomes can reveal a shared bias pathway only if the intervention truly cannot affect them and they share relevant confounding structures.
 
+## Small worked sensitivity example
 
-## Interpretation across effect scales
+Suppose the weighted estimate of a program is a 4-percentage-point increase in adherence, with a 95% confidence interval from 1 to 7 points. Balance is good on recorded age, severity, and prior use, but clinicians also select patients based on motivation, which is not recorded. The statistical interval does not include uncertainty from motivation. A useful sensitivity analysis can posit a binary motivation indicator, specify its prevalence in each group and its association with adherence, then estimate how much the adjusted effect would move. If plausible differences could erase the 4-point estimate, state that limitation; if only extreme values do so, explain why those values are implausible. Avoid an unsupported statement that “residual confounding may remain” as the only sensitivity assessment.
 
-Effect measures are not interchangeable. A logistic regression coefficient is a conditional odds ratio; it is non-collapsible, so adjusted and unadjusted odds ratios may differ even without confounding. A hazard ratio is conditional on the risk set and proportional-hazards assumptions and does not directly give an absolute risk difference. For policy decisions, standardized risks, risk differences, or cumulative incidence can be easier to interpret. State whether the reported contrast is a risk ratio, odds ratio, mean difference, rate difference, survival contrast, or local IV effect, and over what follow-up horizon.
-
-Effect heterogeneity matters for transportability. A propensity-weighted ATE estimates a target population contrast only when weights support that target; ATT weighting answers a treated-population question. If effects vary by severity, age, or site, a pooled effect can hide clinically important variation. Prespecify plausible modifiers, avoid overfitting sparse subgroups, and distinguish a subgroup estimate from evidence of interaction. Transporting an estimate to another region requires comparing effect modifiers and treatment versions, not just adjusting baseline prevalence.
-
-### Sensitivity calculation for an unmeasured confounder
-
-A transparent sensitivity analysis starts by specifying a hypothetical confounder and asking how strongly it would need to relate to treatment and outcome to explain the estimated association. For ratio measures, E-values provide one summary under specific assumptions, but they do not address selection bias, measurement error, or multiple confounders automatically. For difference-in-differences, vary plausible differential untreated trends; for interrupted time series, model alternative trend shapes and concurrent shocks; for IV, discuss plausible direct effects of the instrument. Sensitivity parameters should be anchored to subject-matter knowledge where possible and presented as scenarios, not as proof that bias is absent.
-
-For example, if the estimated effect is a 3 percentage-point readmission reduction, show how the conclusion changes if treated hospitals would have improved an additional 1, 2, or 3 points even without the program. This can be calculated by subtracting each assumed differential trend from the DiD estimate. A 2-point violation leaves a −1-point adjusted contrast; a 3-point violation removes the estimated effect. Such a statement is more informative than merely saying “parallel trends may be violated.”
-
-
-## Distinguish design diagnostics from assumption tests
-
-Diagnostics can detect some contradictions but cannot certify identification. Good propensity overlap shows measured covariate support, not absence of unmeasured confounding. Similar pre-intervention trends support but do not prove parallel trends. Covariate continuity around an RD cutoff is reassuring but does not establish absence of precise manipulation in unobserved variables. A strong first stage supports IV relevance but does not prove exclusion. Present diagnostics as evidence about assumptions and specify which threats they cannot address.
-
+Even a robustness value or bias factor is conditional on a model. It cannot tell the reader which unmeasured factor is most credible. Pair quantitative analysis with subject-matter knowledge and report the assumptions behind the sensitivity parameters. Also inspect outcome definition, exposure misclassification, censoring, and selection into the analytic cohort: confounding is not the only route to bias.
 
 ## References and further reading
 
-- Hernán MA, Wang W, Leaf DE. [Target trial emulation: a framework for causal inference from observational data](https://doi.org/10.1001/jama.2022.21383). *JAMA*. 2022;328(24):2446–2447.
-- Hernán MA, Robins JM. [Using big data to emulate a target trial when a randomized trial is not available](https://doi.org/10.1097/EDE.0000000000000477). *Epidemiology*. 2016;27(3):335–338.
-- Zeldow B, Hatfield LA. [Confounding and regression adjustment in difference-in-differences studies](https://doi.org/10.1111/1475-6773.13666). *Health Services Research*. 2021;56(5):932–941.
-- The library's [bias and confounding article](bias-and-confounding.html) reviews confounding and adjustment; [randomized controlled trials](randomized-controlled-trials.html) describes the design benchmark these approaches seek to approximate.
+- Hernán MA, Robins JM. *Causal Inference: What If*. Chapman & Hall/CRC; 2020. [Free online text](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/)
+- Hernán MA, Sauer BC, Hernández-Díaz S, Platt R, Shrier I. Specifying a target trial prevents immortal time bias and other self-inflicted injuries in observational analyses. *Journal of Clinical Epidemiology*. 2016;79:70–75. [https://doi.org/10.1016/j.jclinepi.2016.04.014](https://doi.org/10.1016/j.jclinepi.2016.04.014)
+- Wing C, Simon K, Bello-Gomez RA. Designing difference in difference studies: best practices for public health policy research. *Annual Review of Public Health*. 2018;39:453–469. [https://doi.org/10.1146/annurev-publhealth-040617-013507](https://doi.org/10.1146/annurev-publhealth-040617-013507)
+- Bernal JL, Cummins S, Gasparrini A. Interrupted time series regression for the evaluation of public health interventions. *International Journal of Epidemiology*. 2017;46(1):348–355. [https://doi.org/10.1093/ije/dyw098](https://doi.org/10.1093/ije/dyw098)
+- Imbens GW, Lemieux T. Regression discontinuity designs: a guide to practice. *Journal of Econometrics*. 2008;142(2):615–635. [https://doi.org/10.1016/j.jeconom.2007.05.001](https://doi.org/10.1016/j.jeconom.2007.05.001)
+- The library's [bias and confounding article](bias-and-confounding.html) reviews confounder control; [randomized controlled trials](randomized-controlled-trials.html) provides the target-trial benchmark.

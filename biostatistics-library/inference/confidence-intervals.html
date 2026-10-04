@@ -111,259 +111,96 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Estimation <span class="sep">/</span> <strong style="color:#273e3b">Confidence intervals</strong></div>
         <h1 class="article-title">Confidence intervals</h1>
         <p class="article-summary">A 95% confidence interval is a random interval that, over repeated samples, covers the true parameter 95% of the time - not a probability statement about this particular interval.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#constructing-intervals-for-common-estimands">Constructing intervals for common estimands</a></li><li class="h2"><a href="#design-based-and-model-based-uncertainty">Design-based and model-based uncertainty</a></li><li class="h2"><a href="#reading-width-against-a-clinical-decision">Reading width against a clinical decision</a></li><li class="h2"><a href="#intervals-from-regression-and-survival-models">Intervals from regression and survival models</a></li><li class="h2"><a href="#coverage-in-practice-and-precision-planning">Coverage in practice and precision planning</a></li><li class="h2"><a href="#one-sided-bounds-in-safety-and-non-inferiority">One-sided bounds in safety and non-inferiority</a></li><li class="h2"><a href="#interval-coverage-and-multiplicity">Interval coverage and multiplicity</a></li><li class="h2"><a href="#worked-calculation-mean-median-and-prediction">Worked calculation: mean, median, and prediction</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#from-standard-error-to-interval">From standard error to interval</a></li><li class="h3"><a href="#reading-interval-width-in-context">Reading interval width in context</a></li><li class="h2"><a href="#why-the-familiar-formula-can-fail">Why the familiar formula can fail</a></li><li class="h2"><a href="#reporting-the-estimand-not-just-the-limits">Reporting the estimand, not just the limits</a></li><li class="h2"><a href="#coverage-is-a-property-of-the-procedure">Coverage is a property of the procedure</a></li><li class="h2"><a href="#nonlinear-scales-and-boundary-parameters">Nonlinear scales and boundary parameters</a></li><li class="h2"><a href="#resampling-without-breaking-the-design">Resampling without breaking the design</a></li><li class="h3"><a href="#interval-width-as-a-design-quantity">Interval width as a design quantity</a></li><li class="h2"><a href="#simultaneous-and-selected-intervals">Simultaneous and selected intervals</a></li><li class="h3"><a href="#reporting-beyond-endpoints">Reporting beyond endpoints</a></li><li class="h3"><a href="#comparing-intervals-is-not-a-test-of-interaction">Comparing intervals is not a test of interaction</a></li><li class="h3"><a href="#covariate-adjusted-intervals-and-marginal-targets">Covariate-adjusted intervals and marginal targets</a></li><li class="h3"><a href="#missingness-and-interval-validity">Missingness and interval validity</a></li><li class="h3"><a href="#repeated-looks-and-confidence-sequences">Repeated looks and confidence sequences</a></li><li class="h3"><a href="#precision-reporting-in-practice">Precision reporting in practice</a></li><li class="h3"><a href="#a-worked-ratio-calculation-in-r">A worked ratio calculation in R</a></li><li class="h3"><a href="#comparing-precision-across-studies">Comparing precision across studies</a></li><li class="h3"><a href="#distinguish-confidence-prediction-and-tolerance-intervals">Distinguish confidence, prediction, and tolerance intervals</a></li><li class="h2"><a href="#equivalence-and-non-inferiority-intervals">Equivalence and non-inferiority intervals</a></li><li class="h3"><a href="#rounding-and-presentation">Rounding and presentation</a></li><li class="h3"><a href="#intervals-from-hierarchical-models">Intervals from hierarchical models</a></li><li class="h3"><a href="#model-diagnostics-and-sensitivity">Model diagnostics and sensitivity</a></li><li class="h3"><a href="#intervals-for-proportions-with-no-events">Intervals for proportions with no events</a></li><li class="h3"><a href="#intervals-and-censoring">Intervals and censoring</a></li><li class="h3"><a href="#report-intervals-so-readers-can-act">Report intervals so readers can act</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>A <strong>confidence interval (CI)</strong> gives a range of plausible values for an unknown parameter, computed from the sample. For a mean (normal data or large n), a 95% CI is x-bar +/- 1.96 x SE; for a proportion, the large-sample interval is p-hat +/- 1.96 x sqrt(p-hat (1 - p-hat) / n). The width of the interval, roughly 4 x SE, is a direct measure of precision: a wide interval signals an imprecise estimate.</p>
-<p>The interpretation trips up most readers. In the frequentist framework the parameter (the true mean, say) is <strong>fixed</strong>, and it is the interval that is <strong>random</strong>. &quot;95% confidence&quot; means: if the study were repeated many times, each time computing an interval with the same rule, then 95% of those intervals would contain the true parameter. Once your interval has been computed, it either contains the true value or it does not - so saying &quot;there is a 95% probability that the true mean lies in this interval&quot; is strictly wrong.</p>
-<p>A CI also doubles as a hypothesis test: for a two-sided test at level alpha, the null value is rejected exactly when the 100(1 - alpha)% CI excludes it. A 95% CI for a risk ratio that does not include 1 corresponds to a p-value below 0.05.</p>
-<p>Three practical notes round out the picture. First, for small samples the multiplier 1.96 is replaced by the appropriate t critical value with n - 1 degrees of freedom, giving a slightly wider interval. Second, wider is not inherently worse: a wide interval for a rare outcome may be an honest reflection of limited information, and the remedy is usually a larger sample or a longer follow-up, not a different calculation. Third, all of this presumes the model is right: a confidence interval inherits the assumptions of the estimator that produced it, so a model with strong confounding produces a precise interval around the wrong target.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Randomised trial</td>
-<td>By how much does the new drug lower LDL, and how precise is that estimate?</td>
-</tr>
-<tr>
-<td>Non-inferiority trial</td>
-<td>Is the upper limit of the CI below the prespecified non-inferiority margin?</td>
-</tr>
-<tr>
-<td>Epidemiological cohort</td>
-<td>What range of relative risks is compatible with the observed association?</td>
-</tr>
-<tr>
-<td>Regression analysis</td>
-<td>What is the plausible range for a regression coefficient after adjustment?</td>
-</tr>
-</tbody></table>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li>The x-bar +/- 1.96 x SE formula is exact for normal data and approximate otherwise through the central limit theorem. With small n and skewed data (biomarkers with long right tails, for example), a log transformation or a t-based interval is more reliable.</li>
-<li>The normal-approximation CI for a proportion misbehaves near 0 or 1; use a Wilson or exact (Clopper-Pearson) interval when the event count is small.</li>
-<li>For ratio measures (risk ratio, odds ratio, hazard ratio) the CI is computed on the log scale and back-transformed, producing an asymmetric interval.</li>
-<li>A CI assumes the analysis model is correct and the sample is representative of the target population. A biased study produces a narrow interval centred in the wrong place.</li>
-</ul>
-<h2 id="worked-example">Worked example</h2>
-<p>In a single-arm study, 45 of 100 patients on a statin had their LDL lowered by at least 20% at 12 months, so p-hat = 0.45. The standard error is sqrt(0.45 x 0.55 / 100) = 0.0497, giving a 95% CI of 0.45 +/- 1.96 x 0.0497, that is 0.353 to 0.548 (35% to 55%). The correct reading: across many repetitions of this 100-patient study, 95% of the intervals computed this way would cover the true proportion of patients who respond. It is <em>not</em> correct to say &quot;there is a 95% probability that the true response rate is between 35% and 55%&quot;; the frequentist 95% attaches to the long-run performance of the procedure, not to this particular realised interval.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>&quot;There is a 95% probability the parameter is in this interval.&quot;</strong> Under the frequentist reading the interval is fixed once observed and the parameter is fixed; the 95% refers to repeated sampling, not to this interval.</li>
-<li><strong>Equating &quot;the CI crosses the null&quot; with &quot;equivalence.&quot;</strong> A wide interval that includes both clinically beneficial and harmful values is evidence of imprecision, not of harmlessness. Declaring equivalence requires a formal equivalence or non-inferiority design with prespecified margins.</li>
-<li><strong>Using the CI only as a disguised p-value.</strong> The interval also conveys the range of clinically plausible effects; if it spans values that would change management, the study is too imprecise to be decisive whatever the p-value says.</li>
-<li><strong>Taking a narrow CI as proof of accuracy.</strong> Width reflects sample size and variability, not freedom from bias.</li>
-</ul>
-<h2 id="constructing-intervals-for-common-estimands">Constructing intervals for common estimands</h2>
-<p>The simple estimate ± critical value × standard error recipe works only
-when the estimator is approximately symmetric on its working scale. For a
-mean from a modest sample, use the Student t quantile rather than 1.96:
-(\bar{x} \pm t_{0.975,n-1}s/\sqrt{n}). With mean 8.4, SD 2.7, and n=36,
-the SE is 0.45 and (t_{0.975,35}\approx2.03), giving 7.49 to 9.31
-mmol/L. The interval is a statement about the population mean under the
-sampling model, not a prediction interval for an individual measurement.
-The latter is wider because it includes both sampling uncertainty and
-person-to-person variation.</p>
-<p>For a proportion, the Wald interval uses (\hat p\pm1.96\sqrt{\hat p(1-\hat
-p)/n}). Near 0 or 1 it can extend beyond the legal range [0,1], and its
-coverage may be poor even at moderate n. Wilson&#39;s score interval avoids
-that defect by inverting the score test. For k successes among n trials,
-let (z=1.96); its centre is
-((\hat p+z^2/(2n))/(1+z^2/n)), and its half-width is
-(z\sqrt{\hat p(1-\hat p)/n+z^2/(4n^2)}/(1+z^2/n)). With 2 successes in
-20, the Wald interval is approximately −0.03 to 0.23, while the Wilson
-interval is about 0.028 to 0.301. The latter stays in range and has better
-small-sample coverage. An exact Clopper–Pearson interval is conservative
-(coverage is at least nominal, often appreciably higher); it is useful for
-very sparse binomial data when that conservatism is acceptable.</p>
-<p>The following R code uses a separate toy sample to show the corresponding
-commands; its numerical result is not intended to reproduce the summary
-statistics above.</p>
-<pre><code class="language-r">binom.test(2, 20)                 # exact binomial interval
-prop.test(2, 20, correct = FALSE) # score-based interval/test
-</code></pre>
-<p>For a risk ratio or odds ratio, inference is usually approximately normal
-on the logarithmic scale. If (\hat\theta) is the ratio and
-(SE_{\log\theta}) its standard error, form
-([\log\hat\theta-1.96SE,\log\hat\theta+1.96SE]) and exponentiate both
-ends. Back-transformation makes the interval asymmetric around the ratio,
-as it should be for a positive parameter. Do not calculate a symmetric
-interval directly on the ratio scale. For a risk difference, the scale is
-additive and a suitable score, Newcombe, or model-based interval is often
-preferable to the elementary Wald interval, especially when event counts
-are small or one risk is near a boundary.</p>
-<h2 id="design-based-and-model-based-uncertainty">Design-based and model-based uncertainty</h2>
-<p>A model-based interval treats the assumed likelihood or regression model
-as the source of repeated samples. A design-based interval instead reflects
-the sampling design, including strata, unequal selection weights, and
-clusters. These are not interchangeable: in a cluster-randomised trial,
-patients within the same clinic tend to resemble one another. If 20 clinics
-contribute 50 patients each, the nominal n=1,000 overstates independent
-information. For average cluster size m and intracluster correlation rho,
-the approximate design effect is (1+(m-1)\rho). With m=50 and rho=0.02,
-it is 1.98; the effective sample size is roughly 1,000/1.98=505. Use an
-analysis respecting the randomisation unit or cluster-robust methods with
-enough independent clusters. Robust standard errors with only a handful of
-clusters can still be seriously biased.</p>
-<p>Bootstrap intervals resample observational units and refit the estimator;
-the resampling unit must match the independent unit (resample clinics, not
-patients, for a cluster sample). Percentile intervals use empirical
-quantiles, while BCa intervals adjust for bias and skewness. Bootstrap
-resampling cannot repair confounding, selection, poor measurement, or a
-nonrepresentative sample; it estimates sampling variation under the
-observed data-generating structure. For heavily skewed estimators, sparse
-events, or estimates on a boundary, check whether the bootstrap distribution
-is stable and whether the method is appropriate for the estimand.</p>
-<h2 id="reading-width-against-a-clinical-decision">Reading width against a clinical decision</h2>
-<p>The same interval can support different practical conclusions depending
-on a prespecified threshold. Suppose a new therapy reduces mean pain by an
-estimated 1.2 points on a 0–10 scale, with 95% CI 0.2 to 2.2, and a
-clinically important improvement is 1.0 point. The estimate is compatible
-with both a trivial average benefit and a substantial one; the interval
-crosses the decision threshold. A p-value below 0.05 would not resolve
-that uncertainty. In non-inferiority work, the relevant comparison is the
-confidence bound against a clinically justified margin, not whether the
-interval includes zero. In equivalence, both bounds must lie within the
-equivalence margins. Always state the estimand, analysis population,
-confidence level, and interval method, particularly when alternatives
-(complete-case, imputed, robust, or model-based) produce materially
-different limits.</p>
-<h2 id="intervals-from-regression-and-survival-models">Intervals from regression and survival models</h2>
-<h2 id="coverage-in-practice-and-precision-planning">Coverage in practice and precision planning</h2>
-<h2 id="one-sided-bounds-in-safety-and-non-inferiority">One-sided bounds in safety and non-inferiority</h2>
-<p>An interval&#39;s precision can also be compared with a decision threshold. If
-a minimally worthwhile benefit is 2 mmHg and a trial estimates a 1-mmHg
-reduction with a 95% interval from 0.2 to 1.8 mmHg, the interval excludes
-no effect but also excludes the prespecified worthwhile benefit. This is
-statistically distinguishable from zero yet may have little clinical
-importance. If instead the interval is 0.2 to 3.5, the estimated benefit
-is positive but the evidence remains compatible with both small and
-important effects. The correct conclusion is about what values remain
-compatible with the data, not whether a single threshold has been crossed.</p>
-<p>Intervals are also affected by the estimand&#39;s time horizon. A risk
-difference at 30 days cannot be read as a one-year difference, especially
-when hazards vary over time or competing events occur. For repeated
-measurements, an interval around a mean trajectory is not an interval for
-individual trajectories; the latter needs prediction or random-effect
-uncertainty. Report time, population, endpoint, and contrast with every
-interval so that precision statements remain tied to the quantity actually
-estimated.</p>
-<p>Many decisions depend on one confidence bound rather than a central
-two-sided interval. To show that a treatment&#39;s excess risk is below a
-non-inferiority margin M, compare the upper one-sided bound for
-(p_T-p_C) with M. A one-sided 97.5% upper bound matches the upper end of
-a two-sided 95% interval when based on the same symmetric procedure. For
-safety, an upper bound on the risk difference can rule out an unacceptable
-increase even when the estimate is near zero; for efficacy, a lower bound
-may be compared with a minimum worthwhile benefit. The direction must be
-chosen before results are known. Reversing the tail after observing an
-unexpected estimate invalidates nominal coverage.</p>
-<p>In sparse event settings, one-sided exact bounds may be materially wider
-than normal approximations. With zero observed events among n patients,
-the observed risk is 0, but the true risk is not thereby proven to be zero.
-The approximate “rule of three” gives a 95% upper bound near 3/n when
-events are rare and observations independent. With n=100, zero events is
-compatible with a risk around 3%; this may be unacceptable if the safety
-threshold is 1%. The exact binomial upper bound is
-(1-0.05^{1/n}), about 2.95% for n=100. This calculation illustrates
-why “no events observed” must be accompanied by a denominator and an
-uncertainty bound.</p>
-<p>Coverage is a property of a procedure across repeated datasets, and it
-depends on how the interval is constructed. A nominal 95% Wald interval
-may cover less than 95% when the sample is sparse, the estimator is near a
-boundary, or the sampling distribution is asymmetric. A score or exact
-interval may have coverage closer to or above nominal at the expense of
-width. An interval&#39;s reported confidence level therefore does not by
-itself certify its operating characteristics; method choice should match
-the data type and sample size.</p>
-<p>For a mean with known SD, approximate 95% half-width is
-(1.96\sigma/\sqrt n). To target half-width h, solve
-(n=(1.96\sigma/h)^2). If SD is 12 mmHg and desired precision is 3 mmHg,
-(n=(1.96\times12/3)^2=61.5), so at least 62 independent observations
-are needed. This is a precision calculation, distinct from a power
-calculation: it asks how narrow the interval should be, not the probability
-of rejecting a null at a specified effect. Inflate for clustering,
-attrition, and design features that affect effective information.</p>
-<pre><code class="language-r">sigma &lt;- 12
-target_half_width &lt;- 3
-ceiling((qnorm(.975) * sigma / target_half_width)^2)
-</code></pre>
-<p>If SD is estimated from a small pilot study, its uncertainty can make this
-planning value optimistic. Use a conservative plausible SD or show a
-range of required sample sizes. Precision targets should be anchored to
-clinical interpretation: an interval narrow enough to distinguish
-clinically meaningful benefit from no benefit may be more useful than a
-conventional sample size with no explicit precision rationale.</p>
-<p>For a regression coefficient, a Wald interval is estimate ± critical value
-times its model-based SE. For a log-link coefficient, exponentiate both
-limits to report a rate ratio; for logistic regression, exponentiate to
-report an odds ratio. The interval is conditional on the model&#39;s functional
-form, covariates, variance specification, and sampled population. If a
-continuous predictor is modeled linearly but its true association is curved,
-the reported coefficient interval can be narrow and still summarize the
-wrong contrast. Flexible splines, prespecified contrasts, and plotted
-predicted outcomes make the parameter easier to interpret.</p>
-<p>Wald intervals can be poor with sparse data, near separation, or highly
-skewed likelihoods. Profile-likelihood intervals invert the likelihood
-ratio test and often behave better in those settings, though they still
-depend on model adequacy. For a hazard ratio, the standard interval is
-constructed on the log-HR scale; it quantifies uncertainty under the
-proportional-hazards model. If proportional hazards fail, a single interval
-around one HR may have no stable time-averaged interpretation. Consider
-time-varying effects or a fixed-horizon survival difference and report the
-estimand explicitly.</p>
-<h2 id="interval-coverage-and-multiplicity">Interval coverage and multiplicity</h2>
-<p>Nominal 95% coverage is a repeated-sampling property under stated
-conditions. If a 95% interval procedure is applied repeatedly to the same
-parameter under its model, about 95% of intervals cover it in the long run.
-This does not imply that every subgroup interval or every endpoint interval
-in a study has simultaneous 95% coverage. If readers select the most
-promising estimate from many unadjusted intervals, the selected interval
-will tend to be too optimistic. Simultaneous intervals or an explicit
-multiple-comparison procedure are needed for familywise statements.</p>
-<p>Coverage can also fail when standard errors ignore clustering, weights,
-adaptivity, or the mechanism that generated missing data. A valid interval
-for an observed-data estimand may not answer the causal question if
-participants with missing outcomes differ systematically. Sensitivity
-analysis should vary plausible assumptions (for example, departures from
-missing at random) and show how the estimate and interval move. Reporting a
-single narrow interval without explaining these assumptions can imply
-certainty the design did not deliver.</p>
-<h2 id="worked-calculation-mean-median-and-prediction">Worked calculation: mean, median, and prediction</h2>
-<p>Suppose a sample of 36 patients has mean glucose 8.4 mmol/L and SD 2.7.
-The estimated SE is 0.45. With 35 degrees of freedom, the 95% t multiplier
-is about 2.03, so the confidence interval for the population mean is
-(8.4\pm2.03(0.45)=[7.49,9.31]). If the scientific question is instead
-the range expected for an individual patient&#39;s glucose, a prediction
-interval is approximately
-(8.4\pm t_{.975,35}(2.7\sqrt{1+1/36})), or [2.9,13.9]. This much
-wider interval reflects individual variation. The interval for the mean
-must not be interpreted as containing 95% of patient values.</p>
-<pre><code class="language-r">x &lt;- c(7.2, 8.0, 9.1, 6.8, 11.2, 7.5, 8.4, 9.0, 6.9, 8.1,
-       7.6, 10.0, 8.8, 6.7, 9.5, 7.9, 8.3, 5.9, 12.1, 7.4,
-       8.6, 7.1, 9.3, 8.2, 6.5, 10.4, 7.7, 8.9, 7.0, 9.7,
-       8.5, 6.3, 10.1, 7.8, 8.7, 6.4)
+          <h2 id="overview">Overview</h2>
+<p>An interval estimate communicates both a plausible central estimate and its sampling uncertainty. A confidence interval is generated by a procedure whose long-run coverage is specified under a model; it is not a range of values that all remain equally plausible after seeing the data. The interval’s width is informative about precision, while its location describes the estimate. Neither dimension alone tells whether the effect matters clinically.</p>
+<h2 id="from-standard-error-to-interval">From standard error to interval</h2>
+<p>For an approximately normal estimator θ-hat with standard error SE, a two-sided 95% Wald interval is θ-hat ± 1.96 SE. When estimating a mean with unknown population variance in a small sample, replace 1.96 with a t critical value and use s/√n. For ratios such as risk ratios and odds ratios, construct an interval on the log scale and exponentiate endpoints because the raw ratio is asymmetric and bounded below by zero.</p>
+<p>A worked example: a treatment reduces systolic pressure by an estimated 4.0 mmHg relative to control, SE 1.8. The normal interval is 4.0 ± 3.53, or 0.47 to 7.53 mmHg reduction (define sign carefully). If the clinically important reduction is 5 mmHg, this interval includes smaller effects and effects exceeding that target. It is evidence of direction under the model, not proof that the benefit reaches the target.</p>
+<h3 id="reading-interval-width-in-context">Reading interval width in context</h3>
+<pre><code class="language-r">est &lt;- 4.0
+se &lt;- 1.8
+est + qnorm(c(.025, .975)) * se
+
+# Small-sample interval for a mean from raw observations
+x &lt;- c(126, 131, 119, 124, 128, 121, 133, 122)
 t.test(x)$conf.int
-mean(x) + c(-1, 1) * qt(.975, length(x) - 1) *
-  sd(x) * sqrt(1 + 1 / length(x)) # prediction interval
 </code></pre>
-<p>In applied regression, use <code>predict()</code> with a meaningful covariate profile
-and distinguish confidence limits for the conditional mean from prediction
-limits for an individual.</p>
-<p>An interval for a median is not obtained by using SD/√n. A distribution-free
-method inverts binomial probabilities for order statistics: choose lower
-and upper ranks whose coverage probability is at least the target. It can
-be conservative, especially with small n, and may be unbounded if the
-sample contains too few observations. Quantile regression and bootstrap
-intervals offer alternatives under other assumptions. For skewed
-biomarkers, a log-scale mean interval estimates a geometric mean ratio,
-which is not the same estimand as an arithmetic mean difference. State the
-summary and scale explicitly.</p>
+<p>The first calculation presumes a normal sampling distribution and an already valid SE. The second uses a t interval for independent, identically distributed measurements with finite variance; it does not make convenience sampling representative. A narrow interval may be precisely wrong under selection bias or outcome misclassification.</p>
+<h2 id="why-the-familiar-formula-can-fail">Why the familiar formula can fail</h2>
+<p>Wald intervals can have poor coverage for proportions near 0 or 1 and for small samples. Wilson or exact binomial intervals are often preferable. Bootstrap intervals can help for complicated estimators, but resampling must mirror the sampling design: resample clusters when clusters were sampled, and preserve paired units for paired data. For regression, use model-based, robust, profile-likelihood, or bootstrap intervals according to the estimator and assumptions.</p>
+<p>Multiplicity and selection also matter. A 95% interval reported after searching many endpoints does not retain 95% simultaneous coverage. If a subgroup was selected because it looked favorable, the conventional interval ignores that selection. Prespecify the primary contrast or use simultaneous intervals when the inferential family requires them.</p>
+<h2 id="reporting-the-estimand-not-just-the-limits">Reporting the estimand, not just the limits</h2>
+<p>Give the estimate, interval, units, population, comparison, time point, and method. For example: “At 12 weeks, the adjusted between-group mean difference in pain score (new treatment minus control) was −2.0 points (95% CI −4.1 to 0.1).” Avoid saying an interval “proves no effect” when it crosses zero; evaluate whether the limits exclude clinically important benefit or harm. Equivalence requires prespecified margins and an interval wholly inside them.</p>
+<h2 id="coverage-is-a-property-of-the-procedure">Coverage is a property of the procedure</h2>
+<p>Imagine repeating the same study many times under the same population model, with each repetition producing a new confidence interval by the same recipe. A nominal 95% method should cover the fixed target parameter in 95% of those repetitions. The unknown parameter is not random in this interpretation; the data and interval are. After one interval is calculated, frequentist coverage does not mean a 95% posterior chance that the parameter lies between those particular endpoints. A Bayesian credible interval makes a different probability statement conditional on its model and prior.</p>
+<p>Coverage depends on more than the formula printed by software. It can fail when the sampling frame is unrepresentative, the outcome model is wrong, the variance estimator ignores clustering, or the analysis was selected after searching many outcomes. A “95% CI” label should never imply that these design errors have been handled.</p>
+<h2 id="nonlinear-scales-and-boundary-parameters">Nonlinear scales and boundary parameters</h2>
+<p>For a risk ratio or odds ratio, estimate log(θ), calculate its interval on that approximately symmetric scale, then exponentiate both endpoints. Suppose log risk ratio is −0.40 with SE .18. A 95% interval on the log scale is −0.40±1.96(.18), or −0.753 to −0.047; exponentiating gives a risk ratio of .67 (95% CI .47 to .95). This interval is asymmetric around .67 on the ratio scale, as it should be. Wald intervals for proportions near zero or one may extend outside the permissible range; Wilson, score, likelihood, or exact intervals better respect the parameter space in many small-sample settings.</p>
+<h2 id="resampling-without-breaking-the-design">Resampling without breaking the design</h2>
+<p>Bootstrap intervals use repeated resampling to approximate an estimator’s sampling distribution. The resampling unit must match the independent unit in the design. For paired measurements, resample people with both measurements together. For cluster-randomized trials, resample clusters rather than individuals. For a stratified sample, preserve strata or use an appropriate design-based variance estimator. An ordinary row bootstrap can destroy the dependence structure and produce falsely narrow intervals.</p>
+<pre><code class="language-r">set.seed(41)
+x &lt;- c(4.1, 3.8, 5.2, 4.7, 3.9, 4.3, 5.0, 4.5)
+# Illustrative percentile bootstrap interval for the mean
+boot_means &lt;- replicate(5000, mean(sample(x, replace = TRUE)))
+quantile(boot_means, c(.025, .975))
+</code></pre>
+<p>With a small sample, this interval reflects the empirical distribution’s limitations and may perform poorly, especially for skewed estimators or boundary values. More bootstrap replicates reduce Monte Carlo error but do not cure a poor resampling scheme. Bias-corrected or studentized intervals can improve some settings; they should be selected for reasoned statistical properties, not because their endpoints are more attractive.</p>
+<h3 id="interval-width-as-a-design-quantity">Interval width as a design quantity</h3>
+<p>Precision planning can begin from a desired half-width. For a mean with anticipated SD σ and normal critical value z, approximate n=(zσ/h)² for half-width h. If σ=12 and a 95% half-width of 3 units is desired, n≈(1.96×12/3)²≈62. This ignores finite degrees of freedom, attrition, clustering, multiplicity, and uncertainty in σ, so it is a starting point rather than a final design. For a proportion, precision varies with the anticipated rate and is largest near .5 under a simple binomial model.</p>
+<h2 id="simultaneous-and-selected-intervals">Simultaneous and selected intervals</h2>
+<p>A collection of separate 95% intervals does not usually provide 95% coverage for the whole collection. When decisions depend on all pairwise contrasts, use simultaneous intervals such as Tukey’s method; for several treatments versus a control, Dunnett intervals can be more efficient. Repeated interim looks and adaptive selection similarly require procedures calibrated for the planned design. A post hoc interval for a subgroup selected because its estimate was extreme is likely too optimistic. Pre-specify primary contrasts, and label exploratory intervals honestly.</p>
+<h3 id="reporting-beyond-endpoints">Reporting beyond endpoints</h3>
+<p>An interval should be accompanied by the estimator, target population, denominator or sample size, outcome scale, covariate adjustment, and method. Give sufficient digits to preserve decision-relevant distinctions but do not imply unwarranted precision. State whether the endpoints are compatible with clinically important benefit and harm. Crossing zero is not a synonym for “no difference”; an interval that rules out both meaningful benefit and harm can be informative even when the corresponding null test is not the centerpiece. For equivalence, show the prespecified margins and confirm the entire interval lies inside them.</p>
+<h3 id="comparing-intervals-is-not-a-test-of-interaction">Comparing intervals is not a test of interaction</h3>
+<p>A common visual mistake is to compare whether two subgroup confidence intervals overlap and treat overlap as evidence that effects are the same. Interval overlap is not equivalent to a formal test of the difference between estimates. When subgroups are independent, the variance of a difference combines both standard errors; when they share participants or model parameters, covariance must be included. To test effect modification, estimate the interaction contrast directly and report its interval. An estimate significant in one subgroup and nonsignificant in another does not establish that subgroup effects differ.</p>
+<h3 id="covariate-adjusted-intervals-and-marginal-targets">Covariate-adjusted intervals and marginal targets</h3>
+<p>Regression intervals often describe a conditional coefficient holding modeled covariates fixed. Clinical decisions may instead concern average outcomes over a target population. Standardization or marginal prediction can estimate population-average risks by predicting each participant under each treatment and averaging. The interval then must incorporate uncertainty in all model coefficients and, ideally, the target covariate distribution. For logistic models, conditional odds ratios differ from marginal odds ratios because of non-collapsibility; the distinction is mathematical, not necessarily evidence of confounding.</p>
+<p>When using adjusted means, explain which covariates are included and how predictions were averaged. Avoid presenting an adjusted contrast as universally applicable if the target population differs from the analysis sample. For trials, pre-treatment prognostic covariates can improve precision, but post-randomization variables may introduce bias if conditioned on without a causal rationale.</p>
+<h3 id="missingness-and-interval-validity">Missingness and interval validity</h3>
+<p>A confidence interval quantifies sampling variability around the estimator under the analysis assumptions. It does not automatically include uncertainty due to missing data mechanisms. Complete-case standard errors may be correct for the analyzed cases while the estimate is biased for all randomized participants. Multiple imputation propagates imputation variability if the model is appropriate and the missing-at-random assumption is plausible; sensitivity analyses are needed when missing not at random is credible. The interval should be described as conditional on these assumptions, and the missing-data strategy should appear alongside the estimate.</p>
+<h3 id="repeated-looks-and-confidence-sequences">Repeated looks and confidence sequences</h3>
+<p>Ordinary confidence intervals computed repeatedly during ongoing data collection do not maintain their nominal coverage as a sequence if investigators stop when a favorable result appears. Group-sequential confidence intervals can account for planned interim looks. Confidence sequences provide time-uniform coverage under specified conditions, allowing valid inspection at arbitrary times. They are wider than fixed-sample intervals early on because they protect against repeated monitoring. These methods are useful in continuous surveillance and adaptive trials but should be selected during design and matched to the data process.</p>
+<h3 id="precision-reporting-in-practice">Precision reporting in practice</h3>
+<p>A useful table distinguishes descriptive spread, inferential precision, and individual prediction. For example, report arm means and SDs, the adjusted mean difference with a 95% confidence interval, and if clinically useful a prediction interval for a future measurement. Avoid confusing “95% CI for average” with “95% range of patients.” State the denominator, time point, adjustment set, and method. If multiple comparisons are made, identify whether intervals are pointwise or simultaneous. Then interpret the limits against a minimal clinically important difference rather than treating exclusion of zero as the sole decision criterion.</p>
+<h3 id="a-worked-ratio-calculation-in-r">A worked ratio calculation in R</h3>
+<p>A ratio estimate is easiest to understand through its component counts. With 20 events among 200 intervention participants and 30 among 200 controls, the estimated risk ratio is 0.67. The log-scale standard error is approximately √(1/20−1/200+1/30−1/200)=0.278. A 95% interval on the log scale is log(.67)±1.96(.278), then exponentiation gives roughly .39 to 1.16. The interval includes no relative difference (1) as well as appreciable reduction and some increase. A risk-difference interval will communicate absolute changes instead and may be more useful to patients.</p>
+<pre><code class="language-r">risk_ratio_ci &lt;- function(a, n1, c, n0) {
+  rr &lt;- (a/n1) / (c/n0)
+  se &lt;- sqrt(1/a - 1/n1 + 1/c - 1/n0)
+  exp(log(rr) + qnorm(c(.025, .975)) * se)
+}
+risk_ratio_ci(20, 200, 30, 200)
+</code></pre>
+<p>This simple formula assumes independent binomial groups with nonzero events. Stratification, covariate adjustment, cluster assignment, or sparse counts require more appropriate methods. If the confidence interval crosses the null value 1, do not describe that as evidence of no effect; interpret the range of ratios.</p>
+<h3 id="comparing-precision-across-studies">Comparing precision across studies</h3>
+<p>A narrower interval usually indicates more information, but width comparisons are meaningful only for the same estimand and scale. A large trial can be precise about a biased effect. Different adjustment strategies can target conditional versus marginal quantities. Different follow-up horizons can produce different risks. Meta-analysis should first assess whether studies estimate sufficiently comparable effects; inverse-variance pooling cannot fix incompatible estimands.</p>
+<p>Confidence intervals also express sampling precision, not total uncertainty. Uncertainty about measurement validity, selection, unmeasured confounding, model structure, and transport to another population may exceed the width implied by the statistical interval. Describe these limitations separately instead of informally widening intervals without a defined procedure.</p>
+<h3 id="distinguish-confidence-prediction-and-tolerance-intervals">Distinguish confidence, prediction, and tolerance intervals</h3>
+<p>A confidence interval targets an unknown population parameter such as the mean. A prediction interval targets a future individual or observation and includes both parameter uncertainty and individual variability. A tolerance interval aims to cover a specified proportion of a population with a stated confidence level. For a normal population, a 95% confidence interval for the mean can be very narrow even though a 95% prediction interval for one future patient spans many SDs. Clinical reference ranges are closer to population quantiles or tolerance intervals than confidence intervals for a mean.</p>
+<p>The target must be explicit. A statement like “95% of patients lie within this interval” is wrong if the reported interval is for the average treatment effect. When communicating prognosis, prediction intervals may be more relevant; when reporting treatment-effect precision, confidence intervals are appropriate.</p>
+<h2 id="equivalence-and-non-inferiority-intervals">Equivalence and non-inferiority intervals</h2>
+<p>An interval can be used with prespecified decision margins. For two-sided equivalence at α=.05, the 90% confidence interval is often compared with lower and upper equivalence bounds because this corresponds to two one-sided tests. Some regulatory or protocol frameworks require particular conventions; follow the design and state them. For non-inferiority, the relevant one-sided confidence bound must stay within the unacceptable margin. Reporting only a p-value against zero obscures the actual question.</p>
+<p>Margins should be justified before data collection using clinical importance and preservation of established treatment effect. A wide margin makes success easier but the claim less useful. Always display the estimated difference and interval against the margins, and explain whether the conclusion concerns statistical criteria, clinical similarity, or both.</p>
+<h3 id="rounding-and-presentation">Rounding and presentation</h3>
+<p>Round estimates and interval limits consistently and in units meaningful to the audience. Excessive decimals imply false precision; coarse rounding can hide whether a threshold is crossed. State the confidence level, method, and whether the interval is adjusted for multiplicity. If an interval is highly asymmetric, do not force it into an estimate ± symmetric margin. Include sample size and missingness context so readers can judge the information base.</p>
+<h3 id="intervals-from-hierarchical-models">Intervals from hierarchical models</h3>
+<p>In multilevel analyses, an interval for the overall treatment effect differs from a prediction interval for the effect at a new clinic. The former reflects uncertainty in the grand mean; the latter adds between-clinic heterogeneity. A narrow pooled interval can coexist with wide uncertainty about what an individual new clinic will experience. This distinction matters when policy decisions are decentralized. Report heterogeneity estimates and prediction intervals when the number of sites supports them, while acknowledging that few clusters make variance estimates unstable.</p>
+<h3 id="model-diagnostics-and-sensitivity">Model diagnostics and sensitivity</h3>
+<p>Residual plots, influence analysis, and calibration checks can reveal violations that nominal intervals hide. For a linear model, look for changing residual spread, nonlinear mean structure, influential observations, and dependence. Robust SEs can address some variance misspecification but not nonlinear bias or confounding. Bootstrap intervals are useful only if resampling respects independent units. Compare reasonable methods as sensitivity analyses and predefine which one supports the primary claim.</p>
+<h3 id="intervals-for-proportions-with-no-events">Intervals for proportions with no events</h3>
+<p>Zero observed events does not imply zero risk. If 0 of n participants experience an event, a rough “rule of three” upper 95% bound is 3/n under a binomial model: with n=100, risk could still be about 3%. Exact Clopper–Pearson intervals have conservative coverage; Wilson intervals are often shorter with good coverage. The appropriate choice depends on the reporting standard and study design. If participants contribute unequal follow-up, a binomial interval ignores person-time and censoring; use survival or rate methods.</p>
+<pre><code class="language-r">x &lt;- 0; n &lt;- 100
+binom.test(x, n)$conf.int
+prop.test(x, n, correct = FALSE)$conf.int
+</code></pre>
+<p>These intervals assume independent Bernoulli observations and a fixed denominator. In a rare-event safety study, also describe exposure duration and ascertainment; no-event evidence can remain weak when follow-up is short or high-risk patients are underrepresented.</p>
+<h3 id="intervals-and-censoring">Intervals and censoring</h3>
+<p>For survival outcomes, Kaplan–Meier confidence bands estimate uncertainty in survival probability over time, while confidence intervals for median survival may be asymmetric or unbounded if the curve never falls below .5. A hazard-ratio interval summarizes a model parameter under proportional hazards. These are different estimands and should not be conflated. Competing risks require cumulative-incidence intervals rather than treating competing events as ordinary independent censoring when estimating cause-specific risk.</p>
+<h3 id="report-intervals-so-readers-can-act">Report intervals so readers can act</h3>
+<p>When the estimate is a risk difference, name the event and time horizon: “At 12 months, treatment reduced hospitalization by 4 percentage points (95% CI 1 to 7 fewer per 100).” This avoids the ambiguous sign of a subtraction. For ratio measures, state the reference group and null value. For adjusted estimates, clarify whether covariates were baseline and how the contrast was standardized. Explain whether the interval is pointwise or simultaneous and whether missing outcomes were imputed or excluded.</p>
+<p>The interval’s endpoints are not guaranteed bounds on the truth in this one study. They are outcomes of a method with a coverage property over repetition. Readers can still use them as a calibrated compatibility summary, provided assumptions and selection are transparent. Include the interval method in tables or footnotes and avoid generic labels when specialized methods were used.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Altman DG, Machin D, Bryant TN, Gardner MJ, eds. <em>Statistics with Confidence: Confidence Intervals and Statistical Guidelines</em>. 2nd ed. BMJ Books, 2000.</li>

@@ -3,164 +3,171 @@ title: Mean, median and mode
 summary: Three complementary measures of central tendency and when each one is the right summary for a clinical variable.
 ---
 
-## Overview and key ideas
+## Overview
 
-Every dataset needs a single number that represents its centre, and biostatistics offers three. The **mean** is the sum of all values divided by the number of observations: mean = (x1 + x2 + ... + xn) / n. Because it uses every value, it is the most efficient summary for symmetric data and the basis of most parametric tests. The **median** is the middle value once the data are ordered; with an even number of observations it is the average of the two central values. It depends only on position, so extreme values cannot move it. The **mode** is the most frequently occurring value — the natural summary for discrete counts (number of comorbidities, number of readmissions) and the only sensible "centre" for nominal categories (most common blood group).
+Mean, median, and mode summarize different aspects of a distribution’s center. The mean uses every numerical value and is sensitive to extreme observations; the median is the 50th percentile and resists a small number of extremes; the mode identifies the most frequent value or category. These are not interchangeable “averages.” Choose a summary based on measurement scale, distribution, and the question a reader needs answered.
 
-The three measures sit close together when a distribution is roughly symmetric. Under skew they separate predictably: in a right-skewed distribution the tail of large values pulls the mean up, so typically mode < median < mean; a left skew reverses the order. That ordering is one of the quickest shape checks available, and it is why baseline tables pair the mean with the standard deviation or the median with the interquartile range, depending on the histogram.
+## Mean: a balance point
 
-- Mean: uses all data; sensitive to outliers; the right default for symmetric continuous variables.
-- Median: resistant; describes the typical patient even when a few extreme values exist.
-- Mode: useful for discrete or categorical data; unstable for continuous measurements.
+For observations x₁,…,xₙ, the arithmetic mean is x̄=Σxᵢ/n. It is the value that minimizes the sum of squared deviations and is central to many linear models and treatment-effect estimands. Because it uses all values, it moves when any observation changes. A few long hospital stays can pull the mean above the value experienced by a typical patient, but the mean remains relevant for resource planning because total bed-days depend on the arithmetic average.
 
-## When to use it
+If data are roughly symmetric and without influential extremes, report mean with standard deviation. The standard deviation describes spread among individuals, not precision of the estimated mean. For a treatment comparison, report the mean difference and confidence interval as well as each group’s descriptive mean and SD.
 
-| Setting | Example question |
-| --- | --- |
-| Symmetric continuous variable (haemoglobin, systolic pressure in a healthy cohort) | What is the average haemoglobin concentration in this population? |
-| Skewed continuous variable (ICU length of stay, CRP) | What is the typical admission duration when a few long stays exist? |
-| Discrete count variable (number of comorbidities, readmissions) | How many comorbidities do patients most commonly have? |
-| Categorical variable (blood group, tumour grade, stroke side) | Which grade is most frequent in this biopsy series? |
-| Baseline reporting | Are the randomised arms comparable in age, BMI and disease severity? |
+## Median: a resistant center
 
-The choice of centre follows the scale and the shape:
+The median is the middle ordered value; with an even sample size it is often the average of the two central observations, depending on quantile convention. It minimizes the sum of absolute deviations and is resistant to extreme tails. It is useful for skewed quantities such as length of stay, cost, and inflammatory markers. Report it with the IQR, which spans the central half of observations.
 
-- Interval scale, roughly symmetric → mean (with SD).
-- Interval scale, skewed or with outliers → median (with IQR).
-- Categorical → mode, backed by a full frequency table.
+For the values 2, 3, 3, 4, 5, 30, the mean is 7.8 while the median is 3.5. The long value materially affects the arithmetic mean but barely changes the median. The median does not describe the size of the upper-tail burden: if the 30 represents an ICU stay, that tail may still be clinically and economically important. Pair robust center with quantiles or distribution plots.
 
-## Assumptions and limitations
+## Mode: common category or value
 
-- The mean requires an interval or ratio scale. Averaging nominal categories is meaningless, and averaging ordinal scales (1–5 severity scores) is common practice but an assumption about the numbers, not a property of them.
-- With strong skew, heavy tails or influential outliers, the mean no longer represents the typical patient and can sit far from where most values cluster.
-- The median discards magnitude information: two very different datasets can share a median, so it can hide large variability or a bimodal mixture on its own.
-- The mode is unstable for continuous data — it depends on rounding and binning — and a multimodal distribution has no single useful mode; a "mode" there is better read as a signal of mixed subgroups.
-- Group differences in the mean or median can be driven by a few patients; always report the spread (SD or IQR) alongside the centre.
-- With small samples all three are noisy estimates of population parameters; the mean's sampling variability is the standard-error topic of the inference section.
+The mode is the most frequent category and is meaningful for nominal data such as blood group or organism type, where mean/median are undefined. For discrete counts, a mode can answer “what count is most common?” Continuous data often have no stable exact mode because each value may occur once; a density mode depends on smoothing or binning. A multimodal distribution can have several modes, warning that a single center may summarize a mixture poorly.
 
-### Robust alternatives and the target summary
+## Shape and the relation among centers
 
-The arithmetic mean is the target for questions such as average resource use
-per patient, even when the distribution is skewed; a median alone then answers
-a different question. Conversely, the median describes the 50th percentile
-and is often more representative of a typical stay. For positive, strongly
-right-skewed outcomes, a geometric mean can summarize multiplicative
-variation, but it requires a stated log scale and is not the arithmetic
-average. A trimmed mean reduces sensitivity to extremes, but the trimming
-fraction changes the estimand and should be prespecified. Pair a centre with a
-spread and inspect the distribution when shape matters.
-
-## Worked example
-
-Fifteen patients with acute coronary syndrome had ICU stays (days) of: 1, 1, 2, 2, 2, 3, 3, 4, 5, 5, 6, 8, 9, 12, 30. The sum is 93, so the mean is 93/15 = 6.2 days; the median is the 8th ordered value, 4 days; the mode is 2 days.
-
-One 30-day stay inflates the mean to 6.2 days, well above the central bulk of stays, whereas the median of 4 days sits where most patients actually are. Deleting the outlier drops the mean to (93 − 30)/14 = 4.5 days, showing how strongly the mean reacts to a single observation. The appropriate report is "median 4 days (IQR 2–8 days)", with the mean added only if a mean-based quantity such as total bed-days is needed.
-
-## Interpretation and common pitfalls
-
-- Reporting mean and SD for a skewed variable makes most patients look atypical; switch to median and IQR.
-- Averages of ratios are not ratios of averages: the mean of each patient's diastolic/systolic ratio is not mean diastolic divided by mean systolic.
-- Do not pool subgroup means by simple averaging; weight by subgroup size (averaging ward means of different sizes misstates the overall mean).
-- The mode of a continuous variable measured at limited precision is an artifact of rounding, not a real centre of the distribution.
-
-## What each measure estimates
-
-The arithmetic mean is the total sum divided by n and estimates the population expectation when sampling and measurement assumptions support it. It is the right target for average resource consumption or average biomarker concentration even when skewed, though it may not resemble a typical individual's value. The median estimates the 50th population quantile and minimizes the sum of absolute deviations; it answers where half of observations lie above and half below. The mode identifies the most frequent value or density peak, but can be unstable and nonunique.
-
-For a symmetric unimodal distribution, mean, median, and mode often align. This is not a universal identity and cannot be inferred from three sample numbers alone. In mixtures, the mean may fall between clusters where few observations occur; the median may sit in one cluster or a gap; the mode may be multimodal. Plot the data and state the estimand before choosing a center.
-
-### Worked example: outlier sensitivity and weighted averages
-
-For ICU stays summing 93 days across 15 patients, mean=6.2 days and median=4. Replacing the 30-day observation with a plausible 10-day observation changes the sum to 73 and mean to 4.87, while the median remains 4. This shows the mean's sensitivity, not a reason to discard a valid long stay. If estimating bed-days per patient, the high value must remain because it contributes real resource use.
-
-Suppose ward A has 10 patients with mean stay 4 days and ward B has 90 patients with mean 8 days. The overall mean is (10×4+90×8)/100=7.6 days, not (4+8)/2=6. The overall median cannot be recovered from group medians and sizes alone; patient-level order information is needed.
+In a symmetric unimodal distribution, mean, median, and mode are often close. In a right-skewed distribution, the long upper tail often pulls mean above median; the left-skew pattern reverses. This is a tendency, not a theorem for every irregular sample. Multimodality, truncation, and outliers can create more complex ordering. Inspect a histogram or empirical distribution before choosing one summary.
 
 ```r
-ward_n <- c(10, 90)
-ward_mean <- c(4, 8)
-weighted.mean(ward_mean, ward_n) # overall arithmetic mean, 7.6
+x <- c(2, 3, 3, 4, 5, 30)
+c(mean = mean(x), median = median(x),
+  sd = sd(x), IQR = IQR(x))
 ```
 
-This aggregation is exact for means when group means and sizes are defined on the same population and measurement scale. It does not recover variance without within-group variances and between-group differences.
+R does not provide a universal mode function because categorical modes and continuous density modes differ. For a categorical vector, use `which.max(table(x))`; for a continuous variable, specify a smoothing method rather than reporting the most repeated rounded value as an intrinsic population mode.
 
-## Geometric means, trimmed means, and domains
+### Measurement scale and clinical communication
 
-For positive measurements with multiplicative variation, the geometric mean is exp(mean(log(x))). It is useful for concentrations spanning orders of magnitude or fold changes, and is equivalent to the median only under particular log-scale distributions, not in general. Report the log scale and handle zeros explicitly; adding an arbitrary constant changes the result. The geometric mean describes a multiplicative center and is not the expected arithmetic amount.
+For nominal categories, report counts and proportions, not arithmetic summaries. For ordinal scales, median and category frequencies preserve order but not equal category spacing. For interval or ratio measurements, mean may be meaningful, though distribution and estimand still matter. Temperature scales with arbitrary zero differ from counts with true zero; ratios of Celsius values are not meaningful.
 
-A trimmed mean removes a prespecified proportion from each tail and averages the remainder. A 20% trimmed mean can resist extreme tails while using more information than a median, but it estimates a trimmed-location parameter rather than the population arithmetic mean. Winsorized means replace extremes rather than deleting them and can support robust variance estimation. Selection of trimming after observing which result is favorable invalidates a confirmatory interpretation.
+A single summary can hide clinically important heterogeneity. Baseline disease severity may create subgroups with different centers; a mixture may be bimodal. Summarize by prespecified strata only when meaningful, and avoid data-driven splitting to produce a preferred pattern. For repeated measures, the mean at each time point does not show individual changes; pair with longitudinal plots or models.
 
-The mode is meaningful for discrete outcomes, such as the most common number of admissions, and nominal categories, such as blood group. For continuous observations, the exact mode may not occur twice; an estimated mode depends on smoothing or binning. A multimodal density suggests subpopulations, measurement heaping, or distinct mechanisms and should prompt investigation rather than a single reported mode.
+## Reporting choices and common errors
 
-## Mean and median under transformation
+Use mean (SD) for approximately symmetric continuous variables; median (IQR) for skewed distributions; n (%) for categorical variables. This is a reporting convention, not a law: explain choices for bounded or ordinal scales. Do not report mean±SE as patient variability; the SE measures precision of the estimated mean. Do not select median simply because a normality test rejects, or mean because it produces a familiar model. If a mean is the target, robust or bootstrap inference may be preferable to changing the estimand.
 
-If Y=log(X), mean(Y) exponentiated is the geometric mean of X. It is not the arithmetic mean of X. By Jensen's inequality, exp(E[log X])≤E[X] for positive X, with equality only when X is constant. For lognormal data with log-scale mean μ and variance σ², geometric mean=exp(μ), arithmetic mean=exp(μ+σ²/2), and median=exp(μ). The distinction matters when estimating average cost or dose exposure, where arithmetic means may be relevant despite skew.
+The mean can be scientifically important even with skewness; the median can be stable but insensitive to clinically meaningful tail changes. State what the chosen center represents, the units, sample size, and complementary spread measure. Descriptive summaries do not imply causality or statistical significance.
 
-For regression on log outcome, exponentiating a predicted log mean gives a geometric-scale estimate or median under lognormal assumptions. To recover an arithmetic conditional mean, account for residual variance; simply exponentiating can underestimate it. State which summary is being reported and why it matches the scientific question.
+## Mean and median estimate different population features
 
-## Sampling uncertainty and robust summaries
+The population mean is the expected value of a measurement; the population median divides probability mass into halves. They answer different questions and can differ even with very large samples. In a skewed distribution, the mean summarizes total burden per person, while the median locates a typical rank. For costs, the mean matters for budgeting; the median may describe the common patient experience. Reporting one alone can conceal the other’s relevance.
 
-A sample mean's standard error is s/√n under independent observations. The sample median has a sampling distribution governed by density near the population median; for a continuous distribution with density f(m)>0, its asymptotic variance is approximately 1/[4n f(m)^2]. Thus a median can be more or less precise than a mean depending on shape. Bootstrap intervals can help but need enough observations near the center and resampling at the independent unit. In small samples or highly discrete outcomes, empirical median intervals can be coarse.
+The sample mean is sensitive to the sampling frame and extreme observations. A median is robust to a small fraction of contamination but can be less efficient for a normal distribution and says little about tails. A trimmed mean removes a prespecified fraction from each tail and provides a compromise, but targets a different quantity. If used, state trimming proportion and interval method.
 
-Do not present a center without spread and denominator. Mean with SD describes location and individual variability for roughly symmetric data; median with IQR describes center and middle-half spread for skewed data. If arithmetic mean is decision-relevant despite skew, report it with a robust interval and distribution plot rather than substituting median alone. The choice should answer the stated question, not simply follow a normality test.
+## Uncertainty around centers
 
-## R examples and reproducibility
+A mean’s standard error is s/√n for independent observations; its confidence interval uses a t distribution in small samples under standard assumptions. A median interval can be obtained from order statistics or bootstrap, with uncertainty depending on density near the median. The sample IQR describes spread, not precision of the median. Do not confuse median (IQR) with a confidence interval for the median.
 
-R's `mean()` and `median()` ignore no missing values unless `na.rm=TRUE`; do not let this hide denominator changes. `table()` or `which.max(table(x))` can identify a discrete mode, but ties can yield multiple modes. `quantile()` provides robust context, and grouped summaries should report the number of nonmissing values.
+For a categorical mode, uncertainty is often represented by category proportions and intervals rather than a single mode. When the top two categories have similar counts, the identity of the modal category is unstable. Report the full frequency distribution.
+
+## Means after transformation
+
+If data are log-normal, the mean on log scale corresponds after exponentiation to a geometric mean. The arithmetic mean on original scale is larger and depends on log-scale variance; naive exponentiation of predicted log means underestimates it. A smearing correction or distributional model may be needed to estimate arithmetic means. Decide whether the question concerns multiplicative typical change or expected total quantity.
+
+### A clinical example
+
+For length of stay values 2, 3, 3, 4, 5, 30, mean 7.8 days and median 3.5 days tell different stories. The mean may be relevant to bed capacity; the median better reflects the middle patient. The 30-day observation could be a valid complex case. Report quantiles or a plot to show the tail rather than dropping it. If comparing treatments, a difference in means estimates days saved on average; a median difference estimates a different shift and may not summarize tail savings.
+
+### Reporting
+
+Choose summaries based on scale, distribution, and decision. Use mean (SD) for symmetric continuous outcomes, median (IQR) for skewed outcomes, and n (%) for categories, while recognizing these conventions are not mandates. Give units, sample size, missingness, and any transformation. For comparative inference, report the effect estimate and interval on the scale of interest. A descriptive center alone does not establish group differences or causality.
+
+### Robustness, influence, and mixtures
+
+The mean has an unbounded influence function: a sufficiently extreme observation can move it arbitrarily far. The median’s influence is bounded, making it robust to isolated extremes. This statistical property does not mean the median is always better. If extremes represent genuine resource use or rare toxicity, the mean may be exactly the quantity needed. Report distribution tails alongside whichever center is chosen.
+
+A mixture of subpopulations can make the mean fall in a region where few individuals lie. For example, a clinic serving both mild and severe disease may show two modes; the mean score may represent neither group. Examine stratified distributions based on meaningful clinical variables, and consider whether a mixture model or subgroup description is warranted. Data-driven clustering after seeing the outcome risks overinterpretation.
+
+### Geometric means and multiplicative processes
+
+For positive measurements with multiplicative variation, geometric mean is exp(mean(log x)). It is appropriate for ratios, fold changes, or log-normal distributions, but it is not the arithmetic expected value. For log-normal data, arithmetic mean equals exp(μlog+σ²log/2), larger than the geometric mean exp(μlog). Report which quantity is used and why. Geometric mean does not accommodate zero values without an explicit model or transformation.
+
+### Mode and category distributions
+
+For nominal outcomes, the full frequency distribution is generally more useful than a single mode. A mode identifies the most frequent category but ignores the relative frequencies of others and can be unstable in small samples. For continuous data, a mode depends on smoothing or bins and may not be a well-defined sample statistic. If multimodality is scientifically relevant, use density estimation or mixture models with validation.
+
+### Communicating centers in trials
+
+Baseline tables often use mean (SD) for symmetric measurements and median (IQR) for skewed ones, but baseline significance tests should not determine summaries. At follow-up, compare treatment groups with an estimand-aligned effect and interval. Separate changes within each arm do not estimate randomized treatment contrast. If response is a thresholded category, show category counts and avoid implying the mode is treatment effect.
+
+### Baseline summaries and clinical decisions
+
+The appropriate baseline summary depends on the variable’s scale and shape, not on a test of normality. For age with near-symmetric distribution, mean (SD) may be clear; for length of stay, median (IQR) may better describe the typical patient. If a decision depends on extreme values, add a high percentile. In a randomized trial, baseline summaries describe the sample but should not be accompanied by balance p-values as a test of randomization.
+
+### Comparing means under skew
+
+The arithmetic mean remains the target in many policy questions. Skewness can make a small-sample t interval inaccurate, but larger samples, robust variance methods, or bootstrap intervals may help while retaining the mean. A rank test answers another question. Do not change from mean to median only because the mean comparison is less significant. Prespecify the estimand and explain sensitivity analyses.
+
+### Weighted and survey summaries
+
+In a complex survey, the unweighted sample mean may not estimate the population mean if inclusion probabilities differ. A survey-weighted mean uses design weights; its standard error must reflect strata and clusters. A weighted median is defined through cumulative weights and may not equal the median of expanded pseudo-records under every convention. Report the target population and whether summaries are weighted.
+
+In clinical registries, case mix and referral selection can shift both means and medians relative to the general population. Descriptive centers from a selected cohort should not be presented as population norms without a sampling argument.
+
+### Robustness analysis for extreme values
+
+When one valid extreme observation drives the mean, report the primary mean and a sensitivity analysis using a robust estimator or model appropriate to the target. Explain whether the observation is clinically real and why the alternative summary is informative. Avoid choosing the summary that yields a desired treatment conclusion. A prespecified trimmed mean can be useful when the scientific estimand tolerates trimming, but it does not estimate the population arithmetic mean.
+
+### Not all averages are patient averages
+
+The mean across patients differs from the mean across hospitals when hospital sizes differ. Weighting hospitals equally estimates an average hospital; weighting by patient count estimates the average patient’s facility context. Choose the unit of averaging based on the policy question and report the weighting. Hierarchical summaries can separate within- and between-site centers.
+
+### Mean and median under sampling
+
+Sample means and medians vary from sample to sample. For independent observations with finite variance, SE(mean)=s/√n. Median uncertainty depends on density near the population median and is often estimated by order-statistic or bootstrap methods. The IQR is distribution spread, not the uncertainty interval for a median. In clustered samples, both center estimates need design-aware uncertainty; treating all records as independent is incorrect.
+
+### Robust mean summaries
+
+A trimmed mean removes a fixed proportion from each tail; a winsorized mean replaces tails with boundary values. These methods reduce sensitivity to extreme observations but target a modified location. They can improve efficiency under heavy tails, but should be prespecified and paired with appropriate variance estimators. A “robust mean” is not a median, and its clinical interpretation should be explained.
+
+### Categorical modes
+
+For a categorical variable, report all category frequencies; the mode alone can hide a nearly tied second category. For ordinal categories, include the ordered distribution and perhaps median category. If one category is most common by one observation, avoid implying a stable dominant state.
+
+### A concise selection guide
+
+Use the mean when the arithmetic average is the target; pair with SD and an interval for estimates. Use the median when a resistant middle position is the target; pair with IQR and quantile uncertainty. Use mode for nominal categories or a prespecified discrete “most common” question; show full frequencies. For multimodal populations, describe mixture structure instead of forcing one center.
+
+### Worked example of center and spread
+
+For the six stays 2, 3, 3, 4, 5, 30 days, mean is 7.83, median 3.5, and mode 3. The sample SD is about 10.9 days, while IQR depends on quantile convention but is much smaller. The mean and SD reflect the long stay’s contribution to resource use; the median and IQR reflect the central patient experience. Neither set is “correct” universally. Show the distribution and explain the decision the summary serves.
 
 ```r
-x <- c(1, 1, 2, 2, 2, 3, 3, 4, 5, 5, 6, 8, 9, 12, 30)
-c(n = length(x), mean = mean(x), median = median(x),
-  sd = sd(x), q1 = quantile(x, .25), q3 = quantile(x, .75))
-mode_values <- names(which(table(x) == max(table(x))))
-mode_values
+stay <- c(2, 3, 3, 4, 5, 30)
+c(mean = mean(stay), median = median(stay), sd = sd(stay),
+  q1 = quantile(stay, .25), q3 = quantile(stay, .75))
 ```
 
-The `mode_values` code returns every tied most frequent value as text because table names are labels; convert only when the original variable is numeric. This is a sample summary, not an interval estimate or population truth. For repeated measures, summarize participant-level outcomes or use a model that accounts for within-person dependence.
+The mode is calculated from frequencies, but with continuous measurements it can depend on rounding. Use it only when repeated discrete values carry meaning.
 
+### Means across groups
 
-## Averages under sampling and weighting
+A pooled mean weights each group by its sample size; an equally weighted mean of group means answers a different question. In multi-site studies, a patient-average outcome weights large sites more, while an average-site summary gives each facility equal weight. State the unit and weighting. These choices affect interpretation of population-level summaries.
 
-The overall arithmetic mean across groups is the size-weighted average of group means. If groups represent a target population but the sample oversampled one group, use target-population weights rather than sample-size weights for a standardized mean. State the target distribution and account for weighting in the standard error. Unequal inclusion probabilities make an unweighted mean a sample description, not necessarily a population estimate.
+### Distinguish a sample center from treatment effect
 
-The mean of changes equals the difference between means when calculated on the same paired observations: mean(Y_after−Y_before)=mean(Y_after)−mean(Y_before). This identity fails if separate missingness patterns change denominators. For repeated measurements, report paired changes or model trajectories; independent group means can obscure within-person change.
+A group mean or median describes an arm; the treatment effect is a contrast between arms under a defined estimand. Baseline and follow-up centers should not be compared informally without uncertainty. In randomized trials, use an adjusted between-arm contrast or change contrast as planned. Separate within-arm tests answer whether each arm changed from its own baseline, not whether treatments differ.
 
-## Quantile conventions and ties
+### Summary table conventions
 
-For an even sample size, the sample median is often the average of two central observations, but the population median may not be unique when the distribution has a flat interval or point mass. For categorical ordinal outcomes, several values can satisfy the median definition; report category proportions as well. The mode is often tied: a multimodal distribution has several most frequent categories. `which.max(table(x))` returns only the first maximum and can silently hide ties, so identify all tied levels.
+Report n, mean (SD) or median (IQR), and n (%) for categories. Make missingness visible and use consistent decimal places. For skewed variables with decision-relevant means, consider giving both mean (SD) and median (IQR) rather than forcing a single conventional summary. Explain why each measure is shown.
 
-```r
-x <- c("mild", "moderate", "moderate", "severe", "severe")
-tab <- table(x)
-names(tab)[tab == max(tab)] # both tied modes
-```
+### Interpretation in a treatment study
 
-For a continuous measure rounded to tenths, a mode may be driven by rounding or heaping. Describe that heaping as a measurement feature rather than a true underlying density peak.
+Suppose the intervention mean is 5 points lower than control but the median is only 1 point lower. This may reflect improvement in a subset with large responses or a long tail. A single center cannot resolve that pattern. Show distributions and responder proportions using a prespecified clinical threshold, then estimate the planned treatment contrast with uncertainty. Do not claim benefit in typical patients from a mean alone.
 
-## Robustness does not mean representativeness
+### Means of ratios and ratios of means
 
-A median resists extreme values within the sample but remains vulnerable to selection bias, missingness, and systematic measurement error. If the sickest patients are more likely to be lost, the observed median can be low and precise while misrepresenting the full cohort. Robust summaries protect against some data contamination, not against every source of bias. Similarly, a trimmed mean limits tail influence but cannot correct unmeasured confounding or an unrepresentative sample.
+A mean individual ratio differs from the ratio of group means. For example, average fold change per participant weights people equally, whereas ratio of aggregate means weights by baseline magnitude. These quantities may diverge with heterogeneous baselines. State which is estimated, especially in biomarker and pharmacokinetic analyses.
 
-For patient costs, average cost may drive a budget decision while the median describes a typical individual. Report both when appropriate, alongside the distribution. For clinical response, a median shift may hide a subgroup with no benefit and another with large benefit. Consider quantile summaries or distributional effects when heterogeneity matters.
+### Final interpretation
 
-## Confidence intervals for means and medians
+Center is a feature of a distribution, not a universal property summarized by one number. The mean captures arithmetic expectation, the median captures central rank, and the mode captures frequency. Use a spread measure and distribution view alongside the center, explain the target, and report treatment contrasts separately from arm summaries.
 
-For a mean under independent sampling, a t interval is x̄±t_(.975,n−1)s/√n. For a median, the interval can be obtained from order statistics or bootstrap. These are not intervals for individual values. With skewed outcomes and a large sample, a bootstrap or robust sandwich method may be useful for the mean, but the estimand remains the arithmetic mean. For small n with severe skew, report raw values or a distribution plot because all center estimates are unstable.
+A complete report gives the chosen center, the complementary spread, units and n, with an effect contrast and interval when comparing groups.
 
-An interval estimate also depends on study design. Clustered observations reduce effective information; a participant-level bootstrap must resample clusters if clinics are the independent units. A sample mean can have a narrow model-based interval under false independence. State the unit resampled or the variance estimator.
+A 95% interval for a mean estimates precision of that mean, not the spread of individual observations; always label SD and confidence limits separately.
 
-## Mode in categorical reporting
-
-For nominal variables, a full frequency table is usually more informative than naming the mode alone. If blood groups are O 40%, A 35%, B 18%, and AB 7%, “O is most common” omits clinically and operationally relevant composition. For ordinal grades, report category proportions and perhaps the median category; the mode can change with small fluctuations and ignores ordering. In multimodal continuous data, report the clusters and investigate whether they correspond to meaningful subpopulations rather than presenting a single center.
-
-When comparing means across groups, show the group sample size and within-group spread. A mean can be calculated with different missingness patterns across variables, so denominators may differ within a table. Weighted averages should use appropriate population weights, while the median generally cannot be reconstructed from subgroup medians. These details prevent a seemingly simple “average” from being detached from its target.
-
-## Choosing the center from the question
-
-“Typical patient” often points to a median, while “average burden per patient” usually means an arithmetic mean. A hospital planning staffing may need the mean daily admissions because total volume is additive; a patient asking how long a usual admission lasts may benefit from median and upper quantiles. In skewed data, reporting both can show the tail's practical importance rather than treating one as universally correct. Name the target explicitly and keep units and period attached.
-
-For intervention studies, comparing medians may not estimate the average causal effect and can be difficult to adjust for covariates. If the estimand is a difference in expected outcomes, model or estimate means even with skewness, using robust uncertainty or appropriate distributions. Descriptive choice and causal estimand should be coordinated but are not identical decisions.
-
-The mean is also the balance point: the signed deviations from the mean sum to zero, and it minimizes the sum of squared deviations. The median minimizes the sum of absolute deviations. This explains why squared-error methods target means while absolute-error methods target medians. The objective function therefore encodes which center is being estimated; robust regression and quantile regression are not merely alternate calculations of the same parameter.
+If the mean and median are far apart, describe the shape and tails rather than declaring one statistic wrong; each summarizes a different feature.
 
 ## References and further reading
 

@@ -1,178 +1,145 @@
 ---
 title: Pearson and Spearman correlation
-summary: Two coefficients that quantify the strength and direction of association between continuous variables, for linear and monotonic relationships.
+summary: Measure linear and monotonic association between paired variables, examine scatterplots and uncertainty, and avoid interpreting correlation as agreement or causation.
 ---
 
-## Overview and key ideas
+## Overview
 
-Correlation summarises how two variables move together. The Pearson product-moment correlation (r) measures the strength of a *linear* association on the scale −1 to +1: 0 means no linear association, while ±1 indicates that one variable is an exact linear function of the other. The Spearman rank correlation (ρ, "rho") instead ranks each variable and then computes Pearson's r on the ranks, so it captures *monotonic* associations — relationships that are consistently increasing or decreasing even when not straight-line.
+Correlation summarizes how two variables vary together. Pearson's product-moment correlation measures linear association on the original scale; Spearman's rank correlation measures monotonic association using ranks. Both are dimensionless and lie between −1 and 1. Neither establishes causation, agreement between measurement methods, or a useful prediction rule by itself.
 
-Both coefficients are symmetric (correlation of X with Y equals that of Y with X) and say nothing about cause. A frequently used companion is r², the proportion of variance in one variable explained by the other: r = 0.5 means r² = 0.25, i.e. only a quarter of the variability is shared. In medical research, correlations of 0.3–0.5 are usually considered moderate, 0.5–0.7 strong, and above 0.7 very strong, but these thresholds depend on the field and the noise in measurement.
+The scatterplot is essential. The same Pearson coefficient can arise from a linear cloud, a curved relationship, or one influential point. Report the coefficient with an interval, sample size, variable definitions, and plot. Choose the measure based on the question and relationship shape, not only a normality test.
 
-## When to use it
+## Pearson correlation and covariance
 
-| Setting | Example question |
-| --- | --- |
-| Biomarker validation | How closely do two lab assays (e.g. two HbA1c methods) agree in measured value? |
-| Physiology | Is systolic blood pressure linearly related to body mass index in adults? |
-| Questionnaire research | Do pain scores correlate with a patient's self-rated global health? |
-| Data screening | Which covariates are highly intercorrelated before fitting a regression model? |
+For paired observations ((X_i,Y_i)), Pearson correlation is (r=\mathrm{Cov}(X,Y)/(s_Xs_Y)). It measures linear association: (r=1) when points lie exactly on an increasing straight line and (r=-1) for a decreasing line. Multiplying either variable by a positive constant or adding a constant does not change (r); reversing one variable's sign reverses the sign.
 
-Choose Pearson when both variables are approximately continuous and the scatterplot looks linear. Choose Spearman when the relationship is monotonic but curved, when the data are ordinal (e.g. Likert scale pain ratings), or when outliers and skew make ranks more representative. A Bland–Altman analysis is the better tool when the scientific question is *agreement* between two measurements rather than association.
-
-## Assumptions and limitations
-
-- Pearson assumes a linear relationship between the variables and that the joint distribution is roughly bivariate normal; both variables should be at least interval-scaled.
-- Pearson is very sensitive to outliers and to ceiling/floor effects — a single extreme value can inflate or deflate r by 0.1 or more.
-- Both coefficients require paired observations on the same subjects; they assume independence between subjects (repeated measures on one patient inflate significance).
-- Neither coefficient detects nonlinear patterns: r can be 0 for a perfect U-shaped relationship.
-- The significance test for r uses t = r·sqrt(n−2)/sqrt(1−r²); with n above 50, even weak but nonzero correlations become "significant", so the size of r matters more than the p-value.
-
-## Worked example
-
-In a study of 200 adults, a laboratory compares a new point-of-care HbA1c analyser with the reference HPLC method. The Pearson correlation between the two methods is r = 0.94, so r² = 0.8836: about 88% of the variability in one measurement is explained by a simple linear prediction from the other. The test statistic is t = 0.94·sqrt(198)/sqrt(1 − 0.8836) ≈ 38.8, giving p < 0.001. The association is extremely strong and precise, but for method-comparison purposes the remaining variation may still be clinically important—a patient with HbA1c 8.0% on the reference method could differ materially on the new assay, so Bland–Altman limits of agreement are the appropriate next step.
-
-## Interpretation and common pitfalls
-
-- Correlation is not causation, and not agreement: two methods can correlate 0.95 while consistently differing by 2 units, which may be clinically unacceptable.
-- A correlation of 0 does not mean "no relationship" — it means no *linear* (for Pearson) or *monotonic* (for Spearman) relationship.
-- Restricting the range of one variable (e.g. studying only patients with BMI 22–28) attenuates r; correlations from different samples are not directly comparable.
-- Do not choose Spearman "to be safe" whenever the scatterplot looks linear — Pearson is more powerful in that case.
-
-Correlation measures association, not agreement or causal effect. For repeated measurements or paired devices, use an agreement framework (for example, a Bland–Altman plot with limits of agreement) and define acceptable clinical limits in advance. Pearson's r is sensitive to outliers and measures linear association; Spearman's rho measures rank association and can be near zero for a strong U-shaped relation. Plot the paired observations, report the interval estimate, and account for clustering when observations are not independent. A narrow confidence interval around correlation does not remove confounding or establish that changing one variable changes the other.
-
-## Pearson correlation from covariance
-
-For paired observations, sample covariance is s_xy=Σ(x_i−x̄)(y_i−ȳ)/(n−1), while sample SDs are s_x and s_y. Pearson r=s_xy/(s_xs_y). The denominator standardizes units, so r is unchanged by adding a constant or multiplying both variables by positive constants. Multiplying one variable by a negative constant reverses sign. Correlation is symmetric and describes linear co-variation; it is not a slope and carries no units.
-
-In the HbA1c-method example r=.94, so r²=.8836. Under simple linear regression with intercept, this is the sample fraction of variation in one method explained by a linear prediction from the other. It does not mean 88% agreement or 88% of patients have matching results. The test statistic t=.94√198/√(1−.94²)≈38.8 with 198 df, giving a very small p-value, but practical agreement still requires differences and clinical tolerance limits.
+Suppose (r=0.60) between weekly exercise hours and a fitness score. The squared correlation (r^2=0.36) equals the proportion of variance explained by the simple linear regression of score on exercise, under the usual sample calculation. It does not mean exercise causes 36% of fitness or that a person's score will be predicted accurately. Confounding, measurement error, and restricted range affect the association.
 
 ```r
-r <- .94; n <- 200
-t <- r * sqrt(n - 2) / sqrt(1 - r^2)
-p <- 2 * pt(-abs(t), df = n - 2)
-c(r = r, r_squared = r^2, t = t, p_value = p)
+plot(dat$exercise_hours, dat$fitness_score,
+     xlab = "Exercise hours per week", ylab = "Fitness score")
+cor.test(dat$exercise_hours, dat$fitness_score,
+         method = "pearson", conf.level = 0.95)
 ```
 
-This test assumes independent pairs and a bivariate-normal model for exact inference. Large n makes tiny associations statistically detectable; report effect size and uncertainty.
+The conventional t-based interval and test rely on independent paired observations and bivariate-normal assumptions for exact small-sample inference. With large samples, inference may be more robust, but outliers and nonlinearity remain. Add a fitted smooth or regression line to inspect shape; report robust or bootstrap intervals when assumptions are questionable.
 
-## Confidence interval for correlation
+## Spearman rank correlation
 
-Fisher's z=atanh(r) is approximately normal with SE=1/√(n−3) under bivariate normality. Construct z±1.96SE and transform back with tanh. For r=.94 and n=200, z≈1.738, SE≈.0712, and a 95% interval transforms to approximately .921–.954. The interval quantifies sampling uncertainty in correlation under assumptions; it does not quantify method agreement or causal uncertainty.
+Spearman's \(\rho_s\) is Pearson correlation applied to ranks. It measures monotonic association: as one variable increases, the other tends to increase or decrease, though not necessarily at a constant rate. It is useful for ordinal variables, skewed distributions, or monotonic nonlinear relationships. Ties are assigned average ranks and affect exact calculations.
+
+If biomarker levels rise monotonically with disease severity but increase sharply only at high severity, Pearson correlation may understate or mischaracterize the pattern while Spearman captures ordering. If the association is U-shaped, Spearman may be near zero despite a strong relationship because it is not monotonic. Rank correlation does not detect every nonlinear association.
 
 ```r
-z <- atanh(r); se <- 1/sqrt(n-3)
-tanh(z + c(-1,1)*qnorm(.975)*se)
+cor.test(dat$severity_rank, dat$biomarker,
+         method = "spearman", exact = FALSE)
 ```
 
-For outliers, clustering, ties, or strongly nonnormal data, a bootstrap or permutation procedure may be more suitable, respecting the paired unit and cluster structure. In small samples the Fisher interval can be inaccurate.
+The approximate test is appropriate with ties or moderate-to-large samples; `exact=TRUE` is most useful in small samples without ties. Spearman's coefficient has no direct interpretation in original units and does not estimate an average change. If the scientific question is how an outcome changes per unit exposure, regression may be more informative.
 
-## Spearman rho and Kendall tau
+## Worked example and interval interpretation
 
-Spearman's rho is Pearson correlation of ranks. It measures monotone association and is invariant under strictly increasing transformations. Ties are assigned average ranks in common implementations; many ties reduce attainable values and affect null distributions. A monotone curved relation can have rho near one while Pearson r is lower. A U-shaped association can have both near zero even when dependence is strong. Kendall's tau is based on concordant and discordant pairs and has a direct pairwise interpretation, but its scale differs from rho.
+In a sample of 40 patients, Pearson (r=0.45) between baseline inflammation marker and length of stay. A Fisher z transform (z=\tfrac12\log[(1+r)/(1-r)]\) gives (z=0.485), standard error (1/\sqrt{n-3}=0.164). The 95% interval on z-scale is 0.164 to 0.806; transforming back gives correlation interval approximately 0.16 to 0.67. The estimate suggests a positive linear association, but uncertainty is substantial.
 
-```r
-cor(x, y, method = "pearson")
-cor(x, y, method = "spearman", exact = FALSE)
-cor.test(x, y, method = "kendall", exact = FALSE)
-```
+An interval excluding zero is evidence against zero population linear correlation under the assumed sampling model; it does not show the relationship is clinically useful. The relation may be driven by age or disease severity. Fit a regression with prespecified confounders if adjustment is required, and report adjusted slopes or partial correlations with clear assumptions.
 
-Choose the measure from the relationship and scale, not from which p-value is smaller. Rank methods still require independent pairs for standard inference and do not fix confounding, range restriction, or clustered data.
+For Spearman's statistic, rank the two measurements and compute Pearson correlation of those ranks. Suppose five participants have exercise ranks 1, 2, 3, 4, 5 and fitness ranks 2, 1, 3, 5, 4. The rank differences are −1, 1, 0, −1, 1; with no ties, \(\rho_s=1-6\sum d_i^2/[n(n^2-1)]=1-6(4)/(5(24))=0.80\). The high value reflects largely concordant ordering, not a unit change in fitness per hour.
 
-## Correlation, agreement, and measurement error
+With ties, software computes correlation of average ranks and uses an appropriate approximation or permutation procedure. Exact null distributions become more complicated. For small samples, a permutation test can reassign one variable's labels among independent pairs, but the exchangeability assumption must be credible. Repeated or matched data require restricted permutations.
 
-Correlation can be high when two methods have systematic bias or when the sample spans a wide range. Agreement asks whether paired measurements are close enough for interchangeability. Bland–Altman analysis uses difference against mean, estimates mean bias and limits of agreement, and requires clinically defined acceptable limits. If proportional bias exists, differences vary with magnitude; transformation or regression-based agreement may be required. Repeated measurements require variance components for within- and between-subject variation.
+## Scatterplots reveal the data structure
 
-Classical independent measurement error attenuates observed correlation. Shared batch or calibration error may inflate it. Restricting range in a homogeneous sample also lowers correlation. Therefore, compare correlations across studies only with attention to population range, protocol, assay reliability, and selection.
+Inspect a scatterplot before calculating a coefficient. Look for curvature, clusters, ceiling or floor effects, heteroscedasticity, tied values, influential observations, and restricted range. Color or facet by a meaningful group if Simpson's paradox is plausible: a pooled association can differ from within-group associations because group membership affects both variables.
 
-## Confounding and interpretation
+An outlier can materially change Pearson correlation because it depends on squared deviations. Verify data entry and measurement. Do not remove valid observations solely because the correlation becomes nonsignificant; report sensitivity with and without influential observations if scientifically justified. Spearman is less sensitive to magnitude extremes but can still be affected by rank changes and ties.
 
-A correlation between exposure and outcome can be generated by a common cause, reverse direction, selection, or aggregation. Scatter plots reveal form and outliers, not causal structure. Adjusted regression can estimate conditional association but requires appropriate covariates and model form. For clustered or repeated data, a pooled correlation mixes within- and between-unit relations. Report the unit of analysis and avoid ecological inference from group averages.
+Anscombe's quartet demonstrates why a coefficient and regression line are not sufficient: datasets with nearly identical means, variances, correlations, and fitted lines can have radically different shapes and outliers. A single high-leverage patient with an extreme biomarker value may create an apparent linear relationship. Plot axes in meaningful ranges and inspect raw points rather than only a smoothed summary.
 
-Do not use verbal thresholds (“moderate,” “strong”) without context. A correlation of .3 may be important for a noisy population risk factor, while .95 may be inadequate for a replacement assay. Present the scatter, n, coefficient, interval, units, range, and question—association, prediction, or agreement.
+Heteroscedasticity does not change the definition of Pearson correlation but can make conventional inference inaccurate. A transformation such as log biomarker may improve interpretability if the relationship is multiplicative, but it changes the association being measured. Report the scale used and show the transformed relationship. Rank-based association avoids unit dependence but does not solve selection bias or dependence.
 
+When groups are present, calculate and plot both pooled and group-specific patterns when scientifically relevant. A pooled positive association can coexist with negative within-group associations (Simpson's paradox) if group means differ. This reflects different conditioning. Clarify whether the target is an overall population association or a within-stratum association.
 
-## Restricted range and dependence
+## Correlation is not agreement
 
-Correlation is sensitive to the range of values in a sample. A narrow healthy-volunteer range can yield a modest coefficient even when two measures track closely over a broad clinical range; conversely, mixing healthy and severe cases can inflate correlation due to between-group separation. Describe the observed range and consider stratified plots. Do not directly compare correlations from populations with different case mix without considering range restriction.
+Two methods can correlate perfectly yet disagree systematically. If method B always reads 10 units higher than method A, correlation may be 1 while the methods are not interchangeable. Agreement requires examining paired differences, bias, and limits of agreement, such as Bland–Altman analysis, with attention to repeated measurements and heteroscedastic differences. Intraclass correlation may be relevant for reliability but depends on the model and design.
 
-For repeated measurements from each patient, standard correlation tests treat every pair as independent and understate uncertainty. A pooled r can mix between-person and within-person associations. Use cluster bootstrap, mixed-effects models, or repeated-measures correlation according to the question. In method comparison, repeated-measures Bland–Altman methods separate within-subject and between-subject variability.
+Correlation also does not imply causation. A third variable can create association, reverse causation can operate, and selection can induce correlation. For example, exercise and lower blood pressure may correlate because age and health status influence both. Adjustment can help under a causal model but does not guarantee identification. Use causal designs and explicit assumptions for causal claims.
 
-## Comparing dependent correlations
+### Limits of agreement in a measurement study
 
-When comparing two correlations measured on the same participants—for example, two biomarkers each correlated with an outcome—the estimates are dependent because they share a variable and sample. Independent-sample Fisher z tests are inappropriate. Use methods for overlapping/dependent correlations or bootstrap participants and calculate the difference in each resample. Prespecify the comparison and report its interval; “one p-value significant and another not” does not demonstrate their difference.
+Suppose two devices have paired differences (D_i=A_i-B_i), mean difference 1.2 units, and SD 3.0. Under approximately normal differences, 95% limits of agreement are (1.2\pm1.96(3.0)), or −4.7 to 7.1 units. Whether those limits are acceptable depends on clinical tolerance; correlation alone cannot answer that. Plot differences against paired means to assess proportional bias and increasing variability. For repeated pairs per person, account for within-person dependence in the limits.
 
-Correlation matrices used for screening many predictors also raise multiplicity and collinearity issues. High pairwise correlation does not capture multivariable dependence, and low pairwise correlations do not guarantee low VIF. Use model-oriented diagnostics and avoid automated deletion solely by a correlation cutoff.
+Intraclass correlation coefficients quantify reliability or agreement under particular variance-component models. There are multiple ICC forms depending on whether raters are fixed or sampled, whether absolute agreement or consistency is desired, and whether single or average measurements are used. Always state the ICC model and confidence interval. A high ICC can result from a broad between-person range even when measurement error is clinically large.
 
-## Scatterplot-first analysis and Anscombe's lesson
+Measurement error in either variable usually attenuates Pearson correlation toward zero under classical assumptions. Replicate measurements or reliability studies can quantify error, but error correction requires assumptions. Shared systematic error can instead inflate association. Describe measurement procedures and assess whether correlated errors are plausible.
 
-Datasets can share the same means, variances, regression line, and correlation but have very different scatter patterns. One may be linear, another curved, another driven by a single influential point. Therefore a coefficient is never a substitute for plotting raw paired values. Add a smooth trend as a diagnostic, but avoid letting a smoother conceal sparse areas. Display point density transparently when n is large.
+## Testing many correlations
 
-For data with a U-shaped relation, Pearson r may be near zero because positive and negative slopes cancel. Spearman rho may also be near zero because the relationship is not monotone. Consider a scientifically specified nonlinear model or compare conditional distributions; do not conclude independence from zero correlation. Zero covariance implies independence only under special distributional families such as joint normality, not generally.
+Correlation matrices with dozens of variables create many hypotheses. At 5% per test, some small p-values occur by chance. Define primary relationships, adjust for multiplicity when confirmatory, or label screening analyses exploratory. False-discovery-rate control can be useful for discovery, but does not turn correlations into causal findings. Report the full matrix or selection process rather than only significant pairs.
 
-## Rank measures and ties in practice
+Correlation estimates in small samples are noisy and can be strongly affected by selection. Confidence intervals are important; a point estimate of 0.7 from 12 participants is not precise. Sample-size planning can target interval width or power for a scientifically relevant correlation. Range restriction in selected cohorts can attenuate observed correlation compared with the source population.
 
-Spearman's rho is computed from ranks, with average ranks assigned to ties. If values are heavily tied—as in a 5-point Likert scale—many pairs are tied and the attainable coefficient range and exact null distribution change. Kendall's tau-b adjusts for ties and can be useful for ordinal data. For very small n, exact or permutation tests may be more appropriate than asymptotic p-values. Report the coefficient type and tie handling.
+## Missingness, repeated observations, and weighting
 
-```r
-cor.test(pain_score, global_rating, method = "spearman",
-         exact = FALSE)
-cor.test(pain_score, global_rating, method = "kendall",
-         exact = FALSE)
-```
+Correlation calculated on complete pairs can be biased if missingness depends on either variable. Compare missingness patterns and consider likelihood or imputation methods when the target is a population association. Pairwise deletion in a matrix can produce different sample sizes for different entries and even a non-positive-definite matrix; report denominators.
 
-These tests assume independent pairs. If subjects are nested in clinicians or sites, use cluster-aware methods; ordinary permutation of individual rows breaks the design.
+Repeated measurements from the same person are not independent pairs. Pooling all person-visits can inflate precision and mix within-person with between-person association. Use repeated-measures correlation, multilevel models, or separate within- and between-person effects. For survey samples, incorporate sampling weights and design rather than using an unweighted coefficient as a population estimate.
 
-## Method agreement and clinical thresholds
+## Choosing Pearson, Spearman, or regression
 
-For assay comparison, report mean bias and limits of agreement with confidence intervals and compare them to clinically acceptable differences prespecified before analysis. A narrow mean-bias interval can coexist with wide individual limits, meaning average calibration is good but person-level substitution is poor. Regression of difference on mean can assess proportional bias but needs appropriate repeated-measures methods when subjects contribute replicates. Correlation answers association and should not be the primary validity criterion for interchangeability.
+Use Pearson when linear association on the measurement scale is meaningful and no severe influential points dominate. Use Spearman for monotonic rank association or ordinal variables. Use regression when the goal is a conditional mean relationship, adjustment, prediction, or covariate-specific contrast. For nonmonotonic association, consider splines or other flexible models. For binary or censored outcomes, specialized association measures may be more suitable.
 
-## Confidence intervals and sample size intuition
+Do not choose Spearman automatically because a Shapiro–Wilk test rejects normality; with large samples tiny deviations trigger rejection, and correlation validity depends on joint structure and outliers. Plot the data and define the scientific target. Pearson and Spearman answer related but distinct questions; reporting both can be a sensitivity check if prespecified, not a way to choose the smaller p-value.
 
-For Pearson r, Fisher-z standard error is approximately 1/√(n−3), so precision improves slowly with sample size. With n=30, SE_z≈.192; at n=200 it is .071. A narrow interval does not solve bias due to range restriction or shared measurement error. Plan sample size around a desired interval width or minimum relevant correlation, rather than power alone. If correlations are compared across groups, account for independent versus paired samples and multiple comparisons.
+Kendall's tau is another rank-based measure with a concordance interpretation: it compares the proportion of concordant and discordant pairs. It can be useful for ordinal data and small samples, though its numerical magnitude differs from Spearman's rho. Do not compare coefficients across methods as if they share a scale. Select the measure that matches the question and report it by name.
 
-When reporting, give the coefficient and confidence interval, sample size, method, and scatter plot. A p-value tests a null association; it does not indicate the probability that the correlation is clinically meaningful.
+Partial correlation adjusts for linear association with specified covariates, but it can be misleading if relationships are nonlinear or covariate selection is inappropriate. Multiple regression often provides a clearer framework because it models the outcome conditional mean and allows flexible terms. For binary outcomes, use logistic or other generalized models; correlation with a binary indicator has point-biserial interpretation but does not substitute for the relevant effect measure.
 
-## Correlation does not imply independence
+When reporting a matrix, show sample sizes and confidence intervals for important relationships. Use a diverging color scale centered at zero, label the coefficient method, and avoid using color intensity as a proxy for significance. If one variable is repeated or measured at multiple visits, account for within-person dependence rather than interpreting a conventional matrix of pooled rows.
 
-Pearson r=0 means sample linear covariance is zero; population zero correlation indicates zero covariance, not general statistical independence. A symmetric U-shaped relation can have zero covariance while Y is almost deterministically related to X. Spearman rho=0 similarly indicates no rank-monotone trend, not absence of all dependence. Plot and consider nonlinear dependence measures only when motivated; no single coefficient captures every relationship.
+For repeated data, the correlation between a person's usual biomarker level and usual outcome can differ from the within-person correlation between deviations around their personal means. Repeated-measures correlation estimates a common within-person linear association; a multilevel model can permit person-specific slopes. Report the number of people and observations, and whether slopes are assumed common. A naive Pearson coefficient over all visits weights people with more observations more heavily.
 
-### Worked nonlinear illustration
+In paired method comparison, the two measurements are designed to be dependent. Their correlation can be high because participants span a wide range even when within-person differences are clinically unacceptable. Analyze differences and agreement limits. In twin or family data, account for family clustering; a standard correlation interval assumes independent pairs.
 
-Let X range symmetrically around zero and Y=X². Positive and negative X values pair with similar Y, so Pearson correlation can be near zero even though knowing X determines Y. A scatter plot shows a parabola immediately. Fitting a linear regression alone produces a near-zero slope and can falsely suggest “no association.” Add a quadratic term if the U-shape is scientifically plausible and supported by data.
+Survey weighting changes the target population. A weighted correlation may estimate association in the population represented by the sample, but variance needs replicate weights, Taylor linearization, or another design-based method. Convenience samples with truncated ranges can yield attenuated correlations; correction for range restriction requires strong assumptions and should be treated as sensitivity, not routine adjustment.
 
-```r
-set.seed(3)
-x <- runif(200, -2, 2)
-y <- x^2 + rnorm(200, sd = .2)
-cor(x, y)      # near zero by symmetry
-plot(x, y)
-summary(lm(y ~ x + I(x^2)))
-```
+The Fisher z interval assumes an approximately bivariate-normal sample and independent pairs. Bootstrap confidence intervals can relax some distributional assumptions but must resample the independent unit. If data are clustered, resample clusters, not rows. If many correlations are planned, a multivariate bootstrap can preserve their dependence and support simultaneous intervals, although it requires adequate sample size.
 
-The simulated example is illustrative. The quadratic model assumes a specific shape; validate residuals and avoid choosing polynomial degree solely by significance.
+The p-value for correlation tests a zero population correlation under the sampling assumptions. It does not test whether a relationship is nonlinear, clinically useful, or causal. A near-zero Pearson coefficient can conceal a strong U-shaped association; a near-zero Spearman coefficient can conceal a nonmonotonic pattern. A plot and flexible regression can reveal such structure.
 
-## Correlation matrices and multiplicity
+### Correlation matrices as exploratory tools
 
-A matrix of many pairwise correlations can be useful for exploration but creates many hypotheses and may highlight chance extremes. Correlations are also pairwise complete by default in some workflows; different pairs can use different subsets, making the matrix not positive semidefinite and hard to compare. State missing-data handling, show pairwise sample sizes, and use a prespecified subset or multiplicity adjustment for confirmatory claims. Use VIF or model diagnostics to assess multivariable collinearity rather than relying only on pairwise r.
+A matrix can quickly identify redundant variables or candidate associations, but it is not a complete analysis plan. Strong correlation between predictors can destabilize regression coefficients, while moderate pairwise correlations do not rule out multivariable collinearity. Conversely, low pairwise correlations can coexist with a strong joint linear combination. Use the matrix to understand data, then model the scientific question directly.
 
-A correlation should be interpreted within the observed range and measurement protocol. Report whether pairs were complete, how ties were handled, and whether multiple observations per person were present. Show units even though r is dimensionless: units make the axes and clinical spread interpretable. If the purpose is calibration or interchangeability, supplement the coefficient with regression bias or agreement limits and predefined acceptance criteria.
+For high-dimensional biomarker screening, estimate correlations with confidence intervals and account for multiplicity or use hierarchical shrinkage. Replicate leading signals in independent data. Data-driven selection on the same sample leads to winner's curse: the largest observed correlations tend to overstate population associations. Report selection and validation steps.
 
-For two methods intended to replace one another, define acceptable absolute or relative error from clinical needs before analysis. A regression line can describe systematic calibration, but high correlation does not guarantee narrow prediction errors. Plot differences across the range, check for proportional bias, assess repeatability, and test performance near critical clinical thresholds. Report uncertainty in bias and limits, not correlation alone.
+Missing data can create non-positive-definite correlation matrices when pairwise deletion uses different participant subsets for each pair. This can invalidate PCA or covariance-based methods. Multiple imputation or complete-case analysis with clear assumptions may be preferable; alternatively, use methods designed for missing covariance. Report pairwise denominators and avoid silently mixing sample sizes.
 
-Before calculating a correlation, inspect missingness and pair matching. Pairwise deletion can use a different set of patients for each pair in a correlation matrix; listwise deletion can discard many otherwise useful observations. Imputation or model-based correlations require assumptions and should be reported. Never correlate group means when the question concerns individuals unless the ecological level is explicitly the target.
+## Design and causal context
 
-## Reporting a complete correlation analysis
+Cross-sectional correlations cannot establish which variable changed first. Longitudinal measurement can help describe temporal ordering but still does not remove time-varying confounding or reverse causation. If the target is causal, define an intervention contrast and identify assumptions; correlation is descriptive evidence, not a causal estimand.
 
-A reproducible report specifies Pearson, Spearman, or Kendall; sample size and missing-pair handling; estimate and interval; scatterplot; measurement ranges and units; and whether observations are independent. If an association is nonlinear or clustered, explain how the chosen coefficient summarizes it and what it cannot capture. If the purpose is method comparison, include bias and agreement limits with clinical tolerances. These details prevent a dimensionless coefficient from being interpreted beyond its evidence.
+Selection into a clinic, trial, or complete-case dataset can induce associations between variables that are independent in the source population. For example, conditioning on referral affected by both exposure and disease severity can create collider bias. A high observed correlation in a selected sample may therefore not transport to the population. Describe sampling and selection mechanisms.
+
+## Reporting the coefficient
+
+State the coefficient type, sample size, confidence interval, p-value when relevant, handling of ties and missing pairs, and independence unit. Include a scatterplot or rank plot for key relationships. Name units and whether variables were transformed. If adjusted, state covariates and whether the result is a partial correlation or regression coefficient. Avoid qualitative labels such as “strong” without context; practical importance depends on measurement reliability and the scientific use.
+
+A transparent sentence could read: “Among 84 participants with complete paired measurements, baseline CRP and length of stay had a Spearman correlation of 0.38 (95% CI 0.17 to 0.56); the association was monotonic but does not imply a causal effect.” If the coefficient was selected after screening many markers, add that it is exploratory and report the screening strategy.
+
+The interval's uncertainty reflects sampling variation under the assumed design. It does not include uncertainty from measurement calibration, selection, unmeasured confounding, or choice among Pearson and rank methods. Sensitivity analyses should address plausible threats rather than merely report whichever method is significant.
+
+For clinical monitoring, a modest correlation may still support useful screening if combined with other information, while a high correlation may be inadequate for replacing a reference test. Evaluate the decision task directly rather than setting universal thresholds for “weak” or “strong” correlation.
+
+Report the plotting scale and any axis transformation alongside the coefficient.
+
+If the relation is used to calibrate a surrogate measure, separately validate the prediction error and agreement limits in the target population.
+
+In a clinical biomarker setting, evaluate whether a correlation is stable across assay batches, sites, and disease severity. Batch-specific shifts can create or obscure association. Plot paired values by batch and account for repeated samples when the same patient contributes multiple measurements.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
-- Bland JM, Altman DG. "Statistical methods for assessing agreement between two methods of clinical measurement." *BMJ* 1986.
-- The [confidence intervals article](../inference/confidence-intervals.html) discusses uncertainty intervals for association estimates.
-
-Do not interpret a high Pearson coefficient as sufficient evidence that one biomarker can substitute for another. If the range is broad, correlation may be high despite clinically meaningful error at decision cutoffs. Evaluate bias and precision around those cutoffs and determine whether recalibration would be stable across populations. The replacement claim requires agreement evidence and external validation, not just shared variance.
-
-For a strongly nonlinear but monotone association, compare scatterplot shape with both Pearson and rank summaries and explain why one is primary. Rank correlation does not quantify change in original units, so a regression model may still be needed for prediction or dose-response interpretation. Report a coefficient only with the plot and the scientific question it summarizes.
+- Schober P, Boer C, Schwarte LA. Correlation coefficients: appropriate use and interpretation. *Anesthesia & Analgesia*. 2018;126:1763–1768. [doi:10.1213/ANE.0000000000002864](https://doi.org/10.1213/ANE.0000000000002864)
+- Bland JM, Altman DG. Statistical methods for assessing agreement between two methods of clinical measurement. *The Lancet*. 1986;1:307–310. [doi:10.1016/S0140-6736(86)90837-8](https://doi.org/10.1016/S0140-6736(86)90837-8)
+- Mukaka MM. A guide to appropriate use of correlation coefficient in medical research. *Malawi Medical Journal*. 2012;24:69–71. [PMCID: PMC3576830](https://pmc.ncbi.nlm.nih.gov/articles/PMC3576830/)
+- Bland JM, Altman DG. Calculating correlation coefficients with repeated observations: Part 1—correlation within subjects. *BMJ*. 1995;310:446. [doi:10.1136/bmj.310.6977.446](https://doi.org/10.1136/bmj.310.6977.446)

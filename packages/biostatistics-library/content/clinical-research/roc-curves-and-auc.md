@@ -3,166 +3,168 @@ title: ROC curves and AUC
 summary: A plot of sensitivity against 1 − specificity for every possible cut-off, whose area summarises a test's discriminatory power.
 ---
 
-## Overview and key ideas
+## Overview
 
-For a continuous marker, move the diagnostic cut-off from the lowest to the highest observed value, and at each position compute sensitivity (true positive rate) and 1 − specificity (false positive rate). Plotting sensitivity on the y-axis against 1 − specificity on the x-axis gives the **ROC curve**: every point is the operating pair at one threshold. The 45° diagonal represents a marker with no discriminatory power (AUC = 0.5); the top-left corner represents a perfect marker (AUC = 1.0).
+A receiver operating characteristic (ROC) curve displays sensitivity against one minus specificity as a diagnostic threshold varies. The area under the curve (AUC) summarizes ranking discrimination: it is the probability that a randomly selected case receives a higher score than a randomly selected non-case, with ties handled appropriately. ROC analysis describes discrimination, not calibration, clinical benefit, or the best threshold.
 
-The **area under the curve (AUC)** has a simple probability interpretation: it is the chance that a randomly chosen diseased person has a higher marker value than a randomly chosen non-diseased person. That makes AUC a threshold-free summary of *discrimination* — but it says nothing about *calibration* (whether predicted probabilities are numerically accurate) or about how the test performs at the specific working threshold your clinic will use.
+AUC is useful for comparing ranking across thresholds, but it can conceal where errors occur and depends on the case mix and disease spectrum. Report the intended population, index test, reference standard, threshold-specific performance, and uncertainty. For clinical decisions, relate thresholds to consequences and absolute risks.
 
-Two useful landmarks on the curve: the origin (0,0) and top-right corner (1,1) are trivial points; the curve's steepest rise near the top-left corner is where both sensitivity and specificity are high, and the flattening toward the bottom-right is where the test is essentially useless. A curve that hugs the top-left corner has a high AUC; one that follows the diagonal has an AUC of 0.5; one that falls below the diagonal (AUC < 0.5) means the marker discriminates in the *wrong* direction — the marker is informative, but the direction of the test should be reversed.
+## Building the ROC curve
 
-## When to use it
+For each possible cutoff, classify test-positive and test-negative results. Sensitivity=TP/(TP+FN); specificity=TN/(TN+FP). Plot sensitivity on the vertical axis and false-positive rate 1−specificity on the horizontal axis. A score with higher values indicating disease uses one direction; if lower values indicate disease, reverse appropriately.
 
-| Setting | Example question |
-| --- | --- |
-| Comparing markers | Does high-sensitivity troponin discriminate MI from non-MI chest pain better than CK-MB? |
-| Choosing a threshold | At what troponin level should chest pain patients be sent for angiography? |
-| Model comparison | Does adding clinical variables to a biomarker improve discrimination of 30-day outcomes? |
-| Screening evaluation | How do sensitivity and specificity of PSA change across candidate cut-offs? |
+A perfect classifier reaches the upper-left corner; a non-informative ranking lies near the diagonal. The ROC curve can be constructed empirically by evaluating observed score thresholds. Smoothing or parametric models can produce a cleaner curve but impose assumptions. State method and handle ties consistently.
 
-## Assumptions and limitations
+## AUC calculation and interpretation
 
-- **Prevalence-independence, with a caveat** — the AUC itself does not depend on case mix, but the *operating point* (and hence PPV/NPV) you care about does; a curve estimated in a high-prevalence case series is still the right place to read thresholds from, but not from PPVs.
-- **Comparing two AUCs** — when the markers come from the same patients (as here), use a paired test (DeLong's method); with overlapping 95% CIs the two tests cannot be declared different.
-- **Cost is ignored** — the "best" cut-off depends on the relative consequences of false positives and false negatives, which AUC does not model; decision curve analysis is one remedy for that gap (Vickers & Elkin).
-- **Unstable in small samples** — with few cases or a rare outcome the AUC estimate has wide uncertainty; report bootstrap confidence intervals.
+The empirical AUC is equivalent to the Mann–Whitney statistic: the proportion of case-control pairs where the case has a higher score, plus half credit for ties. If AUC=.80, a randomly chosen case is ranked above a randomly chosen non-case in about 80% of pairs. It does not mean 80% of patients are correctly classified or that predicted probabilities are accurate.
 
-## Worked example
+An AUC of .80 can correspond to different clinical performance depending on prevalence and score distributions. It does not select a threshold. A model can have higher AUC yet offer less net benefit in the relevant threshold range. Calibration and threshold utility need separate assessment.
 
-A chest pain cohort of 500 patients (100 with MI) is studied with high-sensitivity troponin (ng/mL):
+## Worked threshold example
 
-| Cut-off | Sensitivity | Specificity | 1 − Specificity |
-| --- | --- | --- | --- |
-| 0.04 | 95% | 70% | 30% |
-| 0.14 | 60% | 92% | 8% |
+Suppose 100 patients have disease and 900 do not. At a threshold, sensitivity is .80 and specificity .70. Then TP=80, FN=20, TN=630, FP=270. PPV=80/(80+270)=22.9%; NPV=630/(630+20)=96.9%. Even with good sensitivity and moderate specificity, most positive results are false positives because disease prevalence is low.
 
-The ROC curve passes through (0.30, 0.95) and (0.08, 0.60); the area under the curve is ≈ **0.89**, versus ≈ 0.50 for a non-discriminating marker in the same cohort.
+At higher prevalence, PPV rises while sensitivity and specificity remain conditionally defined. Thus predictive values must be interpreted in the target population. Case-control studies can estimate sensitivity and specificity under suitable sampling but do not directly estimate target-population PPV without prevalence information.
 
-Interpretation: troponin ranks most MI patients above non-MI patients (AUC 0.89). The two cut-offs are a policy choice: 0.04 ng/mL catches 95% of MIs but flags 30% of non-MIs as positive, while 0.14 ng/mL is far cleaner but misses 40% of MIs. The Youden index (sensitivity + specificity − 1) picks the threshold maximising correct calls in the study sample — 0.04 here (0.65 vs 0.52) — but the final choice should weigh the clinical cost of missed MIs against unnecessary workups, not the index alone.
+~~~r
+library(pROC)
+roc_obj <- roc(response = status, predictor = score,
+               levels = c("control", "case"), direction = "<")
+auc(roc_obj)
+coords(roc_obj, x = 0.80, input = "sensitivity",
+       ret = c("threshold", "specificity"))
+~~~
 
-## Interpretation and common pitfalls
+Confirm factor levels and score direction. The coordinate chosen by sensitivity is not automatically clinically optimal. Bootstrap patients for uncertainty, and if observations are clustered use a cluster-respecting method. Threshold selection and performance evaluation should use separate data or nested procedures.
 
-- Treating AUC 0.7 as "fine" by default — there is no universal standard; 0.7 may be acceptable for a low-stakes screen and inadequate for a rule-in test in high-stakes care.
-- Using the AUC to pick the working cut-off: AUC is threshold-free by construction, so the cut-off must be chosen on accuracy, cost and consequences, not on the area.
-- Comparing AUCs from different samples without paired methods, or ignoring overlapping CIs; and assuming equal AUCs mean equal predictive quality — AUC ignores calibration entirely.
-- Reading a single point on the curve as "typical" performance; each point is one specific threshold, and the study's threshold is not necessarily yours.
-- Using the AUC as the only evaluation of a predictive model: a model with AUC 0.8 that is badly miscalibrated (predicts 80% when the true probability is 30%) can still be a poor basis for individual clinical decisions, even though its ranking is good.
+## Thresholds and decision consequences
 
-The AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case (with ties handled conventionally). It measures ranking, not calibration, clinical benefit, or performance at a chosen threshold. Compare AUCs on paired participants with methods that account for correlated ROC curves, and report confidence intervals. For clinical use, show sensitivity and specificity at prespecified thresholds and evaluate consequences across threshold probabilities, for example with decision-curve analysis. Case-control sampling can estimate ROC characteristics under appropriate spectrum assumptions, but does not provide predictive values or population calibration without prevalence information.
+A diagnostic cutoff trades sensitivity against specificity. Screening may favor sensitivity to avoid missed disease, whereas confirmatory testing may favor specificity. The appropriate balance depends on consequences, available follow-up, and treatment effectiveness. Selecting the threshold that maximizes Youden’s J (sensitivity+specificity−1) implicitly gives sensitivity and specificity equal weight and ignores prevalence and action costs.
+
+Thresholds chosen by optimizing the ROC curve on the same sample are optimistic. Prespecify a clinically justified cutoff or select it in development data and validate independently. Report the full confusion matrix and confidence intervals at the chosen threshold. If a test result is continuous and decisions vary, report a range of operating points.
+
+## Calibration and predictive values
+
+ROC measures ranking and is invariant to monotone transformations of scores. A recalibrated or distorted score can have the same AUC but very different probability meaning. Calibration compares predicted risk with observed frequency; evaluate calibration plots, intercept/slope, and Brier score for risk models. A diagnostic score that is not a probability should not be described as one.
+
+PPV and NPV depend on prevalence. For sensitivity Se, specificity Sp, and prevalence π, PPV=Seπ/[Seπ+(1−Sp)(1−π)]. At π=.01, Se=.90, Sp=.90, PPV=.009/(.009+.099)=8.3%. A positive result in low-prevalence screening therefore often needs confirmatory testing. Use prevalence from the intended setting, not a case-control dataset’s fraction of cases.
+
+## Paired model comparisons and uncertainty
+
+When two tests are applied to the same participants, their AUC estimates are correlated. Use paired comparison methods such as DeLong’s test or patient-level bootstrap. Comparing overlapping confidence intervals by eye is not a formal test. A statistically significant AUC difference may be clinically trivial; report magnitude and decision consequences.
+
+Confidence intervals depend on sample size and case/control counts. AUC uncertainty is driven by numbers of cases and non-cases, not only total N. Subgroup AUCs can be unstable when one class is rare. Report denominators and intervals. If patients cluster by site or repeated studies, account for dependence.
+
+## Spectrum, verification, and reference standards
+
+Sensitivity and specificity may vary with disease severity, comorbidity, and control selection. A study comparing advanced disease cases with exceptionally healthy controls can inflate AUC relative to real practice, where borderline cases and comorbidities are common. Enroll a representative clinical spectrum and report exclusions.
+
+Verification bias occurs when the reference standard is applied preferentially based on index-test results. Partial verification can bias sensitivity and specificity. Use complete verification where feasible or appropriate corrections and sensitivity analyses. Reference standards can themselves be imperfect; describe adjudication, blinding, and disagreement.
+
+The target condition and timing must be clear. A test may detect current disease but be evaluated against a later diagnosis influenced by the test result. Incorporation bias occurs when the index test contributes to the reference diagnosis. Avoid using a test as part of its own gold standard.
+
+### Partial AUC and clinically relevant regions
+
+AUC weights all false-positive rates equally, including ranges never used clinically. Partial AUC restricts evaluation to a relevant specificity or sensitivity region, but scaling conventions differ. State bounds and whether the partial area is standardized. A high partial AUC in a selected region may be useful for high-specificity confirmation or high-sensitivity screening, but threshold consequences still matter.
+
+ROC curves can cross: one test may be better at high sensitivity and worse elsewhere. The overall AUC can obscure this. Report operating points and confidence intervals in the region relevant to practice. If comparing tests, prespecify the region and use paired inference.
+
+## Subgroups, fairness, and transport
+
+Evaluate discrimination and calibration in relevant subgroups, but remember that AUC can change with disease severity distribution even if conditional test behavior is similar. Differences may reflect spectrum, reference standard, access, or measurement quality. Report case and control counts, thresholds, sensitivity, specificity, and predictive values by group when support permits.
+
+A threshold that works in one setting may misclassify patients elsewhere due to prevalence and spectrum. External validation should reproduce the intended use, including point of care, operator, device, and confirmatory pathway. Recalibration may improve risk estimates but cannot fix an unstable test measurement or label bias.
+
+### Reporting a diagnostic model study
+
+Report target condition, intended role, eligibility, recruitment, index test procedure, reference standard, blinding, threshold, missing and indeterminate results, and timing. Provide ROC curve, AUC with confidence interval, threshold-specific confusion matrix, predictive values for target prevalence, calibration if probabilities are produced, and subgroup performance. Describe sample-size planning and verification.
+
+Use STARD for diagnostic accuracy reporting and TRIPOD+AI for prediction models. Distinguish diagnostic accuracy from clinical utility. Report failures and harms, including false-positive investigations and delayed diagnoses. AUC should be one part of the evidence, not the headline that substitutes for clinical interpretation.
+
+### Confidence intervals for AUC and operating points
+
+AUC is a statistic estimated from sampled cases and controls. DeLong’s method estimates variance using the placement of each case and control in the pairwise ranking; bootstrap methods can accommodate more complex sampling, but must resample the independent unit. Report a confidence interval alongside the point estimate. A narrow interval can still describe a biased sample or an inappropriate reference standard.
+
+Sensitivity and specificity at a fixed threshold are binomial proportions conditional on disease status. Use score or exact intervals when counts are small. Predictive values are also proportions but depend on prevalence. If a case-control design fixed the number of cases, estimate PPV only after applying representative prevalence or validating prospectively. Show counts because percentages can conceal very small denominators.
+
+For a paired comparison, compute the AUC difference and its interval, not just separate intervals. DeLong’s test is suitable for many paired settings with independent participants. For clustered multi-site data, resample or model clusters. If the threshold is selected from data, uncertainty should account for selection; a simple interval conditional on the chosen cutpoint is optimistic.
+
+### ROC, precision-recall, and prevalence
+
+The ROC curve can look strong under severe class imbalance because the false-positive rate denominator includes many non-cases. Precision-recall curves emphasize PPV and sensitivity among positive predictions and can better communicate performance for rare outcomes. The baseline precision equals prevalence, so PR curves change with prevalence; report the target prevalence and do not compare curves across populations without context.
+
+Neither curve alone measures calibration or net benefit. ROC AUC assesses ranking across all thresholds, PR summarizes positive prediction quality, calibration evaluates probabilities, and decision analysis relates predictions to actions. Select metrics based on intended use and present complementary evidence rather than seeking one universal score.
+
+### ROC threshold selection and decision utility
+
+Youden’s J chooses the point maximizing sensitivity+specificity−1. This gives equal statistical weight to false positives and false negatives under a specific construction, but not necessarily equal clinical cost. A screening program may tolerate many false positives to avoid missing disease; a dangerous confirmatory procedure may require high specificity. Select thresholds from clinical consequences and patient preferences.
+
+At a threshold, report numbers of false negatives and positives, not only sensitivity and specificity. For a low-prevalence condition, even a small false-positive rate can create many false alarms. Decision-curve analysis can compare net benefit across risk thresholds when probabilities and actions are well defined. Cost-effectiveness analysis may be needed if consequences include costs and health outcomes beyond binary errors.
+
+If a threshold is chosen by maximizing performance on a development dataset, lock it and evaluate on a separate cohort. Cross-validation can estimate the whole threshold-selection procedure, but results should not be described as external validation. Thresholds should also be checked for stability across sites and subgroups.
+
+### Diagnostic accuracy versus risk prediction
+
+A diagnostic test classifies current disease status against a reference standard. A prognostic model estimates future outcome risk. Some tools do both, but the estimands and validation differ. A diagnostic ROC uses current disease status; a prognostic ROC depends on horizon and censoring. Time-dependent ROC methods need survival-specific definitions and competing-risk handling.
+
+For a probability model, calibration is central because clinicians may act at a risk threshold. For a diagnostic score, sensitivity and specificity at a chosen cutoff may be primary, but predictive values still depend on prevalence. Avoid presenting AUC as proof that a screening program improves health; downstream follow-up and treatment must be effective.
+
+### Case-control sampling and spectrum effects
+
+Case-control studies can enrich the sample with disease cases, which improves efficiency for estimating some aspects of discrimination. But the case and control spectrum should match the intended clinical pathway. Controls drawn from healthy volunteers may differ markedly from patients who present with similar symptoms but do not have the target disease. This can inflate AUC.
+
+Sensitivity and specificity can also vary with severity and competing conditions. A test may be more sensitive in advanced disease than early disease. Report disease stage, setting, comorbidities, and how controls were recruited. Validate in consecutive or representative cohorts whenever feasible.
+
+The AUC is theoretically prevalence-invariant under fixed case and non-case score distributions, but those distributions often change with case mix. AUC can therefore change across settings despite identical assay technology. Predictive values certainly change with prevalence. External testing should examine both spectrum and prevalence.
+
+### Verification and incorporation bias
+
+If only patients with positive index tests receive the reference standard, false negatives remain unknown and sensitivity can be overestimated. This is partial verification bias. Differential verification uses different reference tests in different patients and can also distort estimates. Corrective methods require assumptions about verification probabilities and measured predictors.
+
+Incorporation bias occurs when the index test forms part of the reference diagnosis. The resulting agreement is partly guaranteed. Blinding adjudicators to index results and applying an independent reference standard reduce this bias. If no gold standard exists, define a composite or adjudication method and acknowledge its imperfections.
+
+### Multiclass and repeated-measure settings
+
+For more than two diagnostic categories, one-vs-rest ROC curves and micro- or macro-averaged AUCs summarize different comparisons. State averaging method and class prevalence. A high average can hide poor discrimination for a clinically important rare class. Confusion matrices and per-class sensitivity are essential.
+
+Repeated tests per patient create correlated observations. A per-test ROC may overweight people tested frequently. Define whether the unit is test, episode, or patient and aggregate or model accordingly. Cluster-aware confidence intervals are needed. If longitudinal scores are used, account for time and repeated thresholds.
+
+### Paired AUC comparison example
+
+Suppose two algorithms are evaluated on the same 100 cases and 300 controls. Model A has AUC .82 and model B .84. The .02 difference is not automatically meaningful. Their scores are correlated because they were evaluated on the same patients; a paired DeLong test or patient-level bootstrap estimates uncertainty in the difference. If the 95% interval is −.01 to .05, evidence is compatible with a small disadvantage or moderate advantage for B. Report the interval and decision consequences rather than simply whether a p-value is below .05.
+
+AUC comparison should be prespecified if it is a primary objective. Testing many models, subgroups, and thresholds creates multiplicity and selection bias. Use the same test cohort fairly, but keep it untouched until model choices are locked. An external validation cohort is stronger evidence for transport than repeated internal comparisons.
+
+## Threshold stability and uncertainty
+
+Threshold performance can vary across samples, especially when few cases determine sensitivity. Bootstrap the independent patients and recompute sensitivity, specificity, PPV, and alert burden. If the cutoff itself was selected from data, repeat threshold selection in each bootstrap replicate to reflect selection uncertainty. Do not present a cutpoint with excessive decimal precision.
+
+Subgroup threshold performance can differ even when AUC is similar. A single threshold may produce distinct sensitivity and false-positive burden by group because score distributions or prevalence differ. Evaluate whether a common cutoff supports equitable use and whether different cutoffs are legally, ethically, or clinically appropriate. Report the basis of threshold policy rather than making the decision solely from ROC curves.
+
+### External validation and spectrum
+
+External validation should use independent sites, operators, devices, time periods, and patient spectra representative of intended use. Report whether the reference standard was applied uniformly. A result from a specialist center may not transfer to primary care. Device recalibration, specimen handling, and operator training can shift score distributions.
+
+If accuracy declines, investigate whether it reflects changed prevalence, disease severity, reference standard, or measurement. AUC may remain while calibration and predictive values shift. Recalibrate only when the ranking is stable and source differences are understood; otherwise develop and validate a revised test system. Clinical performance includes the full sequence from test ordering through confirmatory evaluation and treatment.
+
+## Sample size and precision
+
+Diagnostic studies need enough participants with and without the target condition to estimate sensitivity and specificity precisely. For sensitivity expected near .80 and margin .05, a rough simple-binomial calculation gives about 246 diseased participants. At 2% prevalence this may require screening more than 12,000 people. Case-control enrollment can increase case numbers efficiently, but does not provide representative predictive values and may distort spectrum. Plan sample size for the primary metric and the intended setting.
+
+## Communicating the operating point
+
+Present a confusion table with counts and denominators for the chosen cutoff, and specify whether threshold results were prespecified or selected. Explain what confirmatory step follows a positive result and what clinical action follows a negative result.
+
+## Threshold reporting
+
+A cutoff should be reported in the test’s original units, with direction and handling of equality specified. Changes in assay calibration or score version can invalidate an otherwise identical numeric threshold.
 
 ## References and further reading
 
-## ROC construction and interpretation
-
-## AUC calculation and uncertainty
-
-## Decision thresholds should match use
-
-### AUC sample size considerations
-
-Precision for AUC depends on case and noncase counts, not merely total enrollment. Rare disease requires substantial screening to accrue enough cases, and subgroup AUC comparisons require additional participants. Plan confidence-interval width or a clinically relevant difference between paired AUCs, accounting for correlation between tests. Report achieved precision if recruitment falls short; a nonsignificant comparison with wide interval does not establish similar discrimination.
-
-## ROC reporting checklist
-
-State positive class, score direction, AUC with interval, test threshold, sample spectrum, prevalence, reference standard, and whether estimates are internally or externally validated. Give sensitivity/specificity and predictive values at intended-use thresholds. Explain that AUC is ranking, not accuracy or calibration, and identify downstream decisions.
-
-An early triage test may prioritize sensitivity to minimize missed disease, while a confirmatory test may prioritize specificity to avoid unnecessary treatment. Report performance in the intended-use region, not only whole-curve AUC. Thresholds should reflect benefits and harms, prevalence, downstream tests, and patient preferences. If several thresholds are shown, identify which was prespecified and which are exploratory.
-
-For high-stakes deployment, evaluate net benefit and workflow impact in prospective validation, including uptake and indeterminate results. Discrimination alone does not establish clinical utility.
-
-## Paired comparison example
-
-When two biomarkers are measured on the same cases and controls, compare their AUCs using paired covariance. An observed AUC of .82 vs .79 with a 95% difference interval −.01 to .07 does not establish superiority; it remains compatible with small disadvantage or moderate advantage. If the clinical claim is noninferiority within .03, prespecify margin and use a confidence interval designed for that decision. Do not infer equivalence from a nonsignificant DeLong test.
-
-For repeated cross-validation, predictions for a participant must come from folds where that participant was held out. Pooling in-sample predictions across folds leaks training information and inflates AUC. For nested model comparisons, repeat feature selection and tuning within each training fold. The final model should be refit on development data and evaluated on independent validation data once.
-
-## Case-control spectrum and prevalence
-
-ROC AUC is not directly changed by artificial prevalence under ideal sampling because it conditions on case/control status, but case-control recruitment often changes spectrum and disease severity, which can alter sensitivity and ranking. PPV/NPV from such samples are invalid for routine care. Re-estimate threshold predictive values at target prevalence only when accuracy transports; otherwise conduct validation in intended-use settings.
-
-Empirical AUC is a Mann–Whitney U statistic: it estimates the proportion of case-control pairs correctly ordered by the score. DeLong variance uses the covariance of pairwise placements and is appropriate for independent subjects; paired ROC curves use covariance between scores on the same subjects. Bootstrap can accommodate more complex pipelines but must resample the independent sampling unit. If multiple lesions per patient are treated as independent, AUC uncertainty will be understated.
-
-ROC analysis is affected by case mix. A test may discriminate better when cases are advanced and controls clearly healthy than among borderline patients in the intended clinic. Compare performance across severity spectrum and settings. AUC can increase merely because the validation sample has a wider range of disease severity, even if assay biology is unchanged. Report recruitment spectrum and reference-standard methods.
-
-## Thresholds, costs, and calibration
-
-## External validation and transport
-
-## Reporting a diagnostic model study
-
-Report participant flow, clinical setting, disease prevalence/severity, reference standard, blinding, index-test timing, missing/indeterminate results, and threshold rationale. For continuous prediction, specify whether score was trained on the study cohort or externally defined. Include AUC interval, calibration plots/intercept/slope, and clinically relevant threshold performance. If model development used the same sample, use bootstrap optimism correction or nested cross-validation and describe all feature selection/tuning steps. External validation remains necessary before use.
-
-For a high-stakes threshold, quantify false positives and false negatives per 1,000 at target prevalence and describe downstream action. AUC alone cannot establish net benefit, fairness, or operational feasibility. Follow STARD for diagnostic accuracy or TRIPOD+AI for prediction model reporting, as appropriate.
-
-## Full worked threshold example
-
-Suppose 1,000 symptomatic patients undergo a biomarker test, 100 have disease by the reference standard, and threshold (c) yields sensitivity 85% and specificity 90%. This gives 85 TP, 15 FN, 90 FP, and 810 TN; PPV=85/175=48.6%, NPV=810/825=98.2%. If the same test is used in a 2% prevalence screening population and accuracy transports, PPV drops to about 14.8%: among 10,000, 170 TP and 980 FP. Thus an AUC or sensitivity/specificity pair does not determine practical value without setting and prevalence.
-
-```r
-prev <- c(.10, .02); sens <- .85; spec <- .90
-ppv <- prev * sens / (prev * sens + (1 - prev) * (1 - spec))
-npv <- (1 - prev) * spec / ((1 - prev) * spec + prev * (1 - sens))
-data.frame(prevalence = prev, PPV = ppv, NPV = npv)
-```
-
-The calculation assumes sensitivity/specificity remain constant across settings, which may fail with spectrum shifts. A threshold should be chosen with downstream action and harms in mind. At a low-prevalence screening setting, confirmatory testing may reduce false-positive harms.
-
-## ROC limitations and reporting
-
-## Calibration alongside discrimination
-
-If the test score is intended to estimate disease probability, assess calibration-in-the-large, calibration slope, and flexible calibration plots in addition to AUC. A model can rank patients well but systematically predict 30% risk when observed risk is 10%; threshold decisions based on such probabilities are unsafe. Recalibration may adjust intercept or slope, but should be done in representative validation data and reported as model updating. Provide Brier score or other overall accuracy measure as complementary evidence.
-
-## Subgroup performance and fairness
-
-Assess sensitivity, specificity, calibration, and threshold consequences across relevant demographic and clinical groups. Equal AUC does not imply equal false-negative rates or calibration. Small subgroup samples yield wide intervals, so avoid confident fairness claims from point estimates. Investigate differences in reference-standard access, measurement protocol, prevalence, and spectrum. If the test informs high-stakes action, prospectively evaluate workflow impact and unintended consequences.
-
-## Case-control data and AUC
-
-In a case-control sample, AUC can be estimated when sampling is independent of test score within disease strata, but spectrum bias may still alter it. PPV/NPV cannot be read from the enriched sample. For rare disease, precision in sensitivity depends on number of cases; precision in specificity depends on controls. Report each denominator and whether sample selection was consecutive, random, or convenience-based.
-
-ROC curve treats false positives and false negatives symmetrically across thresholds, while clinical consequences are rarely symmetric. AUC averages ranking across thresholds that may never be used. Two curves can cross and have equal AUC while one performs better in the clinically relevant region. Report operating-point metrics, calibration, prevalence, and decision consequences. If case-control sampling was used, disclose sampling and avoid sample PPV/NPV.
-
-Validate in a temporally or geographically distinct cohort that reflects intended clinical use. Preserve the development threshold for primary validation; recalibration or retuning should be reported as model updating and evaluated separately. Report AUC with interval, calibration, threshold-specific sensitivity/specificity, predictive values at target prevalence, and decision consequences. Spectrum, verification, and prevalence differences should be described. A high AUC in a case-control sample of clear cases and healthy controls may not transport to a primary-care population with early disease and comorbidity.
-
-If several centers contribute data, show center-specific performance and uncertainty. A pooled AUC can hide poor performance at a site. Hierarchical summaries may quantify variation, but implementation decisions should include calibration at each site and feasibility of local recalibration.
-
-If a model outputs risk, calibration compares predicted probabilities with observed frequencies; ROC AUC is unchanged by monotone transformations and therefore cannot detect miscalibration. A calibrated risk of 20% has direct decision meaning, while a rank score does not. Threshold should reflect treatment benefit/harm, testing cost, and patient preference, and can be examined with decision-curve analysis. Decision-curve results also depend on valid risk predictions and a clinically meaningful threshold range.
-
-For screening, a two-stage pathway can use a sensitive initial test and a specific confirmatory test. Overall pathway sensitivity/specificity depend on sequential conditional performance, not the product of independent marginal values unless conditional independence is justified. Evaluate the full clinical workflow including indeterminate results and uptake.
-
-For a continuous marker, each threshold gives a sensitivity and false-positive rate; connecting these points forms the ROC curve. The AUC can be interpreted as the probability that a randomly selected case receives a higher score than a randomly selected noncase (with half credit for ties). It measures ranking/discrimination, not calibration, causal effect, or clinical benefit. AUC=0.5 corresponds to chance ranking and 1.0 to perfect ranking in the evaluated sample. An AUC of 0.80 does not mean 80% of patients are correctly classified at a chosen threshold.
-
-```r
-library(pROC)
-roc_obj <- roc(response = dat$disease, predictor = dat$score,
-               levels = c("no", "yes"), direction = "<")
-auc(roc_obj)
-ci.auc(roc_obj, method = "delong")
-coords(roc_obj, x = 0.90, input = "sensitivity",
-       ret = c("threshold", "specificity"))
-```
-
-Specify positive class and score direction explicitly; software may otherwise select direction that maximizes apparent AUC. DeLong intervals account for paired empirical ROC estimates in independent participants, but clustered or repeated measurements need cluster-aware bootstrap. Threshold selection and AUC estimation in the same sample can be optimistic, particularly after trying many markers or cutpoints.
-
-## Comparing AUCs and validating a marker
-
-When two tests are measured in the same individuals, their AUC estimates are correlated; DeLong's test accounts for this paired structure. Tests measured in different participants require independent comparison. A nonsignificant AUC difference does not establish equivalence; define a clinically acceptable difference and use an equivalence framework if that is the goal. Also compare calibration and threshold-specific consequences, because similar AUCs can conceal very different behavior in the clinically relevant region.
-
-Internal validation should repeat all model development steps—including feature selection and threshold choice—inside each bootstrap or cross-validation resample. Evaluating a score on its training data exaggerates performance. External validation should represent the intended population, preserve the intended threshold, and report changes due to spectrum, prevalence, and assay protocol. AUC may transport more readily than PPV but still changes with case mix and disease severity.
-
-## Partial AUC and clinical use
-
-In screening, high sensitivity may be required; in confirmatory testing, high specificity may matter more. Partial AUC summarizes discrimination over a restricted false-positive range, but its scaling and interpretation should be stated. Compare sensitivity at fixed specificity or specificity at fixed sensitivity with confidence intervals. Clinical utility depends on prevalence and consequences, so decision-curve analysis or net benefit can complement ROC performance. ROC analysis alone does not select a treatment threshold.
-
-For imbalanced data, accuracy can be misleading, while ROC AUC is mathematically prevalence-independent but may appear favorable even when PPV is low. Precision-recall curves foreground positive predictive value and sensitivity and can be informative when disease is rare. Report prevalence and clinically relevant predictive values in the target setting alongside ROC measures.
-
-- DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated ROC curves. *Biometrics*. 1988;44:837–845. https://doi.org/10.2307/2531595
-- Bossuyt PM, Reitsma JB, Bruns DE, et al. STARD 2015. *BMJ*. 2015;351:h5527. https://doi.org/10.1136/bmj.h5527
-
-- DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated receiver operating characteristic curves. *Biometrics*. 1988;44:837–845. [doi:10.2307/2531595](https://doi.org/10.2307/2531595)
-
-- Vickers AJ, Elkin EB. "Understanding the area under the receiver operating characteristic curve." *BMC Medical Informatics and Decision Making*. 2006.
-- Bland M, Altman DG. *Statistics with Confidence*. BNP Books.
-- Collett D. *Modelling Binary Data*. CRC Press.
-- The library's "Sensitivity, specificity and predictive values" article builds the 2×2 table that each ROC point summarises.
+- Hanley JA, McNeil BJ. The meaning and use of the area under a receiver operating characteristic curve. *Radiology*. 1982;143:29–36. [doi:10.1148/radiology.143.1.7063747](https://doi.org/10.1148/radiology.143.1.7063747).
+- Saito T, Rehmsmeier M. The precision-recall plot is more informative than the ROC plot when evaluating binary classifiers on imbalanced datasets. *PLOS ONE*. 2015;10:e0118432. [doi:10.1371/journal.pone.0118432](https://doi.org/10.1371/journal.pone.0118432).
+- See [Decision-curve analysis](decision-curve-analysis.html) for evaluating threshold utility.
+- DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated receiver operating characteristic curves. *Biometrics*. 1988;44:837–845. [doi:10.2307/2531595](https://doi.org/10.2307/2531595).
+- Bossuyt PM, Reitsma JB, Bruns DE, et al. STARD 2015: an updated list of essential items for reporting diagnostic accuracy studies. *BMJ*. 2015;351:h5527. [doi:10.1136/bmj.h5527](https://doi.org/10.1136/bmj.h5527).
+- See [Sensitivity, specificity, and predictive values](sensitivity-specificity-and-predictive-values.html) for threshold metrics.

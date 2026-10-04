@@ -3,164 +3,203 @@ title: Scatter plots and relationships
 summary: Plotting two continuous variables together to judge the direction, strength, form and outliers of an association.
 ---
 
-## Overview and key ideas
+## Overview
 
-The **scatter plot** pairs each subject's value of one continuous variable (x, horizontal axis) with their value of a second (y, vertical axis), one point per subject. It is the first thing to draw whenever a question involves two continuous measures — dose and response, BMI and blood pressure, creatinine clearance and drug dose — because it shows what no single number can: the direction (positive or negative), the strength (tight or loose) and the form (linear or curved) of the relationship, plus any individual points that look anomalous.
+A scatter plot displays paired values of two quantitative variables, one point per independent unit, so readers can inspect form, direction, spread, clusters, and unusual observations. It is a first step whenever an analysis concerns association or prediction. Correlation compresses a relationship into a number; the plot can reveal nonlinearity, heteroscedasticity, outliers, and mixtures that a correlation hides.
 
-The **Pearson product-moment correlation coefficient r** compresses a linear scatter into one number between −1 and +1: r = Σ((xi − x̄)(yi − ȳ)) / sqrt( Σ(xi − x̄)² · Σ(yi − ȳ)² ). r = +1 means every point lies on an upward straight line, r = −1 on a downward line, and r near 0 means no *linear* association. Because r summarises linearity only, a perfectly curved (U-shaped) relationship can give r ≈ 0. When the relationship is monotonic but not straight, or the data are ordinal, the **Spearman rank correlation** — Pearson r computed on the ranks — is the robust alternative.
+## Constructing a useful plot
 
-A scatter plot is also the first look for *form*: before any regression, check whether the cloud is linear, curved, threshold-like or bunched into distinct clusters. Form determines the modelling strategy — a straight line calls for linear regression, a curve for a transformed or non-linear model, clusters for a stratified analysis. And because it is the only standard plot that shows individual subjects, it is where data-entry errors and protocol violations (an implausibly high value in a healthy volunteer) usually surface.
-
-## When to use it
-
-| Setting | Example question |
-| --- | --- |
-| Dose–response / PK–PD | Do higher measured drug levels associate with fewer infections? |
-| Biomarker validation | How closely do two assays track across the measurement range? |
-| Risk factor exploration | Is higher BMI associated with higher systolic pressure in this cohort? |
-| Checking model assumptions | Do regression residuals scatter randomly, without curvature or a funnel? |
-| Method comparison | Are two laboratory methods concordant across the whole range? |
-| Exploratory analysis of a new dataset | Where are the gaps, clusters and implausible points in these two variables? |
-
-- Always plot before computing r; the number only summarises what the plot already shows.
-- Label both axes with units; one point per subject (never one point per subgroup mean, unless the unit of analysis really is the subgroup).
-- Annotate the sample size and flag any removed or imputed points.
-
-## Assumptions and limitations
-
-- Pearson r assumes a linear relationship and, for inference (confidence intervals, tests on r), roughly bivariate normal data. Strong skew, outliers or curvature invalidate the number, though the plot still works.
-- r measures association, not causation and not agreement. Two methods can correlate tightly (r = 0.9) yet disagree by a clinically important fixed offset; agreement questions need Bland–Altman analysis, not r.
-- A near-zero r means "no linear relationship", not "no relationship". U-shaped, threshold and saturating patterns are invisible to r, which is why the plot always comes first.
-- r is range-dependent: restricting the x-range (studying only healthy adults, say) attenuates r toward zero even when the underlying association is strong.
-- A single influential point can swing r dramatically; compute r with and without suspected outliers before trusting either.
-- Both variables should be measured on continuous (or at least interval) scales for Pearson r; for mixed or ordinal data the rank correlation is safer, and for binary × continuous data the question is usually better posed as a group comparison.
-
-### Correlation, regression and agreement answer different questions
-
-Correlation is unitless and symmetric: it describes linear co-movement, not
-the expected change in an outcome per unit of exposure. A regression slope
-has units and depends on which variable is assigned as outcome. For Pearson
-correlation, one influential observation or restricted range can dominate the
-result; inspect residuals and the scatter before relying on a p-value. In
-method comparison, plot paired differences against paired means and examine
-their average and limits of agreement; proportional bias may require
-transformation or regression-based agreement methods. Repeated pairs from the
-same patient require methods that account for within-person dependence.
-
-## Worked example
-
-Five patients had BMI (kg/m²) and systolic blood pressure (mmHg) of (21, 120), (23, 124), (25, 126), (27, 138), (29, 142). The means are x̄ = 25 and ȳ = 130. Deviation products: (−4)(−10) = 40, (−2)(−6) = 12, (0)(−4) = 0, (2)(8) = 16, (4)(12) = 48, summing to 116. The sums of squared deviations are Σ(xi − x̄)² = 40 and Σ(yi − ȳ)² = 360, so r = 116 / sqrt(40 × 360) = 116 / 120 ≈ 0.97.
-
-The scatter is a tight upward line, so the number confirms a strong positive linear association: higher BMI accompanies higher systolic pressure in this sample. Two cautions attach: with only five points the confidence interval around r is wide and one patient could move it substantially, and the association is observational — it says nothing about whether weight causes the pressure rise.
-
-If a sixth patient were added at (31, 122) — high BMI, low pressure — the same calculation would pull r sharply downward even though the original five points still sit on a line. Recomputing r after setting that patient aside is the standard check, and the lesson is general: with small samples, r is a property of the sample as drawn, not of the population.
-
-## Interpretation and common pitfalls
-
-- Reading correlation as causation. The plot is symmetric and r does not change if x and y are swapped; neither variable is "the cause" in the statistic.
-- Citing r without the plot. r hides curvature and outliers; journals expect the scatter plot whenever r is reported.
-- Using Pearson r on ordinal or skewed data. The Spearman rank correlation is more appropriate, and both should be reported if they differ.
-- Confusing correlation with agreement between two measurements of the same quantity; a high r with constant bias is useless for replacing one method with another.
-- Reporting r from an ecological (aggregate-level) scatter as if it applied to individuals; ecological correlations routinely differ from individual-level ones.
-
-## Covariance, correlation, and linear regression
-
-Sample covariance s_xy=Σ(x_i−x̄)(y_i−ȳ)/(n−1) measures joint variation and carries units x×y. Pearson correlation r=s_xy/(s_xs_y) rescales covariance to [−1,1]. It is invariant to positive changes of units but not to nonlinear transformations, range restriction, or influential observations. Correlation is symmetric in x and y; regression is directional and asks how the conditional mean of Y changes with X.
-
-In simple least-squares regression, slope b1=s_xy/s_x² and intercept b0=ȳ−b1x̄. The slope has units of outcome per predictor unit. In the five-patient BMI/blood-pressure example, Σ cross-products is 116, Σx deviations squared is 40, so slope=116/40=2.9 mmHg per BMI unit and intercept=130−2.9(25)=57.5. The fitted line predicts 130 at BMI 25. Correlation r=.967 indicates tight linear co-movement in these five observations, but the slope and correlation are highly uncertain at n=5.
+Assign the explanatory variable to the horizontal axis and response to the vertical axis when a direction is meaningful; label variables and units. Use transparent points or jitter when values overlap. For large datasets, hexbin or density summaries can show point concentration. Avoid decorative 3D perspective that obscures coordinates. Axis limits should show the relevant range without cropping observations in a misleading way.
 
 ```r
-bmi <- c(21, 23, 25, 27, 29)
-sbp <- c(120, 124, 126, 138, 142)
-cor(bmi, sbp)
-fit <- lm(sbp ~ bmi)
-coef(fit) # intercept 57.5, slope 2.9
-summary(fit)$r.squared
+plot(dat$age, dat$systolic_bp,
+     xlab = "Age (years)", ylab = "Systolic blood pressure (mmHg)",
+     pch = 19, col = grDevices::adjustcolor("navy", alpha.f = .35))
+abline(lm(systolic_bp ~ age, data = dat), col = "firebrick", lwd = 2)
 ```
 
-Here R-squared equals r² only for simple linear regression with an intercept, approximately .936. The line is descriptive and not causal. Inference for slope assumes independent errors and appropriate mean/variance structure; five points cannot support strong population claims.
+A fitted straight line is a model summary, not proof that the relation is linear. Add a smoother as an exploratory guide and compare with a clinically motivated model.
 
-## Nonlinearity and transformations
+## Patterns that matter
 
-Pearson r summarizes straight-line association. A U-shaped relationship can have r near zero despite a strong deterministic relation. A saturating dose-response may be monotone but nonlinear; Spearman correlation can be high while Pearson r is more modest. Neither coefficient identifies the right functional form. Use a scatter plot with a smooth trend and inspect residuals. If a nonlinear model is needed, splines or mechanistic curves may be suitable, but flexible functions require adequate data and validation.
+A positive trend means larger x tends to accompany larger y; negative means the reverse. Curvature suggests that a linear coefficient may average distinct local relationships. A fan shape indicates variance changes with x. Clusters can represent sites, repeated measures, or subpopulations; distinguish them by color or facet when known. A single influential point can dominate Pearson correlation and regression slope; investigate its provenance and influence.
 
-A logarithmic axis can reveal multiplicative behavior across orders of magnitude, but changes visual distances and interpretation. State transformations and show original units when possible. A log-linear slope β corresponds to an approximate percent change of 100(exp(β)−1) in outcome per unit predictor when outcome is logged. Do not transform merely to make a correlation coefficient larger.
+Correlation r measures linear association and is invariant to units but sensitive to outliers and range restriction. Spearman correlation measures monotonic rank association and can detect nonlinear monotone patterns, but neither correlation implies causation. A zero Pearson r can coexist with a strong U-shaped relation. Always inspect the graph.
 
-## Outliers, leverage, and influence
+## Confounding, clustering, and repeated measurements
 
-An outlier in Y has a large residual; a high-leverage point is unusual in X; an influential point materially changes the fitted model. These are distinct. A point far from x̄ can have high leverage even if it lies close to the fitted line and can dominate the slope. Examine studentized residuals, leverage, Cook's distance, and leave-one-out sensitivity, but do not delete valid observations automatically. Verify source data and report robust sensitivity analyses if a legitimate point drives conclusions.
+A pooled scatter plot may show a strong trend because groups differ in both variables even when within-group relationships are weak or reversed. Color by important strata and distinguish within- from between-group associations. Repeated observations from one patient are not independent points; connect trajectories or use mixed models/cluster-aware inference. A scatter plot alone does not adjust for confounding or identify a causal effect.
 
-Range restriction can attenuate correlation because the observed sample spans less variability than the source population. Referral cohorts, selected case series, and restricted eligibility criteria often create such truncation. Measurement error in either variable generally attenuates correlation under classical independent error, while shared method error can inflate it. Correlation is therefore partly a property of measurement and sampling design.
+### Transformations and regression
 
-## Association, confounding, and repeated observations
+Log transformations can linearize multiplicative relationships or stabilize spread, but change the scale and interpretation. A log-y model interprets coefficients multiplicatively after appropriate retransformation. Splines and generalized additive models can represent smooth nonlinearity; interaction terms can allow slopes to vary by group. Choose complexity based on design, sample size, and prior knowledge, not to chase a visually perfect fit.
 
-An aggregate scatter of group means is an ecological association and may differ from individual-level association. Stratifying by a common cause may reveal different slopes or even a reversal, but conditioning on colliders can create spurious patterns. A scatter plot does not distinguish confounding from direct effect. Use design knowledge and causal models before interpreting a slope.
+### Reporting and interpretation
 
-If each patient contributes repeated paired measurements, points are not independent. A pooled correlation can reflect between-person differences while within-person changes move in another direction (Simpson's paradox). Use separate within- and between-person associations or a mixed model. Plot trajectories or use distinct colors and lines per participant for a manageable sample; account for clustering in standard errors.
+Describe whether the pattern appears linear, monotone, curved, or heterogeneous; report sample size and any transformation or grouping. If estimating association, give slope or correlation with uncertainty and clarify adjustment. In observational data, avoid causal language unless the design and assumptions support it. A visual relationship is a hypothesis-generating description, not a test of mechanism.
 
-## Correlation is not agreement
+## Correlation is a summary, not a picture substitute
 
-When comparing two methods that measure the same quantity, correlation evaluates whether high values on one method accompany high values on the other. It does not assess whether values are close. If method B equals method A+10, correlation can be 1 while every pair differs by 10 units. Bland–Altman analysis plots paired difference B−A against pair mean (A+B)/2, estimates average bias, and limits of agreement mean difference±1.96 SD of differences when differences are approximately normal and constant in spread. Evaluate whether limits fit clinical tolerances; investigate proportional bias and repeated measurements.
-
-### Worked calculation: fixed bias with perfect correlation
-
-Let method A values be 100, 120, 140 and method B values 110, 130, 150. Pearson r=1 because B=A+10 exactly. Mean difference B−A=10, SD difference=0, so there is perfect linear correlation but a fixed 10-unit disagreement. Replacing A with B would be unacceptable if clinical limits permit only ±5 units.
+Pearson’s correlation r=Cov(X,Y)/(SD(X)SD(Y)) measures linear association on a −1 to 1 scale. It changes with influential observations and range restriction. Spearman’s rho is Pearson correlation of ranks and summarizes monotone association, handling some nonlinear patterns but not arbitrary curves. Kendall’s tau relates to concordant and discordant pairs. None is a universal measure of “strength”; choose based on scale and association form.
 
 ```r
-a <- c(100, 120, 140); b <- a + 10
-diff <- b - a
-c(correlation = cor(a, b), mean_bias = mean(diff),
-  sd_difference = sd(diff))
-plot((a+b)/2, diff, xlab = "Pair mean", ylab = "B - A")
-abline(h = mean(diff), lty = 2)
+with(dat, cor.test(age, systolic_bp, method = "pearson"))
+with(dat, cor.test(age, systolic_bp, method = "spearman", exact = FALSE))
 ```
 
-With only three pairs, limits of agreement cannot be estimated reliably; the calculation demonstrates the concept, not a validation study. If several pairs come from the same subject, use repeated-measures agreement methods.
+A correlation can be near zero for a U-shaped relation because positive and negative slopes cancel. A high correlation can be driven by a common time trend or group separation. Plot the data, check nonlinearity and clusters, and report uncertainty. Correlation is symmetric, whereas regression distinguishes predictor and response; neither alone implies causality.
 
-## Practical plotting and reporting
+## Regression line and residual structure
 
-Plot points before computing coefficients. Use transparency or jitter for overplotting and report n. Distinguish raw association from adjusted regression, show units, and avoid extrapolating a line beyond observed data. Present confidence intervals for slope or correlation when inference is relevant and discuss sample selection, measurement error, and influential observations. For nonlinear or clustered data, choose a method that matches structure rather than forcing Pearson r.
+A simple linear regression models E(Y|X)=β₀+β₁X. The slope estimates expected change in Y per unit X; the intercept may have no clinical meaning if X=0 is outside the observed range. Residuals are observed minus fitted values. Plot residuals against fitted values and X to look for curvature, fan-shaped variance, and clusters. A high R² does not validate linearity or independence.
 
+A nonlinear trend can be modeled with restricted cubic splines or generalized additive models. Avoid categorizing a continuous predictor just to create groups; categorization loses information and induces arbitrary thresholds. If the scientific question is a threshold, prespecify and justify it.
 
-## Inference for correlation
+### Confounding and group structure
 
-Under independent bivariate-normal sampling, tests and intervals for Pearson r can be derived using a t statistic t=r√[(n−2)/(1−r²)] with n−2 degrees of freedom for testing zero correlation. For interval estimation, Fisher's transformation z=atanh(r) is approximately normal with standard error 1/√(n−3); transform interval endpoints back with tanh. These approximations can be poor with strong nonnormality, outliers, or small samples. A bootstrap interval should resample independent subjects and preserve clusters when present.
+Suppose age and blood pressure both differ by clinic. A pooled positive slope may reflect older clinics having higher average pressure, even if within-clinic association is weak. Color points by clinic, examine within-group patterns, and fit multilevel or fixed-effect models when appropriate. A confounder may create or mask a relationship. Causal interpretation requires temporal ordering and assumptions beyond the scatter plot.
 
-For r=.97 with n=5, Fisher z=atanh(.97)≈2.09 and SE=1/√2=.707. A 95% interval on z-scale is roughly .70 to 3.48; transforming yields r around .60 to .998. The very wide range underscores why an impressive sample correlation based on five points is weak population evidence.
+Repeated measures create trajectories rather than independent points. Connect observations from each person, color trajectories by treatment, or display subject-specific summaries. Use mixed models or cluster-robust inference for formal analysis. Treating every visit as a separate independent dot exaggerates sample size.
+
+## Measurement error and range restriction
+
+Error in X generally attenuates a simple regression slope toward zero under classical assumptions. Measurement error in Y increases residual variability and reduces precision. Restricting inclusion to a narrow age or severity range can weaken correlation despite a real association in the target population. Report measurement reliability and eligibility restrictions; a visual scatter plot cannot recover unobserved range.
+
+## Plot ethics and reporting
+
+Do not truncate axes in ways that exaggerate association. Show units, sample size, transformations, and any excluded observations. If transparency alpha, jitter, or smoothing is used, explain enough to reproduce it. Highlighting subgroups should be based on prespecified or clearly exploratory factors. Report the association estimate and interval, model form, and adjustment set. A plot reveals patterns; the study design governs interpretation.
+
+### A worked interpretation of a nonlinear pattern
+
+Suppose age and a biomarker rise together through middle age and then flatten. A Pearson correlation may be positive but a linear slope overstates the relation in older participants. A scatter plot with a LOESS curve can reveal the bend. A spline model can estimate a smooth conditional mean, with uncertainty bands; avoid interpreting each bend as a biological threshold unless replicated. Center age for interpretable coefficients and show the observed range so extrapolation is not implied.
 
 ```r
-r <- cor(bmi, sbp); n <- length(bmi)
-z <- atanh(r); se_z <- 1 / sqrt(n - 3)
-tanh(z + c(-1, 1) * qnorm(.975) * se_z)
+plot(dat$age, dat$marker, pch = 16,
+     col = adjustcolor("darkgreen", alpha.f = .25))
+lines(lowess(dat$age, dat$marker), col = "black", lwd = 2)
+# For formal flexible modeling, use splines or a GAM and inspect diagnostics.
 ```
 
-This interval assumes bivariate normality and independent pairs. If data are clustered or repeated within patient, use cluster-aware inference. The interval does not address confounding or measurement validity.
+LOESS is descriptive and can behave poorly near boundaries or in sparse regions. It does not adjust for confounders. Formal inference needs a prespecified model and uncertainty method.
 
-## Correlation and regression assumptions
+### Range restriction and selection
 
-Least-squares regression estimates a conditional mean line by minimizing squared vertical residuals. It does not assume the predictor is random or normal; inference commonly assumes errors are independent, mean zero conditional on X, with constant variance, and normally distributed for exact small-sample t tests. Heteroscedasticity can make conventional standard errors wrong even when the slope estimate remains useful. Plot residuals versus fitted values and predictor; use robust standard errors or a variance model when appropriate.
+Eligibility criteria may truncate one variable’s range, attenuating correlation and altering regression slopes. Conditioning on a selection variable affected by both X and Y can induce an association even if none exists in the source population. A scatter plot of enrolled participants describes the selected sample; transport to a broader population requires understanding selection mechanisms.
 
-A correlation p-value tests a specified null under a reference model; it does not test whether a relationship is clinically important. Large n can make a negligible r statistically significant. Report r and interval, scatter plot, and units. In regression, report slope with outcome change per predictor unit, and avoid extrapolating outside the observed range.
+### Time trends and spurious association
 
-## Rank correlation and ties
+Two variables that both trend over calendar time can correlate strongly even if unrelated at the individual level. Plot against time and examine detrended or within-period associations. For repeated data, account for autocorrelation and subject clustering. A high r is not evidence of a direct mechanism.
 
-Spearman's rho is Pearson correlation of ranks and measures monotonic association. It tolerates some outlier influence in magnitudes but is not immune to influential rank changes, and ties require adjusted calculations. It can be high for nonlinear monotone relationships and near zero for nonmonotone patterns. Kendall's tau measures concordant versus discordant pairs and may be easier to interpret probabilistically, though both are rank-based summaries. Choose based on the scientific relationship and scale, not merely because a normality test rejects.
+## Correlation uncertainty and inference
 
-## Confounding and ecological interpretation
+A confidence interval for Pearson correlation typically relies on a Fisher z transform, with assumptions of independent pairs and approximate bivariate normality for exact properties. Bootstrap intervals can be used for nonnormal data, but resample independent units and preserve clusters. Spearman correlation inference is often asymptotic or permutation-based. Report n and interval; a correlation estimate from a narrow range may have little transportability.
 
-A scatter plot can reflect a third variable that drives both axes. BMI and blood pressure may co-vary with age; a crude slope combines within-age and between-age patterns. Adjusted regression changes the question to a conditional association and requires model adequacy. Aggregate clinic-level means can yield an ecological correlation that does not apply to patients; do not infer individual-level associations from group averages. Plot or model within-person, between-person, and site-level structures separately when data are hierarchical.
+```r
+cor.test(dat$x, dat$y, method = "pearson")
+cor.test(dat$x, dat$y, method = "spearman", exact = FALSE)
+```
 
-## Reproducible plot design
+The test of zero correlation is not a test of no association of any form. A U-shaped relationship can have zero Pearson correlation. A nonlinear model or visualization may be needed to describe it.
 
-Use clear units, show sample size and missingness, avoid hiding points with overplotting, and distinguish smooth curves from model fits. If a smoother is added, specify its method and avoid treating it as prespecified inference. Annotate outliers only after checking records, and document exclusions. A scatter plot is a diagnostic and descriptive tool; the final estimate should come from an analysis aligned with the design and target.
+### Regression diagnostics and influence
 
-A useful sensitivity analysis recalculates a correlation after verifying a suspected point and reports both values if it is valid but influential. Deleting it from the primary analysis solely because r improves is selective analysis. Robust correlations, such as percentage-bend or skipped correlations, can reduce outlier influence, but change the estimator and need prespecification or an exploratory label. Always show the raw data so the robust summary does not conceal a clinically important subgroup.
+A high-leverage point has unusual predictor values; an influential point materially changes a fitted estimate. Cook’s distance and DFBETAs can screen influence, but no threshold is an automatic exclusion rule. Verify data, fit sensitivity analyses, and state whether conclusions change. Heteroscedasticity-consistent SEs can address variance misspecification but do not correct nonlinear mean structure or influential predictor errors.
 
-A correlation coefficient should be accompanied by n and a confidence interval when inferential interpretation matters. Because confidence intervals are wide at small n and sensitive to nonnormality, show the scatter rather than relying on a threshold such as |r|>.7 for “strong.” Strength is context-dependent: a modest association may matter for a population risk factor, while a high correlation may still be inadequate for replacing a measurement instrument. Clinical interpretation needs scale, range, and decision context.
+### Avoid ecological fallacy
 
-## Correlation under measurement error
+A scatter plot of clinic-level averages describes between-clinic association. It does not establish that individuals with higher X have higher Y. Aggregation can reverse or obscure individual relationships. Label the unit, and do not translate group-level slopes to patient-level claims without multilevel data and assumptions.
 
-If predictor and outcome are measured with independent random error, observed covariance may shrink relative to true covariance while observed variances include added error, reducing correlation. Shared batch effects can instead induce artificial correlation. Repeatability studies, calibration data, or replicate measurements help distinguish these mechanisms. A scatter plot may show rounding, detection limits, or heteroscedastic error; note these features before interpreting r or a regression slope.
+### A relationship can change by scale
+
+A linear association on the raw scale may be multiplicative on the log scale. For positive biomarker concentrations, a one-unit predictor increase could correspond to a fixed ratio rather than a fixed absolute increment. Log transformation can linearize such a relation, but coefficients then describe proportional change. Plot both scales and use residual diagnostics to select a model that fits and answers the scientific question.
+
+For bounded outcomes, a straight line can predict impossible values. Binary outcomes need logistic or other appropriate models; proportions may need binomial denominators. The scatter plot remains useful for visualizing data, but the model should reflect outcome support.
+
+### Sampling and measurement quality
+
+Association estimates can be distorted by measurement error, restricted range, assay batches, and differential missingness. Plot color by batch or site when relevant; an apparent cluster may be technical rather than biological. Replicate measurements can quantify reliability. If measurement error is substantial, regression calibration or errors-in-variables models may be needed.
+
+### Communicating the plotted analysis
+
+State the number of independent units, any repeated observations, transformations, fitted model, and covariate adjustment. Avoid describing a smooth line as causal. If an exploratory plot motivates a nonlinear term or subgroup, label that decision and validate. Transparency about smoothing parameters and point handling supports reproducibility.
+
+### Correlation and prediction are different goals
+
+A scatter plot may show strong association but poor prediction if residual variability is large. Conversely, a modest association can improve prediction in a large dataset. Evaluate predictive performance with validation, calibration, and prediction intervals; do not use in-sample r or R² as proof of clinical utility. Causal inference asks yet another question and needs design assumptions.
+
+### Effect modification
+
+Plot separate smooths by a prespecified modifier when scientifically motivated. A common slope can conceal differing associations. Estimate an interaction and interval rather than comparing visual significance or separate p-values. Continuous modifiers should generally remain continuous; arbitrary categorization wastes information and can create misleading subgroup patterns.
+
+### Report scope
+
+State whether the plot is individual-level or aggregate, cross-sectional or longitudinal, and whether points are independent. Clarify that association is descriptive unless causal assumptions are defended. This protects readers from ecological and temporal interpretations the graph cannot support.
+
+### Limits of visual inference
+
+A visually steep slope can reflect a handful of influential points, a confounder, or a narrow selected sample. Overlay raw observations, inspect strata, and fit a model suited to the scale. Report uncertainty and avoid causal claims based on the plot alone.
+
+### Worked correlation interpretation
+
+Suppose Pearson r=.62 between age and systolic pressure among 500 clinic patients. This describes a positive linear association in the sample, not the expected increase per year and not a causal effect. A regression slope with units estimates change in mean pressure per year under a linear model; adjustment for sex, medication, and clinic changes the conditional estimand. The interval for r or slope reflects sampling uncertainty but not selection from attending the clinic.
+
+If the cohort excludes treated hypertensive patients, range restriction can attenuate or distort the relation. If blood pressure is measured more often in high-risk patients, observation processes can induce selection. Explain sampling and measurement alongside the graph.
+
+### Smooths and overfitting
+
+A very flexible smoother can follow noise, especially in sparse tails. Choose degrees of freedom or bandwidth with scientific knowledge and validate patterns. Show uncertainty bands and rug marks to reveal data density. Do not extrapolate beyond observed predictor range. A smooth is an exploratory aid unless its form was prespecified and inference accounts for selection.
+
+### When the plot is categorical or repeated
+
+For a binary variable paired with a continuous measure, jittering binary x values can show distributions but grouped violin/box plots may be clearer. For ordinal predictors, use ordered categories and do not assume equal spacing without rationale. With many repeated observations, connect within-subject points or facet subjects; random scatter can hide autocorrelation and subject-level trends.
+
+### Reproducibility
+
+Record any excluded points, transformations, smoothing methods, and grouping variables in code. A graph should be regenerated from source data rather than manually edited to remove inconvenient observations. Keep visual exploratory choices distinct from confirmatory model choices.
+
+### Regression to the mean
+
+When participants are selected because X is unusually high, a later measurement of X often moves closer to its long-run mean even without treatment. A scatter plot of baseline versus follow-up can show association but does not separate natural regression from intervention effects. Use a concurrent control group and baseline-adjusted analysis. A pre/post correlation or slope is not a causal treatment effect.
+
+### Collinearity and multivariable relationships
+
+Pairwise plots can reveal strong correlations among predictors, but multicollinearity concerns the design matrix across several predictors. It inflates coefficient uncertainty and can make conditional associations unstable even when overall prediction remains good. Use correlation matrices, variance-inflation diagnostics, and subject-matter selection; do not remove clinically essential confounders solely to reduce a diagnostic number.
+
+### Final interpretation
+
+A scatter plot exposes the shape and quality of a two-variable relationship, but it does not estimate causality or prove model assumptions. Identify independent units, reveal clusters, inspect nonlinearity and influence, and pair the graph with a model and interval suited to the outcome scale. State sampling limits and transformations before drawing substantive conclusions.
+
+### More than two variables
+
+A scatterplot matrix can reveal pairwise patterns among several measures, but it scales poorly and cannot show every conditional relation. Color by one prespecified factor and supplement with model-based diagnostics. High-dimensional exploratory plots invite multiplicity; treat discovered patterns as hypotheses to validate. Avoid inferring a multivariable relationship from a collection of marginal scatter plots.
+
+### Annotation and accessibility
+
+Label axes with variable name and units, use readable point size and contrast, and ensure groups remain distinguishable in grayscale. Include a legend and note sample size. If points are jittered, state that positions are visually perturbed and do not represent exact measurements.
+
+### Missing data in bivariate plots
+
+A scatter plot usually includes only pairs observed on both variables. If missingness depends on severity or the other variable, the visible cloud can be selected and misleading. Report the number of complete pairs and summarize missingness. Imputation or weighting may support analysis under assumptions, but the plot should distinguish observed from imputed values when those are displayed.
+
+### Units and standardization
+
+Standardizing axes can help compare variables measured on different units but removes direct clinical scale. Keep original units in the primary plot when possible. A standardized slope depends on both variables’ SDs and can change across populations. State whether axes were transformed or standardized.
+
+A report should distinguish a marginal association from an adjusted regression relationship. The marginal plot shows observed pairs; the adjusted coefficient is conditional on modeled covariates and may differ. Explain the target rather than implying that the graph displays the adjusted result.
+
+For very large samples, point density can obscure the relationship; use transparency, hexagonal bins, or a density layer and retain a readable scale. For modest samples, raw points make outliers and clustering visible. Avoid smoothing away the observations that determine the fitted trend.
+
+State the sampling unit and number of independent pairs in every analysis so visual point count is not mistaken for independent information.
+
+A scatter plot’s apparent strength also depends on axis limits and selected range; always expose the observed data span and avoid extrapolated visual claims.
+
+If axes are transformed, explain the resulting slope scale and avoid reading transformed distances as raw-unit differences.
+
+Point transparency should preserve visibility in dense regions without making sparse points disappear; state if jitter was applied.
+
+State whether the plot is a sample description, diagnostic check, or model-supported estimate.
+
+For categorical groups overlaid on a scatter plot, use shape and color together and provide a legend; accessible design helps readers distinguish strata without relying on color alone.
 
 ## References and further reading
 

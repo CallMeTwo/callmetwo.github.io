@@ -1,169 +1,156 @@
 ---
 title: Poisson and negative binomial regression
-summary: Models count outcomes and incidence rates with log-link models, extending from the equidispersed Poisson to the overdispersed negative binomial.
+summary: Model event counts and rates with log links and exposure offsets, diagnose overdispersion, and interpret incidence-rate ratios on an absolute scale.
 ---
 
-## Overview and key ideas
+## Overview
 
-Poisson regression models a count outcome (or an event rate per unit of exposure time) as the dependent variable: log(μ) = β₀ + β₁X₁ + …, where μ is the expected count (or rate) and the link is the natural logarithm. Exponentiating a coefficient gives a rate ratio (RR), also called a multiplicative incidence-rate ratio: for a one-unit increase in Xⱼ the expected count/rate is multiplied by e^βⱼ, holding other predictors fixed. Because log(μ) = log(count) − log(offset), including log(person-time) as an offset lets the model estimate *incidence rates* (events per person-year) while adjusting for unequal follow-up.
+Poisson and negative-binomial regression model nonnegative event counts. They are useful for hospital admissions, infections, recurrent events, and adverse-event counts, especially when observation time or population size varies. A log link ensures fitted means are positive; an offset incorporates exposure such as person-time.
 
-The Poisson distribution has a built-in constraint: its variance equals its mean. In real health data the variance of counts is often larger — for example, a few patients account for many relapses while most have none. That *overdispersion* can make Poisson standard errors too small and p-values too small. The negative binomial regression is a common remedy: in the NB2 parameterization it adds a dispersion parameter α≥0 and has variance μ+αμ²; as α→0 the model approaches the Poisson. Other software uses a size parameter θ=1/α, for which the Poisson limit is θ→∞. Be explicit about parameterization. Rate-ratio estimates may be similar under the two models, but standard errors and predictions can differ materially.
+Poisson regression assumes conditional mean equals conditional variance. Health counts often vary more than Poisson allows because of unmeasured heterogeneity, clustering, or outbreaks. Negative-binomial regression adds a dispersion parameter. Neither model automatically handles zero inflation, dependence, confounding, or informative exposure; those features need explicit modeling.
 
-## When to use it
+## Mean model, log link, and offset
 
-| Setting | Example question |
-| --- | --- |
-| Cohort follow-up | Do diabetes and statin use affect the incidence rate of new cataracts per person-year? |
-| Recurrent events | How do age and severity score predict the number of asthma ER visits per year? |
-| Infectious disease | Is vaccination associated with a lower rate of infections per month? |
-| Resource use | Which patient factors predict the number of readmissions in one year? |
+For count (Y_i), a Poisson model specifies (Y_i\sim\text{Poisson}(\mu_i)) and \(\log(\mu_i)=\beta_0+X_i\beta+\log(E_i)\), where (E_i) is exposure. The offset coefficient is fixed at 1, so \(\mu_i/E_i\) is the modeled event rate. Exponentiated coefficients are incidence-rate ratios (IRRs), conditional on included predictors.
 
-Use it when the outcome is a non-negative integer count or a rate with person-time, and you want an interpretable multiplicative effect. If only a very few events per subject matter and the outcome is effectively binary, logistic regression is simpler. If the outcome is time-to-*first* event rather than a count, Cox regression is the usual tool.
-
-## Assumptions and limitations
-
-- **Independence of counts**: one count per subject per period; recurrent events on the same subject are dependent, which requires a GEE or mixed model with the same log link.
-- **Correct exposure measurement**: with person-time, follow-up must be recorded accurately; left truncation and administrative censoring change the valid at-risk time.
-- **Equidispersion (Poisson only)**: var(count) = mean(count). Check by comparing the residual deviance to its degrees of freedom, or by estimating the dispersion parameter; deviance df much above 1 signals overdispersion.
-- **Linearity on the log scale** for continuous predictors.
-- **Zero inflation**: a large excess of *structural* zeros (patients who can never have the event) is not handled by the negative binomial and may call for a zero-inflated or hurdle model.
-
-## Worked example
-
-A cohort of 4,000 patients with inflammatory bowel disease contributes 9,800 person-years and 1,470 hospitalisations. A Poisson model with an offset of log(person-time) and the covariates age (per 10 years) and prior hospitalisations in year 1 (count) gives: log(rate) = −1.90 + 0.18·(age/10) + 0.42·(prior admissions). A 50-year-old with 2 admissions last year has expected rate e^(−1.90 + 0.90 + 0.84) = e^−0.16 ≈ 0.85 admissions/year, versus e^(−1.90 + 0.90 + 0) = 0.37/year for a same-age patient with 0 — a rate ratio of e^0.42 = 1.52 (95% CI 1.30 to 1.77): each extra prior admission is associated with a 52% higher admission rate. The residual deviance was 2,150 on 1,240 df (ratio ≈ 1.73), indicating marked overdispersion; refitting the same model as negative binomial gave α ≈ 0.45 and a rate ratio of 1.55 with a wider 95% CI of 1.31 to 1.83 — the effect is similar, but only the negative binomial CI is trustworthy.
-
-## Interpretation and common pitfalls
-
-- A rate ratio of 1.5 means the *rate* is 50% higher, not that the probability of the event rises by 0.5 — rates per person-time are not probabilities, and they can exceed 1 for recurrent events.
-- Always check dispersion before trusting Poisson p-values; reporting Poisson inference on overdispersed data makes everything look more significant than it is.
-- Do not use Poisson regression as a shortcut for a binary outcome with a "large denominator"; the models answer different questions (rare-event approximation only).
-- For recurrent events, an ordinary Poisson model on the total count ignores within-subject correlation; use a GEE/mixed model with a log link and report the design effect.
-
-Use an exposure offset when subjects contribute different person-time: log E(Yᵢ) = Xᵢβ + log(Tᵢ), so exp(β) compares rates per unit time. The offset coefficient is fixed at one; it is not an estimated predictor. Poisson variance equidispersion is a distributional assumption, and robust standard errors can protect inference against some variance misspecification but do not change the fitted mean. Negative-binomial regression models extra-Poisson variation; zero inflation should be used only when a distinct structural-zero process is substantively plausible, not simply because the sample has many zeros. Check residual patterns and predicted counts, and report the time or exposure denominator.
-
-## Poisson likelihood, offsets, and interpretation
-
-For a count Y_i with mean μ_i, Poisson regression assumes P(Y_i=y)=exp(−μ_i)μ_i^y/y! and log(μ_i)=X_i'β. If participant i contributes exposure time T_i, set log(μ_i)=X_i'β+log(T_i), with log(T_i) as an offset whose coefficient is fixed at one. Then exp(X_i'β) is the event rate per unit exposure, and exp(β_j) is a conditional rate ratio for a one-unit predictor contrast. Without an offset, the model predicts counts at the observed exposure scale and may confound opportunity time with risk.
-
-In the example, overall crude rate is 1,470/9,800=.15 admissions per person-year. The model's illustrative predictor calculation is exp(−1.90+.18(5)+.42(2))=exp(−.16)=.852/year. For same age and no prior admissions, rate is exp(−1.00)=.368/year; ratio=.852/.368=exp(.84)=2.32 for two additional prior admissions, or exp(.42)=1.52 per additional admission. This is an expected rate, not the probability of at least one hospitalization. Under a constant rate and no competing event, a one-year event probability would be 1−exp(−rate), but recurrent counts and nonconstant hazards complicate that conversion.
+If 100 patients contribute 500 person-years and 50 events occur, crude rate is 0.10 events per person-year. A treatment coefficient −0.223 gives IRR \(e^{-0.223}=0.80\), or 20% lower event rate conditional on covariates. If control rate is 0.10, model implies treated rate about 0.08 under common assumptions. For recurrent events, the rate can exceed one per person-year and is not a probability.
 
 ```r
-rate <- exp(-1.90 + .18*(50/10) + .42*2)
-rate_zero_prior <- exp(-1.90 + .18*(50/10))
-c(rate = rate, rate_zero_prior = rate_zero_prior,
-  ratio_for_two_admissions = rate/rate_zero_prior,
-  RR_per_admission = exp(.42), crude_rate = 1470/9800)
+fit_pois <- glm(events ~ treatment + age + offset(log(person_years)),
+                data = dat, family = poisson())
+exp(cbind(IRR = coef(fit_pois), confint(fit_pois)))
 ```
 
-The model values are illustrative and need participant-level data to fit. Exposure time must be positive; zero or mismeasured time cannot be handled by taking its log. Define when time at risk begins and ends, including treatment changes, death, and censoring.
+Exposure must be positive and correctly measured. A zero exposure means no time at risk and usually contributes no count information. If exposure varies across periods, use the appropriate person-time or population denominator. A changing denominator can reverse conclusions based on raw counts.
 
-## Equidispersion and negative-binomial variance
+## Negative-binomial variation
 
-Under Poisson, Var(Y|X)=μ. Overdispersion means conditional variance exceeds the mean and often arises from omitted heterogeneity, clustering, repeated events, or a wrong mean function. The NB2 model has Var(Y|X)=μ+αμ², with α≥0; α→0 gives Poisson. Some software parameterizes θ=1/α (size), so large θ is the Poisson limit. The negative binomial can be derived as a gamma mixture of Poisson rates, representing unobserved heterogeneity. It handles extra-Poisson variation in counts but does not automatically model within-person temporal dependence or informative censoring.
-
-A dispersion statistic such as Pearson χ²/df or residual deviance/df is a screening diagnostic, not a formal proof. A large value can reflect omitted nonlinear terms, excess zeros, site clustering, or influential counts. Robust sandwich standard errors may protect coefficient inference under some variance misspecification when the mean model is correct and sample size adequate; they do not fix a wrong fitted mean or dependence. Diagnose mechanism before selecting NB, GEE, random effects, hurdle, or zero-inflated models.
-
-## Event process and choice of model
-
-Distinguish first-event incidence from recurrent-event burden. A first-event count per person-time is often naturally modeled with survival analysis, especially if hazard changes over time or death competes. Recurrent admissions can use count regression, but repeated events within the same patient are correlated. GEE targets population-average rate ratios; mixed-effects Poisson/NB models target subject-specific conditional effects given random effects. These differ in interpretation. State whether follow-up after a first event contributes and how death truncates exposure.
-
-Structural zeros require a substantive mechanism: some individuals may be not-at-risk, while others have a count process. Hurdle models separately model any event and positive counts; zero-inflated models mix a structural-zero process with a count distribution that itself can produce zeros. Many zeros alone do not justify these models, especially when low expected rates naturally produce zeros. Compare predicted and observed zero frequencies and validate predictions.
-
-## R workflow and model interpretation
+The negative-binomial model permits variance greater than mean, commonly parameterized as \(Var(Y_i)=\mu_i+\alpha\mu_i^2\). When \(\alpha=0\), it approaches Poisson; larger \(\alpha\) represents extra-Poisson heterogeneity. It is useful for overdispersed counts but does not explain the source of heterogeneity.
 
 ```r
-fit_p <- glm(events ~ treatment + age + offset(log(person_years)),
-             family = poisson(), data = dat)
-summary(fit_p)
-exp(cbind(RR = coef(fit_p), confint(fit_p)))
-# Example NB2 fit using MASS; parameterization should be checked
-fit_nb <- MASS::glm.nb(events ~ treatment + age + offset(log(person_years)),
-                        data = dat)
-summary(fit_nb)
+library(MASS)
+fit_nb <- glm.nb(events ~ treatment + age + offset(log(person_years)),
+                 data = dat)
+exp(cbind(IRR = coef(fit_nb), confint(fit_nb)))
 ```
 
-Report the offset unit, count definition, variance model, dispersion assessment, and whether inference is robust or model-based. An exponentiated coefficient is a rate ratio conditional on included predictors; it is not a risk ratio or hazard ratio. With recurrent event data, use patient-clustered uncertainty or a model explicitly representing within-person dependence. Validate predicted count distributions, not only coefficient signs.
+Compare fitted means and residual patterns, not only a dispersion test. Quasi-Poisson inflates standard errors by a dispersion factor but lacks a full likelihood; negative binomial estimates a likelihood-based heterogeneity parameter. Robust sandwich standard errors can address some variance misspecification with enough independent units, but not omitted clustering or wrong mean.
 
+## Worked example: infection rates
 
-## Rate ratio uncertainty and predicted counts
+In a cohort, 30 infections occur during 600 catheter-days in usual care, and 24 occur during 640 catheter-days after a prevention bundle. Crude rates are 5.0 and 3.75 per 100 catheter-days; rate ratio is 0.75. A Poisson model with log catheter-days offset estimates an adjusted IRR, perhaps 0.78 after accounting for unit and patient severity. Report counts, exposure, rates, IRR, and interval. The estimate means a lower conditional incidence rate, not a 22% reduction in each patient's probability.
 
-In the log-link model, a treatment coefficient β_T has rate ratio exp(β_T). A Wald interval on the log scale is exp[β̂_T±1.96SE(β̂_T)], which preserves positivity. For sparse events or small clusters use profile likelihood, exact methods, or small-sample corrections. Report event counts and person-time by group in addition to adjusted rate ratios so absolute burden remains visible.
+If infections cluster by ward and month, standard Poisson variance may be too small. Include ward effects, use negative binomial or robust variance clustered by ward, and consider temporal dependence. With only five wards, sandwich inference may be unreliable; a cluster-level or small-sample method may be needed.
 
-For the inflammatory-bowel-disease example, observed crude rate=0.15 per person-year. A constant-rate approximation gives 1−exp(−.15)=.139 one-year probability of at least one event, not .15 exactly. But the fitted recurrent-event mean can exceed one, and a person can have multiple admissions. This conversion is only appropriate for a first-event process with constant hazard and no competing event; do not turn a recurrent count rate into a patient risk without defining the event process.
+### Estimating the crude rate ratio by hand
 
-## Negative-binomial model details
+The usual care rate is (30/600=0.05) per catheter-day; bundle rate is (24/640=0.0375). Their ratio is (0.0375/0.05=0.75). An approximate standard error for the log rate ratio is \(\sqrt{1/30+1/24}=0.274\), giving a log interval \(\log(0.75)\pm1.96(0.274)\), or −0.824 to 0.250. Exponentiating yields about 0.44 to 1.28. The interval is wide and includes no difference; the point estimate alone overstates certainty.
 
-The NB2 variance is μ+αμ². One common parameterization has `theta=1/alpha`; gamma mixing gives individual-specific latent rate variability. Large α permits substantial overdispersion, while α near zero approaches Poisson. NB1 is another parameterization with variance μ+αμ, so software output and documentation should be checked before interpreting a dispersion value. Do not compare raw alpha across packages without matching parameterization.
+This calculation assumes independent Poisson counts and fixed exposure. Clustering and overdispersion widen uncertainty. If there are repeated periods or ward-level dependence, use a model reflecting those units and report the number of independent wards. A more complex adjusted analysis should not obscure the sparse numerator.
 
-A likelihood-ratio test of α=0 is on a boundary of parameter space, so the ordinary chi-square reference can be imperfect; information criteria, residual checks, and predictive performance provide context. A large overdispersion statistic can result from unmodeled time trends or site heterogeneity; an NB model may absorb variability but not explain it. For cluster-randomized data, random effects or GEE may be preferable to a single marginal NB variance.
+Attribution to the bundle requires more than an IRR. If units adopted the bundle at different times, account for calendar trend and concurrent infection-control changes. If only before-after rates are compared, regression to the mean or surveillance intensity may explain part of the difference. State the design and causal assumptions.
 
-## Offsets and exposure definition
+## Assessing overdispersion and excess zeros
 
-Offsets encode proportional opportunity: a patient with twice as much observed time has twice the expected count if the rate is stable. If exposure is not proportional—risk rises after surgery, for example—split follow-up into intervals or use a time-varying hazard model. Person-time after treatment discontinuation may or may not belong, depending on treatment-policy estimand. Define whether exposure includes time after first event for recurrent counts and how death or loss to follow-up ends accumulation.
+For a fitted Poisson model, residual deviance divided by residual degrees of freedom is a rough dispersion diagnostic; values well above 1 suggest extra variation, but interpretation depends on model and sample size. Pearson residual dispersion, simulation-based residual checks, and observed-versus-predicted count distributions provide additional evidence. A formal test can detect trivial overdispersion in large samples.
 
-```r
-# Aggregate demonstration; actual inference needs independent units/strata
-events <- c(20, 15)
-py <- c(800, 1000)
-crude_rates <- events / py
-c(rates_per_100py = 100*crude_rates,
-  crude_rate_ratio = crude_rates[2]/crude_rates[1])
-```
+Many zeros do not automatically justify a zero-inflated model. Zeros may be expected from low means under ordinary Poisson. A zero-inflated model assumes a separate structural-zero process plus count process; a hurdle model separates zero versus positive outcomes and models positive counts. Use them only when a plausible mechanism exists and data support added parameters.
 
-The example's crude rates are 2.5 and 1.5 per 100 person-years and treatment/control ratio .60 if control is first. With only two aggregate rows, a regression standard error is not estimable; use person- or stratum-level data and account for clustering.
+### What the dispersion parameter represents
 
-## Model checks and alternatives
+In a negative-binomial model, \(\alpha\) represents residual variation beyond the conditional mean after included predictors. It can reflect omitted heterogeneity, contagion, clustering, or a mixture of rates. It is a statistical accommodation, not an explanation of why variation exists. If wards have persistent rate differences, a random ward effect may be more interpretable; if counts correlate within ward over time, a temporal correlation structure may also be needed.
 
-Inspect fitted versus observed counts, Pearson residuals, zeros, large counts, temporal trends, and predictor functional forms. Check sensitivity to Poisson with robust SE, negative binomial, and clustered models where design supports them. Zero-inflated models should only represent a plausible separate no-risk process; hurdle models may be more interpretable when event occurrence and recurrence are distinct stages. Validate prediction of total count and tail burden, not only average rates.
+Overdispersion affects uncertainty and sometimes point estimates. Under a correct log-mean, Poisson coefficients can remain consistent despite variance misspecification, but standard errors are too small; with omitted structure tied to predictors, coefficients can be biased. Quasi-Poisson adjusts variance but cannot support likelihood-based likelihood-ratio tests or AIC in the usual way. Negative binomial has a full likelihood but assumes a particular mean-variance relationship. Compare estimates and predictions across plausible models.
 
-## Estimating rates from aggregate data
+Use simulation-based diagnostics to compare observed count frequencies with replicated data, especially tails and zeros. Check residuals against fitted values, exposure, time, and clusters. A single dispersion ratio does not identify the appropriate alternative. If the model predicts too few zeros and too few extreme counts, unmodeled heterogeneity is plausible; if excess zeros occur only in a subgroup, model that mechanism.
 
-For an unadjusted Poisson count x over exposure T, maximum-likelihood rate is x/T. A rough standard error is sqrt(x)/T, so the log-rate SE is 1/√x when x>0. With 36 events in 1,200 person-years, rate=.03 per person-year and approximate 95% interval on log scale is exp[log(.03)±1.96/6], roughly .021 to .043. Exact Poisson intervals are preferable for low counts. At zero events the log method fails; an upper bound remains necessary.
+For Poisson GLM, Pearson dispersion is \(\sum r_{Pi}^2/(n-p)\), where (r_{Pi}) are Pearson residuals. A value near 1 is compatible with the Poisson variance but does not demonstrate fit; a value of 2 suggests variance roughly twice the model expectation as a rough summary. Inspect residuals and compare observed versus expected zeros, ones, and upper-tail counts. With small samples, the ratio is noisy.
 
-```r
-x <- 36; T <- 1200
-rate <- x/T
-c(rate = rate,
-  lower = exp(log(rate) - 1.96/sqrt(x)),
-  upper = exp(log(rate) + 1.96/sqrt(x)))
-```
+Negative-binomial dispersion estimates can be poorly identified when counts are sparse or few observations are available. If estimated \(\alpha\) is near zero, Poisson may suffice, but compare uncertainty rather than relying on a boundary test. If overdispersion comes from clusters, a hierarchical model may improve transport and prediction more than a single global dispersion parameter.
 
-This assumes a homogeneous Poisson process and known exposure. Clustering and heterogeneity widen uncertainty; using participant-level models or robust variance may be needed. A crude rate interval and adjusted model interval answer related but distinct questions.
+### Hurdle and zero-inflated models
 
-## Interpreting coefficients with interactions and offsets
+A hurdle model has two processes: whether any event occurs and, conditional on a positive count, how many events occur. It fits when event initiation and recurrence are distinct, such as whether a patient is ever hospitalized and the number of admissions among those hospitalized. A zero-inflated model assumes some observations are in a structural-zero state while others arise from a count process that can also produce zeros.
 
-If treatment interacts with time or severity, exp(β_treatment) is the rate ratio only at the reference value of the interacting covariate. Center continuous modifiers at a meaningful value and calculate contrasts. An offset is not a covariate with estimated effect; omitting it changes the estimand from rate to count. Using log follow-up as a regular predictor estimates an exposure relationship rather than enforcing proportionality and is rarely a substitute for a proper offset.
+These models can be weakly identified if data do not distinguish the zero mechanisms. Interpret both components and provide predicted probabilities and expected counts. Do not select them just because the zero fraction seems high; low event rates naturally produce many zeros. Compare out-of-sample calibration and clinical plausibility, and report uncertainty in the zero-process membership.
 
-Check whether exposure time depends on prognosis. If sicker patients are followed longer or die sooner, simple person-time rates can be informative but may not correspond to cumulative patient risk. Use survival or recurrent-event approaches and address informative censoring when needed.
+## Functional form and covariates
 
-## Compare fitted rates in interpretable units
+The model assumes log mean is linear in continuous predictors. Check whether age, calendar time, or dose has nonlinear association; use splines or transformed terms. A one-unit coefficient interpretation depends on scale. For categorical predictors, state reference categories. Interactions change IRRs across covariates and require calculation of contrasts with covariance.
 
-Suppose treatment coefficient is β=−.30 with SE=.12. Rate ratio=exp(−.30)=.741, interval exp(−.30±1.96×.12)=(.586,.936). If control rate is 4 events per 100 person-years, the fitted treatment rate is about 2.96 per 100 person-years under the log-linear model. This is an adjusted rate comparison; multiply by person-time only when predicting expected event counts and keep the exposure unit explicit.
+Confounder selection should follow design and subject matter. Adjusting for exposure-affected variables can alter causal estimand or induce bias. Count regression does not turn an observational association into a causal rate ratio. Positivity and exchangeability remain necessary for causal interpretation.
 
-```r
-beta <- -.30; se <- .12; rate0 <- 4
-rr_ci <- exp(beta + c(-1,1)*1.96*se)
-c(RR = exp(beta), lower = rr_ci[1], upper = rr_ci[2],
-  treatment_rate_per_100py = rate0*exp(beta))
-```
+For a continuous predictor with spline terms, the IRR for a clinically meaningful contrast is computed from the difference in linear predictors, exponentiated. It is not generally the exponentiated coefficient of one basis function. Plot predicted rates and intervals across the observed range. If there is an interaction with treatment, derive subgroup-specific contrasts with their covariance.
 
-If baseline rate varies by covariates, use standardized predictions to obtain population-average absolute rates. A conditional coefficient alone does not give the population event reduction.
+An offset is appropriate when expected count scales proportionally with exposure. If a patient with twice the person-time is expected to have twice the event count at the same rate, fixing offset coefficient at one is sensible. If the relationship is not proportional, a freely estimated exposure coefficient or alternative process may be needed, but this requires scientific justification. Do not use both exposure as an offset and as an unconstrained predictor without a clear target.
 
-## Diagnostics and reporting checklist
+The log link assumes multiplicative changes in the mean. A coefficient of 0.10 corresponds to an IRR of 1.105 (about 10.5% higher rate), not a 0.10-event increase. For a categorical exposure, calculate rate contrasts against the reference group. For a spline, compute the exponentiated difference in fitted linear predictors between two values; individual spline coefficients are not IRRs on their own.
 
-Report the count-generating unit, event definition, recurrent-event handling, follow-up exposure, offset units, link, variance family, dispersion assessment, and uncertainty correction. Show counts and crude rates before adjusted coefficients. State whether the model estimates subject-specific or population-average associations. Include a fitted-versus-observed check and assess residuals over time and by important predictors. These details let readers determine whether a rate ratio is interpretable in their setting.
+If a covariate effect is suspected to vary by exposure level, fit an interaction only when scientifically motivated and report predicted rates across relevant values. An interaction on the log-rate scale is multiplicative; the absolute rate difference can vary with baseline rate even without interaction. Present both scales when making clinical decisions.
 
-For recurrent admissions, a count model's expected value can be greater than one and represents mean episodes per exposure period. If policy decisions concern the probability of avoiding any admission, report that probability separately from the rate. If a first event ends observation, survival models preserve event timing and censoring more directly. Naming the outcome process avoids treating every count model as a generic “risk model.”
+Exposure definitions should match risk time. Person-days after death or discharge should not remain in denominator if the event is no longer observable. For population rates, use population at risk for each time interval; age-standardize if composition changes. If exposure is measured with error, the IRR may be biased and offset uncertainty is often ignored.
 
-When the count is bounded by a fixed number of opportunities (for example, number of successful tasks out of 10), a binomial model may fit the support better than Poisson. If events are rare and opportunity is large, a Poisson approximation can be convenient, but assess mean-variance behavior. The outcome's generating process and denominator should determine the family, not a rule that all counts use Poisson.
+## Dependence, clustering, and repeated counts
 
-A rate ratio is conditional on the covariate values and exposure definition. If the treatment is assigned and follow-up differs because of competing death, exposure-time offsets alone may not answer a treatment-policy question. Present cumulative incidence or restricted mean quantities where clinically appropriate, alongside rates, and explain the estimand.
+Poisson and negative-binomial GLMs assume independent observations conditional on predictors. Repeated counts per patient, clustering within sites, or shared time shocks require GEE, random effects, cluster-robust variance, or time-series models. A random intercept can model persistent heterogeneity; robust variance needs enough independent clusters. If cluster size relates to outcome, define whether target is person- or cluster-weighted.
+
+For recurrent events, include person-time at risk and define whether terminal events stop observation. Recurrent-event survival models preserve event timing; count regression summarizes total burden. If event counts are measured over unequal intervals, use exposure offsets and account for within-person dependence.
+
+A random-intercept negative-binomial model has \(Y_{ij}\mid b_i\sim NB(\mu_{ij},\alpha)\), with \(\log\mu_{ij}=X_{ij}\beta+b_i+\log E_{ij}\). The exponentiated fixed coefficients describe cluster-conditional IRRs, whereas GEE provides marginal rate ratios. With a log link and random effects, marginal effects need not equal conditional effects. State which is reported.
+
+Robust sandwich standard errors cluster by independent unit and allow within-cluster dependence with enough clusters. They do not account for informative cluster size or fix a wrong mean. With few clusters, use small-sample correction or randomization-based methods. In a cluster-randomized study, treatment inference is based on independent clusters. Cluster-robust p-values using hundreds of patient rows and six clinics can be anti-conservative.
+
+Temporal count data may have serial correlation after covariate adjustment. Include time trend, seasonality, and AR structure or use a time-series count model. Standard negative-binomial regression treats periods independent; changing outbreak dynamics can invalidate that assumption. The time-series analysis article covers interrupted series and temporal dependence.
+
+## Interpretation and reporting
+
+Report event counts, exposure denominators, crude rates, model family, link, offset, dispersion handling, covariates, variance estimator, and intervals. Translate IRRs into rates at meaningful exposure levels. A rate difference may be more useful than relative effect: reducing 5 to 4 events per 100 person-years is one fewer event per 100 person-years, but baseline rates vary across populations.
+
+For prediction, assess calibration of expected counts and predictive intervals. For causal analyses, identify the estimand and adjustment assumptions. Avoid saying “risk” when the model estimates a rate unless a fixed-horizon probability has been derived. Include zero counts and ascertainment issues.
+
+## Contrast calculations on relative and absolute scales
+
+If treatment coefficient is \(\hat\beta=-0.22\) with SE 0.10, IRR is (e^{-0.22}=0.80). A Wald 95% interval on the log scale is −0.416 to −0.024, transformed to 0.66 to 0.98. This describes a rate ratio, not a rate difference. If comparator rate is 4 per 100 person-years, predicted treated rate is 3.2 per 100 person-years, an absolute difference of −0.8 per 100 person-years under the model. In another population with baseline rate 20, the same IRR implies difference −4; baseline burden determines absolute impact.
+
+For a count outcome observed during fixed time, expected count under covariate pattern (x) is \(\exp(x^T\hat\beta)E\). Provide expected numbers over realistic person-time and prediction intervals. Rate estimates are not bounded by one; recurrent events can yield expected counts greater than one per person. Avoid translating rate ratios to probabilities without a specified horizon and event process.
+
+If the outcome is rare and only first events matter, a Poisson model with person-time offset can approximate a piecewise exponential survival model under appropriate assumptions. If event timing and censoring are central, use survival analysis rather than reducing to total counts. If only a fixed binary endpoint is observed, logistic or binomial regression may be more direct.
+
+## Predictive checks and model comparison
+
+Compare observed and predicted mean count by exposure and important covariate strata. Check calibration of total counts and tail probabilities. For individual prediction, predictive intervals include both parameter uncertainty and count variability; confidence intervals for mean counts are narrower. Validate on held-out clusters or future periods if deployment is intended. Randomly splitting repeated counts can leak information.
+
+Use likelihood-ratio tests for nested Poisson models under regularity conditions; testing negative-binomial dispersion at boundary zero requires care. AIC comparisons require models fit to the same outcome and likelihood. Quasi-Poisson does not supply a full likelihood for ordinary AIC. Information criteria do not assess causal validity or external calibration.
+
+## Common interpretation errors
+
+Do not call an IRR a risk ratio. Do not infer overdispersion from a high zero count alone. Do not treat an offset as an ordinary predictor: its coefficient is fixed because exposure defines the rate denominator. Do not interpret a conditional random-effects IRR as a population-average ratio. Do not assume negative binomial solves within-person or temporal dependence.
+
+Report rate numerator and exposure denominator, model family, link, offset, dispersion estimate, cluster or time structure, and confidence interval. When adjusted estimates differ from crude rates, explain the covariates and target rather than presenting the model as a corrected truth. For rare harms, show absolute event counts and uncertainty, even if the relative estimate is large.
+
+If many subgroup rates are screened, extreme estimates are expected by chance. Hierarchical shrinkage can stabilize small-area or clinic rates, but a shrunken estimate is model-dependent. Report raw counts and denominators, uncertainty, and whether subgroup analysis was prespecified. Avoid ranking clinics by crude rates without adjusting for patient mix and uncertainty.
+
+| Data feature | Candidate approach | Main interpretive caution |
+| --- | --- | --- |
+| Mean approximately equals variance | Poisson GLM | Independence and mean structure still matter |
+| Extra-Poisson heterogeneity | Negative binomial or quasi-Poisson | They model variance differently |
+| Repeated counts per person | GEE or mixed count model | Marginal and conditional IRRs differ |
+| Unequal time at risk | Log exposure offset | Exposure must measure actual risk time |
+| Structural zeros plausible | Hurdle or zero-inflated model | Mechanism and components need justification |
+
+Use this mapping as a starting point, then verify fit against the study design and estimand. No row in the table replaces causal reasoning or good denominator data.
+
+When reporting model-based rates, include the covariate profile or standardization population used. Conditional fitted rates at mean covariate values may not equal population-average rates, especially with nonlinear links. If the target is a patient population, average predictions over that population's covariates and present uncertainty.
+
+Report the rate unit in every table and figure caption.
+
+When follow-up varies, state how person-time was accumulated and whether post-discontinuation time remained under observation.
+
+For surveillance counts, also report reporting delay and any revision to recent counts; a provisional numerator can distort apparent rate changes.
 
 ## References and further reading
 
-- Cameron AC, Trivedi PK. Regression-based tests for overdispersion in the Poisson model. *Journal of Econometrics*. 1990;46:347–364. [doi:10.1016/0304-4076(90)90014-K](https://doi.org/10.1016/0304-4076(90)90014-K)
-
-- Agresti A. *Categorical Data Analysis*. Wiley.
-- Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- The [Cox proportional hazards article](../survival/cox-proportional-hazards-model.html) covers regression for time-to-first-event outcomes.
+- Cameron AC, Trivedi PK. *Regression Analysis of Count Data*. 2nd ed. Cambridge University Press; 2013.
+- Hilbe JM. *Negative Binomial Regression*. 2nd ed. Cambridge University Press; 2011.
+- Ver Hoef JM, Boveng PL. Quasi-Poisson vs. negative binomial regression: how should we model overdispersed count data? *Ecology*. 2007;88:2766–2772. [doi:10.1890/07-0043.1](https://doi.org/10.1890/07-0043.1)
+- Zeileis A, Kleiber C, Jackman S. Regression models for count data in R. *Journal of Statistical Software*. 2008;27(8):1–25. [doi:10.18637/jss.v027.i08](https://doi.org/10.18637/jss.v027.i08)

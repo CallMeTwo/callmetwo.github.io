@@ -1,152 +1,131 @@
 ---
 title: Bootstrap and permutation methods
-summary: Two resampling strategies — the bootstrap estimates sampling distributions by treating the sample as the population; permutation tests invert hypothesis tests by re-assigning labels.
+summary: How bootstrap resampling estimates uncertainty and design-based permutations test hypotheses, with guidance on choosing the resampling unit and interpreting results.
 ---
 
-## Overview and key ideas
+## Overview
 
-Most textbook tests (t-test, ANOVA, chi-square) give formulas for the sampling distribution of a statistic that depend on assumptions — normality, equal variance, large samples. **Resampling** replaces the formula with the data itself.
+Resampling methods use repeated rearrangements of observed data to answer questions that are awkward for a single textbook formula. The bootstrap approximates how an estimator would vary across repeated samples. A permutation test constructs a reference distribution under a null hypothesis by rearranging treatment labels or other exchangeable units. Both methods can be implemented with a few lines of R, but validity comes from the sampling or assignment design, not from computation alone.
 
-The **nonparametric bootstrap** is a way to estimate the sampling distribution of a statistic (a mean, a median, a regression coefficient, a risk ratio) without assuming its form. The idea: the observed sample is your best guess at the population, so resample *with replacement* from it many times (say B = 2000 or 10,000), compute the statistic in each resample, and use the resulting distribution for standard errors and confidence intervals. The bootstrap standard error is simply the standard deviation of the B resampled statistics; it estimates how much the statistic would vary from sample to sample without requiring a closed-form formula.
+The distinction matters. A confidence interval from a bootstrap concerns uncertainty in an estimate under a model for how observations were sampled. A randomization p-value concerns how unusual the observed statistic is under a specified assignment mechanism and null. The methods may be used in the same trial, but they answer different questions.
 
-Two widely used intervals are the **percentile interval** (the 2.5th and 97.5th percentiles of the bootstrap distribution) and the **BCa (bias-corrected and accelerated) interval**, which adjusts for skewness in the statistic's distribution and for the rate at which the percentile changes; BCa is generally preferable, and the simple percentile interval should be avoided when the bootstrap distribution is visibly skewed.
+## Start with the unit that could have been sampled or assigned
 
-A **permutation test** (randomization test) works in the opposite direction. It answers a hypothesis-testing question exactly under the sharp null of no effect: take the observed data, shuffle the group labels among individuals B times, and compute the test statistic in each shuffled world. The p-value is the fraction of permutations in which the statistic is as extreme as the observed one. Because it uses only the data actually observed, it needs almost no distributional assumptions — it only needs the labels to be exchangeable under the null, which holds under randomization.
+Before writing code, identify the independent unit. If patients were independently sampled, resample patients. If treatment was assigned to clinics, resample or permute clinics. For paired measurements, keep the pair together. In a stratified design, preserve strata. Resampling individual rows from a cluster trial treats correlated people as independent and usually understates uncertainty; freely shuffling labels across randomization blocks creates assignments that could never have occurred.
 
-## When to use it
+The estimand also matters. A bootstrap for a mean difference must calculate that same difference in every resample. If the analysis includes imputation, weighting, variable selection, or tuning, repeat those steps within each bootstrap replicate when their uncertainty is part of the target. Holding data-adaptive choices fixed gives uncertainty conditional on choices made from the original sample and can be too narrow.
 
-| Setting | Example question |
-| --- | --- |
-| Small sample, skewed outcome | 18 patients, lognormal recovery time after surgery — the t-test is shaky; bootstrap the median and its CI |
-| Complex statistic, no closed-form SE | A risk ratio from a Poisson model with small counts — bootstrap the whole model to get its standard error |
-| Randomized controlled trial | A two-arm trial with a binary outcome and small cells where the exact test is unwieldy — a label-permutation test is valid under the randomization alone |
-| Model-based diagnostics | Does this regression coefficient's CI assume normality? Bootstrap it and compare |
+## Bootstrap: approximate repeated sampling
 
-Rule of thumb: the bootstrap is for **estimation** (intervals, standard errors) when the sampling distribution is inconvenient; the permutation test is for **hypothesis testing** when the null makes labels exchangeable. They are not interchangeable — the bootstrap does not validate a null hypothesis the way a permutation test does.
+For observations (X_1,\ldots,X_n), the empirical distribution assigns probability (1/n) to each observed value. A nonparametric bootstrap draws (n) observations with replacement from this distribution, computes the statistic, and repeats the process (B) times. The standard deviation of the bootstrap estimates approximates the estimator's standard error. Quantiles of their distribution provide percentile intervals; other intervals, such as BCa or studentized intervals, use additional corrections.
 
-## Assumptions and limitations
-
-- **The bootstrap assumes the sample is a reasonable stand-in for the population.** With small samples (n < 20 or so), extreme outliers, or data with strong clustering, resampling individuals fails to capture the true variability. For clustered data use a *cluster-level* (case) bootstrap.
-- **Resampling units must match the sampling unit.** If the data were collected in groups (patients within clinics), resampling individual rows while ignoring the clustering underestimates standard errors.
-- **Permutation tests require exchangeability under the null** — the labels must be randomizable. In an observational study with no randomization, shuffling labels is not a valid test of the sharp null; the bootstrap is a safer (and less exact) fallback.
-- **Both methods need enough replications** — with B = 500, the p-value itself is only accurate to roughly ±0.02, and the endpoints of a percentile CI wobble. Use B ≥ 2000 for estimates and more for small p-values.
-
-## Worked example
-
-In a randomized trial, 22 patients with early diabetic retinopathy are allocated to treatment (n = 11) or placebo (n = 11). After 6 months, the mean change in retinal capillary density is +4.1% (SE from bootstrap: 1.3%) in treatment and +1.2% (SE 1.1%) in placebo. The difference is 2.9 percentage points; the standard t-test would be borderline because of small n and skew in the placebo changes.
-
-Because allocation was random, a permutation test is exact under the null of no treatment effect. Re-assign the 22 labels 10,000 times, recompute the difference each time, and find that 142 of the 10,000 shuffled differences are ≥ 2.9 points. The p-value is 142/10000 ≈ 0.014. The interpretation is direct: if the treatment had no effect, a difference this large or larger would arise from the randomization about 1.4% of the time.
-
-The bootstrap serves a complementary role in the same study: resample the 22 patients 5,000 times and recompute the difference in means each time, and the 95% BCa interval for the treatment effect is roughly (0.4, 5.8) points. The permutation test answers "is there an effect at all?"; the bootstrap interval answers "how big is it, and how precisely is it estimated?" Reporting both gives the reader the full picture neither one alone provides.
-
-## Interpretation and common pitfalls
-
-- **Bootstrap is estimation, not proof** — a bootstrap CI says what the sampling distribution looks like *given this sample*; it does not make the study design or assumptions it rests on (random sampling, independence) magically valid.
-- **Use the right resampling unit** — resampling individuals from cluster-collected data is the most common bootstrap error, and it flatters the precision.
-- **Permutation tests test a different null than the model** — the permutation p-value addresses the sharp null of zero effect; it does not estimate the size or uncertainty of the effect.
-- **Set a seed and report B** — resampling results are random; record the random seed, the number of replications, and the interval type (percentile vs BCa) so the analysis is reproducible.
-
-Bootstrap resampling approximates sampling variability by resampling observational units with replacement; it must preserve the design (for example, resample clusters for cluster-randomized or clustered data). The ordinary percentile interval can perform poorly for biased or skewed estimators, so BCa or studentized intervals may be preferable when justified. Permutation inference is exact under an exchangeability or randomization argument: in a randomized trial, permute according to the actual assignment scheme, not arbitrarily across participants. Neither method repairs confounding, measurement error, or a nonrepresentative sample.
-
-## References and further reading
-
-## Bootstrap design must match the sampling design
-
-## Bias correction and nonsmooth statistics
-
-## Worked bootstrap for a median difference
-
-For skewed hospital length of stay, the median difference may be more interpretable than a mean. Resample patients independently within each treatment arm, compute both medians and their difference each draw, and use a percentile/BCa interval. If participants are clustered in hospitals, resample hospitals and retain all patients within selected hospitals. The bootstrap distribution can be discrete for small samples and percentile coverage may be poor; compare with quantile-regression intervals or a robust model where appropriate.
-
-When estimates involve imputation, propensity weighting, or threshold tuning, repeat the entire analytic pipeline within every resample. Holding selected variables or weights fixed understates uncertainty. If computational burden is high, reduce model complexity based on prespecified science and report Monte Carlo precision rather than silently lowering the number of replications.
-
-## Randomization tests with nuisance covariates
-
-## When resampling fails
-
-## Choosing between bootstrap and permutation
-
-For reporting, identify the inferential target, resampling/permutation unit, number of replicates, interval/test method, assignment restrictions, random seed, and handling of failed replicates. Include estimate and interval alongside p-value and clarify the null tested.
-
-Use bootstrap to approximate sampling uncertainty for an estimator under an empirical sampling model; use permutation to test a null under exchangeability or randomized assignment. They answer different questions. A bootstrap CI can be paired with an estimate of a population parameter; a permutation p-value evaluates a specified null. Permuting observational exposures without exchangeability is invalid, while bootstrapping a biased estimator does not remove confounding. In randomized trials, randomization inference is design-based; bootstrap can support interval estimation, but must preserve allocation/cluster structure.
-
-For paired data, resample pairs for bootstrap and swap within pairs for permutation. For clustered data, resample clusters and permute cluster assignments. For time-to-event data, preserve censoring and risk-set structure; naive row permutation breaks event-time information. Select method from design and estimand, not convenience.
-
-## Permutation test worked interpretation
-
-## Bootstrap confidence interval choice
-
-The percentile interval takes bootstrap quantiles directly and is easy to explain, but may have poor coverage when estimator bias or skewness is appreciable. The basic interval reflects quantiles around the observed estimate; BCa adjusts for bias and acceleration; studentized intervals use a bootstrap t-statistic and can perform well but require a valid SE in each replicate. For small samples, compare interval behavior through simulation or established methods for the statistic. Report why the chosen interval is suitable and do not choose the narrowest one after seeing results.
-
-For regression coefficients, bootstrap at the independent unit and refit full model. If variable selection is part of the pipeline, repeat selection each replicate to capture selection variability. If the scientific target has a prespecified model, avoid stepwise selection in the first place. Percentile intervals from a non-smooth selection procedure may still be unreliable.
-
-## Monte Carlo precision and compute budget
-
-Bootstrap and permutation estimates have simulation error. For a bootstrap SE, Monte Carlo SE is roughly (s_{boot}/\sqrt{2(B-1)}); for a tail probability near .05, it is about .005 at 2,000 replicates. Choose B to make computation error small relative to statistical uncertainty, set seeds, and report number of successful replicates. Parallelization must preserve reproducible RNG streams. Save summaries, not enormous arrays of every replicate, unless needed for audit.
-
-Suppose an individually randomized trial observes mean difference −3 points in symptom score, where lower is better. A design-preserving randomization test permutes assignment labels while retaining the original group sizes, computes the difference for each allocation, and compares absolute values with the observed statistic. If 240 of 9,999 permutations are as extreme, the corrected two-sided p-value is (240+1)/(9,999+1)=.0241. This supports incompatibility with the sharp null under the assignment scheme; it does not say there is a 2.4% probability the null is true.
-
-To estimate a confidence interval, invert a family of sharp-effect tests (e.g. constant additive effect) or use a model-based interval. The assumption of a common additive effect can be unrealistic for heterogeneous outcomes. Present estimate and interval alongside randomization p-value, and say which null is tested.
-
-For stratified assignment, permute within strata. In matched pairs, swap treatment within each pair. In cluster randomization, permute clusters as allocated. A generic `sample()` over all individuals is invalid for these designs and can produce spuriously small p-values.
-
-Bootstrap may be unreliable for parameters on boundaries (variance=0), extreme quantiles with sparse tails, highly adaptive estimators, or data with very few independent clusters. Degenerate resamples can yield undefined statistics; report their frequency and do not silently discard many failures. For rare-event ratios, parametric likelihood or exact methods may be preferable. For small randomized trials, exact randomization inference can be more defensible than asymptotic bootstrap intervals, though interval construction needs additional assumptions.
-
-Use parametric bootstrap when a model-based data-generating process is justified and the statistic is complex; simulate under fitted model, refit each dataset, and evaluate sampling distribution. This checks model-implied uncertainty, not model adequacy. Compare nonparametric and parametric results where feasible. For a bootstrap CI on a model coefficient, refit the model each iteration and retain convergence warnings/failed fits for assessment; a high failure rate indicates weak identification, not merely software inconvenience.
-
-Covariate-adjusted randomization tests can improve power. Fit a prespecified regression statistic and permute assignments under the actual allocation scheme, recomputing the statistic each time. Under sharp null, this provides design-based inference. Covariate adjustment method should be fixed before outcomes are unblinded; selecting a model by observed significance invalidates the test. For blocked designs, preserve block assignment, and for unequal-probability randomization, sample permutations according to the assignment probabilities.
-
-Bootstrap resampling does not automatically remove bias. Bias can be estimated as mean bootstrap estimate minus original estimate, but bias correction can increase variance. BCa intervals adjust for bias and acceleration but depend on jackknife calculations and can be unstable for small samples. Nonsmooth statistics such as maxima, thresholds, and variable-selection estimates may violate ordinary bootstrap consistency. For high-dimensional selection, repeat selection inside each resample and consider stability selection or external validation rather than trusting an ordinary percentile interval.
-
-For clustered or longitudinal data, resample the independent unit and retain within-unit observations. If treatment was randomized within strata, preserve strata in resampling. For survey data, use replicate weights or resample PSUs with design-aware methods. The resampling algorithm is part of the statistical method and should be justified in the report.
-
-## Randomization inference versus model-based inference
-
-Randomization inference conditions on observed outcomes and uses the known assignment mechanism to evaluate a sharp null. It can provide exact finite-sample tests in randomized studies, but an exact p-value does not by itself provide a confidence interval for an average treatment effect. Invert tests under constant additive effects or use studentized statistics for weak nulls, stating assumptions. Model-based bootstrap intervals can estimate sampling uncertainty but rely on outcome-model regularity. Reporting both can illuminate sensitivity in small trials.
-
-Permutation tests in observational studies are not valid simply because labels can be shuffled in code. Exchangeability is not created by random number generation; confounders and assignment mechanism must justify permissible rearrangements. Matched observational designs may allow within-set permutations under a sharp conditional null, but this is a design assumption.
-
-The nonparametric bootstrap resamples observations with replacement from the empirical sample. For an independent cohort, resample participants; for paired measurements, resample participant pairs; for clustered data, resample clusters; for stratified surveys, resample PSUs within strata or use agency replicate weights. Resampling the wrong unit breaks dependence and gives incorrect uncertainty. If only a few clusters exist, ordinary cluster bootstrap can be unstable; wild cluster bootstrap or randomization inference may be more suitable for some estimands.
-
-The bootstrap approximates the sampling distribution of an estimator by repeatedly recomputing it on resamples. Percentile intervals use empirical quantiles; basic intervals reflect quantiles around the observed estimate; studentized intervals standardize by resample-specific SE and can improve coverage at greater computational cost. BCa intervals adjust bias and acceleration, but may fail for degenerate or nonsmooth statistics. For a proportion near a boundary or a rare event, naive bootstrap resamples may contain zero events; use a method designed for the parameter or report limitations.
+Consider a small randomized study with 12 patients per arm and a skewed length-of-stay outcome. The observed mean difference (new care minus usual care) is −1.8 days. In 5,000 patient-level bootstrap replicates, suppose the standard deviation of the differences is 1.1 days and the 2.5th and 97.5th percentiles are −4.2 and 0.3 days. The estimate suggests a shorter stay, but the interval includes zero and remains compatible with little or no average difference. The bootstrap has not made the trial larger; it has approximated the sampling uncertainty supported by these data.
 
 ```r
-set.seed(41)
-B <- 2000
-boot_rd <- replicate(B, {
-  idx <- sample.int(nrow(dat), replace = TRUE)
-  d <- dat[idx, ]
-  mean(d$outcome[d$arm == "treated"]) -
-    mean(d$outcome[d$arm == "control"])
+set.seed(2026)
+B <- 5000
+boot_diff <- replicate(B, {
+  i_new <- sample(which(dat$arm == "new"), replace = TRUE)
+  i_usual <- sample(which(dat$arm == "usual"), replace = TRUE)
+  mean(dat$stay[i_new]) - mean(dat$stay[i_usual])
 })
-quantile(boot_rd, c(.025, .5, .975), na.rm = TRUE)
+sd(boot_diff)
+quantile(boot_diff, c(.025, .5, .975), na.rm = TRUE)
 ```
 
-This code assumes independent participants and both arms appear in nearly every resample. In a cluster trial, sample cluster IDs and retain all members within selected clusters. Report failed replicates, number of valid replicates, interval type, and random seed. The percentile interval is illustrative; choose interval method based on estimator and sample size.
+This code resamples separately within arms, matching a fixed group-size randomized design and estimating uncertainty conditional on those sizes. For a cluster-randomized trial, sample clinics within arms and retain all patients in each sampled clinic. If the target is a population treatment effect under the actual allocation, a design-based analysis may be preferable. Record the seed, number of replicates, interval method, and number of failed replicates. Increasing (B) reduces Monte Carlo noise but does not repair a poor sampling design or a biased estimator.
 
-## Permutation tests and exchangeability
+The percentile interval is simple but can have poor coverage when the statistic is biased, skewed, near a boundary, or based on a very small sample. BCa intervals adjust for estimated bias and acceleration; studentized intervals account for replicate-specific standard errors. These methods are not automatic upgrades: the jackknife acceleration can be unstable for nonsmooth statistics, while studentization can be computationally demanding. Report the estimator and interval construction so readers know what the endpoints mean.
 
-A permutation test compares the observed statistic with its distribution under reassignment permitted by the null and design. In a completely randomized trial, treatment labels may be permuted while preserving arm sizes. In blocked or stratified randomization, permute within blocks/strata. In matched pairs, swap labels within pairs. In cluster randomization, permute clusters, not individuals. A permutation p-value is exact under the sharp null of no unit-level treatment effect and the actual randomization scheme; weak average-effect nulls may require studentized statistics or asymptotics.
+## Permutation: recreate the null assignment process
+
+A randomization test compares the observed statistic with statistics generated under assignments allowed by the study design. In a completely randomized trial with fixed arm sizes, permute labels while retaining those sizes. For a paired trial, swap labels within each pair; for blocked randomization, permute within blocks; for cluster assignment, permute clusters. Under the sharp null that treatment changes no participant's outcome, the test is exact if all permitted assignments are treated according to the randomization probabilities.
+
+Suppose a parallel trial has 24 participants, 12 per arm, and an observed difference in mean pain score of −2.4 points. Of 9,999 permitted reallocations, 286 produce an absolute difference at least 2.4. The Monte Carlo two-sided p-value with the plus-one correction is ((286+1)/(9{,}999+1)=0.0287). This is evidence that the observed contrast is unusual under the sharp no-effect null and the specified randomization. It is not the probability that the null is true, nor does it quantify how likely a clinically important benefit is.
 
 ```r
-obs <- with(dat, mean(outcome[arm == 1]) - mean(outcome[arm == 0]))
+set.seed(83)
+obs <- with(dat, mean(score[arm == "new"]) -
+                      mean(score[arm == "usual"]))
 perm <- replicate(9999, {
-  z <- sample(dat$arm)  # only valid for complete randomization
-  mean(dat$outcome[z == 1]) - mean(dat$outcome[z == 0])
+  z <- sample(dat$arm)  # valid only for complete randomization
+  mean(dat$score[z == "new"]) - mean(dat$score[z == "usual"])
 })
 (1 + sum(abs(perm) >= abs(obs))) / (length(perm) + 1)
 ```
 
-The plus-one correction avoids zero Monte Carlo p-values. For actual blocked/cluster designs, this label shuffle is invalid and must be replaced with design-preserving permutations. Permutation inference does not fix confounding in observational data; exchangeability must arise from randomization or a defensible conditional design.
+This generic shuffle is invalid when assignments were blocked, matched, or clustered. The permutation code must encode the allocation actually used. With covariate adjustment, one can use a prespecified adjusted statistic and recompute it for every permitted assignment. Choosing the adjustment after looking at which model gives the smallest p-value breaks the design-based argument.
 
-## Monte Carlo error and reporting
+The sharp null is stronger than a null average treatment effect: it says no individual would have a different outcome under the other assignment. Inference for a weak null of zero average effect may require studentized statistics or large-sample justification. Confidence intervals can be formed by inverting tests of hypothesized constant effects, but the constant-effect assumption should be stated. Randomization inference is not a general substitute for modeling every scientific question.
 
-With B random replicates, Monte Carlo error in a tail probability near .05 is roughly \(\sqrt{.05(.95)/B}\); at B=2,000 it is about .005. Use more draws when a decision depends on a precise tail estimate. Bootstrap SE is the SD of resampled estimates, while percentile intervals use quantiles; they are not interchangeable. Report resampling unit, B, interval/test type, handling of ties/missingness, software, and whether all model-selection steps were repeated within resamples.
+## Choosing the method and reading its uncertainty
+
+Use bootstrap resampling when the goal is a standard error or interval for a statistic and an empirical approximation to the sampling process is defensible. Use permutation when the null and design provide a valid exchangeability scheme. A permutation test can be exact for a randomized experiment even when outcomes are highly non-normal; a bootstrap interval may still be useful for effect magnitude. In observational data, labels are not generally exchangeable because treatment depends on prognosis. Shuffling them does not remove confounding.
+
+Resampling also has failure modes. With very few independent clusters, the ordinary cluster bootstrap has few distinct resamples and can be unreliable. Rare outcomes may disappear from bootstrap replicates, causing infinite estimates or model nonconvergence. Extreme quantiles and maxima are nonsmooth and often need specialized methods. Report the proportion of failed fits and investigate why they fail rather than silently discarding them. For complex survey samples, use design-provided replicate weights or a variance method that preserves strata and primary sampling units.
+
+### How interval construction changes the answer
+
+The standard error is the spread of the bootstrap estimates, but the interval is a separate choice. A percentile interval takes the relevant empirical quantiles directly. It is easy to explain and invariant to monotone transformations, but it can inherit bias and poor tail coverage. A basic interval reflects those quantiles around the observed estimate and can behave awkwardly when the estimate is near a boundary. A normal interval, estimate ± 1.96 bootstrap SE, presumes approximate symmetry and can extend beyond possible values. BCa corrects for median bias and the change in estimator variability across the parameter space; it is often a useful default for smooth statistics when the sample supports stable jackknife calculations.
+
+For example, if a risk difference is estimated as 0.08 and the bootstrap standard error is 0.04, a normal interval is 0.08 ± 0.078, or about 0.002 to 0.158. If the bootstrap distribution is skewed because the event is rare, its percentile interval could instead be −0.01 to 0.17. This disagreement is diagnostic: it signals that symmetric large-sample reasoning is questionable. The negative lower endpoint is possible for a risk difference, but would be impossible for a risk ratio. For a ratio, construct inference on the log scale or use an interval method that respects the parameter space.
+
+Bootstrap replications are not new patients and do not increase the effective sample size. An empirical bootstrap cannot generate covariate patterns absent from the study. In a sample with no events among exposed participants, ordinary resampling will repeat that absence and cannot estimate a finite odds ratio. A parametric bootstrap can simulate events from a fitted model, but then uncertainty depends on that model being appropriate. Exact methods, penalized estimation, or a more informative design may be preferable.
+
+### Preserve the design in more complex studies
+
+In matched-pair data, resample pairs rather than individual records, then calculate the within-pair contrast. For a cluster sample, resample whole clusters; if cluster sizes vary, specify whether the target is an average individual effect or an average cluster effect. The two targets weight large and small clusters differently. In a stratified survey, resample primary sampling units within strata or use replicate weights supplied by the survey design. A naive row bootstrap ignores unequal inclusion probabilities and can misstate uncertainty.
+
+For a treatment contrast in a parallel randomized trial, resampling within arms as in the code conditions on arm sizes. A pooled participant bootstrap instead allows arm counts to vary and may be aligned with a superpopulation model, but it is not the same design-based calculation. State which source of variation the interval represents. In small randomized trials, compare a bootstrap interval with randomization-based inference rather than treating one as universally superior.
+
+The entire estimator must be reproduced in each replicate. If a weighted estimate uses propensity scores, re-estimate the propensity model, weights, and outcome statistic in each sample. If missing data are multiply imputed, there are nested sources of uncertainty; a valid procedure must account for imputation and sampling rather than resampling only a completed dataset. Likewise, if a model is selected from candidate predictors, selection should be repeated if the target concerns the full modeling procedure. These choices can make resampling expensive, but fixing them can give unjustifiably narrow intervals.
+
+## Permutation inference beyond a generic label shuffle
+
+An exact permutation test enumerates every allowed assignment and calculates a tail proportion. In practice there may be too many assignments, so Monte Carlo sampling approximates the reference distribution. The plus-one calculation used in the example avoids reporting a zero p-value from a finite number of draws. If no sampled assignment is as extreme among 9,999 draws, the result is not p=0; it is roughly p=0.0001 at the resolution of the simulation. Report the number of draws and Monte Carlo uncertainty.
+
+The statistic should reflect the null and design. A difference in means is natural for a continuous outcome; a studentized difference can improve robustness for unequal variances. For binary outcomes, one might use a risk difference or score statistic. Covariate adjustment can increase precision, but only if the statistic and adjustment procedure are prespecified or justified independently of the observed treatment contrast. If treatment was randomized with unequal probabilities, assignments should be sampled with their actual probabilities; equally weighting allocations would target a different reference distribution.
+
+Permutation tests also apply to paired designs. Suppose 15 patients each receive both devices in randomized order and the endpoint is a paired measurement. Under the sharp null of no device effect for anyone, each pair's two labels can be swapped, giving (2^{15}) assignments. A paired t statistic can be recomputed for each sign pattern. This preserves within-person pairing; shuffling all 30 observations would destroy it. In cluster trials, with only eight clinics, the number of possible allocations may be small, so p-values have coarse attainable values. This is a design limitation, not a software problem.
+
+For observational comparisons, the word “permutation” does not by itself establish validity. Conditional permutations can sometimes be justified within matched sets or exchangeability strata, but residual confounding and treatment selection remain. If covariates strongly predict treatment, unrestricted label shuffling answers a hypothetical randomized assignment question that the actual data did not implement. Use a causal design and model appropriate to the study, and make the identifying assumptions explicit.
+
+## A defensible reporting record
+
+For a bootstrap, report the estimand and statistic, resampling unit and strata, number of replications, random seed or reproducibility mechanism, interval type, treatment of model failures, and all analysis steps repeated within each replicate. For a permutation test, state the null (sharp or otherwise), test statistic, allowed assignments, whether enumeration was complete or Monte Carlo, number of draws, tail definition, and any plus-one correction. Give the effect estimate and uncertainty even when a p-value is emphasized.
+
+Monte Carlo error is separate from sampling uncertainty. If a permutation p-value is near 0.05 and (B=2{,}000), its Monte Carlo standard error is approximately \(\sqrt{.05(.95)/2000}=0.0049\). More permutations make the numerical approximation more stable; they do not make the scientific evidence stronger. For bootstrap endpoints, inspect the distribution and report enough replicates that quantiles are stable to reruns. A useful sensitivity check is to compare estimates across seeds or increase (B) and confirm conclusions do not shift due only to simulation noise.
+
+Monte Carlo error is separate from sampling uncertainty. If a permutation p-value is near 0.05 and (B=2{,}000), its Monte Carlo standard error is approximately \(\sqrt{.05(.95)/2000}=0.0049\). More permutations make the numerical approximation more stable; they do not make the scientific evidence stronger. For bootstrap endpoints, inspect the distribution and report enough replicates that quantiles are stable to reruns.
+
+In applied reports, avoid describing an interval as “the range containing 95% of the bootstrap estimates.” The interval is intended to have a repeated-sampling coverage property for the target parameter under its assumptions; it does not contain 95% of individual patient effects. Similarly, a two-sided randomization p-value should state how extremeness was defined. For an asymmetric null distribution, doubling the smaller one-sided tail and counting outcomes at least as far from the null are not always equivalent. A prespecified statistic and tail rule prevent post hoc choices.
+
+| Scientific goal | Candidate procedure | Key justification |
+| --- | --- | --- |
+| Standard error for a median difference | Bootstrap the independent sampling units | Sample represents the target population; resampling matches dependence |
+| Test no effect in a randomized trial | Permute according to the randomization | Sharp null and actual assignment mechanism |
+| Interval for a randomized-trial effect | Bootstrap or invert randomization tests | State whether inference is superpopulation or design-based |
+| Test an observational exposure contrast | Neither unrestricted method automatically applies | Address confounding and identification before inference |
+| Cluster-level intervention with few clusters | Design-based inference or small-sample cluster methods | Number of independent assigned units limits information |
+
+The confidence-intervals article provides further background on coverage and interval interpretation. Resampling is most useful when paired with a transparent estimand and a design-respecting implementation; it cannot compensate for a question the study did not identify.
+
+For an analysis with multiple endpoints, decide whether each is confirmatory or exploratory before looking at resampling p-values. Permutation does not automatically solve multiplicity: a family-wise test may require a max-statistic across outcomes, and a bootstrap interval for one endpoint does not adjust simultaneous coverage. Report all planned outcomes and avoid selecting the most favorable resampling result after analysis. When testing many hypotheses, preserve the dependence among outcomes during resampling and state whether the goal is family-wise error control or false-discovery control.
+
+For randomized trials, distinguish a randomization test from a bootstrap confidence interval in the methods and abstract. The former is anchored to the allocation mechanism; the latter commonly invokes a sampling model for participants. Agreement is reassuring but does not prove assumptions. Disagreement can arise from skewness, small samples, a sharp-null versus average-effect target, or a mismatch in resampling units. Explain that difference rather than choosing whichever p-value crosses a conventional threshold.
+
+If the test and interval target different nulls or estimands, say so explicitly in the report.
+
+Avoid reporting more Monte Carlo digits than the number of simulations supports.
+
+State whether the interval is pointwise or simultaneous when covering multiple estimates.
+
+Choose a resampling scheme before outcomes are examined.
+
+## References and further reading
 
 - Efron B. Bootstrap methods: another look at the jackknife. *The Annals of Statistics*. 1979;7:1–26. [doi:10.1214/aos/1176344552](https://doi.org/10.1214/aos/1176344552)
-
-- Efron B, Tibshirani RJ. *An Introduction to the Bootstrap*. Chapman and Hall.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Collett D. *Modelling Survival Data in Medical Research*. Chapman and Hall/CRC.
-
-The [confidence intervals article](../inference/confidence-intervals.html) explains how resampling can support interval estimation.
+- Davison AC, Hinkley DV. *Bootstrap Methods and Their Application*. Cambridge University Press; 1997.
+- Good PI. *Permutation, Parametric, and Bootstrap Tests of Hypotheses*. 3rd ed. Springer; 2005.
+- Efron B, Tibshirani RJ. *An Introduction to the Bootstrap*. Chapman & Hall; 1993.
+- The [confidence intervals article](../inference/confidence-intervals.html) discusses interval interpretation and uncertainty reporting.

@@ -3,150 +3,157 @@ title: Transformers for health data
 summary: An introduction to attention-based sequence models for clinical text, codes, and time series, with cautions about scale and evaluation.
 ---
 
-## Overview and key ideas
+## Overview
 
-Transformers represent a sequence as vectors and use **self-attention** so each position can combine information from other positions. Positional information is added because attention alone does not encode order. Unlike a recurrent network, attention can process many positions in parallel during training, though computation and memory can grow rapidly with sequence length. Transformer encoders are often used for representation or classification; decoder-style models predict subsequent tokens; encoder-decoder designs map one sequence to another.
+Transformers represent sequences by repeatedly combining each element with information from other elements through attention. They underpin many language models and can also process clinical codes, time-stamped records, images, and multimodal data. Their flexibility permits contextual representations but does not guarantee that learned relationships are clinically meaningful, temporally valid, or safe.
 
-In health data, inputs may be clinical text, coded events, laboratory sequences, or images converted into patches. A pretrained model can transfer representations, but domain adaptation does not guarantee clinical validity. A language model’s fluent output is not evidence that a generated statement is true.
+Health applications include note classification, summarization, information extraction, code sequence modeling, and clinical decision support. These tasks have different targets and evidence requirements. A model that predicts a diagnosis from notes is not necessarily estimating disease prevalence; a generated summary is not a verified clinical record. Define intended users, data availability, output, and action before selecting prompting or fine-tuning strategies.
 
-## When to use it
+## Self-attention and sequence representations
 
-Transformers are candidates when long-range relationships in text or event sequences matter, when a relevant pretrained model exists, or when multimodal representation is needed. Examples include classifying discharge summaries or summarizing a longitudinal record for clinician review. For small structured cohorts, compare against simpler models; task-specific transformer training often needs substantial data and compute.
+A transformer maps input tokens into vectors with positional or temporal information. Self-attention computes relationships among tokens: queries and keys determine attention weights, which combine value vectors. Multiple attention heads can represent different relationships. Feed-forward layers transform each token representation, and residual connections and normalization support training of deep networks.
 
-## Assumptions and limitations
+Attention is not inherently an explanation. A token receiving a large attention weight does not prove it caused or justified the output. Multiple attention patterns can produce similar outputs, and attention visualization depends on layer, head, and aggregation. Use perturbation, counterfactual testing, and external evidence to inspect behavior; avoid causal interpretations.
 
-- Tokenization, sequence truncation, temporal encoding, and missingness handling shape what the model can learn. State what context was available at prediction time.
-- Pretraining corpora can contain duplicates, future information, or population-specific language. Patient privacy and data-use constraints apply.
-- Attention weights are not automatically explanations of model decisions. Generated text can be plausible but unsupported, omit uncertainty, or invent facts.
-- Evaluation must be patient-level and preferably external or temporal. Leakage can occur through near-duplicate notes, repeated patients, or target-derived text.
-- Assess calibration for predicted risks, subgroup performance, robustness, privacy, and human factors. A benchmark score alone is not evidence of improved care.
+Transformers process sequences in parallel more readily than recurrent networks, but standard self-attention cost grows roughly quadratically with sequence length. Long clinical histories may require truncation, chunking, retrieval, or long-context variants. These choices affect which records are considered and may omit relevant events. State the context window and selection rule.
 
-## Worked example
+### Tokens, records, and clinical time
 
-A team classifies discharge summaries for a documented medication-related harm. The cohort contains 10,000 admissions, with 500 positive labels. If notes from a patient appear in both training and test sets, the model may recognize templates or copied phrases. Split by patient and time; make sure the note was finalized by the intended decision time. On a later cohort of 2,000 admissions with 100 positive labels, suppose sensitivity is 82/100 = 82% and 190 of 1,900 negatives are flagged, giving specificity 90% and PPV 82/(82+190) ≈ 30.1%. Review false positives and false negatives with clinicians, check site and demographic subgroups, and determine whether the label itself reflects a reliable clinical definition before considering workflow use.
+Text tokenization splits notes into units, often subwords. Clinical abbreviations, misspellings, medication names, and local templates can tokenize unpredictably. Structured records may be represented as tokens with event type, value, unit, and time interval. A token sequence is a designed representation, not a neutral copy of the medical record.
 
-## Interpretation and common pitfalls
+Temporal leakage is a major risk. Notes written after diagnosis, discharge summaries, copied-forward assessments, and billing codes can reveal the outcome. A retrospective extract may make documentation timestamps differ from when information became available to clinicians. For prospective prediction, define the index time and include only content available then. Test data construction for post-index leakage.
 
-- Define whether the task is classification, extraction, forecasting, or generation; evaluate the output that will actually be used.
-- Compare with existing rules and human workflow under the same test population. Use confidence intervals and external data.
-- For generated clinical text, check factual consistency against source records and require appropriate human review; do not evaluate only readability.
-- Do not treat model attention, embeddings, or token scores as causal explanations or validated clinical reasoning.
-- Report data sources, model version, prompts or fine-tuning, exclusions, and safeguards. TRIPOD+AI is relevant to prediction studies, while other task-specific reporting guidance may apply.
+De-identification may remove names but leave rare events, dates, locations, or distinctive phrases. Language models can memorize or reproduce sensitive content. Apply privacy review, minimize data, control access, and evaluate leakage risks. Pretraining corpora may include data with uncertain provenance or consent; document source and licensing constraints.
 
+### Worked example: note classification and drafting support
 
-## Self-attention and sequence representation
+Suppose a model classifies emergency department notes as requiring urgent follow-up within seven days. Define the label from a validated outcome process and specify whether the model sees triage text only or the complete note. If the task is to predict at triage, later physician notes and discharge instructions are leakage even if they appear in the same record. Split by patient and time, and test at a different site.
 
-Given queries Q, keys K, and values V, scaled dot-product attention is softmax(QK^T/sqrt(d_k))V. Query-key similarity determines how much each position contributes to another position’s representation. Multi-head attention learns several such relationships in parallel, while feed-forward layers, residual connections, and normalization build a deep encoder. Because self-attention alone is permutation-equivariant, models add positional encodings or time representations. Full attention over n tokens has memory and computation roughly proportional to n squared, motivating truncation, sparse attention, or hierarchical summaries for long records.
+For generation, suppose a model drafts a discharge summary from chart data. Evaluate factual consistency, omitted critical information, unsupported statements, and whether medication changes match the record. Fluency is not clinical accuracy. Review outputs by clinicians blinded to the model where feasible, and measure error severity as well as frequency.
 
-Clinical notes require a task definition: classification, named-entity extraction, relation extraction, summarization, or generation have different error costs. Tokenization can split abbreviations and dosage units; truncation may remove the assessment or discharge plan. For longitudinal records, position alone is not elapsed time, and note order can reflect workflow. Pretraining corpora may overlap with test data or include copied notes, producing leakage. A language model can generate a plausible but unsupported claim; factuality must be checked against source records.
+~~~r
+# Conceptual prompt construction; production requires approved model/API tooling.
+prompt <- paste(
+  "Summarize only the information below. Mark unknown items as unknown.",
+  "Do not infer a diagnosis or recommend treatment.",
+  paste0("Record: ", note_text)
+)
+~~~
 
-```r
-# For a binary classifier, compare two prevalence-sensitive measures explicitly
-sens <- 82 / 100
-spec <- 1710 / 1900  # if 190 of 1,900 negatives are false positives
-ppv <- sens * .05 / (sens * .05 + (1 - spec) * .95)
-c(sensitivity = sens, specificity = spec, ppv_at_5pct_prevalence = ppv)
-```
+This sketch does not run a model or guarantee safe output. Prompt wording, system instructions, model version, decoding settings, and retrieved context all form part of the evaluated intervention. The model should cite or link source passages when possible, and a human reviewer should verify consequential statements.
 
-The PPV calculation transports sensitivity and specificity to 5% prevalence only under the strong assumption that both remain stable across settings. A real external cohort is needed. For generative use, evaluate factual consistency, omission, unsupported additions, subgroup error, and clinician time, not fluency alone. Human review is not a complete safeguard if automation bias is likely. State model and tokenizer versions, prompt or fine-tuning data, retrieval context, access controls, and update policy. Attention weights are internal mixing coefficients, not a faithful causal explanation of why a particular prediction was made.
+## Pretraining, fine-tuning, and prompting
 
+Pretraining estimates representations from large corpora, often by predicting masked or subsequent tokens. Fine-tuning adapts model parameters to a target task; instruction tuning and preference optimization further shape responses. Prompting provides task instructions without changing weights, though examples and context still influence outputs. These strategies trade data needs, computational cost, control, and privacy.
 
-## Development workflow: from question to a defensible model
+A pretrained model may perform poorly on local terminology, populations, or workflows. Domain adaptation can improve performance but risks overfitting or memorizing sensitive records. Report pretraining sources, checkpoints, fine-tuning data, prompt templates, retrieval sources, and model versions. If using external hosted models, document data handling and version updates.
 
-A model is meaningful only after the prediction problem has been made precise. State the eligible population, prediction index time, outcome definition, prediction horizon, and intended action. For example, “predict deterioration” is incomplete: a usable specification says which patients, what counts as deterioration, when prediction occurs, and how far ahead it should signal. Predictors must be available at that index time. Variables entered later may encode the outcome or the clinical response to it. This is temporal leakage even if the data table contains no obvious duplicate column.
+For few-shot prompting, examples should be selected without using evaluation labels and should represent intended input variety. Retrieval-augmented generation can ground responses in local documents, but retrieval errors and stale sources remain possible. Evaluate the full retrieval-and-generation pipeline, including source relevance, missing evidence, contradictions, and citation fidelity.
 
-Choose the independent unit to match deployment. If the system will predict for new patients, every record from a patient belongs to one partition. If it will predict future cases at an existing hospital, a chronological split is often more informative than a random split. If use at a new hospital is intended, retain site-level external validation. Confidence intervals and effective sample size should reflect clustering by patient or site; thousands of rows do not imply thousands of independent people.
+## Evaluation design for predictions and generated text
 
-Keep every data-adaptive step inside resampling: imputation, scaling, feature filtering, encoding, dimension reduction, class rebalancing, and hyperparameter selection. A typical nested workflow uses inner folds to choose settings and outer folds to estimate the performance of that entire selection process. A separate temporal or external test cohort, if available, should be used once after choices are frozen. Repeatedly checking its results turns it into development data. Report the number of patients and outcomes in each split, not only the row count.
+For classification, evaluate discrimination, calibration, threshold performance, subgroup errors, and uncertainty. For extraction, assess entity-level precision and recall with explicit matching rules. For summarization, combine automated checks with expert review of factuality, omissions, unsupported content, and clinical relevance. Generic language metrics such as n-gram overlap can reward copying while missing dangerous factual errors.
 
-Use metrics tied to the intended decision. Discrimination measures ranking; for a binary outcome, ROC AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case. It does not assess absolute risk. Calibration compares predicted and observed risks, using calibration-in-the-large, slope, and plots with uncertainty. At a chosen operating point, show sensitivity, specificity, positive predictive value, negative predictive value, and the proportion flagged. Precision-recall summaries can be informative when events are uncommon. For time-to-event outcomes, account for censoring rather than labeling patients event-free before adequate follow-up. Decision-curve analysis or a prospective impact study is needed to connect predictions to clinical net benefit.
+Construct test sets from the intended population and use patient-level and temporal separation. Avoid training/test contamination through duplicate notes, copied templates, or pretraining overlap where detectable. A test set should include rare but consequential scenarios, contradictory records, negation, uncertainty, and missing context. Report sample sizes and confidence intervals; small clinician review samples cannot support precise safety claims.
 
-A compact R pattern for a binary outcome illustrates the separation between fitting, discrimination, and calibration. It presumes `dat` has one row per patient, a 0/1 `event`, and predictors fixed before the prediction time. The split is only illustrative; repeated patients, sites, or calendar time require grouped or temporal partitions. The final test set must not be used to tune the model.
+Prompt and model selection constitute tuning. If multiple prompts, temperatures, models, and output formats are tried on the test set, its results are no longer independent. Use a development set to refine and lock the system, then evaluate once on a separate cohort. Repeat evaluation when model provider or version changes.
 
-```r
-set.seed(41)
-i <- sample(seq_len(nrow(dat)), floor(.8 * nrow(dat)))
-train <- dat[i, ]; test <- dat[-i, ]
-fit <- glm(event ~ age + prior_admissions + severity,
-           data = train, family = binomial())
-p <- predict(fit, newdata = test, type = "response")
-# Calibration-in-the-large: intercept ideally 0 when slope fixed at 1
-cal0 <- glm(test$event ~ 1, offset = qlogis(p), family = binomial())
-# Calibration slope: ideally 1; assess uncertainty, not only point estimate
-cals <- glm(test$event ~ qlogis(p), family = binomial())
-coef(cal0); coef(cals)
-```
+## Reliability, uncertainty, and human review
 
-The code does not replace internal validation or uncertainty intervals. A small event count can make both performance and calibration estimates unstable. Bootstrap at the patient level or repeat appropriately grouped resampling, and report intervals. When transporting a model, compare outcome prevalence, predictor distributions, measurement practice, and label ascertainment; recalibration of the intercept can address a prevalence shift under restrictive conditions, but cannot repair changed predictor effects or systematic measurement errors.
+Generative outputs may vary across runs, even with identical input, depending on sampling settings and model implementation. Measure stability across repeated runs and clinically equivalent prompts. A confident or coherent answer does not imply correctness. Calibrating uncertainty for free-text generation is difficult; use explicit abstention, source-grounding, and human review rather than an unvalidated confidence score.
 
-For a clinical prediction report, document the cohort flow, missingness, feature timing, model specification, tuning procedure, split unit, and evaluation population. TRIPOD+AI provides a reporting framework. PROBAST+AI can help assess risk of bias and applicability. Neither checklist certifies clinical usefulness. A retrospective prediction model still requires prospective evaluation of workflow, alert burden, clinician response, and patient outcomes before claims of benefit.
+Define review intensity according to consequence. A low-risk formatting suggestion differs from a medication recommendation or diagnosis. Human review must be feasible and meaningful; automation bias can cause clinicians to accept incorrect outputs. Measure override rates, reviewer time, error detection, and downstream outcomes. Clearly label generated content and preserve provenance.
 
+## Fairness, safety, and privacy
 
-## Full worked analysis: note classification and generative support
+Evaluate performance across language, age, sex, ethnicity, disability, care setting, and other relevant groups, with uncertainty. Models can perform worse for dialects, non-native speakers, or groups underrepresented in pretraining. De-identification and language normalization can also remove clinically meaningful context. Engage users and affected communities in evaluation.
 
-Imagine 10,000 discharge summaries with 500 labels for medication-related harm. The team must decide if the label means verified harm, a diagnosis code, or mention in text; these are different prediction targets. If harm is documented only after a pharmacist review, a note created after review cannot be used for a discharge-time prediction. Split by patient and date, detect copied or templated note duplicates across splits, and ensure pretraining/fine-tuning exposure does not include test documents where feasible. For an encoder classifier, define truncation strategy and whether sections are preserved; relevant medication history may lie at the end of a long record.
+Test for harmful recommendations, hallucinated facts, omission of critical warnings, privacy leakage, prompt injection, and misuse. Red-team cases should cover realistic workflow failures, not only adversarial tricks. Minimize sensitive data sent to external services and verify contractual and governance protections. Logs themselves may contain protected information.
 
-At an external prevalence of 5%, sensitivity .82 and specificity .90 imply PPV=.82*.05/[.82*.05+.10*.95]=.301. Among 1,000 summaries, expect 41 true positives and 95 false positives. Clinician review therefore remains central, and workload planning should include the false-positive burden. Confidence intervals should reflect patient clustering. Error review should distinguish model errors from label errors and cases where documentation is ambiguous. For generative summarization, compare each claim with source evidence and measure omission, contradiction, unsupported addition, and clinically important error—not only ROUGE or readability.
+For decision support, define prohibited uses and escalation paths. Do not allow generated text to silently overwrite the medical record. Retain source references, clinician edits, and model version for audit. A human-in-the-loop label is insufficient unless the human has time, training, authority, and accessible evidence to review the result.
 
-```r
-prev <- .05; sens <- .82; spec <- .90; N <- 1000
-TP <- N*prev*sens; FP <- N*(1-prev)*(1-spec)
-c(TP=TP, FP=FP, PPV=TP/(TP+FP))
-```
+## Deployment, updates, and monitoring
 
-Document base model version, tokenizer, fine-tuning corpus, prompts, retrieval documents, decoding settings, and update date because changing any can alter outputs. Test robustness to abbreviations, misspellings, negation, copied-forward text, and demographic subgroups. Retrieval-augmented generation can ground answers in local records but may retrieve the wrong encounter or omit key evidence; cite source sections in the user interface and verify them. Human review should present uncertainty and source text to counter automation bias. Monitor drift and establish a rollback plan. A model’s fluent wording or attention weights does not demonstrate factual correctness or clinical reasoning.
+A silent evaluation can test latency, retrieval, data access, version stability, and local error patterns without affecting care. An impact study should assess patient outcomes, clinician workload, trust, delays, and harms. Compare with usual workflows and include downstream effects. Technical benchmark gains alone do not demonstrate improved care.
 
+Monitor output quality, error severity, subgroup performance, source citation correctness, and changes in input data. Model providers may update weights or serving behavior; pin versions where possible and retest changes. Define rollback, incident reporting, and a named governance owner. Keep a record of prompts, retrieval corpora, decoding parameters, and model revisions.
 
-## Privacy, evaluation, and model updates
+## Minimum reporting for a health transformer
 
-Clinical text and prompts can contain identifiers, sensitive narrative, and rare details. De-identification can fail on indirect identifiers, and an external model service may retain or use submitted data according to its terms. Establish approved data handling, access controls, logging, retention, and security review before processing records. Differential privacy or local inference may reduce some risks but can degrade performance and does not replace governance.
+Describe task, population, data source, index time, output use, model name/version, pretraining and fine-tuning, prompt, context construction, retrieval, decoding, and evaluation. State patient/time split rules and contamination checks. Report task-specific metrics, expert review protocol, subgroup results, uncertainty, safety tests, and external evaluation.
 
-Benchmark contamination is a particular concern for pretrained models. Public test examples, duplicated clinical notes, and copied templates may have appeared in pretraining. Split by patient and time, deduplicate near copies, and report what is known about pretraining sources. Test on genuinely later or external data and include a strong rules-based or conventional NLP baseline. For generative tasks, conduct blinded clinician review with explicit criteria, inter-rater agreement, and adjudication of severe errors. Automated metrics may miss negation, temporality, and unsupported recommendations.
+For generated outputs, include examples of representative successes and failures with privacy safeguards. Separate model accuracy from user impact. Use TRIPOD+AI for prediction components and relevant guidance for clinical language systems. State limitations and whether the model is research-only, assistive, or authorized for a defined workflow.
 
-A model update, prompt revision, tokenizer change, or retrieval index refresh can alter results. Version each component and rerun a locked regression suite of representative, privacy-safe cases before deployment. Monitor performance and error types over time, but avoid collecting sensitive free text unnecessarily. If output is used in decision support, show provenance, uncertainty, and source evidence. A clinician’s approval click is not proof of correctness; workflow studies should examine whether users detect errors and how model suggestions affect decisions.
+## A test plan for note classification
 
+Construct a cohort whose notes represent the actual prediction moment. For triage classification, include only text available at triage and label a subsequent, prespecified event. Split at patient level and by time; if deployment is across sites, reserve a site. Remove duplicate or copied-forward text across partitions. Have a sample of labels reviewed by clinicians and report agreement and adjudication.
 
-## Longitudinal records, temporal leakage, and explainability
+At a chosen threshold, present a confusion matrix with counts. If 200 notes are evaluated, 40 meet the target; the model flags 50, of which 28 are true positives. Sensitivity is 28/40=70%, PPV is 28/50=56%, and false positives are 22. These measures are not accuracy, and confidence intervals are needed. Compare with current triage practice, and assess whether errors differ by language, note length, or demographic group.
 
-A patient record can contain millions of tokens across notes, codes, and results. The analyst must decide which encounters, note sections, and time windows are available at the index time. Truncation may preferentially keep the earliest tokens and drop the most recent assessment. Chunking and aggregation introduce another model layer. For temporal prediction, a code sequence sorted by date does not make future events safe: outcome-adjacent codes and discharge summaries can reveal the label. Establish time-based rules before tokenization and audit examples manually.
+If the model summarizes notes, define a structured rubric. For each statement, check whether it is supported by source text, whether important findings are omitted, whether temporal order is preserved, and whether uncertainty is represented accurately. A factuality rate can be calculated as supported claims divided by all verifiable claims, but severity-weighted errors may be more clinically meaningful. Reviewers should be trained, use a prespecified rubric, and resolve disagreements transparently.
 
-Position embeddings usually encode sequence order, but clinical time gaps are irregular. Two events adjacent in token order could be minutes or years apart. Include elapsed-time representations or use a temporal architecture when timing matters, and compare alternatives. Missing results and absent notes may be informative, but are also likely to vary with healthcare access. Evaluate whether the model retains performance when note frequency differs.
+Automated metrics can aid triage of outputs but cannot replace expert review. ROUGE or BLEU-like overlap metrics reward lexical similarity; a valid paraphrase can score poorly, while a copied but incorrect sentence can score well. Evaluate clinically important facts and omissions directly. Report inter-rater agreement and the number of outputs examined.
 
-Attribution methods for language models—attention visualization, token deletion, gradients, or rationale generation—have limitations. Attention weights show one component of information mixing and can be altered without changing outputs. Rationale text can be generated after the fact and may not faithfully represent computation. Use perturbation-based sensitivity analyses and error review, but frame explanations as aids to audit rather than proof of reasoning. For high-stakes tasks, require evidence citation and test whether cited evidence actually supports the output.
+### Prompting as a model component
 
+A prompt specifies role, task, constraints, format, examples, and available context. Small changes can alter output. Freeze a prompt template before final evaluation and store its version with the model. Few-shot examples should be chosen from development data and checked for sensitive content. Examples that are unusually clean may give an unrealistic estimate of performance.
 
-## Fine-tuning, prompting, and robust clinical evaluation
+Instruction wording can reduce some failures but cannot enforce correctness. “Do not hallucinate” does not guarantee that unsupported statements are absent. Ask the system to distinguish source-supported facts from unknowns, preserve uncertainty, and provide citations to source passages. Validate that cited material actually supports the generated statement.
 
-An encoder classifier can be fine-tuned end-to-end, partially frozen, or used to create embeddings followed by a simpler classifier. The choice depends on sample size and domain similarity. Prompt-based or in-context classification avoids gradient updates but can vary with prompt wording, example order, and model version. Evaluate these variants within development data, freeze the selected prompt, and test it once on external records. Few-shot examples must not contain test patients or near-duplicates.
+Temperature, top-p sampling, maximum tokens, stop sequences, and other decoding settings affect outputs. Deterministic decoding may improve repeatability but not truth. For stochastic generation, evaluate multiple runs per case and summarize variation. If outputs change materially with innocuous prompt wording, include that fragility in safety assessment.
 
-For clinical language generation, a task protocol should specify allowed source material and output structure. Retrieval-augmented generation can provide grounding, but retrieval recall and source ranking are additional model components. Evaluate whether the correct source was retrieved, whether claims are supported, and whether all critical facts are preserved. Include adversarial cases with negation, uncertainty, temporality, conflicting notes, and copied-forward errors. A plausible summary that omits an allergy or reverses medication status can be unsafe even if most words are accurate.
+## Retrieval-augmented systems
 
-Use a blinded, predefined clinical rubric and enough reviewers to quantify disagreement. Report error severity, unsupported-claim rate, omission rate, and subgroup results with uncertainty. For extraction tasks, report precision and recall at the entity or relation level, not token accuracy alone. For generation, automated similarity metrics are supplementary. A human review process itself should be evaluated: assess time, error detection, overreliance, and variation by clinician experience.
+Retrieval-augmented generation supplies documents or chart passages as context. It can ground answers in current institutional guidance, but performance depends on retrieval recall, ranking, document version, chunking, and context limits. Test whether the correct evidence is retrieved for representative queries. A correct answer cannot be expected if relevant data are absent or buried.
 
-Every model update requires re-evaluation because provider-side changes may occur without notice. Maintain a locked test suite, log model identifiers and inference settings, and monitor drift without retaining more sensitive text than needed. A language model should not silently make autonomous treatment decisions unless that use has separate regulatory, safety, and impact evidence.
+Measure retrieval and generation separately. For retrieval, assess whether necessary passages appear in top-ranked results and whether contradictory guidance is surfaced. For generation, measure faithfulness to retrieved content, omission, and appropriate uncertainty. Use document provenance and dates. The model may cite a relevant-looking but outdated policy unless retrieval filters by version.
 
+Clinical notes can contain untrusted instructions or copied text that acts like prompt injection. Treat retrieved text as data, not authority to override system safety rules. Test adversarial and accidental instructions, protect tools and data access, and ensure the model cannot execute unsafe actions without explicit controls. The full application includes retrieval, prompt assembly, model, post-processing, and user interface.
 
-## Reproducibility, test construction, and safety cases
+### Privacy and memorization risks
 
-For transformer experiments, document the tokenizer vocabulary and version, maximum sequence length, truncation direction, special tokens, positional or temporal encoding, pretraining checkpoint, fine-tuning layers, batch size, optimizer, learning-rate schedule, number of epochs, prompt, decoding parameters, and hardware. Tokenization determines whether medication names, negation, and units remain intact. Test these clinically important terms explicitly. If structured events are serialized into text, define the mapping and ensure the sequence preserves units, timestamps, and distinction between absent and normal values.
+Language models may retain fragments from training data, especially for rare or repeated text. Membership inference and extraction risks depend on model and access. Avoid sending identifiable clinical text to an unapproved service. Use data minimization, de-identification where appropriate, access controls, encryption, and retention limits. De-identification should be evaluated for residual direct and quasi-identifiers.
 
-Build a locked evaluation set stratified by clinically relevant error modes: negation, uncertainty, historical versus current diagnoses, medication start versus stop, copied notes, conflicting sources, rare conditions, and long-context truncation. The set should be patient-disjoint and temporally later where possible. Human adjudication needs a documented rubric and agreement assessment. For generative output, count unsupported claims and critical omissions; average similarity scores can hide a rare severe error. For clinical decision support, evaluate whether the output changes clinician behavior and whether users catch errors.
+Synthetic or generated notes are not automatically anonymous; they can reproduce rare combinations or memorized text. Use governance review before sharing. Logging prompts and outputs helps audit behavior but can create another sensitive dataset. Define retention, access, redaction, and incident response for logs.
 
-Document privacy controls and model access boundaries. Prompt-injection-like text in records can alter some systems; test malicious or irrelevant instructions embedded in source documents if the model follows them. Retrieval systems should restrict sources to authorized records and show provenance. Keep an audit trail of model and index versions without unnecessarily retaining sensitive prompts. Define who can disable the system after a safety incident. These safeguards belong in evaluation and governance, not only technical documentation.
+## Human factors and responsibility
 
+Generative interfaces can encourage automation bias: fluent prose appears authoritative, and users may review it less carefully. Make generated text visibly distinct from verified chart content. Cite source sections and expose uncertainty or missing context. Users should be able to edit, reject, or report errors, and the system should not silently enter orders or overwrite records.
 
-## Minimum standards for a model card
+Design responsibility and review to match risk. A note formatter may require spot checks; an abnormal-result recommendation needs qualified review before action. Evaluate whether clinicians can detect seeded errors and how review time changes. If the workload makes careful review unrealistic, the human oversight design is not safe merely because a clinician is nominally involved.
 
-State whether the system classifies, extracts, summarizes, forecasts, or generates; name the model and tokenizer versions; describe fine-tuning or prompts, data and time availability, retrieval sources, and output constraints. Report external performance, calibration for risk outputs, subgroup errors, factuality or extraction errors, and uncertainty. Describe privacy controls, human review, and update policy. Include examples of known failure modes such as negation, temporality, truncation, unsupported claims, or copied text. The model card should make it possible to decide whether evidence applies to a particular clinical workflow.
+### Comparing models and versions fairly
 
+Compare a transformer with simpler baselines such as keyword rules, regularized regression on structured features, or existing clinical scores. Use the same test cases and report paired uncertainty. Benchmark data should represent local language, abbreviations, and case mix. A general-purpose model’s public benchmark score may not estimate performance in the intended clinical workflow.
 
-## Human factors and uncertainty
+A provider update can change outputs without an application code change. Pin model versions when possible, retain representative regression tests, and rerun safety and quality evaluations after updates. Prompt templates, retrieval sources, and safety filters also require versioning. A “same model name” does not ensure identical behavior.
 
-Users should be able to distinguish model-generated text from verified record content and inspect supporting source passages. Make uncertainty and missing context visible; avoid presenting unsupported prose in the same visual style as signed clinical documentation. Measure whether users detect seeded errors and whether time pressure increases reliance on incorrect outputs before claiming safe assistance.
+Thresholds and post-processing rules need separate validation. If a language model returns a confidence score or category, test calibration and consistency. If an output is converted to structured fields, evaluate extraction accuracy and error propagation. Evaluate end-to-end system behavior rather than reporting model API performance alone.
+
+## Evaluating clinical value and harms
+
+Potential benefits include faster documentation, improved information retrieval, and reduced missed findings. Potential harms include fabricated facts, omitted uncertainty, biased language, privacy breaches, and inappropriate reliance. Define outcomes before implementation: time saved, documentation errors, care delays, clinician workload, patient comprehension, and downstream clinical events.
+
+A prospective impact study should compare the full system with usual practice. Randomized, stepped-wedge, or controlled observational designs may be appropriate depending on workflow and risk. Monitor not only average benefit but who gains or loses. A tool that accelerates documentation for one language group while increasing correction burden for another needs redesign.
+
+### A reproducibility record
+
+Archive model version, API parameters, prompt and examples, retrieval index version, source documents, post-processing, test cases, evaluation date, and governance approvals. Preserve input-output pairs only under privacy safeguards. Record clinician edits and error classifications in a way that supports audit without unnecessary exposure.
+
+When reporting, distinguish errors due to model generation, missing or stale context, retrieval failure, interface design, and user action. This decomposition helps remediation. A model card should state supported population and tasks, contraindications, known failure patterns, monitoring owners, and update policy. Transparency is necessary for responsible use but does not substitute for validation.
+
+### When not to use a transformer
+
+A transformer may not be justified for small structured datasets, low-risk formatting tasks with simpler automation, or decisions that require a fully auditable deterministic rule. It may also be unsuitable when privacy controls, version pinning, source attribution, or meaningful human review cannot be provided. Compare simpler approaches and choose the least complex system that meets the validated need.
+
+## Model and prompt uncertainty
+
+For stochastic generation, estimate run-to-run variation on the same cases and distinguish output variability from correctness. For classification, use patient-level bootstrap intervals and assess calibration. Small manual review samples support qualitative error discovery but not precise estimates of rare unsafe outputs. Plan enough cases and targeted challenge examples for the consequences under study, and state the limits of reviewer capacity.
 
 ## References and further reading
 
-- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505)
-- Vaswani A, Shazeer N, Parmar N, et al. Attention is all you need. *Advances in Neural Information Processing Systems*. 2017;30. [NeurIPS proceedings](https://papers.nips.cc/paper/7181-attention-is-all-you-need)
-- Rajkomar A, Oren E, Chen K, et al. Scalable and accurate deep learning with electronic health records. *npj Digital Medicine*. 2018;1:18. [doi:10.1038/s41746-018-0029-1](https://doi.org/10.1038/s41746-018-0029-1)
-- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
+- Lewis P, Perez E, Piktus A, et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. *Advances in Neural Information Processing Systems*. 2020;33.
+- Vaswani A, Shazeer N, Parmar N, et al. Attention is all you need. *Advances in Neural Information Processing Systems*. 2017;30.
+- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378).
+- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505).
+- See [Recurrent neural networks](recurrent-neural-networks.html) for sequential health data.

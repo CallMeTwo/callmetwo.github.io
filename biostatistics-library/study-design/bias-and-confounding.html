@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Systematic errors that distort study results — selection bias, information bias, and confounding — and how to detect and control them." />
+    <meta name="description" content="A causal framework for recognizing selection, measurement, and confounding mechanisms before trusting an estimate." />
     <title>Bias and confounding · Biostatistics Library</title>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
@@ -110,172 +110,95 @@
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Planning and validity <span class="sep">/</span> <strong style="color:#273e3b">Bias and confounding</strong></div>
         <h1 class="article-title">Bias and confounding</h1>
-        <p class="article-summary">Systematic errors that distort study results — selection bias, information bias, and confounding — and how to detect and control them.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li><li class="h2"><a href="#a-causal-structure-for-identifying-bias">A causal structure for identifying bias</a></li><li class="h2"><a href="#identification-adjustment-sets-and-target-trial-thinking">Identification: adjustment sets and target trial thinking</a></li><li class="h2"><a href="#measurement-error-and-quantitative-bias-analysis">Measurement error and quantitative bias analysis</a></li><li class="h3"><a href="#reporting-a-quantitative-bias-analysis">Reporting a quantitative bias analysis</a></li><li class="h2"><a href="#selection-and-collider-examples">Selection and collider examples</a></li><li class="h2"><a href="#positivity-and-practical-diagnostics">Positivity and practical diagnostics</a></li><li class="h2"><a href="#sensitivity-analysis-and-bias-triangulation">Sensitivity analysis and bias triangulation</a></li><li class="h2"><a href="#negative-controls-and-falsification-tests">Negative controls and falsification tests</a></li><li class="h3"><a href="#confounding-by-indication">Confounding by indication</a></li><li class="h2"><a href="#selection-measurement-and-time-varying-confounding">Selection, measurement, and time-varying confounding</a></li><li class="h2"><a href="#worked-example-standardization-and-positivity">Worked example: standardization and positivity</a></li></ol></nav>
+        <p class="article-summary">A causal framework for recognizing selection, measurement, and confounding mechanisms before trusting an estimate.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#sketch-the-causal-sequence">Sketch the causal sequence</a></li><li class="h2"><a href="#standardize-instead-of-comparing-unlike-groups">Standardize instead of comparing unlike groups</a></li><li class="h2"><a href="#selection-can-manufacture-an-association">Selection can manufacture an association</a></li><li class="h2"><a href="#quantify-measurement-error-where-possible">Quantify measurement error where possible</a></li><li class="h2"><a href="#inspect-overlap-before-weighting">Inspect overlap before weighting</a></li><li class="h2"><a href="#calculate-standardized-risks-in-r">Calculate standardized risks in R</a></li><li class="h2"><a href="#handle-evolving-confounders-as-histories">Handle evolving confounders as histories</a></li><li class="h2"><a href="#probe-assumptions-with-sensitivity-analyses">Probe assumptions with sensitivity analyses</a></li><li class="h2"><a href="#match-the-conclusion-to-what-was-identified">Match the conclusion to what was identified</a></li><li class="h2"><a href="#effect-scales-and-model-behavior">Effect scales and model behavior</a></li><li class="h2"><a href="#a-concrete-quantitative-bias-analysis">A concrete quantitative bias analysis</a></li><li class="h2"><a href="#use-design-and-analysis-as-complementary-safeguards">Use design and analysis as complementary safeguards</a></li><li class="h2"><a href="#diagnose-residual-structure-in-practice">Diagnose residual structure in practice</a></li><li class="h2"><a href="#explain-uncertainty-without-overclaiming">Explain uncertainty without overclaiming</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p><strong>Bias</strong> is any systematic deviation of an estimated effect from its true value, caused by the study&#39;s design, conduct, or analysis. Unlike random error, bias does not shrink with a larger sample size; more data make a biased estimate more precisely wrong. The three broad families are:</p>
-<ul>
-<li><strong>Selection bias</strong> — the way participants are chosen or retained makes the observed exposure–outcome association differ from the one in the source population. Classic examples: low response rate that correlates with the outcome, hospital (Berkson) selection of controls, loss to follow-up that differs by group, and excluding long-term survivors from a cohort.</li>
-<li><strong>Information (misclassification) bias</strong> — the way exposure or outcome is measured systematically differs between groups or over time. Classic examples: recall bias in case-control studies (cases remember exposures differently than controls), diagnostic suspicion bias (clinicians investigate differently in treated patients), and unblinded outcome assessment.</li>
-<li><strong>Confounding</strong> — the exposure is associated with a third variable (the <strong>confounder</strong>) that independently affects the outcome, so the crude association mixes the exposure&#39;s effect with the confounder&#39;s. A confounder must be (1) associated with the exposure, (2) an independent cause of the outcome, and (3) not on the causal pathway between exposure and outcome.</li>
-</ul>
-<h2 id="when-to-use-it">When to use it</h2>
-<p>Bias and confounding are not methods to &quot;use&quot;; they are threats to check in every study. Typical moments where each matters most:</p>
-<table>
-<thead>
-<tr>
-<th>Threat</th>
-<th>Where it is most likely to arise</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Selection bias</td>
-<td>Retrospective studies using hospital or registry data; studies with loss to follow-up; case-control studies with poorly chosen controls.</td>
-</tr>
-<tr>
-<td>Information bias</td>
-<td>Unblinded outcome assessment; self-reported exposure in case-control studies; using administrative codes that change over time.</td>
-</tr>
-<tr>
-<td>Confounding</td>
-<td>Any observational study of a behaviour or social exposure (smoking, diet, SES); registry studies where groups differ systematically at baseline.</td>
-</tr>
-</tbody></table>
-<p>In a properly randomised trial, confounding is controlled by design; residual confounding and information bias remain possible (e.g., through post-randomisation dropouts or unblinded assessments).</p>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li><strong>Confounding control by regression</strong> assumes the model is correctly specified: all relevant confounders are measured, the exposure–confounder and confounder–outcome relationships are correctly modelled (linearity, no unmodelled interactions), and no unmeasured confounder remains. An unmeasured or poorly measured confounder can leave substantial residual confounding.</li>
-<li><strong>Stratification</strong> requires adequate numbers in each stratum; sparse strata produce unstable stratum-specific estimates and wide intervals.</li>
-<li><strong>Misclassification</strong> that is non-differential (unrelated to group) usually biases a binary exposure–outcome association toward the null; differential misclassification can bias in either direction and is often worse.</li>
-<li><strong>Direct standardisation</strong> of rates requires an external standard population; results depend on the choice of standard and are not comparable across studies using different standards.</li>
-<li><strong>Instrumental-variable and marginal-structural-model approaches</strong> for unmeasured confounding rest on strong, untestable assumptions (e.g., the exclusion restriction for instruments); they are tools of last resort, not routine practice.</li>
-</ul>
-<h2 id="worked-example">Worked example</h2>
-<p>A case-control study examined coffee drinking and lung cancer (168 cases, 1832 non-cases with coffee; 28 cases, 1972 non-cases without). Crude OR = (168 × 1972) / (1832 × 28) ≈ <strong>6.5</strong> — suggesting coffee is a strong carcinogen.</p>
-<p>Stratifying by smoking (a confounder: coffee drinkers are more likely to smoke, and smoking causes lung cancer):</p>
-<table>
-<thead>
-<tr>
-<th>Smoking</th>
-<th>Coffee: cases/non-cases</th>
-<th>No coffee: cases/non-cases</th>
-<th>OR</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Smoker</td>
-<td>160 / 840</td>
-<td>20 / 980</td>
-<td>9.3</td>
-</tr>
-<tr>
-<td>Non-smoker</td>
-<td>8 / 992</td>
-<td>8 / 992</td>
-<td>1.0</td>
-</tr>
-</tbody></table>
-<p>The stratum-specific ORs are 9.3 among smokers and 1.0 among non-smokers. Thus this constructed table does <strong>not</strong> show a crude association explained away by smoking: the Mantel–Haenszel common OR is about 6.7, close to the crude OR of 6.5. Instead, it illustrates why one should inspect stratum-specific effects before reporting a single adjusted estimate: the association differs sharply across strata, which could represent effect modification, sparse-data instability, or a deliberately simplified teaching example. A confounder can change a crude estimate, but its presence and magnitude should be assessed with causal knowledge and estimates, not inferred from whether a variable reaches statistical significance.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Confounding by indication</strong>: in observational studies of treatments, sicker patients receive the treatment, so the treatment looks harmful when it merely treated the sick. Randomisation, propensity methods, or restriction are needed; raw comparison is not valid.</li>
-<li><strong>Overadjustment</strong>: adjusting for a variable on the causal pathway between exposure and outcome (a mediator), or for a collider (a common effect of exposure and outcome), <em>creates</em> bias that was not there; adjusting for a collider opens a spurious association.</li>
-<li><strong>Assuming &quot;not significant&quot; means &quot;no confounding&quot;</strong>: a confounder can be associated with the outcome but fail a significance test for association with the exposure (especially with low power), and still materially confound the effect.</li>
-<li><strong>Relying on a single adjustment</strong>: one regression model is not a proof of unbiasedness. Sensitivity analyses (different models, stratification, negative-control outcomes, quantitative bias analysis) are how researchers argue that residual confounding is unlikely to explain the result.</li>
-</ul>
+          <h2 id="overview">Overview</h2>
+<p>Bias is systematic error: the study’s estimate misses its intended target for reasons other than random sampling variation. Increasing sample size narrows standard errors but does not remove the error; it can produce a precise estimate of the wrong quantity. Confounding, selection, and measurement are distinct mechanisms, yet commonly overlap. A treatment may be offered to sicker patients (confounding), those patients may have more intensive outcome surveillance (measurement), and follow-up may depend on recovery (selection).</p>
+<p>Start by defining the target contrast: population, strategies, time zero, outcome, follow-up horizon, and effect scale. Then ask how the observed comparison could differ from the target. A model computes a contrast; design assumptions determine whether it has a causal interpretation.</p>
+<h2 id="sketch-the-causal-sequence">Sketch the causal sequence</h2>
+<p>A directed acyclic graph (DAG) records proposed causal relationships. Let A be treatment, Y outcome, and L baseline severity. If severity affects treatment and outcome, A ← L → Y is a backdoor path. Adjustment for an adequate set of common causes can block it. If treatment changes biomarker M, which affects outcome, A → M → Y is part of the total effect; adjusting for M removes part of that effect. If treatment and an unmeasured factor U both cause clinic attendance S, then A → S ← U → Y. Restricting analysis to attendees conditions on a collider and may create an association.</p>
+<p>A DAG is a scientific argument, not something correlations uniquely reveal. Establish time order first. Include causes of treatment and outcome, post-treatment variables, eligibility, missingness, and measurement. For each arrow, write why the cause could change the effect. A common cause is not automatically a confounder, and an associated variable may instead be mediator, collider, proxy, or selection consequence. Automated p-value selection has no general causal basis.</p>
+<p>The estimand clarifies which variables matter. “Effect of treatment” could mean initiating now versus never initiating, sustained use versus discontinuation, or assignment to an offer regardless of adherence. Each contrast may need different assumptions and adjustment. Describe an ideal target trial before deciding which records or covariates to use.</p>
+<h2 id="standardize-instead-of-comparing-unlike-groups">Standardize instead of comparing unlike groups</h2>
+<p>Suppose A is binary and L is a measured pretreatment risk factor. Standardization predicts outcome under each treatment for each person, then averages predictions over a common target distribution:</p>
+<p>$$
+R(a)=\frac{1}{N}\sum_{i=1}^N P(Y_i=1\mid A=a,L_i),\quad RD=R(1)-R(0).
+$$</p>
+<p>A causal interpretation requires consistency, conditional exchangeability given measured history, positivity, and adequate estimation. Exchangeability means no residual common causes remain; positivity means each relevant patient could receive either strategy. Neither condition can be proven by a model fit statistic.</p>
+<p>Example: among 1,000 patients, half have high severity. Outcome risk is 5% at low severity and 20% at high severity regardless of treatment. If 80% of treated but only 20% of untreated patients are high severity, crude risks are 17% and 8%, respectively: an apparent 9 percentage-point treatment harm. Standardizing both groups to 50% high severity yields 12.5% in each. The arithmetic demonstrates compositional confounding; in real data, unmeasured differences may remain.</p>
+<p>Regression adjustment, stratification, matching, weighting, and g-computation are alternative implementations. They can target different populations and have different stability. Propensity scores summarize measured treatment predictors; assess covariate balance after using them rather than celebrating high discrimination. No method balances unmeasured covariates by definition.</p>
+<h2 id="selection-can-manufacture-an-association">Selection can manufacture an association</h2>
+<p>Selection may occur at recruitment, database inclusion, follow-up, or complete-case analysis. Suppose both smoking and an unrelated condition cause hospital admission. Among admitted patients, smoking may become negatively associated with the other cause of admission, even if they are independent in the community. This collider bias is induced by restricting to hospital patients.</p>
+<p>A high follow-up rate does not assure unbiased follow-up. If people with poor prognosis are less likely to return in one group, the observed participants can be selected survivors. Report who entered, who remained, reasons for dropout, and how completeness relates to exposure and prognosis. Inverse-probability-of-censoring weights can address dropout conditional on measured history when each history retains a positive chance of observation. They cannot correct dependence on an unmeasured deterioration. Imputation handles missing values under explicit assumptions; it does not repair selection into the original sample.</p>
+<p>Selection also affects transportability. A volunteer sample may estimate an effect valid among volunteers but fail to represent the target population if effect modifiers differ. Distinguish this from internal validity: selection can distort the comparison within the study and can also limit generalization.</p>
+<h2 id="quantify-measurement-error-where-possible">Quantify measurement error where possible</h2>
+<p>Exposure misclassification may be differential: cases can recall prior exposure more carefully than controls, or clinicians may test treated patients more often. The shortcut that nondifferential misclassification always biases toward the null only holds under restricted conditions, such as some binary exposure models. Error can bias either way with multiple categories, confounder error, nonlinear relations, or differential recording.</p>
+<p>With classical error in a simple linear regression, if observed exposure X* = X + U and U is independent noise, the slope is attenuated by the reliability ratio λ = Var(X)/[Var(X)+Var(U)]. A true slope of 2 with λ=0.6 appears roughly 1.2. This approximation does not apply universally, especially with multiple covariates or differential error.</p>
+<p>Validation subsamples, duplicate assays, repeat measures, blinded adjudication, and high-quality record linkage can estimate accuracy. When validation data are unavailable, probabilistic bias analysis varies plausible sensitivity, specificity, or reliability values and shows how estimates shift. State the source of assumptions and identify what degree of error would reverse the conclusion.</p>
+<h2 id="inspect-overlap-before-weighting">Inspect overlap before weighting</h2>
+<p>Positivity requires both strategies to be possible for every history represented in the target. If nearly every patient with severe renal failure receives the same treatment, the data do not directly support a contrast for that subgroup. Model-based predictions there are extrapolations.</p>
+<p>Estimated treatment probabilities near zero or one create extreme inverse-probability weights. Inspect overlap by treatment, covariate balance, maximum weights, and effective sample size. Trimming unsupported observations may stabilize estimates but changes the target population. Prefer a clinically defined restriction or explicit overlap-population estimand and report what population remains.</p>
+<h2 id="calculate-standardized-risks-in-r">Calculate standardized risks in R</h2>
+<pre><code>fit &lt;- glm(event ~ treated + age + severity,
+           family = binomial(), data = d)
+d1 &lt;- transform(d, treated = 1)
+d0 &lt;- transform(d, treated = 0)
+risk1 &lt;- mean(predict(fit, newdata = d1, type = &quot;response&quot;))
+risk0 &lt;- mean(predict(fit, newdata = d0, type = &quot;response&quot;))
+c(risk_treated = risk1, risk_control = risk0,
+  risk_difference = risk1 - risk0)
+</code></pre>
+<p>This estimates model-based marginal risks over the empirical covariate distribution. It is conditional on the model and identification assumptions. Bootstrap the entire estimation procedure for sampling uncertainty; in clustered data, resample clusters. The confidence interval does not incorporate uncertainty about unmeasured confounding or the causal graph.</p>
+<h2 id="handle-evolving-confounders-as-histories">Handle evolving confounders as histories</h2>
+<p>In longitudinal care, treatment may change a later covariate that guides future treatment and predicts outcome. For example, month-one therapy changes a biomarker at month two; that biomarker determines continuation and predicts the endpoint. Ordinary adjustment for it can block part of the earlier treatment effect, while omitting it leaves later treatment confounded.</p>
+<p>Marginal structural models use inverse-probability weights based on treatment and censoring history to create a pseudo-population where measured past covariates no longer predict treatment. The weighted outcome model can compare sustained strategies. Validity requires sequential exchangeability, positivity over time, consistency, and well-estimated weights. Extreme weights signal limited support or unstable models. Truncation trades potential bias for variance and deserves sensitivity analysis.</p>
+<p>Time zero must align with eligibility and assignment. If patients are defined as treated by a prescription filled within 30 days after discharge but follow-up starts at discharge, treated patients must survive event-free until the fill. Counting this waiting period as treated time creates immortal-time bias. Define strategies at a shared starting point, handle grace periods explicitly, or emulate a target trial using cloning, censoring, and weighting. These approaches do not remove unmeasured confounding.</p>
+<h2 id="probe-assumptions-with-sensitivity-analyses">Probe assumptions with sensitivity analyses</h2>
+<p>For unmeasured confounding, specify plausible prevalence differences and outcome associations. For selection, vary risk among unobserved people. For misclassification, vary sensitivity and specificity. Anchor ranges in external evidence or expert knowledge and show scenarios capable of changing the substantive interpretation.</p>
+<p>Suppose an adjusted risk ratio is 0.80. An omitted frailty factor occurs in 40% of untreated and 20% of treated participants and doubles risk. A simplified bias factor is</p>
+<p>$$
+BF=\frac{1+p_0(RR_{UY}-1)}{1+p_1(RR_{UY}-1)}
+=\frac{1+0.40}{1+0.20}=1.167.
+$$</p>
+<p>The adjusted ratio becomes approximately 0.80 × 1.167 = 0.93 under this scenario. The formula is not a universal correction; it ignores multiple biases and uncertainty in its inputs. A grid of scenarios is more informative than one convenient assumption.</p>
+<p>Negative-control outcomes or exposures can detect some residual bias if they share its causes but have no causal connection to the primary endpoint. A non-null control association is a warning; a null association does not validate every assumption. Triangulation across studies with different weaknesses is useful, while acknowledging that shared biases can make results agree.</p>
+<h2 id="match-the-conclusion-to-what-was-identified">Match the conclusion to what was identified</h2>
+<p>An adjusted association is not automatically a causal effect. State whether the analysis is descriptive, predictive, or causal. For causal work, report population, strategies, time zero, horizon, effect scale, adjustment rationale, and assumptions. Give absolute effects when decisions concern numbers of events.</p>
+<p>Odds ratios are non-collapsible, so conditional and marginal odds ratios may differ even without confounding. Hazard ratios compare instantaneous rates within changing risk sets and do not directly describe population risk. A coefficient change after adjustment alone does not prove that confounding was removed. When risk matters, compute standardized risks and risk differences.</p>
+<p>Separate sampling uncertainty from structural uncertainty. A narrow interval describes variability under the analysis; it does not show that the data were selected, measured, or compared appropriately. A defensible report makes each adjustment traceable to a causal concern and explains which credible alternatives remain.</p>
+<h2 id="effect-scales-and-model-behavior">Effect scales and model behavior</h2>
+<p>Confounding is defined relative to a contrast, and the numerical estimate depends on the effect scale. A variable can change an odds ratio after adjustment even if it is not a confounder because the odds ratio is non-collapsible: conditional odds ratios average differently from marginal odds ratios. This differs from confounding, where the crude estimate differs because groups have different distributions of common causes. Comparing regression coefficients before and after adjustment is therefore an unreliable confounding diagnostic, especially in logistic models.</p>
+<p>For policy and clinical decisions, marginal absolute risks often communicate consequences more directly than conditional coefficients. If an intervention changes risk from 2% to 1%, the relative risk is 0.5 and the risk difference is −1 percentage point. In a higher-risk group, the same relative risk from 20% to 10% means a −10-point difference. Both can be true; they answer different questions. Name the target population over which a standardized risk is averaged. A conditional odds ratio may be useful for etiologic or prediction modeling, but it should not be described as a population risk ratio.</p>
+<p>Model misspecification can add bias to confounding bias. A linear outcome model that forces a constant treatment effect may be wrong when effects vary with severity. Flexible splines or interactions can improve fit, but they do not resolve unmeasured confounding. Propensity-score methods also require care: a treatment model with excellent classification can still produce poor balance, while a model with modest discrimination may balance the covariates that matter. Inspect standardized mean differences, variance ratios, distributional overlap, and balance across nonlinear terms.</p>
+<h2 id="a-concrete-quantitative-bias-analysis">A concrete quantitative bias analysis</h2>
+<p>Suppose a study estimates a risk ratio of 0.75 after adjustment for recorded factors. A plausible unmeasured occupational exposure may be more common in controls and independently raise disease risk. A deterministic bias analysis can specify prevalence among treated and untreated participants and a risk ratio linking the factor to outcome. For each parameter combination, compute a bias factor, adjust the observed contrast, and display a two-dimensional table or contour plot. The output is not a corrected truth; it is a map from assumptions to conclusions.</p>
+<p>For a binary unmeasured confounder U, one simplified risk-ratio bias factor is</p>
+<p>$$
+BF=\frac{1+p_0(RR_{UY}-1)}{1+p_1(RR_{UY}-1)},
+$$</p>
+<p>where p0 and p1 are the prevalences in untreated and treated groups, respectively. If p0=0.50, p1=0.25, and RR_UY=1.5, then BF=(1+0.50×0.5)/(1+0.25×0.5)=1.20/1.125=1.067. Multiplying the observed ratio 0.75 by 1.067 gives 0.80. This remains a protective association under that scenario. If the unmeasured factor is more imbalanced or more strongly prognostic, the estimate can move closer to or beyond one. The formula assumes a simple structure and should not be used as a plug-in correction for complex data.</p>
+<p>Probabilistic bias analysis assigns distributions, rather than fixed values, to uncertain prevalences and measurement parameters. Repeated draws yield a distribution of bias-adjusted effects alongside sampling uncertainty. The choice of distributions should be defensible and transparent; narrow distributions without evidence create a false impression of precision. Separate uncertainty due to sampling from uncertainty due to the bias model where possible. Include scenarios where two biases could reinforce one another, since assuming that selection and confounding cancel is not justified.</p>
+<h2 id="use-design-and-analysis-as-complementary-safeguards">Use design and analysis as complementary safeguards</h2>
+<p>Prevention is usually more credible than repair. Restrict eligibility to people for whom both strategies are possible; align treatment assignment and time zero; use an active comparator; collect covariates before exposure; standardize outcome surveillance; blind adjudicators; and document reasons for nonparticipation and dropout. These choices reduce the burden placed on statistical adjustment.</p>
+<p>When reporting an observational effect, provide a compact chain of reasoning: the target trial or estimand, causal diagram or adjustment logic, sample-selection process, measurement quality, overlap diagnostics, estimator, and sensitivity analyses. Explain why each covariate was included and why post-exposure variables were not adjusted for. Report changes in target population after matching or trimming. Present balance and uncertainty, not only a model table.</p>
+<p>Readers should be able to distinguish three questions: whether the estimate is precise, whether measured data support the modeled contrast, and whether the causal assumptions are credible. Confidence intervals answer the first under a statistical model. Diagnostics illuminate the second. Subject-matter knowledge, design, and sensitivity analysis inform the third. No single p-value or robustness check collapses these questions into one.</p>
+<h2 id="diagnose-residual-structure-in-practice">Diagnose residual structure in practice</h2>
+<p>Residual confounding is more likely when treatment choice is strongly guided by prognosis, when key covariates are measured crudely, or when groups have little overlap. A useful audit asks whether clinicians knew something relevant that the dataset omits: functional status, patient preference, frailty, contraindications, or access to care. These factors can influence both receipt and outcome even when coded diagnoses look balanced.</p>
+<p>Balance diagnostics should be clinically interpretable. A standardized mean difference of 0.1 is a common rough flag, not a pass-fail theorem. Check distributions, tails, nonlinear terms, and important interactions, since equal means can conceal different shapes. If matching discards many people, compare characteristics of retained and excluded participants. If weighting produces a low effective sample size, the nominal cohort size overstates the information available for the weighted contrast.</p>
+<p>Negative controls and quantitative sensitivity analyses complement these checks. A negative control should share confounding structure with the primary analysis while lacking a plausible causal pathway. An association can expose residual structure, but the absence of one does not prove the primary estimate unbiased. Report the expected direction of each concern and whether it would amplify or attenuate the observed contrast.</p>
+<h2 id="explain-uncertainty-without-overclaiming">Explain uncertainty without overclaiming</h2>
+<p>Confidence intervals are conditional on the estimator and sampling model. They do not include uncertainty about whether the adjustment set was sufficient, whether selection was ignorable, or whether a measurement instrument captured the construct. Report a sensitivity interval or scenario separately from the conventional sampling interval so readers can see which uncertainty is represented. Avoid labeling an estimate robust because several models return similar answers if all share the same unmeasured source of bias.</p>
+<p>When assumptions are weak, downgrade the wording of the conclusion. An estimate may still be useful for surveillance, prediction, or hypothesis generation even if causal interpretation is not secure. The appropriate response to bias risk is not always to discard the study; it is to make the estimand and evidential limits explicit.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
-<h2 id="a-causal-structure-for-identifying-bias">A causal structure for identifying bias</h2>
-<h2 id="identification-adjustment-sets-and-target-trial-thinking">Identification: adjustment sets and target trial thinking</h2>
-<h2 id="measurement-error-and-quantitative-bias-analysis">Measurement error and quantitative bias analysis</h2>
-<h3 id="reporting-a-quantitative-bias-analysis">Reporting a quantitative bias analysis</h3>
-<p>State each bias parameter, its source (validation subset, prior literature, or expert range), its assumed probability distribution, and whether uncertainty is propagated jointly with sampling error. Show the observed estimate beside bias-adjusted estimates over a grid or simulation distribution. A single “corrected” number can imply unjustified precision. Distinguish probabilistic bias analysis from a confidence interval: the former reflects uncertainty in bias parameters and the latter usually reflects sampling variability conditional on the model.</p>
-<p>Exposure measurement error can attenuate or otherwise distort effects. Under simple nondifferential misclassification of a binary exposure, the observed association often moves toward the null, but this is not guaranteed after covariate adjustment or with multiple categories. Differential error—when accuracy depends on outcome status—can create associations in either direction. Biomarker degradation, self-report recall, coding algorithms, and changes in assay platforms are distinct mechanisms and should be described rather than grouped as generic “measurement error.”</p>
-<p>Validation data can estimate sensitivity and specificity of a classification algorithm or a calibration equation for a noisy continuous measure. Regression calibration, SIMEX, Bayesian measurement models, and probabilistic bias analysis make different assumptions and target different error structures. In a quantitative bias analysis, assign plausible distributions to sensitivity, specificity, or confounder prevalence/effects, repeatedly correct the estimate, and summarize the resulting bias-adjusted distribution. Sensitivity parameters should be based on validation studies or expert elicitation and varied broadly enough to show uncertainty.</p>
-<h2 id="selection-and-collider-examples">Selection and collider examples</h2>
-<p>If both exposure and disease cause hospital attendance, restricting an analysis to hospital patients conditions on a common effect (a collider). Within the hospital sample, exposure and disease can become associated even if independent in the source population. Adjusting for additional variables does not necessarily remove this induced path. Similarly, restricting to complete cases can condition on a variable caused by exposure, outcome, and health status. Draw the selection variable explicitly in the DAG and assess whether inclusion depends on causes of exposure and outcome.</p>
-<p>Selection weights can recover a target population contrast only if selection predictors are measured and inclusion probability is positive. Report the population represented after selection and compare estimates with alternative sampling frames. Sensitivity analyses for selection should specify how outcome risk among excluded individuals differs from included individuals; a vague statement that “selection bias may occur” does not convey its likely impact.</p>
-<p>An adjustment set should block noncausal backdoor paths from exposure to outcome without conditioning on mediators or colliders. A causal diagram is a compact statement of temporal and causal assumptions, not an empirical proof. Identify variables by their role at the relevant time: baseline confounders precede treatment; mediators occur after treatment; time-varying confounders can be affected by prior treatment; selection variables determine inclusion or observation. The same measured variable can play different roles under different scientific questions.</p>
-<p>Target-trial thinking sharpens observational comparisons by specifying eligibility, treatment strategies, assignment procedure, time zero, follow-up, outcome, causal contrast, and analysis. Emulating this protocol helps expose biases such as prevalent-user bias, immortal time, and misaligned eligibility. It does not make the observational study randomized: consistency, exchangeability, positivity, correct measurement, and no interference remain assumptions. Compare the observed data structure with the hypothetical trial and state which protocol components could not be emulated.</p>
-<p>For a binary outcome, g-computation estimates conditional outcome risks and averages predictions under each strategy. Inverse-probability weighting instead creates a pseudo-population where measured covariates are independent of treatment. Doubly robust estimators combine outcome and treatment models and can remain consistent if one of those models is correct, under the causal identification assumptions and regularity conditions. “Doubly robust” does not protect against unmeasured confounding, positivity violations, or misspecified both models. Check covariate balance, overlap, weight tails, and model calibration.</p>
-<h2 id="positivity-and-practical-diagnostics">Positivity and practical diagnostics</h2>
-<p>Positivity requires that each treatment strategy has a nonzero probability within every covariate pattern in the target population. Structural positivity failure occurs when a treatment is contraindicated for a subgroup; practical failure occurs when available data provide little overlap. Plot propensity score distributions by treatment, inspect minimum and maximum estimated probabilities, examine effective sample size after weighting, and inspect stabilized-weight percentiles. Large weights indicate that a few observations represent many others and can dominate estimates. Restricting to common support changes the target population and should be stated as an estimand decision, not merely a computational fix.</p>
-<pre><code class="language-r">ps &lt;- glm(treated ~ age + severity + comorbidity, family = binomial(), data = dat)
-dat$ps &lt;- predict(ps, type = &quot;response&quot;)
-dat$w &lt;- ifelse(dat$treated == 1, 1 / dat$ps, 1 / (1 - dat$ps))
-quantile(dat$w, c(0, .5, .9, .95, .99, 1))
-</code></pre>
-<p>This basic inverse-probability treatment weighting code omits stabilization, censoring, and survey weights; it illustrates diagnostics, not a complete estimator. Report balance after weighting using standardized differences and distribution plots. Truncating weights can reduce variance but introduces bias and should be prespecified with sensitivity analyses over cut points. Effective sample size ((\sum w)^2/\sum w^2) can summarize weight concentration, but it does not replace causal validity assessment.</p>
-<h2 id="sensitivity-analysis-and-bias-triangulation">Sensitivity analysis and bias triangulation</h2>
-<h2 id="negative-controls-and-falsification-tests">Negative controls and falsification tests</h2>
-<p>A negative-control outcome is not causally affected by the exposure but shares sources of confounding or measurement bias; a detected association signals possible residual bias. A negative-control exposure shares confounding structure with the target exposure but cannot affect the outcome under the causal theory. Their usefulness depends on credible exclusion assumptions and adequate measurement. A null negative-control result does not prove no bias because the control may be insensitive or differently confounded. Pre-specify controls and interpret them as diagnostic evidence, not as automatic correction.</p>
-<p>Falsification tests can also examine temporal leads: future exposure should not cause past outcomes under a causal model. An association may indicate confounding, reverse causation, or time alignment problems. However, anticipation or exposure measurement error can complicate this test. Explain expected patterns under both causal and bias scenarios, then integrate these checks with quantitative sensitivity analysis and substantive knowledge.</p>
-<p>Because unmeasured confounding cannot generally be ruled out from observed data, quantify robustness. For binary outcomes, E-values summarize the minimum strength of association an unmeasured confounder would need with both exposure and outcome (conditional on measured covariates) to explain an observed risk ratio, under stated assumptions. Quantitative bias analysis can specify prevalence and effect of an unmeasured confounder and propagate uncertainty. Negative-control exposures or outcomes can reveal certain residual biases if their exclusion restrictions are credible. Alternative exposure definitions, lag periods, and active comparators probe design sensitivity.</p>
-<p>No single diagnostic validates causal inference. Balance checks detect only measured imbalance; propensity-score overlap does not guarantee no unmeasured confounding; placebo tests can be insensitive; and model fit statistics do not test exchangeability. Triangulation across designs with different likely biases can strengthen inference when conclusions align. Report which biases are most plausible, their likely directions, and whether sensitivity analyses materially change the substantive conclusion.</p>
-<h3 id="confounding-by-indication">Confounding by indication</h3>
-<p>Clinical treatment is commonly assigned because of prognosis. Patients with more severe disease may be more likely to receive an intensive treatment and also more likely to experience the outcome. A crude comparison can make effective treatment appear harmful. Baseline disease severity is a confounder if it precedes treatment and affects both assignment and outcome. Measure it before treatment, capture clinically relevant dimensions, and ensure overlap in treatment choices. Propensity-score matching or weighting can balance measured covariates, but balance diagnostics do not reveal unmeasured severity or repair structural nonpositivity.</p>
-<p>Check standardized mean differences and distributions after weighting/matching rather than testing baseline p-values. Estimate the target contrast explicitly: matching often changes the population to those matchable, while inverse-probability weighting may target the full eligible population and can yield extreme weights. Trim or restrict only with a clear estimand and report the resulting target population. Use negative controls or quantitative bias analysis to probe residual confounding; these provide evidence about robustness, not proof of exchangeability.</p>
-<p>Confounding is a failure of comparability between exposure groups: causes of both exposure and outcome create noncausal paths that remain open. A directed acyclic graph (DAG) makes assumptions explicit. If age affects both treatment choice and mortality, age is a confounder; standardization, stratification, or regression adjustment may block that path. A mediator lies on the causal pathway from exposure to outcome, so adjusting for it removes part of the total effect. A collider is caused by two variables; conditioning on it can create an association that was absent before adjustment. These roles are question-specific, not labels attached permanently to variables.</p>
-<p>Suppose treatment (A) is influenced by disease severity (L), and severity also predicts outcome (Y). To estimate the total effect of treatment, compare outcomes after controlling for pre-treatment severity, provided there is overlap. If treatment affects a post-treatment biomarker (M) that then affects (Y), adjusting for (M) changes the estimand and may induce additional bias. If an unmeasured factor (U) affects both treatment and outcome, measured adjustment cannot fully identify the causal effect; sensitivity analysis can quantify how strong such confounding would need to be to explain the association.</p>
-<h2 id="selection-measurement-and-time-varying-confounding">Selection, measurement, and time-varying confounding</h2>
-<p>Selection bias arises when inclusion, retention, or complete-case status depends jointly on exposure and outcome causes. Conditioning on being hospitalized can associate a treatment with other causes of hospitalization even if none existed in the source population. Loss to follow-up can bias estimates if censoring is related to prognosis after accounting for measured predictors. Inverse-probability-of-selection or censoring weights can help under conditional exchangeability and positivity, but unstable probabilities produce variance and sensitivity to model errors.</p>
-<p>Misclassification of a binary exposure that is independent of outcome status often attenuates an association, but differential misclassification can bias in either direction. Outcome measurement error can also distort effects, especially when assessors know treatment allocation. Validation subsamples, blinded adjudication, calibration studies, and probabilistic bias analysis can inform correction. Recall bias in case-control studies is one example of differential measurement; nondifferential does not universally mean toward the null, particularly with multiple categories or adjusted models.</p>
-<p>Time-varying confounding requires special care when prior exposure affects a confounder that then affects later exposure and outcome. Conventional regression adjustment for that confounder can block part of the effect of prior treatment while controlling confounding of subsequent treatment. Marginal structural models use inverse-probability treatment weights to create a pseudo-population in which measured time-varying confounders are independent of treatment history. This requires sequential exchangeability, positivity at every time, consistency, and adequate weight models.</p>
-<h2 id="worked-example-standardization-and-positivity">Worked example: standardization and positivity</h2>
-<p>Imagine outcomes by treatment and severity stratum:</p>
-<table>
-<thead>
-<tr>
-<th>Severity</th>
-<th align="right">Treated risk</th>
-<th align="right">Control risk</th>
-<th align="right">Target-population share</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Mild</td>
-<td align="right">0.05</td>
-<td align="right">0.08</td>
-<td align="right">0.60</td>
-</tr>
-<tr>
-<td>Severe</td>
-<td align="right">0.20</td>
-<td align="right">0.30</td>
-<td align="right">0.40</td>
-</tr>
-</tbody></table>
-<p>Standardized treated risk is (0.6(0.05)+0.4(0.20)=0.11); standardized control risk is (0.6(0.08)+0.4(0.30)=0.168). The standardized risk difference is −0.058. Crude risks can differ from this contrast if treatment allocation across severity strata differs. Standardization requires that both treatment levels have data in each relevant stratum. If severe patients almost always receive treatment, the control risk for severe patients is poorly supported and the causal contrast relies on extrapolation.</p>
-<pre><code class="language-r">target &lt;- data.frame(severity = c(&quot;mild&quot;, &quot;severe&quot;), weight = c(.60, .40))
-# fit must include treatment, severity, and a defensible outcome model
-nd1 &lt;- transform(target, treatment = 1)
-nd0 &lt;- transform(target, treatment = 0)
-rd &lt;- with(target, sum(weight * predict(fit, nd1, type = &quot;response&quot;)) -
-                       weight * predict(fit, nd0, type = &quot;response&quot;))
-</code></pre>
-<p>In production code, preserve the same covariate records in both prediction sets, use a bootstrap or influence-function method for uncertainty, and check model calibration and overlap. The snippet illustrates g-computation; it does not fix unmeasured confounding.</p>
-<p>Report a prespecified causal question (population, treatment strategies, outcome, follow-up, contrast), a DAG or equivalent rationale for adjustment, missing-data and selection handling, and sensitivity analyses. Distinguish precision from validity: a narrow interval quantifies sampling uncertainty under the model and design, not residual confounding or selection bias. Quantitative bias analysis, negative controls, alternative definitions, and triangulation across designs can probe robustness but do not prove absence of bias.</p>
 <ul>
-<li><p>Hernán MA, Robins JM. <em>Causal Inference: What If</em>. Chapman &amp; Hall/CRC; 2020. <a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener noreferrer" class="ext-link">https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/</a></p>
-</li>
-<li><p>Greenland S, Pearl J, Robins JM. Causal diagrams for epidemiologic research. <em>Epidemiology</em>. 1999;10:37–48. <a href="https://doi.org/10.1097/00001648-199901000-00008" target="_blank" rel="noopener noreferrer" class="ext-link">https://doi.org/10.1097/00001648-199901000-00008</a></p>
-</li>
-<li><p>Cole SR, Hernán MA. Constructing inverse probability weights for marginal structural models. <em>American Journal of Epidemiology</em>. 2008;168:656–664. <a href="https://doi.org/10.1093/aje/kwn164" target="_blank" rel="noopener noreferrer" class="ext-link">https://doi.org/10.1093/aje/kwn164</a></p>
-</li>
-<li><p>Hernán MA, Robins JM. <a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener noreferrer" class="ext-link"><em>Causal Inference: What If</em></a>. Chapman &amp; Hall/CRC, 2020.</p>
-</li>
-<li><p><a href="https://www.strobe-statement.org/" target="_blank" rel="noopener noreferrer" class="ext-link">STROBE Statement</a>, reporting guidance for observational epidemiology.</p>
-</li>
-<li><p>Rothman KJ, Greenland S, Lash TL, eds. <em>Modern Epidemiology</em>. 3rd ed. Lippincott Williams &amp; Wilkins, 2008.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE Publications.</p>
-</li>
-<li><p>Hernán M, Robins J. <em>Causal Inference: What If</em>. Chapman &amp; Hall/CRC.</p>
-</li>
+<li>Hernán MA, Robins JM. <a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener noreferrer" class="ext-link"><em>Causal Inference: What If</em></a>. Chapman &amp; Hall/CRC; 2020.</li>
+<li>Greenland S, Pearl J, Robins JM. Causal diagrams for epidemiologic research. <em>Epidemiology</em>. 1999;10:37–48. <a href="https://doi.org/10.1097/00001648-199901000-00008" target="_blank" rel="noopener noreferrer" class="ext-link">https://doi.org/10.1097/00001648-199901000-00008</a></li>
+<li>Cole SR, Hernán MA. Constructing inverse probability weights for marginal structural models. <em>American Journal of Epidemiology</em>. 2008;168:656–664. <a href="https://doi.org/10.1093/aje/kwn164" target="_blank" rel="noopener noreferrer" class="ext-link">https://doi.org/10.1093/aje/kwn164</a></li>
+<li>Lash TL, Fox MP, Fink AK. <em>Applying Quantitative Bias Analysis to Epidemiologic Data</em>. Springer; 2009. <a href="https://doi.org/10.1007/978-0-387-87959-8" target="_blank" rel="noopener noreferrer" class="ext-link">https://doi.org/10.1007/978-0-387-87959-8</a></li>
+<li>Rothman KJ, Greenland S, Lash TL, eds. <em>Modern Epidemiology</em>. 3rd ed. Lippincott Williams &amp; Wilkins; 2008.</li>
+<li>Hernán MA, Sauer BC, Hernández-Díaz S, Platt R, Shrier I. Specifying a target trial prevents immortal time bias and other self-inflicted injuries in observational analyses. <em>Journal of Clinical Epidemiology</em>. 2016;79:70–75. <a href="https://doi.org/10.1016/j.jclinepi.2016.04.014" target="_blank" rel="noopener noreferrer" class="ext-link">https://doi.org/10.1016/j.jclinepi.2016.04.014</a></li>
 </ul>
-<p>The <a href="/biostatistics-library/study-design/cohort-and-case-control-studies.html">cohort and case-control article</a> covers how control selection and follow-up introduce specific selection biases.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

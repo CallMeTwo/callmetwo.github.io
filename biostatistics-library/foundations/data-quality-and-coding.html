@@ -111,202 +111,86 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Understanding variables <span class="sep">/</span> <strong style="color:#273e3b">Data quality and coding</strong></div>
         <h1 class="article-title">Data quality and coding</h1>
         <p class="article-summary">Coding turns raw answers into analyzable values; data quality work finds and fixes the errors, gaps and inconsistencies before any inference.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#missingness-mechanisms-and-sensitivity-analysis">Missingness mechanisms and sensitivity analysis</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#a-reproducible-data-quality-workflow">A reproducible data-quality workflow</a></li><li class="h3"><a href="#worked-example-audit-and-unit-conversion">Worked example: audit and unit conversion</a></li><li class="h3"><a href="#missingness-and-sensitivity-analyses">Missingness and sensitivity analyses</a></li><li class="h2"><a href="#validation-rules-provenance-and-adjudication">Validation rules, provenance, and adjudication</a></li><li class="h3"><a href="#worked-example-reconcile-duplicate-and-implausible-records">Worked example: reconcile duplicate and implausible records</a></li><li class="h2"><a href="#reproducible-cleaning-and-provenance">Reproducible cleaning and provenance</a></li><li class="h2"><a href="#missingness-and-analysis-consequences">Missingness and analysis consequences</a></li><li class="h2"><a href="#data-checks-as-executable-specifications">Data checks as executable specifications</a></li><li class="h2"><a href="#auditing-changes-and-reproducibility">Auditing changes and reproducibility</a></li><li class="h2"><a href="#freeze-definitions-before-evaluating-effects">Freeze definitions before evaluating effects</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#start-with-provenance-and-a-data-map">Start with provenance and a data map</a></li><li class="h2"><a href="#validation-rules-as-executable-definitions">Validation rules as executable definitions</a></li><li class="h2"><a href="#a-worked-example-unit-harmonization-before-analysis">A worked example: unit harmonization before analysis</a></li><li class="h2"><a href="#missing-values-have-meanings-and-mechanisms">Missing values have meanings and mechanisms</a></li><li class="h2"><a href="#coding-and-derivation-should-preserve-meaning">Coding and derivation should preserve meaning</a></li><li class="h2"><a href="#prevent-information-leakage-in-prediction-work">Prevent information leakage in prediction work</a></li><li class="h2"><a href="#auditing-corrections-and-exclusions">Auditing corrections and exclusions</a></li><li class="h2"><a href="#reporting-quality-so-readers-can-judge-it">Reporting quality so readers can judge it</a></li><li class="h2"><a href="#reconcile-records-across-tables-and-time">Reconcile records across tables and time</a></li><li class="h2"><a href="#data-quality-in-routinely-collected-health-records">Data quality in routinely collected health records</a></li><li class="h2"><a href="#metadata-privacy-and-reproducible-stewardship">Metadata, privacy, and reproducible stewardship</a></li><li class="h2"><a href="#distinguish-correction-from-analytic-choice">Distinguish correction from analytic choice</a></li><li class="h2"><a href="#a-compact-implementation-checklist">A compact implementation checklist</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p><strong>Data coding</strong> translates raw readings and free-text answers into structured
-values: assigning numbers to response categories, mapping lab units to a
-common scale, and encoding missingness deliberately. <strong>Data quality</strong> is the
-set of checks that verify coded data are complete, consistent, plausible and
-correctly recorded before any analysis. Recurring problem types:</p>
-<ul>
-<li><strong>Missing values</strong> — a blank field, a missed visit, an unreturned result;
-the mechanism (random, related to the value, related to other variables)
-determines whether the missingness biases the analysis.</li>
-<li><strong>Implausible values</strong> — blood pressure 380/240, a birth weight recorded in
-the wrong field, age 140.</li>
-<li><strong>Inconsistency</strong> — the same patient coded &quot;male&quot; on one visit and &quot;female&quot;
-on the next.</li>
-<li><strong>Unit errors</strong> — results in µmol/L analysed as mg/dL.</li>
-</ul>
-<p>Coding and quality work are <em>upstream</em> of statistics: no test or estimate can
-repair data that were coded wrong. A clean, documented coded dataset is the
-precondition for trustworthy inference.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<p>Coding and quality checks are applied where raw data first become the analysis
-dataset — at data entry, dataset lock, and before any analysis. Scenarios:</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Trial database</td>
-<td>Are the 8% of missing follow-up blood pressures missing at random, or concentrated in dropouts?</td>
-</tr>
-<tr>
-<td>Lab integration</td>
-<td>Do creatinine values from two assays sit on the same scale before pooling?</td>
-</tr>
-<tr>
-<td>Survey data</td>
-<td>Are open-text occupation answers coded consistently across 400 respondents?</td>
-</tr>
-<tr>
-<td>Registry lock</td>
-<td>Which records fail range checks (systolic &gt; 250) — corrected, excluded, or flagged?</td>
-</tr>
-</tbody></table>
-<p>In a hypertension trial, follow-up blood pressure is missing in 8% of visits.
-Coding first distinguishes &quot;not measured&quot; from &quot;result not available&quot; from
-&quot;genuinely no value&quot; — each may need different handling. Quality work then
-asks whether the 8% is spread evenly across arm and visit, or concentrated in
-the treatment arm&#39;s last visit, because the answer changes whether the
-missingness biases the treatment comparison.</p>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li><strong>A coded value is only as good as the coding scheme.</strong> If the coder applied
-a Likert scale inconsistently, or sites interpreted the instrument
-differently, the numbers carry a systematic error no analysis detects.</li>
-<li><strong>Missingness mechanism is an assumption.</strong> Imputation assumes something
-about why values are missing; &quot;missing at random&quot; is convenient and often
-false. If missingness depends on the value itself (very high pressures less
-likely to be recorded), imputation can bias results.</li>
-<li><strong>Range checks assume a plausible envelope.</strong> The envelope must be set with
-clinical knowledge: too tight and real extremes are silently deleted; too
-loose and errors pass through.</li>
-<li><strong>Unit harmonisation assumes comparability.</strong> Assay differences, reference
-intervals and calibration drift can all break the assumption that two
-sources measure the same quantity on the same scale.</li>
-</ul>
-<p>The process breaks down when data are locked before checks are complete, when
-the raw record is no longer available to resolve a discrepancy, or when
-coding is left to a single untrained person without a documented scheme.</p>
-<h3 id="missingness-mechanisms-and-sensitivity-analysis">Missingness mechanisms and sensitivity analysis</h3>
-<p>MCAR means missingness is unrelated to observed or unobserved data; MAR means
-it may depend on observed information after conditioning on variables in the
-analysis; MNAR allows dependence on the unobserved value itself. These are
-assumptions about the missingness process and cannot generally be diagnosed
-from observed data alone. Compare missingness by arm, site, visit and measured
-prognostic factors. Multiple imputation under MAR should include outcome
-predictors, auxiliary variables and design features, and conclusions should
-be tested under plausible departures from MAR. A missingness indicator is not
-generally a substitute for modelling missingness.</p>
-<h2 id="worked-example">Worked example</h2>
-<p>A trial database holds 2,400 blood-pressure readings. Quality checks find 192
-readings (8.0%) with a missing diastolic value, 6 with systolic &gt; 250, and 11
-records whose sex code changed between visits. The team traces the 192 to a
-device batch that failed to store diastolic values — <em>systematic</em>,
-device-related missingness, not random. They correct the 6 extreme readings
-against source monitors (4 transcription errors corrected; 2 genuine crises
-retained and flagged) and resolve the 11 sex inconsistencies from source
-records (all data-entry slips).</p>
-<p>Because the missing values concentrate in one device batch rather than
-scattering randomly, the analysis plan is updated: the primary analysis uses
-readings from unaffected devices, with a sensitivity analysis including
-imputed values. The <em>pattern</em> of the missingness — discovered only by quality
-work — determined a change in analytic strategy, not just a cleaning footnote.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Treating all missing values as one thing.</strong> &quot;Not measured&quot;, &quot;refused&quot; and
-&quot;lost to follow-up&quot; have different implications; coding them into a single
-blank hides the mechanism that matters most.</li>
-<li><strong>Correcting by deletion without documentation.</strong> Silently removing
-implausible values without a log makes the analysis unreproducible and can
-bias results if the removed values were not random.</li>
-<li><strong>Assuming missing at random.</strong> Imputing under MAR when missingness depends
-on the unobserved value (MNAR) produces biased estimates that look more
-precise, not less.</li>
-<li><strong>Locking the dataset before quality work is done.</strong> Once locked,
-discrepancies can only be handled analytically, not corrected at source —
-the far more expensive path.</li>
-</ul>
-<h2 id="a-reproducible-data-quality-workflow">A reproducible data-quality workflow</h2>
-<p>A robust workflow separates source data, cleaned data, and analysis-ready variables. Preserve immutable raw exports with checksums and access controls. Apply documented transformations in code, never overwrite the source, and create a log containing record identifier, original value, action, reason, date, and responsible reviewer. Define permissible values before looking at outcome associations where possible. Automated checks should flag records for human adjudication rather than silently deleting inconvenient observations.</p>
-<p>Data validation has several layers. Syntactic checks identify impossible formats and values outside allowed ranges. Semantic checks identify conflicts such as a procedure date preceding birth or a discharge date before admission. Cross-field checks identify logic violations, such as pregnancy recorded in an impossible age range, while allowing clinically plausible exceptions to be reviewed. Temporal checks detect duplicate visits, unexpected gaps, and values carried forward. Provenance checks record source instrument, device, site, units, and software version. A value can pass a range check and still be wrong, so high-impact records should be traceable to source.</p>
-<p>Missing-data coding should preserve why a value is absent. A single NA cannot distinguish not assessed, refused, not applicable, lost record, or below detection limit. In R, use explicit reason variables or structured codes that are converted to NA only at the analysis step. Missingness summaries should use the expected denominator at each visit and stratify by arm, site, time, and relevant baseline characteristics. MAR and MNAR are assumptions about unobserved data and cannot generally be established by a significance test on observed values.</p>
-<h3 id="worked-example-audit-and-unit-conversion">Worked example: audit and unit conversion</h3>
-<p>Suppose an imported laboratory table contains creatinine values in mixed units, with source units recorded. Convert µmol/L to mg/dL using approximately 88.4 µmol/L per mg/dL. A source value of 106 µmol/L becomes 106/88.4=1.20 mg/dL. Do not infer units from the magnitude alone: some values overlap plausible ranges. Validate conversion against source documentation and retain the raw number and unit.</p>
+          <h2 id="overview">Overview</h2>
+<p>Data quality is the degree to which recorded information is fit for a defined analysis and decision. It is not a permanent property of a dataset: values adequate for estimating a hospital’s annual admission count may be inadequate for evaluating treatment timing or predicting deterioration hours in advance. Quality therefore begins with the question and the data-generating process, not with a universal checklist of “clean” values.</p>
+<p>Cleaning can prevent coding and measurement errors from contaminating an analysis, but it can also introduce bias if decisions are made after seeing outcomes or if inconvenient observations are silently removed. A defensible workflow makes definitions explicit, checks source data, records transformations, and preserves a path from reported result back to the original record. Automated rules help, but clinical review remains necessary for ambiguous values.</p>
+<h2 id="start-with-provenance-and-a-data-map">Start with provenance and a data map</h2>
+<p>Before analysis, determine where each field came from, when it was recorded, who entered it, and how it was transformed before delivery. Electronic health records may combine manually entered notes, device readings, billing codes, and derived problem lists. The same field name can conceal different meanings across sites or versions. A data dictionary should document names, definitions, units, allowable values, collection time, missing-value codes, derivations, and changes over time.</p>
+<p>Define the analysis unit. A file with 30,000 rows may represent 10,000 people with repeated visits, not 30,000 independent participants. Identify patient, encounter, specimen, and site keys, and document how duplicates are resolved. A duplicate encounter may be a data error, a legitimate repeat record, or a consequence of joining one-to-many tables. Removing duplicate rows blindly can erase real information; failing to resolve duplicated joins can inflate denominators.</p>
+<p>Build a lineage from source to analysis dataset: source extracts and dates, inclusion criteria, linkage steps, recodes, exclusions, imputations, and derived variables. Version-control code and data dictionaries; keep immutable raw input where governance permits. Never overwrite raw fields with cleaned values. Store corrected values alongside original values and a reason code so reviewers can audit what changed.</p>
+<h2 id="validation-rules-as-executable-definitions">Validation rules as executable definitions</h2>
+<p>A validation rule states a property expected from the data. Rules can include permissible ranges, category membership, cross-field consistency, temporal order, uniqueness, and requiredness. For example, a birth date should precede an encounter date; systolic pressure should be positive and within a plausibility range; treatment assignment must be one of the protocol arms; a discharge date should not precede admission. Distinguish hard failures from soft warnings: an impossible date may require correction, while an unusual laboratory value may be clinically valid and should trigger review rather than deletion.</p>
+<p>Rules should be derived from protocols, instrument manuals, clinical logic, and data contracts. A biologically implausible value may be a unit-conversion error, a transcription error, or a rare true observation. Flag it with source context and adjudicate using a prespecified approach. Winsorizing extreme values because they change a p-value is not data cleaning; it changes the estimand and can suppress valid tails.</p>
+<p>An executable check makes assumptions testable and repeatable. In R, <code>stopifnot()</code> can enforce required fields, while packages such as <code>validate</code> or <code>pointblank</code> can return a report of failing records. Checks should be rerun after every import and transformation. Store counts of records passing, failing, corrected, excluded, and unresolved. A table of violations by site or time can reveal a systematic interface problem that a pooled check would hide.</p>
 <pre><code class="language-r">library(dplyr)
-lab_clean &lt;- lab_raw |&gt;
-  mutate(creatinine_mg_dl = case_when(
-    unit == &quot;mg/dL&quot; ~ value,
-    unit == &quot;umol/L&quot; ~ value / 88.4,
+checks &lt;- dat |&gt;
+  mutate(
+    bad_date = encounter_date &lt; birth_date,
+    bad_sbp = !is.na(sbp) &amp; (sbp &lt; 40 | sbp &gt; 300),
+    bad_group = !assignment %in% c(&quot;usual care&quot;, &quot;intervention&quot;)
+  )
+checks |&gt;
+  summarise(across(starts_with(&quot;bad_&quot;), ~ sum(.x, na.rm = TRUE)))
+</code></pre>
+<p>These ranges are illustrative only; actual plausibility limits must fit the instrument and population. This code flags values but does not decide whether they are errors. Keep row identifiers and source details for review without printing direct identifiers into reports or logs.</p>
+<h2 id="a-worked-example-unit-harmonization-before-analysis">A worked example: unit harmonization before analysis</h2>
+<p>Suppose one laboratory reports creatinine in µmol/L and another in mg/dL, but the merged field is called <code>creatinine</code> with no unit column. A site difference in the numerical values may appear to be a patient difference. If the conversion factor is 88.4 µmol/L per mg/dL, a value of 1.0 mg/dL corresponds to about 88.4 µmol/L. Pooling unconverted values can distort distributions, risk scores, and regression coefficients by orders of magnitude.</p>
+<p>The correct workflow is to retrieve site-specific metadata, preserve the source measurement, convert to a common unit, and verify the converted distribution against clinically plausible ranges. Then compare site and time patterns before and after harmonization. If conversion status cannot be determined for a subset, mark those values as unresolved and conduct sensitivity analyses rather than guessing based on outcome association. A useful audit table includes original value, original unit, converted value, conversion rule, source site, and rule version.</p>
+<pre><code class="language-r">dat &lt;- dat |&gt;
+  mutate(creatinine_umol_l = case_when(
+    creatinine_unit == &quot;mg/dL&quot; ~ creatinine * 88.4,
+    creatinine_unit == &quot;umol/L&quot; ~ creatinine,
     TRUE ~ NA_real_
-  ),
-  unit_unrecognized = !unit %in% c(&quot;mg/dL&quot;, &quot;umol/L&quot;))
-
-lab_clean |&gt;
-  summarise(n = n(), n_missing = sum(is.na(creatinine_mg_dl)),
-            n_unknown_unit = sum(unit_unrecognized))
+  ))
 </code></pre>
-<p>This conversion assumes the documented units are accurate and the analytes and assay conventions are comparable. It does not harmonize assay calibration, specimen timing, or method-specific bias. Unknown units should trigger source review, not an arbitrary conversion.</p>
-<h3 id="missingness-and-sensitivity-analyses">Missingness and sensitivity analyses</h3>
-<p>Under MCAR, missingness is independent of measured and unmeasured values; under MAR, it can depend on observed data conditional on variables in the model; under MNAR it also depends on unobserved values. These labels are useful because they clarify assumptions, not because a dataset can certify one. Multiple imputation under MAR should include the outcome, treatment, predictors of missingness, auxiliary variables, and design structure; the imputation and analysis models should be compatible. Sensitivity analyses can shift imputed values or use pattern-mixture/delta adjustments to show how conclusions change under plausible MNAR departures. The ICH E9(R1) estimand framework helps align missing-data strategies with the treatment effect question.</p>
-<p>Never “clean” by excluding outliers solely because they change a result. Verify against source where possible; otherwise retain, flag, and compare robust or sensitivity analyses. Document every derived variable and denominator. A clean dataset is one whose transformations and uncertainties are transparent, not one from which all inconvenient records have disappeared.</p>
-<h2 id="validation-rules-provenance-and-adjudication">Validation rules, provenance, and adjudication</h2>
-<p>Quality controls work best when they are layered and tied to a data-generating process. At entry, use range and format constraints for values that can be known in advance, such as valid dates and enumerated responses. After collection, run cross-field checks (for example, a specimen date outside the participant&#39;s follow-up period) and longitudinal checks (unexpected duplicate visits, impossible order, or an unexplained unit change). A validation rule should flag a record with enough context for review, not automatically overwrite it. Legitimate exceptions need a route to be retained with a reason.</p>
-<p>Use a query lifecycle: identify the record and rule, request source review, record the response and evidence, resolve or retain as an exception, and preserve the audit trail. For derived corrections, store the raw value and the corrected value as separate fields. If a query cannot be resolved, define whether the value is missing, flagged, or included with sensitivity analysis. The person reviewing outcomes should not selectively correct values based on whether they support a preferred hypothesis.</p>
-<h3 id="worked-example-reconcile-duplicate-and-implausible-records">Worked example: reconcile duplicate and implausible records</h3>
-<p>Suppose one participant has two systolic readings recorded at the same visit: 128 and 218 mmHg. A naive de-duplication rule that keeps the last row may either discard the correct reading or retain a transcription error. First inspect timestamps, device identifier, repeat-measurement protocol, and source chart. If 218 is a confirmed repeat after an initially high pressure, both readings may be valid; if 218 is a misplaced digit and source documents 128, correct it with provenance. The analytic rule might prespecify using the mean of the last two valid readings, but that rule must not be invented after looking at the treatment contrast.</p>
-<pre><code class="language-r"># Flag possible duplicate visits without deleting them
-flags &lt;- dat |&gt;
-  dplyr::group_by(id, visit_date) |&gt;
-  dplyr::mutate(n_same_visit = dplyr::n(),
-                duplicate_visit = n_same_visit &gt; 1,
-                sbp_outside_review_range = sbp &lt; 50 | sbp &gt; 250) |&gt;
-  dplyr::ungroup()
-
-review_queue &lt;- flags |&gt;
-  dplyr::filter(duplicate_visit | sbp_outside_review_range) |&gt;
-  dplyr::select(id, visit_date, sbp, device, source, dplyr::everything())
-</code></pre>
-<p>The range 50–250 here is an illustrative review threshold, not a universal physiologic boundary. Site and device protocols may justify different values. Extreme values should be retained if clinically real; implausibility is a query trigger, not a deletion criterion.</p>
-<h2 id="reproducible-cleaning-and-provenance">Reproducible cleaning and provenance</h2>
-<p>Represent cleaning as a sequence of executable transformations. Write checks that fail loudly when a supposedly unique key is duplicated, units are unknown, or a date precedes baseline. Version-control code and data dictionaries; record source export date, extract filters, package versions, and any manual adjudication file. Keep manual decisions in a structured table joined by stable identifiers rather than editing spreadsheets in place. An independent reviewer should be able to rerun the script and obtain the same analysis dataset.</p>
-<p>Data lineage matters when variables are derived from several sources. Define precedence rules for conflicting records, such as central laboratory versus local laboratory, and define temporal windows for baseline and outcome measurements. If a unit conversion or code mapping changes, quantify how many records were affected and whether results change. Data quality reports should summarize checks run, flags, resolutions, and unresolved issues without exposing identifiable data.</p>
-<h2 id="missingness-and-analysis-consequences">Missingness and analysis consequences</h2>
-<p>Distinguish structural absence from a failed observation. “Not applicable” is not equivalent to an unmeasured eligible value. A value below assay detection is interval-censored information, not necessarily zero; a value above an upper limit likewise carries partial information. Depending on the estimand, approaches include censored-likelihood models, multiple imputation, or sensitivity bounds. Avoid substituting the detection limit divided by two automatically; this can bias means, variances, and regression slopes, particularly when censoring is substantial.</p>
-<p>For multiple imputation, preserve the form of variables, include predictors of missingness and outcome, and respect clustering or repeated measures. Diagnostics should compare observed and imputed distributions by treatment arm and relevant strata. Imputation uncertainty is combined across completed datasets using within- and between-imputation variance; treating a single completed dataset as observed understates uncertainty. MNAR sensitivity analyses should vary assumptions in clinically interpretable units, such as shifting unobserved outcomes by a specified amount.</p>
-<p>The database lock process should include a final reconciliation against the protocol-defined analysis population, outcome derivations, and planned handling of intercurrent events. A locked dataset remains immutable; corrections create a new version with a documented reason. This discipline makes later corrections possible without obscuring which dataset produced each result.</p>
-<h2 id="data-checks-as-executable-specifications">Data checks as executable specifications</h2>
-<p>A data dictionary should define variable name, concept, type, allowable values, units, derivation, missingness codes, and source. A validation script can encode these definitions so that a new data extract is checked identically. Separate warning-level checks from hard failures: a date outside a plausible period may be a site-specific exception, while a duplicate participant key may prevent analysis. Record the check version and summary counts each time the pipeline runs.</p>
-<pre><code class="language-r">stopifnot(!anyDuplicated(dat$record_id))
-stopifnot(all(dat$arm %in% c(&quot;control&quot;, &quot;active&quot;, NA)))
-range_flags &lt;- dat |&gt;
-  dplyr::filter(!is.na(age) &amp; (age &lt; 0 | age &gt; 120))
-missing_by_arm &lt;- dat |&gt;
-  dplyr::group_by(arm) |&gt;
-  dplyr::summarise(n = dplyr::n(),
-                   missing_outcome = sum(is.na(outcome)),
-                   .groups = &quot;drop&quot;)
-</code></pre>
-<p>The age bound and categories here are illustrative; project-specific definitions belong in the data dictionary. A failed assertion should stop or clearly flag the pipeline rather than silently coerce values. Protect participant identifiers in exported quality reports.</p>
-<h2 id="auditing-changes-and-reproducibility">Auditing changes and reproducibility</h2>
-<p>For each cleaning decision, preserve before/after counts and compare important summaries. If a unit conversion changes, calculate the number of affected rows and inspect distributions by site and date. If a recoding changes category definitions, rerun primary and sensitivity analyses under both plausible mappings. The final analysis dataset should be generated from raw inputs with a single documented command where feasible. Store software and package versions and use a fixed random seed for stochastic procedures such as imputation, while recognizing that a seed does not substitute for code and data provenance.</p>
-<p>Quality assurance should continue after publication. Corrections to source data or code should produce a new version, a clear changelog, and, if conclusions change, a transparent correction to the report. Keep identifiable data in governed systems and share only deidentified or synthetic examples. A reproducible pipeline is both an analytic safeguard and a record of accountability.</p>
-<p>A useful final audit compares the analysis dataset to the protocol: eligible participant counts, randomized arms, visit windows, endpoint derivations, exclusions, and follow-up completeness. Reconcile discrepancies before interpreting treatment effects. Document whether corrections occurred before or after treatment labels were unblinded, because outcome-aware cleaning can introduce bias. Independent blinded adjudication is valuable for ambiguous outcomes and supports a defensible record of how raw data became evidence.</p>
-<p>Data-quality review also includes privacy and governance. Use minimum necessary fields, separate identifiers from analysis variables, restrict access by role, and log exports. Deidentification is not simply dropping names: rare diagnoses, dates, and combinations of attributes can reidentify individuals. Synthetic data can support code examples but should be labeled and checked so readers do not mistake it for observed evidence. Quality and privacy protections are complementary parts of trustworthy analysis.</p>
-<h2 id="freeze-definitions-before-evaluating-effects">Freeze definitions before evaluating effects</h2>
-<p>Define primary outcomes, time windows, covariate derivations, and outlier review procedures without reference to treatment differences whenever possible. If an ambiguous definition must be resolved after seeing data, document the rationale and conduct sensitivity analyses under alternative defensible choices. Data cleaning and analysis are not separate in their consequences: changing a threshold, missing-value rule, or unit mapping can change the estimand and the estimated effect. Transparent records make those decisions reviewable.</p>
+<p>Do not rely on this code unless the unit labels are trustworthy and all valid units are represented. A missing or malformed unit should remain visible as a data-quality issue. After transformation, verify row counts and summarize by site, calendar period, and original unit. Unexpected shifts may reveal a faulty factor or a changed assay.</p>
+<h2 id="missing-values-have-meanings-and-mechanisms">Missing values have meanings and mechanisms</h2>
+<p>A blank cell can mean not collected, not applicable, refused, unknown, below detection, or lost in linkage. Collapsing these states into one <code>NA</code> may be unavoidable in analysis, but retain reason codes where possible. A zero is an observed value and should not serve as a missing code. Values such as 999 or −1 used as sentinels must be recoded only after confirming their meaning; otherwise legitimate measurements may be overwritten.</p>
+<p>Describe missingness by variable, participant group, site, and time. A missingness map can reveal patterns: baseline covariates absent for one site may signal extraction failure, while follow-up values absent after treatment discontinuation may reflect clinical processes. Missing completely at random, missing at random conditional on observed variables, and missing not at random describe assumptions about why values are missing. They are not diagnoses that software can infer conclusively.</p>
+<p>Complete-case analysis changes the effective sample and can bias estimates. Multiple imputation may be appropriate under a plausible missing-at-random model that includes outcome, treatment, design variables, predictors of missingness, and useful auxiliary variables. Imputation should respect data type and structure, such as bounded scores, clusters, repeated measures, and interactions. Sensitivity analyses should assess departures from the imputation assumptions. Imputation cannot recover information never measured or guarantee unbiasedness under an untestable missing-not-at-random process.</p>
+<p>For example, if a 12-week outcome is missing more often among patients who experienced side effects, comparing observed outcomes may make treatment appear safer or more effective than it is. Report missing counts per arm and reasons, compare baseline characteristics where informative, and explore clinically plausible outcomes for missing participants. A flow diagram should reconcile randomized, treated, followed, and analyzed denominators.</p>
+<h2 id="coding-and-derivation-should-preserve-meaning">Coding and derivation should preserve meaning</h2>
+<p>Categorical coding should use stable labels and explicit mappings. Verify spelling variants, capitalization, deprecated codes, and combinations that indicate multiple conditions. Do not merge categories solely to make a model converge without stating how the grouping changes interpretation. For ordinal variables, preserve ordering in metadata; software may otherwise sort categories alphabetically.</p>
+<p>Derived variables need documented formulae and timing. Age at enrollment differs from age at outcome; baseline BMI differs from maximum BMI during follow-up. A “prior admission” variable should use only events before the prediction or treatment index date. Use date-aware logic to prevent future data from leaking into baseline predictors. A derived indicator should be checked against source values for a sample of records and its missingness pattern examined.</p>
+<p>Data linkage creates additional quality questions. Deterministic matching may miss records when identifiers are incomplete; probabilistic matching can create false links. Assess linkage rate by subgroup and validate a sample of matched and unmatched pairs where allowed. If linkage quality differs by exposure or outcome, resulting estimates may be biased. Report linkage methods, match thresholds, and uncertainty or error assessment.</p>
+<h2 id="prevent-information-leakage-in-prediction-work">Prevent information leakage in prediction work</h2>
+<p>For predictive models, quality checks must respect the time the prediction is intended to be made. A laboratory result recorded after deterioration, a billing code added after diagnosis, or an intervention triggered by early warning signs can encode future information. Splitting data after these variables are constructed may not remove leakage. Define an index time, enforce feature availability before it, and recreate all preprocessing within each training fold.</p>
+<p>Leakage also arises from patient overlap across train and test data, site identifiers that reveal outcomes, target-derived encodings, or imputation and scaling performed before splitting. A pipeline should learn transformations from training data alone and apply them unchanged to validation data. For deployment, monitor shifts in missingness and coding because process changes can invalidate the learned patterns even if the raw variable names remain the same.</p>
+<h2 id="auditing-corrections-and-exclusions">Auditing corrections and exclusions</h2>
+<p>Every correction should have a reason, rule, date, and responsible process. Distinguish automatic recoding (such as converting documented units) from adjudication (reviewing a conflicting record) and exclusion (removing an observation from an analysis). The primary analysis population should be defined independently of outcome results where possible. Maintain an exclusion log with counts and reasons, and verify that analytic denominators reconcile with source totals.</p>
+<p>Sensitivity analyses should examine consequential cleaning choices: alternative plausible unit conversions, exclusion versus retention of flagged extreme values, different duplicate-resolution rules, and missing-data methods. These analyses are not a license to select the result that looks best. They show readers whether the conclusion depends on a defensible but uncertain data decision.</p>
+<p>A reproducible pipeline should fail loudly when expected columns disappear, categories change unexpectedly, or row counts shift beyond a specified range. At the same time, the pipeline should not silently delete unusual records to pass a check. Route warnings to a documented review and maintain a human-readable report. Raw data access and corrections must follow privacy, security, and institutional governance requirements.</p>
+<h2 id="reporting-quality-so-readers-can-judge-it">Reporting quality so readers can judge it</h2>
+<p>Describe the source systems, collection dates, eligibility, linkage, variable definitions, transformations, missingness, and quality checks relevant to the analysis. Give counts before and after cleaning and explain material corrections or exclusions. For prediction studies, describe when predictors were measured relative to the outcome and how preprocessing was nested within validation. For clinical comparisons, explain whether data-quality procedures were blind to treatment and outcome where possible.</p>
+<p>A statement such as “data were cleaned” is not reproducible. A useful description might say that duplicate encounters were identified using patient and visit identifiers, retained only when they represented distinct visits, units were harmonized from site metadata, impossible dates were queried against source records, and unresolved measurements were treated as missing with a sensitivity analysis. This enables another team to assess whether the rules are valid for the scientific question.</p>
+<h2 id="reconcile-records-across-tables-and-time">Reconcile records across tables and time</h2>
+<p>Relational data often contain one row per person in a demographic table, one row per encounter, and multiple rows per laboratory result. Joining these tables can multiply observations. If each of 100 patients has two diagnoses and three laboratory results, a careless join may create six rows per patient. Counts and standard errors then become wrong even though every value is individually valid. Before merging, state the expected key for each table, test uniqueness, and verify row counts and denominators after the join.</p>
+<p>A safe merge reports unmatched keys on both sides and checks expected cardinality. One-to-one and many-to-one joins should preserve the primary table’s row count; a one-to-many join should increase it in a predictable way. Inspect patients with unusually high numbers of encounters or measurements, which may be data duplication or genuinely intensive care. Never use <code>distinct()</code> as a universal repair because it can hide the join error without restoring the intended unit.</p>
+<p>Longitudinal data also require temporal validation. Confirm that baseline measurements precede treatment assignment, outcome dates fall within follow-up, and repeated measures have plausible sequences. Daylight-saving changes, timezone conversion, date-only fields, and delayed chart entry can make timestamps appear out of order. Distinguish event time from documentation time. For predictive analyses, the latter may be the only operationally available time and can differ from when the clinical event occurred.</p>
+<h2 id="data-quality-in-routinely-collected-health-records">Data quality in routinely collected health records</h2>
+<p>Routine records are generated for care, payment, and operations rather than solely for research. A diagnosis code may document reimbursement or suspected disease, not a validated case definition. A missing medication field may mean no prescription, external pharmacy use, or an incomplete reconciliation. Validation against chart review, registry data, or clinical criteria may be needed, with sensitivity and specificity evaluated in relevant subgroups.</p>
+<p>Changes in workflow can create artificial trends. A new electronic order set may increase recording of a symptom; a coding transition may split one category into several; a hospital merger may change patient identifiers. Plot variable frequency and missingness by site and calendar time. Annotate known system changes and consider restricting or stratifying analyses when measurements are not comparable. Statistical adjustment for calendar time cannot recover information if the outcome definition itself changed.</p>
+<p>A validation subsample should be selected to represent the range of records and, where relevant, groups likely to differ in accuracy. Reviewing only obvious positive cases estimates positive predictive value but not sensitivity. Reviewers should be blinded to exposure when feasible, and adjudication disagreements documented. If a gold standard is imperfect, state that limitation and consider latent-class or probabilistic approaches only when assumptions and data support them.</p>
+<h2 id="metadata-privacy-and-reproducible-stewardship">Metadata, privacy, and reproducible stewardship</h2>
+<p>Data dictionaries and provenance logs should avoid embedding direct identifiers in shared code or reports. Use study-specific keys, restrict access by role, and keep linkage files separately under approved governance. Small cell counts and rare combinations can identify people even after names are removed; suppress, aggregate, or use controlled access as appropriate. Reproducibility does not mean unrestricted publication of sensitive data.</p>
+<p>Record software versions, code commits, extraction dates, and data-source updates. A result can change because the EHR backfilled encounters, not because the model changed. For each release, capture a frozen analytic snapshot or reproducible query, a checksum where permitted, and a changelog describing schema or logic changes. If upstream data cannot be frozen, log the query parameters and extract metadata and note that exact reconstruction may not be possible.</p>
+<p>Automated monitoring can track expected ranges, category frequencies, missingness, duplicates, and linkage rates. Set thresholds based on process knowledge, not arbitrary statistical rules alone. A sudden rise in missing laboratory values should trigger investigation; a valid seasonal shift should not automatically stop a pipeline. Assign an owner to each check and a documented resolution path so warnings do not become ignored noise.</p>
+<h2 id="distinguish-correction-from-analytic-choice">Distinguish correction from analytic choice</h2>
+<p>A confirmed transcription error can be corrected from a source record. Choosing how to handle a clinically implausible but unresolved value is an analytic decision. Imputing a value, excluding a person, or truncating an extreme affects the target and should be prespecified or transparently justified. When possible, preserve an indicator that a value was queried or corrected and assess whether the correction differs by arm, site, or outcome.</p>
+<p>Suppose a participant’s weight is recorded as 820 kg. It is almost certainly a misplaced decimal, but the true value could be 82.0, 82.0 in another unit, or a different patient’s data. If source verification is impossible, replacing it with 82.0 invents information. Flag it, describe the rule, and compare analyses with the value missing versus plausible alternatives. The uncertainty is data uncertainty, not ordinary sampling error.</p>
+<p>Similarly, an extreme biomarker result may be clinically real and prognostically important. A robust estimator can reduce its influence without deleting it, but changes the target summary. Report the distribution and rationale for robust methods. Sensitivity analysis should show whether conclusions depend on the point, and clinical consultation can help distinguish biological extremity from recording error.</p>
+<h2 id="a-compact-implementation-checklist">A compact implementation checklist</h2>
+<p>Before analysis, confirm that the research question and unit of analysis are defined; source, timing, and coding for each key variable are documented; joins preserve expected records; identifiers and duplicates are resolved with explicit rules; and units and category mappings are harmonized. Summarize missingness and its reasons, validate date sequences and plausible ranges, and preserve raw values and transformations.</p>
+<p>During analysis, prevent future information from entering predictors, apply data-adaptive preprocessing only within training partitions, and retain design variables for variance estimation. Record exclusions and corrections, investigate warnings by site and time, and keep the primary decisions separate from exploratory sensitivity analyses. At handoff, publish a data dictionary, code and software versions, validation summary, analytic flow, and explanation of unresolved quality limitations.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>Sterne JAC et al. <a href="https://doi.org/10.1136/bmj.b2393" target="_blank" rel="noopener noreferrer" class="ext-link">Multiple imputation for missing data in epidemiological and clinical research</a>. <em>BMJ</em>. 2009.</p>
-</li>
-<li><p>ICH. <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf" target="_blank" rel="noopener noreferrer" class="ext-link">E9(R1): Estimands and sensitivity analysis in clinical trials</a>.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
-</li>
-<li><p>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott
-Williams &amp; Wilkins.</p>
-</li>
-<li><p>ICH E9(R1) gives guidance on aligning missing-data sensitivity analyses
-with the treatment effect of interest.</p>
-</li>
+<li>Sterne JAC et al. <a href="https://doi.org/10.1136/bmj.b2393" target="_blank" rel="noopener noreferrer" class="ext-link">Multiple imputation for missing data in epidemiological and clinical research</a>. <em>BMJ</em>. 2009.</li>
+<li>ICH. <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf" target="_blank" rel="noopener noreferrer" class="ext-link">E9(R1): Estimands and sensitivity analysis in clinical trials</a>.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
+<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
 </ul>
 
         </article>

@@ -3,154 +3,131 @@ title: Sampling methods
 summary: How to choose a subset of a population so that the inferences drawn from it are valid, unbiased, and appropriately precise.
 ---
 
-## Overview and key ideas
+## Overview
 
-A **sample** is the subset of a population from which data are actually collected; the **population** (or **target population**) is the group to which inferences are to be generalised. The choice of sampling method determines which population the results apply to and how much error is introduced by the sampling process itself. The two broad families are **probability sampling** (every member of the population has a known, non-zero chance of selection) and **non-probability sampling** (selection is based on researcher judgment or convenience).
+Sampling is the set of rules by which observations enter a study. Those rules determine what population a result can describe, what uncertainty is attributable to selection, and which analyses are valid. The first question is therefore not “How many people can we recruit?” but “Which population quantity are we trying to estimate, and through what mechanism could observed units represent it?” A sample may be large and precisely measured yet systematically miss people who differ in the outcome.
 
-- **Simple random sampling.** Each member has the same probability of selection. Easy to describe; inefficient when the population is large or spread out.
-- **Stratified sampling.** The population is divided into subgroups (strata) — e.g., by age group, sex, hospital ward — and a separate random sample is drawn from each stratum. This reduces variance for stratum-specific estimates and ensures representation of small but important subgroups.
-- **Cluster sampling.** Instead of sampling individual units, randomly select groups (clusters) — e.g., schools, primary care practices, villages — and measure all (or a sample of) individuals within the selected clusters. Efficient when a full list of individuals is unavailable; introduces intra-class correlation, which inflates variance.
-- **Systematic sampling.** Select every kth member from an ordered list (k = population size / desired sample size). Efficient and easy to implement; valid only if the list order is unrelated to the variable of interest.
-- **Convenience and volunteer sampling.** No probability framework; results cannot be generalised to a defined population without strong additional assumptions.
+Probability sampling gives each eligible unit a known, nonzero inclusion probability under the design. This enables design-based inference: the population values are treated as fixed, while repeated hypothetical samples reveal the estimator’s sampling distribution. Nonprobability samples have unknown selection probabilities. They can support description of participants, feasibility work, and causal analyses under explicit assumptions, but a conventional standard error does not convert volunteer data into a probability sample.
 
-## When to use it
+## Start with the population, then construct a frame
 
-| Sampling method | Typical clinical or research setting |
-| --- | --- |
-| Stratified random sampling | Estimating the prevalence of diabetes in a city, stratified by age group and sex, to ensure adequate representation of each age stratum. |
-| Cluster sampling | A school-based programme to reduce obesity: randomly select 20 schools from a district, then measure BMI in all students in the selected schools. |
-| Systematic sampling | Estimating mean blood pressure in a health screen: every 5th patient on the registration list over a one-week period. |
-| Convenience sampling | A pilot study of 30 patients recruited from one hospital's outpatient clinic to estimate feasibility and rough effect size before a definitive trial. |
-| Two-stage stratified cluster sampling | National health surveys (e.g., NHANES): stratify by geography, cluster by census tract, random sample of households within each tract. |
+Define the target by unit, eligibility, geography, and time. “Adults with asthma in the region” leaves open whether the target includes undiagnosed residents, people in institutions, and people not registered with a clinician. A frame is the operational list from which selection occurs: a household address register, patient roster, school list, or claims file. The target and frame rarely coincide perfectly. Undercoverage, duplicates, stale records, and false eligibility are coverage errors. They are not repaired merely by increasing the sample size.
 
-## Assumptions and limitations
+For every stage, record the selection unit and conditional probability. A household survey may select districts, census areas, households, and then one adult within each household. If the probabilities are 0.20, 0.10, 0.50, and 0.25, an adult’s overall inclusion probability is their product, 0.0025, before nonresponse adjustment. The base weight is its inverse, 400. It says how many target units that sampled person represents under the design; it is not a measure of that person's importance.
 
-- **Representativeness.** The sample must be drawn from the target population. If the frame (list from which sampling starts) is incomplete or outdated, no sampling technique will fix the bias.
-- **Response rate.** A high non-response rate, particularly if related to the outcome (sick people are less likely to attend a screening), introduces selection bias regardless of the sampling method.
-- **Intra-class correlation (ICC) in cluster sampling.** Individuals within the same cluster tend to be more similar to each other than to individuals in other clusters; the effective sample size is smaller than the raw count, and standard errors must be adjusted.
-- **Stratification must be on a variable related to the outcome.** Stratifying by a variable unrelated to the outcome adds cost and complexity without reducing variance.
-- **Non-probability samples** do not justify design-based population estimates on their own. Generalising beyond the sample requires explicit assumptions about selection and outcomes, often with adjustment or external population data; convenience samples can still be useful for feasibility work or descriptive questions about participants themselves.
+The estimand influences the design. Estimating a regional mean may favor proportional allocation. Estimating a rare subgroup’s prevalence may require oversampling that subgroup. Measuring service quality across hospitals may require sampling hospitals first, then patients within them. The population, estimand, sampling frame, selection stages, and planned analysis should be written together so a reader can see the chain from question to estimate.
 
-## Worked example
+## Choose a design that matches the inferential job
 
-A hospital wants to estimate mean HbA1c among its adult diabetic outpatients. Its sampling frame has 5,000 registered adults: 1,200 aged 18–40, 2,000 aged 41–60, and 1,800 aged 61+.
+In simple random sampling without replacement, every size-n subset of an N-unit frame is equally likely. It is conceptually clean and provides a useful benchmark, but can be costly when the frame is geographically dispersed. Systematic sampling selects every k-th unit after a random start. It is efficient for an ordered list, provided periodic structure in the list does not align with the outcome or selection interval. A random start does not eliminate a bias created by a repeating ordering pattern.
 
-Using **stratified sampling** with proportional allocation and a desired total sample of 400:
+Time-location sampling is sometimes used when no person-level list exists, for example to recruit people attending venues at varying times. The sampling unit is then a venue-time slot, and attendance frequency affects a person's chance of selection. A defensible design enumerates venue-time units, samples them with known probabilities, records attendance or selection multiplicity, and accounts for repeat visits. Recruiting whoever happens to be present at a single venue and time is a convenience sample, even if the venue is busy. For mobile or hidden populations, network-based designs may be more feasible but require additional assumptions about network degree, recruitment, and connectedness; their estimates should not be presented as ordinary household-survey estimates.
 
-- 18–40: n = 400 × 1,200/5,000 = 96
-- 41–60: n = 400 × 2,000/5,000 = 160
-- 61+: n = 400 × 1,800/5,000 = 144
+Sampling without replacement can also be informative when a large fraction of a small eligible population is observed. If 800 of 1,000 patients are sampled, treating the observations as if drawn from an infinite population overstates sampling variance. The finite-population correction is \(\sqrt{1-n/N}=\sqrt{0.2}\), reducing the standard error relative to the with-replacement approximation. This correction applies to uncertainty from selection within that frame; it does not account for measurement error, nonresponse, frame undercoverage, or uncertainty about whether the frame itself represents the scientific target.
 
-A random sample of 96, 160, and 144 patients is drawn from the respective strata. Suppose the mean HbA1c is 7.4% (SD 1.1) in the 18–40 group, 8.1% (SD 1.3) in the 41–60 group, and 8.5% (SD 1.4) in the 61+ group.
+Stratified sampling partitions the population into mutually exclusive groups and draws a sample in each. Stratification guarantees representation of small groups and can improve overall precision when outcomes are more homogeneous within strata than across them. It is useful when both subgroup and overall estimates matter. The analysis must account for the population shares when allocation is disproportionate.
 
-Stratified mean = (96/400 × 7.4) + (160/400 × 8.1) + (144/400 × 8.5) = 1.776 + 3.240 + 3.060 = **8.08%**.
+Cluster sampling selects groups—clinics, schools, villages—then observes some or all members inside sampled groups. It reduces travel and listing costs, but people in a shared cluster often resemble one another. In a multistage design, sample primary units first and then select people within those units. A design with many clusters and few people per cluster is often more informative than one with few clusters and many people in each, though the cost structure and estimand matter.
 
-Using these illustrative SDs and ignoring finite-population corrections, the estimated SE is sqrt[(0.24² × 1.1²/96) + (0.40² × 1.3²/160) + (0.36² × 1.4²/144)] ≈ 0.065 percentage points. Proportional allocation gives each person the same selection probability, so the weighted mean equals the sample mean here. Stratification can improve precision when strata are internally more homogeneous than the whole population; the gain is not automatic and should be evaluated with a design-based variance estimator.
+Sampling with unequal probabilities is useful for rare outcomes, high-priority subpopulations, or units expected to yield more information. The Horvitz–Thompson estimator of a finite-population total is
 
-## Interpretation and common pitfalls
+\[
+\widehat{T}_{HT}=\sum_{i\in s}rac{y_i}{\pi_i},
+\]
 
-- **Confusing the sample frame with the target population.** A sample of hospital inpatients cannot support inferences about the general community; the target population must be stated explicitly in the methods section.
-- **Ignoring non-response.** If 40% of a convenience sample does not attend and the non-respondents are systematically sicker, the mean HbA1c will be biased low; the non-response rate and any evidence about its direction must be reported.
-- **Using a raw count to estimate precision in cluster sampling.** If 20 schools are sampled with 100 students each (n = 2,000) and the ICC is 0.05, the design effect is 1 + (100 − 1) × 0.05 ≈ 6.0; the effective sample size is about 333, not 2,000. Standard errors computed from n = 2,000 will be far too small.
-- **Treating a convenience sample as random.** Recruiting "the first 50 patients who came to clinic today" does not produce a random sample of the clinic's diabetic population; generalisability beyond the sampled group is not supported.
+where \(\pi_i\) is unit i’s inclusion probability. When the population size is known, divide by N for a mean. A ratio or Hájek estimator divides the weighted total by the sum of weights; it is often more stable but has small-sample bias. The sampling design—not a rule that weights must sum to a particular number—determines the estimator and its variance.
+
+## Worked allocation: precision, cost, and subgroup goals
+
+Suppose a registry contains 5,000 eligible patients: 1,200 aged 18–40, 2,000 aged 41–60, and 1,800 aged 61 or older. A sample of 400 allocated proportionally yields 96, 160, and 144 patients. If their observed HbA1c means are 7.4, 8.1, and 8.5 percentage points, the population-weighted mean is
+
+\[
+(1200/5000)(7.4)+(2000/5000)(8.1)+(1800/5000)(8.5)=8.08.
+\]
+
+Proportional allocation gives equal inclusion probabilities here. If the study instead samples 100 people in each age group to ensure adequate precision for age-specific estimates, the overall mean must still use the population shares 0.24, 0.40, and 0.36; the unweighted mean of the three equally sized samples would target an artificial population with equal age-group shares.
+
+For fixed total n and equal field costs, Neyman allocation is approximately \(n_h\propto N_hS_h\), where S_h is the within-stratum outcome standard deviation. It allocates more observations to large or variable strata and minimizes variance for a single outcome under its assumptions. If costs differ, a cost-aware allocation changes this rule; if several outcomes are primary, no one allocation is optimal for all. Subgroup minimums, logistical constraints, and the need for an overall estimate generally call for a transparent compromise.
+
+## Design effects and honest uncertainty
+
+Under simple random sampling, the variance of a sample mean is approximately \((1-n/N)s^2/n\). The finite-population correction matters when a substantial fraction of a finite frame is sampled. For equal cluster size m and intraclass correlation ρ, a rough design effect is \(1+(m-1)ρ\). With 20 patients per clinic and ρ=0.04, this is 1.76. A nominal sample of 1,000 observations then has about 568 independent-observation equivalents for a mean-like estimand. The approximation is for planning and intuition: unequal cluster sizes, stratification, weights, and outcome-specific patterns change the true design effect.
+
+Use the actual strata, cluster identifiers, weights, and—where supplied—replicate weights in variance estimation. A weighted point estimate paired with an ordinary unweighted standard error is not a design-based analysis. In R, the survey package represents this structure:
+
+```r
+library(survey)
+design <- svydesign(ids = ~psu, strata = ~stratum,
+                     weights = ~final_weight, data = dat,
+                     nest = TRUE)
+svymean(~hba1c, design, na.rm = TRUE)
+svyby(~hba1c, ~age_group, design, svymean, na.rm = TRUE)
+```
+
+The variables in this example must reflect the actual design. If there is only one sampled primary unit in a stratum, or too few clusters overall, conventional design-based variance estimation may be unstable. Simplifying the design variables to make software run can conceal the problem; report limitations and use an analysis appropriate to the available design information.
+
+For a stratified mean, the point estimate is \(\sum_h W_h\bar y_h\), where \(W_h=N_h/N\). Ignoring finite population corrections, its variance estimate is \(\sum_h W_h^2s_h^2/n_h\). This expression shows why stratification helps when strata are internally homogeneous: the within-stratum variances replace the larger pooled variance. It also shows why a small sample in one stratum can dominate uncertainty if its outcome is highly variable. Allocation should be planned for the estimates that matter, not just for a pleasingly balanced table.
+
+Take two groups with population shares 0.8 and 0.2, standard deviations 10 and 20, and 100 total observations. Proportional allocation gives 80 and 20 observations, with variance approximately \(.8^2(10^2/80)+.2^2(20^2/20)=1.8\), so the standard error is 1.34. Neyman allocation is proportional to \(N_hS_h\), giving about 67 and 33; the variance falls to roughly 1.60. The gain is modest in this example, and assumes the standard deviations are known, costs are equal, and the overall mean is the objective. If subgroup-specific precision is required, a minimum allocation to the smaller group may matter more than the slight improvement in the overall mean.
+
+In cluster sampling, the simple design effect approximation assumes equal cluster size and a common intraclass correlation. Unequal cluster sizes increase variance because observations concentrate in a smaller number of independent units. A rough extension multiplies the ICC contribution by a cluster-size coefficient of variation term; for planning, simulation using plausible cluster sizes and correlations is safer. The number of clusters is especially consequential for variance estimation and for cluster-level exposures: adding people to a few existing clinics can improve measurement within clinics but contributes little information about variation between clinics. An analysis with many participants but only a handful of independent clusters should not be described as having a large effective sample for every inferential purpose.
+
+Replicate-weight methods provide another route to variance estimation. Balanced repeated replication, jackknife replication, or bootstrap replicate weights repeatedly perturb the sampling units according to the design and calculate the estimator in each replicate. They can accommodate complex estimators such as medians or calibrated totals, provided the replication scheme is appropriate and supplied correctly. Analysts should preserve the survey provider’s replicate scaling constants and degrees-of-freedom conventions; substituting a generic bootstrap can misrepresent stratification and clustering.
+
+## Nonresponse, calibration, and convenience recruitment
+
+A response rate alone cannot tell how biased an estimate is. Bias depends on outcome differences between respondents and nonrespondents after conditioning on variables used in adjustment. Compare respondents with frame variables, model response probabilities, and calibrate weights to reliable population totals where defensible. These steps require that relevant predictors of participation and outcome are observed, response probabilities are not near zero for important groups, and the model is sufficiently accurate. Calibration cannot repair unmeasured selection merely because weighted margins match census totals.
+
+Extreme weights can inflate variance. Trimming caps weights and trades variance for possible bias; specify the rule, show how much weight is affected, and compare estimates under reasonable alternatives. The Kish approximation \(1+CV(w)^2\) summarizes one source of weight-induced variance inflation, but it is not a universal design effect and does not replace the actual variance estimator.
+
+Convenience samples, clinic volunteers, online panels, and referral chains have no design-based inclusion probabilities unless an actual probability mechanism has been incorporated. They may still answer questions about enrolled participants or support model-based inference if selection is ignorable given measured covariates and there is adequate overlap with the target population. State those assumptions. Do not call a sample representative simply because its age and sex margins resemble the population.
+
+Calibration is most credible when external totals match the survey’s target population, reference date, and definitions. Raking can align several marginal distributions—for example age, sex, and region—but does not force their joint distribution to match. If outcome prevalence varies strongly across an omitted interaction, matching one-way margins may leave residual bias. Conversely, calibrating to noisy or outdated totals can make an estimate worse. Compare estimates before and after adjustment, inspect weight ranges and effective sample sizes, and avoid tuning the calibration variables after seeing which version yields the preferred result.
+
+For nonprobability data, poststratification is not automatically a cure. A common approach models the probability of participation conditional on observed characteristics, then weights or standardizes to a population benchmark. This relies on conditional exchangeability of selection: after conditioning on included covariates, respondents and nonrespondents must have comparable outcome distributions. It also requires positivity, so every relevant covariate pattern in the target has some chance of appearing in the sample. If certain rural or older groups are entirely absent, extrapolation is a model assumption rather than empirical representation. External validation, sensitivity analyses for residual selection, and honest narrowing of the target are more useful than a single adjusted number.
+
+Nonresponse follow-up can also be designed as a second-phase sample. A random subsample of initial nonrespondents can receive more intensive contact, and its outcomes can help estimate differences between respondents and nonrespondents. Two-phase inclusion probabilities must then be reflected in weights. This strategy often yields stronger information than simply sending repeated reminders to everyone, because it converts a portion of the nonresponse problem into a probability sample with known follow-up selection.
+
+## Reporting the sample as part of the result
+
+Report the target population and time period, frame and known coverage gaps, unit at each sampling stage, selection probabilities or method, stratum and cluster structure, response dispositions, exclusions, and replacement rules. Explain base weights and each later adjustment separately. Present weighted estimates with design-correct intervals and identify whether the result is a total, mean, prevalence, or subgroup/domain estimate. For longitudinal panels, distinguish the original sample from the people retained at each wave; attrition weights require additional assumptions and do not erase selective loss by themselves.
+
+A sampling plan succeeds when a reader can reconstruct who could enter, how selection occurred, and why the reported uncertainty corresponds to that process. Those design facts are not administrative details appended to analysis: they define the population to which the estimate refers.
+
+### Domains, rare outcomes, and planned subgroup estimates
+
+A domain is a population subgroup for which an estimate is wanted, such as adults aged 65 years or older within a national survey. Domain estimation should retain the full design object and identify the subgroup as a domain. Dropping all non-domain observations before variance estimation can make a sampled stratum appear to contain fewer primary units than it really did, leading to poor or undefined variance estimates. In R, `subset(design, age >= 65)` retains the design structure for a domain analysis; it is not equivalent to filtering the raw data and rebuilding the design from the remaining rows.
+
+Rare populations may require disproportionate selection. Suppose 2% of a frame has a particular disease but the study needs at least 100 affected people for stable subgroup description. A simple random sample of 1,000 would yield about 20 on average. A stratified design that samples the known disease registry at a higher rate can improve precision, but the aggregate prevalence requires weights that restore the population distribution. If disease status is not known in the frame, a screening phase may be needed: sample broadly, measure a short screening instrument, then select eligible individuals at a higher second-phase probability. Record both probabilities; using only the second-phase sample fraction gives incorrect weights.
+
+The planning target should distinguish precision for a population total from precision for a subgroup mean, and distinguish estimation from hypothesis testing. A design with a narrow overall confidence interval may still have too few independent clusters or too few subgroup events for adjusted modeling. Power calculations should use the number of independent sampling units and anticipated design effect rather than the raw number of records. For rare outcomes, the expected number of events after nonresponse and design losses is often a clearer planning quantity than nominal N.
+
+### A compact analysis audit in R
+
+The point estimate and its uncertainty should travel together. This small workflow makes the declared sampling variables explicit and can be extended with the survey provider’s design documentation:
+
+```r
+library(survey)
+options(survey.lonely.psu = "adjust")
+d <- svydesign(ids = ~psu, strata = ~stratum,
+               weights = ~weight, data = dat,
+               nest = TRUE)
+overall <- svymean(~case, d, na.rm = TRUE)
+by_region <- svyby(~case, ~region, d, svymean,
+                   na.rm = TRUE, vartype = c("se", "ci"))
+coef(overall)
+confint(overall)
+```
+
+The lonely-PSU option shown is a software choice, not a universal remedy. A single sampled primary unit in a stratum can signal a design feature that requires collapsing strata, certainty-unit treatment, or another prespecified variance method. The analyst should consult design documentation rather than selecting an option because it produces finite standard errors. Likewise, missing weights or strata values should be resolved from source records or documented rules, not silently replaced with one.
+
+An audit should compare the weighted sample totals with known frame or population controls, tabulate response by key frame characteristics, inspect the distribution of weights, and verify that the number of sampled clusters and strata matches the design report. Recalculate important estimates under plausible nonresponse adjustments or trimming thresholds. Such checks do not prove representativeness; they reveal whether the implemented analysis is consistent with the stated design and how sensitive the conclusion is to consequential choices.
 
 ## References and further reading
 
-## From target population to analytic sample
-
-## Variance estimation and design-based inference
-
-## Sample allocation and optimality
-
-Proportional allocation samples each stratum according to its population share and is operationally simple. Neyman allocation assigns sample size roughly proportional to stratum size times outcome SD, (n_h\propto N_hS_h\), minimizing variance for a fixed total sample under equal costs. If rural outcomes vary more than urban outcomes, Neyman allocation may oversample rural residents even without a dedicated subgroup objective. With unequal data collection costs, allocation should also account for cost; practical designs often balance precision, subgroup minima, and field logistics rather than optimize one statistic.
-
-For a survey estimating several outcomes, there is no single optimal allocation because each outcome has different stratum variances. Choose a compromise based on priority outcomes and report precision for secondary estimates. Minimum subgroup sample sizes protect analytic usefulness but increase weighting variation. Pilot or prior survey data can estimate within-stratum variance, although unstable estimates should be shrunk or explored through scenarios.
-
-## Calibration, raking, and weight trimming
-
-Calibration adjusts survey weights so weighted totals match known population margins, such as age, sex, or region. Raking iteratively matches several margins without requiring a full cross-tabulation. This can reduce nonresponse bias if the calibration variables predict response and outcomes, and improve precision when they are strongly associated with outcomes. It cannot correct bias from unmeasured differences after conditioning on calibration variables, and margins from a different year or population can introduce error. Compare uncalibrated and calibrated estimates and document the source of control totals.
-
-Weight trimming caps extreme weights to limit variance but changes the estimator and can reintroduce bias. Report the trimming rule, proportion and total weight mass affected, and sensitivity of key estimates to reasonable cut points. Assess both design effect and bias implications. A small standard error after aggressive trimming is not evidence that the target population is represented. Propensity calibration or entropy balancing can match richer margins, but positivity and model support still matter.
-
-## Design effect versus effective sample size
-
-The design effect is estimator-specific: \(DEFF=Var_{design}(\hat\theta)/Var_{SRS}(\hat\theta)\). It can be below one under efficient stratification and above one under clustering or unequal weights. Effective sample size \(n/DEFF\) is a useful communication approximation for a mean or proportion, not a literal count of independent participants and not a universal value for all outcomes. Report the design and variance method rather than reducing complex sampling to one effective N.
-
-The sampling design determines not only weights but also the variance estimator. Under simple random sampling without replacement, the estimated variance of a sample mean is \((1-n/N)s^2/n\), where the finite-population correction reflects sampling a substantial fraction of the frame. Under stratified sampling, estimate each stratum mean and combine it using population shares; the variance is the sum of squared shares times stratum variances. Under cluster sampling, primary sampling units (PSUs) are the independent units for variance estimation, and within-PSU observations are correlated. Treating all people as independent is pseudoreplication.
-
-In a Taylor-linearized survey estimator, the statistic is approximated by a linear combination of observations and the design variance is calculated from PSU-level contributions. Replicate-weight approaches (jackknife, balanced repeated replication, or bootstrap variants) instead recompute the statistic over supplied replicate weights. Replicate methods are particularly helpful for nonlinear quantities such as quantiles, ratios, and regression contrasts, but the correct replicate scheme and scaling constants are design-specific. Use released replicate weights exactly as documented.
-
-```r
-library(survey)
-# Two-stage design: PSUs are nested within strata; weight is final person weight.
-d <- svydesign(ids = ~psu, strata = ~stratum, weights = ~final_weight,
-               data = dat, nest = TRUE)
-svymean(~outcome, d, na.rm = TRUE)
-svyglm(outcome ~ age + sex, design = d, family = quasibinomial())
-```
-
-For multistage sampling, list every stage in `ids` when stage-specific sampling fractions or finite population corrections are available. The variance calculation otherwise uses a with-replacement approximation at the first stage. A lonely PSU in a stratum prevents the usual within-stratum variance calculation; do not solve this silently by treating the design as simple random sampling. Follow the agency's guidance, combine strata only when substantively defensible, or use a documented lonely-PSU adjustment and sensitivity analysis.
-
-### Worked weighted prevalence and uncertainty
-
-Suppose two strata have population sizes 9,000 and 1,000. We sample 450 from each; 36 urban and 90 rural respondents have the outcome. Unweighted prevalence is \((36+90)/900=14\%\). Population-standardized prevalence is \(.9(36/450)+.1(90/450)=9.2\%\). This point estimate is design-weighted; its uncertainty is not calculated by applying an ordinary binomial formula to the pooled 900. It must reflect stratum allocation, finite-population fractions if material, and nonresponse adjustments. A correct report gives both the weighted estimate and its design-based interval, along with effective sample sizes or design effects where useful.
-
-Weights may be normalized to sum to the sample size without changing weighted means, but normalization does not turn the sample into a probability sample or fix omitted clusters. For totals, retain the population scale. For domain estimates, use a survey subpopulation/domain operation rather than deleting all non-domain records before variance calculation; deletion can remove information about the sample design and underestimate uncertainty.
-
-### Sampling for rare outcomes and subgroups
-
-Disproportionate stratification or oversampling can make rare subgroups estimable. Plan the number of sampled units from the desired subgroup precision, expected response, and within-stratum variance. If selecting participants based on an outcome for a case-control analysis, the design is no longer a simple population survey; analysis should reflect the outcome-dependent sampling mechanism. Adaptive sampling, respondent-driven sampling, and venue-time sampling may be necessary for hidden populations but rely on specialized assumptions about network structure, recruitment, and inclusion probability. They should not be described as ordinary random samples.
-
-For longitudinal panels, initial probability sampling does not guarantee later-wave representativeness. Attrition weights can model continued response conditional on measured history, but require positivity and correct response models. Refreshment samples can restore cross-sectional coverage and help diagnose attrition assumptions. Keep base weights, nonresponse adjustments, calibration, and longitudinal attrition adjustments separately documented so analysts can reconstruct the target estimand and run sensitivity analyses.
-
-### Example: disproportional stratified sampling
-
-Suppose a target population has 9,000 urban and 1,000 rural residents, but a survey samples 450 from each stratum to permit rural estimates. The sample is 50% rural although the population is 10% rural. An unweighted estimate of prevalence gives rural residents five times their population representation. Base weights are inverse selection probabilities: urban weight 9,000/450=20 and rural weight 1,000/450≈2.22. If urban and rural prevalence are 8% and 20%, the population prevalence is \(.9(.08)+.1(.20)=.092\), or 9.2%; the unweighted sample prevalence is 14%. The example shows why subgroup oversampling improves subgroup precision but requires population weighting for aggregate estimates.
-
-```r
-weighted.mean(dat$condition, w = dat$final_weight, na.rm = TRUE)
-```
-
-The final weight should reflect selection and any documented nonresponse/calibration steps. Compute uncertainty with the full survey design; a weighted mean alone supplies no valid design-based interval.
-
-Sampling design begins with a target population and a sampling frame. The target population is the set of people, places, or events to which the research question refers; the frame is the operational list or mechanism from which units can be selected. A hospital registry may be a useful frame for estimating outcomes among patients treated at that hospital, but it does not automatically represent all residents with the condition. Coverage error occurs when eligible units are absent or ineligible units appear. Nonresponse, refusal, unreachable participants, and missing measurements create further selection, which probability sampling alone does not remove.
-
-In a simple random sample of \(n\) units from a finite population of size \(N\), each unit has inclusion probability \(n/N\). The sample mean is unbiased for the population mean under the design, and its variance includes a finite-population correction \((1-n/N)\). When sampling is unequal, each unit's inclusion probability \(\pi_i\) should be recorded; the Horvitz–Thompson total is \(\hat T=\sum_{i\in s} y_i/\pi_i\). Its population-mean counterpart divides by a known or estimated population size. Large weights identify units representing many unsampled units and can make estimates unstable, so weight distributions and design-based standard errors matter.
-
-Stratification divides the frame into mutually exclusive groups and samples within each. It ensures representation of small but important groups and can improve precision when outcomes differ across strata. Disproportionate allocation is appropriate when subgroup estimates are important, but weighted estimates are then needed for population-wide summaries. Cluster sampling selects groups such as clinics or villages, then people within groups; it can reduce travel and recruitment cost while increasing variance because people in the same cluster tend to resemble one another. A multistage design may sample districts, facilities, then patients; each stage contributes to the overall inclusion probability.
-
-## Design effect, weighting, and precision
-
-For equal cluster sizes \(m\) and intraclass correlation \(\rho\), the approximate cluster design effect is \(DEFF=1+(m-1)\rho\). If each clinic contributes 20 patients and \(\rho=0.04\), then \(DEFF=1+19(0.04)=1.76\): 1,000 clustered observations carry roughly the variance of 568 independent observations (effective sample size \(1000/1.76\)). This approximation is a planning aid; unequal cluster size can further increase the design effect. Analyses should retain cluster identifiers and use survey-design methods, cluster-robust variance with enough clusters, or a justified multilevel model.
-
-```r
-library(survey)
-# dat contains outcome, stratum, PSU, and final sampling weight.
-dsgn <- svydesign(ids = ~PSU, strata = ~stratum,
-                  weights = ~weight, data = dat, nest = TRUE)
-svymean(~outcome, dsgn, na.rm = TRUE)
-svyby(~outcome, ~stratum, dsgn, svymean, na.rm = TRUE)
-```
-
-This code assumes weights and design variables were constructed correctly. A standard `mean()` and standard error treat observations as independent and generally understate uncertainty for clustered or stratified samples. For a two-phase sample, include the appropriate stage information or replicate weights supplied by the survey producer. Document whether weights are base inverse-probability weights, nonresponse adjusted, calibrated to population margins, or trimmed.
-
-The Kish approximation for unequal weights is \(DEFF_w\approx1+CV(w)^2\), where \(CV\) is the coefficient of variation of weights. This illustrates why extreme weights reduce precision, but it is not a substitute for the actual design variance: correlation between weights and outcomes can make the true effect smaller or larger. Trimming weights trades some bias for lower variance and should be prespecified and accompanied by sensitivity analysis.
-
-## Nonresponse, missingness, and representativeness
-
-Response rate alone does not quantify nonresponse bias. Bias depends on how response relates to the outcome, conditional on variables used for adjustment. If participation is more likely among healthier people and health status is poorly observed among nonparticipants, even a high response rate may leave substantial bias. Compare respondents with frame information, model response probabilities, apply calibrated nonresponse adjustments, and examine sensitivity to unmeasured differences. Weighting restores representation only under assumptions: relevant selection predictors are observed, positivity holds, and the adjustment model is adequate.
-
-Sampling and missing-data mechanisms overlap but are not identical. Deliberate oversampling of a subgroup is a known design feature; a survey skip or refusal to answer income is item nonresponse. Follow the sampling design for selection and use appropriate missing-data methods for missing measurements. Do not automatically impute structural non-sampling units as if their outcomes were missing at random. For linked or convenience samples, explain the recruitment process and state which population is defensibly represented.
-
-Plan the sample around the primary estimand: overall mean, subgroup prevalence, trend, or treatment effect. A sample size sufficient for the overall prevalence may be too small for a rare subgroup. Account for design effect, anticipated nonresponse, eligibility failure, and multiplicity of planned subgroup analyses. Report frame construction, selection at every stage, probabilities, substitutions, response dispositions, weighting, calibration totals, variance estimation, and limitations on transportability. These details allow readers to reproduce the design-based estimate rather than treating the observed sample as a simple random draw.
-
+- Heeringa SG, West BT, Berglund PA. *Applied Survey Data Analysis*. 2nd ed. Chapman & Hall/CRC; 2017.
+- Horvitz DG, Thompson DJ. A generalization of sampling without replacement from a finite universe. *Journal of the American Statistical Association*. 1952;47(260):663–685. https://doi.org/10.1080/01621459.1952.10483446
 - Lohr SL. *Sampling: Design and Analysis*. 3rd ed. Chapman & Hall/CRC; 2021. https://doi.org/10.1201/9780429298899
 - Lumley T. *Complex Surveys: A Guide to Analysis Using R*. Wiley; 2010. https://doi.org/10.1002/9780470580066
-- Heeringa SG, West BT, Berglund PA. *Applied Survey Data Analysis*. 2nd ed. Chapman & Hall/CRC; 2017.
-
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
-- Bland M. *An Introduction to Medical Statistics*. Oxford University Press.
-- Lohr L. *Sampling: Design and Analysis*. Wiley.
-
-The [bias and confounding article](/biostatistics-library/study-design/bias-and-confounding.html) explains how selection bias, including sampling-related bias, distorts results.
+- Valliant R, Dever JA, Kreuter F. *Practical Tools for Designing and Weighting Sample Surveys*. 2nd ed. Springer; 2018.
+- The [bias and confounding article](/biostatistics-library/study-design/bias-and-confounding.html) discusses selection bias and related threats to inference.

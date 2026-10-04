@@ -1,171 +1,144 @@
 ---
 title: Logistic regression
-summary: Models the log-odds of a binary outcome as a linear combination of predictors, yielding interpretable odds ratios with confidence intervals.
+summary: Model binary outcomes through log odds, estimate conditional associations, check calibration and functional form, and translate coefficients into absolute risks.
 ---
 
-## Overview and key ideas
+## Overview
 
-Logistic regression is the standard model for binary outcomes — died/survived, infected/not infected, present/absent — and, with extensions, for rare events and ordinal responses. It models the *log-odds* (logit) of the outcome as a linear function of the predictors: log(p / (1 − p)) = β₀ + β₁X₁ + β₂X₂ + …, where p is the probability of the event. The inverse logit converts back to a probability: p = 1 / (1 + e^−(β₀ + β₁X₁ + …)), which always stays between 0 and 1.
+Logistic regression models the probability of a binary outcome as a function of predictors. It is commonly used for disease status, treatment response, readmission, and adverse events. The model uses the logit link so fitted probabilities remain between zero and one, while coefficients describe changes in log odds conditional on other included predictors.
 
-The model is fitted by maximum likelihood rather than least squares. The central estimand is the exponentiated coefficient: for a one-unit increase in Xⱼ, the *odds* of the event are multiplied by e^βⱼ — the odds ratio (OR) — holding other predictors fixed. OR = 1 means no association, OR > 1 increases odds, OR < 1 decreases them. For a binary predictor (e.g. sex), the OR compares the odds between the two groups directly. Logistic regression can be used descriptively (adjusting for confounders) or for prediction, and it underpins case-control studies, where it naturally estimates ORs even when disease prevalence is sampled, not measured.
+The model estimates association, not causation by default. Its interpretation depends on the target population, predictor timing, confounder control, outcome definition, and functional form. For prediction, calibration and validation matter as much as discrimination. For causal analysis, odds ratios are often less directly useful than marginal risks and risk differences.
 
-## When to use it
+## From probability to odds and log odds
 
-| Setting | Example question |
-| --- | --- |
-| Case-control study | Is a genetic variant associated with a rare cancer, adjusted for age and sex? |
-| Risk modelling | Which baseline factors independently predict in-hospital mortality? |
-| Diagnostic research | Do imaging features predict whether a nodule is malignant? |
-| Clinical trial | Does the treatment reduce the odds of treatment failure at 12 weeks? |
+For event probability (p), odds are (p/(1-p)), and log odds are \(\log[p/(1-p)]\). Logistic regression specifies \(\logit(p_i)=\beta_0+\beta_1x_{i1}+\cdots+\beta_kx_{ik}\). A one-unit increase in (x_j) multiplies the odds by \(e^{\beta_j}\), holding other model variables fixed. This is a conditional odds ratio, not generally a risk ratio.
 
-Use it when the outcome is binary (or a count of rare events per subject) and you want an effect estimate adjusted for covariates. If the outcome is a rate (events per person-time), use Poisson or negative binomial regression; if it is time-to-event, use Cox proportional hazards. Logistic regression can also be fitted to a binary outcome with a 1-in-N prevalence as an approximation of a rare-event rate.
-
-## Assumptions and limitations
-
-- **Linearity on the logit scale**: the log-odds must change linearly with each continuous predictor; a curved relationship (e.g. U-shaped risk by age) biases the OR.
-- **Independence**: one observation per subject; repeated measures or clustered patients require generalised estimating equations or mixed models.
-- **No severe multicollinearity** among predictors, as in any linear-model family.
-- **Sufficient information**: a fixed “10 events per variable” threshold is not a guarantee of stability. Needed sample size depends on event proportion, number and distribution of candidate parameters, expected model fit, and shrinkage target; sparse data can cause overfitting or separation even above the heuristic.
-- **OR ≠ risk ratio**: when the outcome is common (prevalence > 10–20%), the OR overstates the risk ratio in both directions; a rare outcome (incidence < 10%) makes OR ≈ RR.
-
-## Worked example
-
-A registry of 1,200 myocardial infarction patients models in-hospital death with age (per 10 years) and Killip class (>1 vs 1). Suppose maximum likelihood gives: logit(death) = −2.00 + 0.25·(age/10) + 0.95·(Killip > 1). For a 70-year-old in Killip class I: logit = −2.00 + 0.25(7) = −0.25, so p = 1/(1 + e^0.25) ≈ 0.438, an estimated 44% mortality under this illustrative model. With Killip class >1, logit = −0.25 + 0.95 = 0.70 and p = 1/(1 + e^−0.70) ≈ 0.668. The exponentiated Killip coefficient is e^0.95 = 2.59 (suppose its 95% CI is 1.70 to 3.95): at the same age, Killip class >1 multiplies the odds by about 2.6; the fitted probability rises from 44% to 67%. This illustrates why odds ratios and absolute risks answer different questions and should be reported together. The probabilities are model-based adjusted predictions, not raw group proportions.
-
-## Interpretation and common pitfalls
-
-- The OR is a ratio of *odds*, not of probabilities: an OR of 2 does not mean "twice as likely" when the baseline probability is anything but small.
-- Reporting ORs from a case-control study as risk ratios, or ORs from a cohort study of a common outcome as if they were RRs, systematically exaggerates effects.
-- A "non-significant" adjusted OR can still be an important finding (wide CI) or a sign of residual confounding; examine the CI and the change from the crude OR, not just the p-value.
-- Do not interpret the intercept as a clinically meaningful baseline risk unless the reference values of all predictors are realistic (e.g. age = 0).
-
-For prediction, distinguish discrimination from calibration: an AUC can be acceptable while predicted probabilities are systematically too high. Report calibration-in-the-large and a calibration plot, and validate the entire modeling process (including variable selection and tuning) with resampling. When separation occurs, ordinary maximum-likelihood estimates can diverge; Firth penalized likelihood is one option, while exact or weakly informative Bayesian methods may suit particular designs. These methods do not make a sparse dataset informative, so show uncertainty and avoid interpreting unstable subgroup estimates.
-
-## Likelihood, link, and fitted probabilities
-
-For independent binary outcomes Y_i∈{0,1}, logistic regression assumes Y_i|X_i~Bernoulli(p_i) with logit(p_i)=X_i'β. The likelihood is ∏p_i^y_i(1−p_i)^(1−y_i); maximum likelihood chooses β to maximize it. The logit link maps probabilities (0,1) to the real line, and inverse logit returns valid probabilities. For a one-unit change in predictor x_j holding others fixed, log odds change by β_j and odds multiply by exp(β_j). This is a conditional odds ratio under the specified model.
-
-The worked example's corrected linear predictor at age 70 is −2+.25×7=−.25, giving p=expit(−.25)=.438 for Killip I. For Killip>1, logit=.70 and p=.668. The odds ratio e^.95=2.59; odds are .438/.562=.779 in the reference state and .668/.332=2.012 in the higher Killip state, ratio 2.58 subject to rounding. An OR of 2.59 does not mean risk is 2.59 times as high; predicted risks differ by .230 here and the RR is .668/.438=1.53.
+Suppose a fitted model gives treatment coefficient −0.40. Then conditional OR is \(e^{-0.40}=0.67\), or 33% lower odds in the treated group at the same values of included covariates. If control risk is 20%, applying OR 0.67 gives treated odds (0.67\times0.20/0.80=0.1675), or risk (0.1675/(1+0.1675)=0.144), about 14.4%. This is a 5.6 percentage-point risk difference in that setting, not a 33% risk reduction.
 
 ```r
-expit <- function(eta) plogis(eta)
-age <- 70
-eta_k1 <- -2 + .25*(age/10)
-eta_k2 <- eta_k1 + .95
-c(p_killip1 = expit(eta_k1), p_killip_gt1 = expit(eta_k2),
-  OR_killip = exp(.95), RR_predicted = expit(eta_k2)/expit(eta_k1))
+fit <- glm(event ~ treatment + age + severity,
+           data = dat, family = binomial())
+exp(coef(fit))                 # conditional odds ratios
+predict(fit, type = "response") # fitted probabilities
 ```
 
-This computes model-based conditional probabilities at fixed age. It does not account for uncertainty in β; use `predict(..., type="link", se.fit=TRUE)` and transform appropriately for intervals. Wald intervals on the probability scale can be poor near boundaries; simulation or profile likelihood can propagate uncertainty better.
+Reference categories and factor coding determine coefficient meaning. For a categorical predictor, report the reference group. For a continuous predictor, “per one unit” must be clinically interpretable; rescale age per 10 years or biomarker per standard deviation only when useful and clearly state it.
 
-## Coding and functional form
+## Estimation and interpretation
 
-Binary predictors need a clear reference group. For a factor with multiple levels, R uses contrasts; inspect `model.matrix()` and set the baseline deliberately. A continuous predictor is assumed linear on the logit scale, not on the probability scale. Consequently, a constant β can imply large probability changes near p=.5 and small changes near p=.05. Check linearity using splines or grouped calibration plots, while avoiding arbitrary categorization.
+Maximum likelihood estimates coefficients by choosing values that make observed binary outcomes most likely under the model. Standard errors arise from the information matrix or robust variance estimators. Wald intervals are convenient, but profile-likelihood or penalized intervals can be more reliable with sparse data. A coefficient p-value tests a conditional null given the model; it does not quantify clinical importance or establish an independent causal effect.
 
-If a predictor is scaled (age per 10 years), its odds ratio is per 10-unit change. A coefficient for a 5-unit change is exp(5β) if the original scale is one-unit. For interactions, an OR depends on the other interacting variable; report conditional estimates or predicted risks over meaningful values. Odds ratios are non-collapsible: adjusted and marginal ORs may differ even without confounding, so do not interpret coefficient change alone as proof of confounding.
+Odds ratios are noncollapsible: adjusted and unadjusted ORs can differ even when the added covariate is not a confounder, because conditional and marginal odds are different summaries. Therefore, a change in OR after adjustment does not by itself measure confounding. To obtain population-average risks, predict under each exposure for everyone in a target population, then average. This standardization produces marginal risks and contrasts.
 
-## Sparse data, separation, and sample size
+For a clinical trial, report event risks by randomized group, risk difference or ratio, and an adjusted analysis if prespecified. For a case-control study, the sample's case fraction is set by design, so the intercept and predicted absolute risks are not population risks without external prevalence information. Under appropriate sampling, odds-ratio slopes can still estimate exposure-disease association.
 
-Complete separation occurs when a predictor combination perfectly distinguishes outcomes; maximum-likelihood coefficients can diverge and standard errors become huge. Quasi-separation creates similar instability. Convergence warnings, extreme estimates, and fitted probabilities near zero/one are clues. Firth penalized likelihood can produce finite estimates; weakly informative Bayesian priors or exact methods may be appropriate in specific sparse settings. Penalization stabilizes estimation but does not create information. Report the method and avoid overconfident subgroup claims.
+## Worked example: readmission risk
 
-A fixed events-per-variable rule is inadequate. Model complexity includes all candidate parameters, including spline and interaction degrees of freedom. Events, non-events, predictor distribution, anticipated shrinkage, and desired precision matter. Prespecify predictors and use shrinkage/penalization or bootstrap validation when developing prediction models. Stepwise p-value selection biases coefficients and performance estimates.
+Suppose 100 of 500 patients are readmitted within 30 days. A model includes treatment, age per 10 years, and prior admission. Estimated treatment coefficient is −0.35 (SE 0.16), giving OR 0.70 with approximate 95% CI \(\exp[-0.35\pm1.96(0.16)] = (0.51,0.96)\). This is compatible with lower conditional odds among treated patients, given included variables. If predicted control risk for a representative profile is 0.20, an OR of 0.70 corresponds to treated risk about 0.149, a 5.1-point absolute difference.
 
-## Risk, odds, and absolute effects
+That profile-specific conversion is not a population effect. Compute average standardized risks over the study population to get marginal contrasts. If treatment selection was observational, the causal interpretation further requires measured confounding control, positivity, consistency, and correct model specification. Include unmeasured confounding sensitivity when consequential.
 
-In cohort studies, logistic regression estimates odds ratios. For common outcomes, the OR can be materially farther from one than the risk ratio. Modified Poisson regression with robust variance or log-binomial models can estimate risk ratios under conditions, while standardization from a logistic model can produce marginal risks and risk differences. In case-control studies with outcome-dependent sampling, logistic slope ORs are estimable under standard sampling assumptions, but the intercept and absolute risk are generally not identified without external prevalence information.
+### Standardizing predictions over a target population
 
-For a clinically interpretable report, translate the model into predicted probabilities for representative profiles or standardized risks over the target population. The same OR can imply different absolute changes at different baseline risks. Avoid describing odds as “probability,” “risk,” or “times more likely.”
+Suppose a cohort of 1,000 eligible patients is used to estimate the effect of a discharge intervention. To estimate marginal risks, create two copies of the cohort, set intervention to 1 for everyone in one copy and 0 in the other, predict each person's probability, and average within copy. The difference in averages is the standardized risk difference. This preserves the observed distribution of age, severity, and other covariates and is usually easier to interpret than an adjusted conditional OR.
 
-## Model assessment and R workflow
+The result is causal only under assumptions: conditional exchangeability given measured covariates, positivity of both intervention options, consistency of treatment definitions, and adequate model specification. If some high-severity patients always receive the intervention, predictions under no intervention for them extrapolate beyond data support. Inspect overlap and limit the target population if needed.
 
-Assess calibration and discrimination separately. Calibration asks whether predicted probabilities agree with observed frequencies; discrimination measures ranking. AUC does not measure calibration or clinical usefulness. Check calibration-in-the-large, slope, calibration plot with uncertainty, Brier score, and decision consequences when relevant. Internal validation must repeat preprocessing and variable selection within resamples.
+Uncertainty should include estimation of the regression coefficients and standardization. A nonparametric bootstrap can resample participants, refit the model, and repeat predictions. If data are clustered, resample clusters. Report the target population, average predicted risks, risk difference, interval, and sensitivity to model form.
 
-```r
-fit <- glm(death ~ age10 + killip, family = binomial(), data = dat)
-summary(fit)
-exp(cbind(OR = coef(fit), confint(fit)))
-predict(fit, newdata = data.frame(age10 = 7, killip = 0),
-        type = "response")
-```
+## Functional form and interactions
 
-The profile-likelihood `confint` may take longer than a Wald interval. Ensure the factor encoding matches the intended reference category. For clustered or repeated data use GEE or random effects. Report outcome definition, time horizon, covariate coding, missingness, model diagnostics, and whether the analysis estimates association or prediction.
+The standard model assumes each continuous predictor is linear on the log-odds scale. This is not the same as a linear probability relationship. Use restricted cubic splines or fractional polynomials when nonlinearity is plausible; inspect partial residuals and predicted risk curves. Categorizing a continuous variable at the sample median loses information and creates an artificial jump. If nonlinear terms are used, present predicted probabilities across clinically meaningful values rather than individual spline coefficients.
 
+An interaction means the association of one predictor varies by another on the model's log-odds scale. A treatment-by-age coefficient tests modification of the conditional log OR, not necessarily absolute risk difference. Even with no logit-scale interaction, risk differences may vary as baseline risk changes. Calculate contrasts on the scale relevant to decisions and show uncertainty.
 
-## From conditional odds to standardized risks
+Suppose treatment coefficient is −0.50 and treatment-by-age-per-decade coefficient is 0.20, with age centered at 60. At age 60, OR is (e^{-0.50}=0.61); at age 70, OR is (e^{-0.30}=0.74). The confidence interval for the age-70 contrast requires the covariance of both estimates. Report model-based contrasts and interaction interval rather than comparing p-values within age strata. Also plot standardized absolute risks by age to show whether the clinical effect changes on a decision scale.
 
-A logistic coefficient conditions on included covariates. To obtain a marginal risk under treatment level a, predict each target-population member's risk after setting treatment to a, then average: p̄(a)=N^−1Σ expit(X_i(a)'β̂). A marginal risk difference is p̄(1)−p̄(0); a marginal risk ratio is p̄(1)/p̄(0). This g-computation approach can be applied in trials for precision and in observational settings under exchangeability, positivity, consistency, and correct model assumptions. Bootstrap the entire procedure for uncertainty when needed.
+Interactions are scale-specific. No interaction on the odds-ratio scale does not imply no interaction on risk difference or risk ratio scale. Prespecify effect modifiers based on biology or clinical use, limit the number examined, and label exploratory subgroup analyses. Small subgroups have wide intervals even when the overall sample seems large.
 
-```r
-fit <- glm(event ~ treatment + age + sex, family = binomial(), data = dat)
-d0 <- d1 <- dat
-d0$treatment <- 0
-d1$treatment <- 1
-p0 <- mean(predict(fit, d0, type = "response"))
-p1 <- mean(predict(fit, d1, type = "response"))
-c(risk0 = p0, risk1 = p1, risk_difference = p1-p0,
-  risk_ratio = p1/p0)
-```
+## Assumptions and diagnostics
 
-This averages over the covariate distribution in `dat`, so the target is that empirical population. For complex survey weights use a weighted average; for external target populations standardize to their covariate distribution. In observational data these estimates remain assumption-dependent and can extrapolate where treatment groups have no overlap.
+Observations should be independent conditional on the model, unless dependence is handled with cluster-robust standard errors, GEE, or random effects. The logit mean model should be adequately specified, predictors measured appropriately, and influential observations investigated. Outcome classification should be consistent. Standard logistic regression assumes a linear predictor but does not require normally distributed predictors or residuals.
 
-## Calibration and discrimination
+Assess calibration with plots, calibration intercept and slope, and Brier score. Discrimination can be summarized with ROC AUC, but high AUC does not establish calibrated risk. Check separation, influential observations, multicollinearity, sparse categories, and model convergence. Calibration and predictive performance should be assessed in data not used to develop or tune the model.
 
-AUC/C-statistic measures ranking across randomly selected cases and noncases. It does not tell whether a predicted risk of .30 corresponds to a 30% observed frequency. Calibration intercept ideally equals zero and slope one when regressing outcomes on the logit of predictions in validation data; slope below one indicates predictions too extreme on average. Calibration plots should avoid overly coarse bins and display uncertainty. Brier score is mean squared probability error and can be compared with a prevalence-only reference.
+Complete separation occurs when a predictor perfectly predicts outcome, driving maximum-likelihood coefficients toward infinity. Firth penalized logistic regression or weakly informative Bayesian priors can provide finite estimates. Penalization changes estimation and intervals; report the method. Do not solve separation by silently collapsing categories without scientific justification.
 
-For a causal explanatory model, predictive calibration may not be the primary goal, but predicted probabilities still require plausible interpretation. For a risk model, evaluate external or bootstrap validation and decision utility at thresholds where action changes. A model can have excellent AUC but poor net benefit if it does not improve decisions over treat-all/treat-none.
+### Separation and sparse data
 
-## Missingness, clustering, and alternatives
+Suppose no untreated patients with a rare genotype experience an event, while several treated patients do. Maximum likelihood can assign an extremely large genotype coefficient because increasing it keeps improving the likelihood. Standard errors become huge and Wald intervals nonsensical. Firth's bias-reduced likelihood adds a penalty that yields finite estimates and often improves small-sample behavior. Exact logistic regression is another option for very small datasets but can be computationally demanding and conditions on sufficient statistics.
 
-Complete-case logistic regression changes the analyzed population if outcomes or predictors are missing. Multiple imputation should include outcome, treatment, predictors, and auxiliary variables and respect nonlinearities/interactions in analysis. Pool estimates using appropriate multiple-imputation rules. For repeated outcomes use GEE or mixed-effects logistic regression; conditional and population-averaged ORs differ. If absolute risk is the primary measure and outcomes are common, consider log-binomial or modified Poisson approaches, while checking predicted risks and robust variance.
+Sparse-data bias can occur even without complete separation, particularly for rare exposures and outcomes. Penalized estimation or informative priors can stabilize estimates, but the prior or penalty should be justified and sensitivity reported. A large coefficient from a handful of events is not strong evidence of a large effect; show cell counts and interval width.
 
-When reporting, state event coding, time horizon, factor references, continuous predictor scaling, sample and event counts, missing-data approach, and whether coefficients are intended for inference or prediction. Present adjusted absolute risks alongside odds ratios when readers need clinical meaning.
+### Calibration and validation
 
-## Interactions, nonlinearity, and prediction uncertainty
+Calibration asks whether predicted probabilities match observed frequencies. Calibration-in-the-large evaluates systematic over- or underprediction; calibration slope assesses overly extreme predictions. A slope below 1 often indicates overfitting. A smooth calibration curve with uncertainty bands is more informative than a Hosmer–Lemeshow test, whose result depends on arbitrary grouping and sample size. The Brier score averages squared probability error but depends on prevalence; compare to a simple reference model.
 
-A logistic model's continuous predictor effect is linear in log odds unless specified otherwise. Restricted cubic splines can represent smooth nonlinear logit effects; test nonlinear components jointly and plot predicted risks with confidence bands. Interactions require product terms and often substantially larger sample sizes. The coefficient for treatment is conditional on modifier reference levels, while predicted probabilities vary nonlinearly. Provide clinically interpretable risk contrasts at representative profiles.
+Discrimination describes ranking. AUC 0.80 means a randomly selected event tends to receive a higher score than a randomly selected non-event 80% of the time, with ties handled appropriately. It does not say risks are accurate or decisions improve. Report threshold performance and utility if a score triggers action. A model may have an unchanged AUC while calibration degrades in a new hospital.
 
-To form uncertainty intervals for predicted risk, calculate uncertainty on the linear predictor and transform; because the inverse logit is nonlinear, endpoints may be asymmetric. For marginal standardized risks, bootstrap the entire fit-and-standardize procedure. Plugging coefficient standard errors individually into the probability formula ignores covariance and is incorrect.
+Internal validation by bootstrap or cross-validation estimates optimism. All steps must be repeated within each resample or fold, including imputation, variable selection, nonlinear-term selection, and tuning. For external validation, freeze the model and apply it in new data; if coefficients are refit, report it as model updating and validate the updated model separately. Temporal validation is particularly important when practice and prevalence change.
 
-## Multiple imputation and clustered outcomes
+## Sample size, overfitting, and prediction
 
-If predictors are missing, multiple imputation should reflect the binary outcome and the substantive analysis form, including nonlinearities and interactions where relevant. Pool log-odds coefficients and covariance using Rubin's rules, then exponentiate estimates and interval endpoints. Imputing predictors without outcome can attenuate associations. For outcomes missing after randomization, the missingness strategy should be tied to the estimand and include sensitivity analyses under departures from MAR.
+The number of events and non-events, candidate parameters, predictor distributions, and expected signal determine model stability. A fixed events-per-variable rule is not sufficient. Many candidate transformations and interactions increase effective model complexity. Penalization or shrinkage can help, but internal validation should repeat all feature selection and tuning within resampling.
 
-With clustered patients, ordinary logistic regression underestimates uncertainty if within-site dependence is ignored. GEE estimates population-average associations with robust variance; random-intercept logistic regression estimates conditional effects given site/patient random effects. These ORs differ due to non-collapsibility. State the estimand and number of independent clusters; few clusters need specialized corrections.
+For prediction, split or resample at the independent patient or site level. Randomly splitting repeated records from the same patient leaks information. Use temporal or external validation to assess transport. Report calibration and discrimination with uncertainty, threshold-specific sensitivity and predictive values, and decision utility when the model guides care.
 
-## Worked interpretation of uncertainty
+The development sample should be sized to limit overfitting and estimate absolute risks with adequate precision. Required sample size depends on event fraction, number of candidate parameters, anticipated model fit, and desired shrinkage. A rule such as 10 events per predictor is not a guarantee: spline terms, categories, interactions, and data-driven selection each use multiple degrees of freedom. Prediction-model sample-size formulas can quantify shrinkage and optimism goals.
 
-Suppose treatment β̂=−.40 with SE=.20. The OR is exp(−.40)=.67; a Wald 95% interval on the log-odds scale is −.40±1.96(.20)=(−.792,−.008), exponentiating to OR .45–.99. The coefficient's p-value is close to .046, but the interval shows the estimate ranges from a substantial reduction to a very small one. Clinical importance depends on baseline risk and harms. If baseline risk is 30%, OR=.67 corresponds to treated risk about .223, not .201 as an RR interpretation would imply.
+Do not use stepwise p-value selection as a default. It creates unstable coefficients, biased p-values, and optimistic apparent performance. Prespecify predictors based on clinical knowledge, use shrinkage when complexity is high, and validate the full modeling strategy. If feature selection is essential, nest it inside cross-validation.
 
-```r
-beta <- -.40; se <- .20
-exp(c(estimate = beta,
-      lower = beta - 1.96*se,
-      upper = beta + 1.96*se))
-p0 <- .30; OR <- exp(beta)
-p1 <- OR*p0/(1-p0+OR*p0)
-c(p0 = p0, p1 = p1, RR = p1/p0, RD = p1-p0)
-```
+Missing predictors need an operational plan. During development, multiple imputation may be appropriate, but the imputation model should not use information unavailable at deployment. At prediction time, specify how a missing value is handled, whether the model refuses to score, and whether a missingness indicator is used. Changes in measurement practice can shift both predictor distribution and calibration.
 
-This conversion assumes the OR applies to the specified baseline risk and covariate profile. An adjusted OR should not be combined with a crude baseline risk without acknowledging potential inconsistency.
+## Common misinterpretations
 
-## Case-control sampling and absolute risk
+An OR of 2 is not necessarily twice the risk, especially when the outcome is common. “Adjusted for age and sex” does not mean all confounding is removed. Statistical significance does not mean useful prediction; a clinically important association does not guarantee an individual-level classifier. Do not interpret prediction coefficients causally, and do not use a model's fitted probabilities outside the population and horizon where they were validated.
 
-In a case-control study, investigators choose numbers of cases and controls, so the sample event fraction is set by design and cannot estimate population prevalence. Under standard outcome-dependent sampling, the logistic slope odds ratios can still estimate exposure-disease odds ratios, but the intercept is shifted. To obtain absolute risks, external prevalence or a cohort sample and additional assumptions are needed. Do not use the sample fraction as baseline risk in a case-control dataset.
+If events are rare, OR may approximate risk ratio, but this is a context-dependent approximation. When presenting risk, give absolute baseline risk and time horizon. For treatment effects, include risk difference or NNT only with uncertainty and an explicit population. For prognostic models, report what information was available at prediction time and how missing predictors are handled in practice.
 
-Conditional logistic regression is used for matched case-control sets and conditions on each matched set's total case count. Matching must be reflected in the analysis; ignoring it can lose efficiency and bias estimates depending on design. State matching variables and sampling scheme.
+## Dependence and clustered outcomes
 
-A good results table includes events and denominators, adjusted odds ratios with intervals, and absolute predicted risks where clinically useful. State whether the reported risk is conditional for a profile or standardized over a population. Include the number of model parameters, events, and non-events, and disclose any penalization or variable selection. This prevents a compact OR table from hiding unstable estimates or an unclear target.
+Ordinary logistic regression assumes independent outcomes conditional on predictors. Patients within hospitals, families, or matched sets may share unmeasured factors. Ignoring this dependence can underestimate standard errors. Use cluster-robust variance when there are enough independent clusters, GEE for marginal associations, or a mixed-effects logistic model for cluster-specific effects. The choice changes interpretation, especially for odds ratios.
 
-The logistic likelihood assumes observations are independent conditional on predictors. A random intercept accounts for latent cluster heterogeneity, while GEE targets average association across clusters. Merely adding clinic as a fixed categorical covariate does not generally correct within-clinic correlation. Report cluster count and chosen variance structure, especially when intervention was assigned at clinic level.
+For a cluster-randomized trial with 15 clinics, robust sandwich inference may be unreliable because the cluster count is small. Small-sample corrections, randomization inference at clinic level, or a carefully specified hierarchical model may be preferable. A large number of patients within a few clinics does not create many independent treatment assignments.
 
-A model's intercept corresponds to the log odds when all continuous predictors equal zero and every categorical predictor is at its reference level. Center continuous variables at meaningful values if an interpretable reference profile is useful. This does not change fitted probabilities, but it can make the intercept and main effects easier to communicate, particularly when interactions are present.
+## Confounding and causal contrasts
+
+In observational studies, covariate adjustment should reflect a causal structure. Adjust for common causes of treatment and outcome, not every measured variable. Conditioning on a mediator changes a total effect to a direct-effect-like contrast; conditioning on a collider can induce association. Logistic regression does not reveal which variables are confounders by their p-values.
+
+Positivity requires overlap: each covariate profile in the target population has a nonzero probability of each exposure strategy. Inspect propensity-score overlap and covariate balance. If treated and untreated groups do not overlap, regression extrapolates and standard errors may understate uncertainty. Restricting to an overlap population changes the estimand and should be reported.
+
+For a randomized study, adjustment for prespecified baseline predictors can increase precision, but post-randomization covariates may bias the assignment effect. Define whether the target is intention-to-treat, per-protocol, or another estimand. Provide unadjusted group risks as descriptive context and model-adjusted contrasts with assumptions.
+
+## Diagnostics in practice
+
+Check fitted probabilities for values near 0 or 1, sparse cross-tabulations, variance inflation, influential residuals, and calibration. Examine observed versus predicted outcome by clinically meaningful subgroups and time. A global goodness-of-fit test can reject for minor deviations in large samples or fail to detect important local misfit in small samples. Graphical checks and external validation are more informative.
+
+For a continuous predictor, compare linear logit form with a spline using a joint test and plotted predicted risks. Do not report spline basis coefficients as if each were a clinical effect. For a categorical predictor with many levels, inspect event counts by level and consider whether sparse categories require combination based on clinical logic. Avoid outcome-driven collapsing.
+
+Robust standard errors address some variance misspecification but do not change coefficients or fix a wrong mean model. If clustered data are present, specify the cluster level. If repeated binary outcomes are longitudinal, use GEE or mixed models rather than treating each record as an independent logistic observation.
+
+## A reporting template in prose
+
+State the population, binary outcome and horizon, predictor timing, model formula, coding and reference categories, link, missing-data method, and variance estimator. Report coefficient-scale effects only with clear units, and translate odds ratios to risks when possible. Include calibration and discrimination for prediction, and effect estimates with intervals for association or treatment comparison. Document convergence, separation handling, diagnostics, validation sample, and model updates.
+
+For transparency, show both the event counts and denominators by exposure group; adjusted ORs can otherwise obscure sparse data. Give absolute risks standardized to the target population when decisions depend on risk. For case-control studies, note that absolute risk cannot be estimated from the sampled case fraction without external information.
+
+For a single prediction threshold, report the number flagged, sensitivity, specificity, positive and negative predictive values, and consequences of false decisions. Predictive values change with prevalence across settings. Decision-curve analysis can compare model-guided action with treat-all and treat-none strategies over clinically plausible thresholds, but it relies on explicit utility assumptions and does not prove implementation benefit.
+
+If a model will be deployed, monitor calibration and data quality after implementation. Changes in test availability, coding, or clinical workflow can alter predictor distributions and event rates. Recalibration may restore average risk accuracy, but any updated model requires evaluation in data independent of the update process.
+
+## Interpreting evidence without a binary label
+
+An interval crossing OR 1 does not prove no association; it shows the estimate is compatible with a range of effects under the model. Compare that range with clinically meaningful thresholds. Likewise, a small p-value can accompany a negligible OR change in a large sample. Emphasize estimate, interval, and absolute consequences rather than classifying results as positive or negative.
 
 ## References and further reading
+For model transport, document changes in outcome prevalence and predictor measurement because both can affect calibration.
 
-- Heinze G, Schemper M. A solution to the problem of separation in logistic regression. *Statistics in Medicine*. 2002;21:2409–2419. [doi:10.1002/sim.1047](https://doi.org/10.1002/sim.1047)
+Before implementation, specify who receives a prediction, when it is generated, what threshold triggers action, and how missing predictors are handled. Retrospective validation does not cover workflow failures.
 
-- Agresti A. *Categorical Data Analysis*. Wiley.
-- Menard S. *Applied Logistic Regression*. SAGE.
-- Collett D. *Modelling Binary Data*. Chapman & Hall/CRC.
-- Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
-- The [Poisson and negative binomial regression article](poisson-and-negative-binomial-regression.html) covers count and rate outcomes.
+- Hosmer DW, Lemeshow S, Sturdivant RX. *Applied Logistic Regression*. 3rd ed. Wiley; 2013.
+- Harrell FE. *Regression Modeling Strategies*. 2nd ed. Springer; 2015.
+- Greenland S, Robins JM, Pearl J. Confounding and collapsibility in causal inference. *Statistical Science*. 1999;14:29–46. [doi:10.1214/ss/1009211805](https://doi.org/10.1214/ss/1009211805)
+- Steyerberg EW. *Clinical Prediction Models*. 2nd ed. Springer; 2019.
+- The [model validation article](model-validation-and-overfitting.html) covers optimism correction and external validation.

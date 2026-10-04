@@ -3,158 +3,151 @@ title: Clustering in health data
 summary: An introduction to unsupervised grouping, choices of distance and cluster number, and validation of patient subtypes.
 ---
 
-## Overview and key ideas
+## Overview
 
-Clustering groups observations by similarity without using a supplied outcome label. Common methods include k-means (assign points to k centroids), hierarchical clustering (build a nested tree of groups), and density-based methods such as DBSCAN (find dense regions and mark some points as noise). Different algorithms optimize different definitions of a cluster; they need not discover the same groups.
+Clustering groups observations so that members of a group are similar under a chosen representation and distance, while groups differ according to an algorithmic criterion. It is an unsupervised learning task: the method does not use an outcome label to define the groups. In health research, clustering can explore patient profiles, trajectories, or service use, but an algorithm always returns a partition or structure even when no meaningful subtypes exist.
 
-In health research, clustering is often used to explore phenotypes from symptoms, laboratory values, imaging features, or longitudinal profiles. A cluster is first a mathematical grouping under specified preprocessing and distance choices. Calling it a disease subtype requires evidence that it is stable, clinically meaningful, and useful in independent data.
+A cluster is not automatically a disease subtype, causal mechanism, or treatment-response group. Its meaning depends on who was sampled, which variables were included, how they were scaled, which distance was used, and how many clusters were requested. Useful findings require stability, external replication, clinical interpretation, and evidence that the distinction matters for a decision.
 
-## When to use it
+## Define the unit and scientific purpose
 
-Use clustering to generate hypotheses or summarize complex profiles when no outcome label defines the groups. For instance, researchers may explore whether patients with chronic disease show distinct combinations of inflammatory markers. It is not a substitute for classification when known labels exist, and it does not establish that clusters are natural biological entities.
+Specify whether each row represents a person, visit, image, or time window. If patients contribute multiple records, ordinary clustering may group visits rather than people and may treat repeated measurements as independent. Decide whether the question concerns baseline phenotypes, longitudinal trajectories, or patterns of resource use; these require different representations.
 
-## Assumptions and limitations
+Clustering is most useful for generating hypotheses, summarizing complex profiles, or exploring whether a proposed classification is reflected in data. It is weak evidence for a natural taxonomy. If the goal is prediction of a known outcome, supervised learning is more directly aligned. If the goal is causal treatment-effect heterogeneity, clustering on outcomes or treatment response can create biased subgroups and requires methods designed for causal inference.
 
-- Results depend on included variables, scaling, missing-data handling, distance metric, algorithm, and chosen cluster number. These choices are substantive, not cosmetic.
-- K-means favors roughly spherical, similarly sized clusters and is sensitive to initialization and outliers. It minimizes squared Euclidean distances, so continuous standardized data are the usual setting.
-- High-dimensional data can appear to contain clusters even when structure is weak. Dimensionality reduction may help visualization but can also change distances and apparent group structure.
-- Cluster labels are arbitrary and may be unstable under resampling. Validate membership stability and replicate the solution in a separate cohort.
-- If clinical outcomes are inspected repeatedly to choose clusters or narrate them, apparent outcome differences are exploratory and require independent confirmation.
+Choose variables based on the construct, not simply availability. Including age, utilization, and laboratory measures can yield groups driven primarily by age or care access. Variables downstream of clinical decisions may cluster treatment patterns rather than biology. Avoid leakage from future outcomes when clusters will be used for prospective prediction.
 
-## Worked example
+## Representations, distances, and scaling
 
-Imagine 120 patients described by three standardized biomarkers. K-means with k = 2 returns groups of 70 and 50 patients. If the mean biomarker profiles differ, describe the standardized values and uncertainty, then test whether assignments remain similar across bootstrap samples and a later cohort. Suppose 14 of 70 patients in group A and 20 of 50 in group B are hospitalized next year: risks are 20% and 40%, a 20 percentage-point observed difference. Because hospitalization was not used to create groups only if that was prespecified and true, this outcome comparison may be treated as a separate exploratory association; it is not evidence that group membership causes hospitalization or that a cluster-targeted intervention works.
+K-means minimizes within-cluster squared Euclidean distances to centroids. It works best for numeric features with meaningful distance, approximately compact spherical groups, and manageable outlier influence. The algorithm alternates between assigning each observation to its nearest centroid and updating centroids until convergence. It can find a local optimum, so different starts may produce different solutions.
 
-## Interpretation and common pitfalls
+Scale matters: a biomarker spanning thousands of units can dominate a variable spanning 0–1. Standardization gives equal variance weight but can overemphasize noise or rare extreme values. Robust scaling may help with heavy tails. One-hot encoding nominal variables changes geometry in ways that depend on category frequency; ordinal coding imposes numeric spacing. Gower distance or methods for mixed data may be more appropriate, but their handling of missingness and variable weights must be stated.
 
-- Report preprocessing, features, distance, algorithm, initialization, and how k was selected. Show cluster sizes and profiles, not just a colorful plot.
-- Assess stability under resampling and alternative defensible choices; quantify uncertainty in assignments when possible.
-- Avoid selecting k solely because it yields the most clinically appealing story. Silhouette scores and elbow plots are diagnostics, not proof of true subtypes.
-- Do not use “phenotype” or “endotype” as if established from one exploratory dataset. Replication and biological or clinical validation are needed.
-- Protect against leakage if clustering is part of a prediction pipeline: learn transformations and clusters from training data, then apply them unchanged to evaluation data.
+High-dimensional correlated features can count one construct multiple times. Dimension reduction can simplify structure but may preserve variation unrelated to clinical meaning. Feature selection, imputation, scaling, and representation learning are data-adaptive steps and should be repeated in stability analyses. Use a clinically motivated feature set and conduct sensitivity analyses with plausible alternatives.
 
+## K-means objective and worked example
 
-## K-means objective and cluster-number diagnostics
+For observations x_i assigned to cluster C_k with centroid μ_k, K-means minimizes WCSS = Σ_k Σ_(i in C_k) ||x_i−μ_k||². WCSS never increases as the number of clusters K increases, so its minimum alone cannot select K. A hypothetical set of standardized patient profiles may have WCSS 120 at K=2 and 84 at K=3. The 30% reduction does not prove three subtypes; adding a group always improves in-sample fit.
 
-Given standardized vectors x_i and k centers mu_g, k-means minimizes within-cluster sum of squares W=sum_g sum_(i assigned g)||x_i-mu_g||^2. It alternates assignment to the nearest center and recomputation of centers until assignments stabilize. Because the objective is non-convex, starting values can lead to different local minima; use multiple starts and report stability. A cluster is defined relative to selected variables, transformations, distance, and cohort. It is not proof of a latent disease class.
+Imagine four patients represented by two standardized values: (−1,−1), (−1,1), (1,−1), and (1,1). With K=2, one possible assignment groups by the first coordinate, giving centroids (−1,0) and (1,0). Another equally plausible assignment groups by the second coordinate. Both solutions have the same WCSS. Without clinical purpose or external evidence, the data do not identify a unique interpretation.
 
-The elbow plot compares W across candidate k, but an elbow can be absent or subjective. The average silhouette contrasts a patient’s mean within-cluster distance a(i) with its nearest alternative-cluster distance b(i): s(i)=(b-a)/max(a,b). Values near 1 suggest separation under the chosen metric; near 0 indicates overlap. Silhouette is not clinical validity. Gap statistics compare observed dispersion to a reference null, whose construction itself matters. Bootstrap or subsampling stability asks whether similar groups recur under data perturbation. Align labels before comparing runs because cluster numbers are arbitrary.
+~~~r
+set.seed(202)
+x <- scale(dat[c("age", "creatinine", "symptom_score")])
+km <- kmeans(x, centers = 3, nstart = 50)
+table(km$cluster)
+aggregate(dat[c("age", "creatinine", "symptom_score")],
+          list(cluster = km$cluster), median)
+~~~
 
-```r
-set.seed(41)
-X <- scale(as.matrix(dat[c("crp", "albumin", "egfr")]))
-km <- kmeans(X, centers = 3, nstart = 50, iter.max = 100)
-km$size
-aggregate(as.data.frame(X), list(cluster = km$cluster), mean)
-# silhouette requires package cluster; inspect several k, not only the best score
-library(cluster)
-sil <- silhouette(km$cluster, dist(X))
+This is an exploratory example. The number of clusters is specified, and different initializations may yield different solutions. Fit preprocessing within each bootstrap or resampled dataset when assessing stability. Summaries on original clinical units are easier to interpret than standardized centroids alone. Inspect outliers, missingness, and whether clusters are driven by one variable or site.
+
+## Choosing the number and form of clusters
+
+The elbow plot compares within-cluster sum of squares over K and looks for diminishing returns, but elbows can be subjective or absent. Silhouette width compares within-cluster cohesion with separation from the nearest alternative group; it favors certain geometries and does not establish clinical value. Gap statistics compare observed compactness with a reference null distribution. Information criteria apply to model-based clustering under distributional assumptions. No single index determines the “true” K.
+
+Consider algorithmic stability and usefulness. If small perturbations change membership substantially, labels are fragile. If a three-cluster solution is stable but differs only by a clinically irrelevant lab value, it may not aid decisions. Assess multiple algorithms and representations, but avoid selecting whichever produces the most attractive story. Prespecify primary criteria where possible and report alternatives explored.
+
+Density-based methods can identify irregular shapes and label outliers as noise; hierarchical clustering produces nested merges and requires a cut rule; latent class or mixture models estimate probabilistic membership under distributional assumptions. These approaches answer different structural questions. Compare solutions using stability and external evidence, not just internal fit.
+
+## Stability and external replication
+
+Bootstrap or subsample patients, refit the entire pipeline, and compare cluster assignments using adjusted Rand index, variation of information, or pairwise co-membership. Label switching must be handled because cluster numbers have no inherent identity. Report stability distributions and whether small groups recur. A cluster that appears only in one of many starts or samples is weak evidence.
+
+External replication asks whether a similar profile structure appears in another cohort, site, or time period. Exact centroids may shift with prevalence and measurement; compare clinically meaningful characteristics and assignment rules. If a model will assign future patients, fit a fixed preprocessing and clustering rule and assess assignment uncertainty and out-of-distribution behavior. Re-running clustering in each clinic may produce different labels that cannot be compared.
+
+Outcome association after clustering is not independent confirmation if many cluster counts and outcome comparisons were explored. Treat post-clustering comparisons as exploratory, adjust or account for selection, and validate in new data. Clusters derived from outcome-related predictors can be associated with the outcome by construction.
+
+## Clinical interpretation and common failure modes
+
+Profile clusters using original-unit distributions, not only means. Show within-cluster spread, sample size, event count, site composition, missingness, and uncertainty. A cluster label such as “high-risk inflammatory phenotype” should be grounded in prespecified variables and externally supported outcomes, not chosen after inspecting favorable patterns.
+
+Small clusters may represent data errors, rare but important patients, or algorithmic artifacts. Investigate source records and whether the cluster persists under reasonable preprocessing choices. K-means is sensitive to outliers because centroids are means and squared distances penalize extremes heavily. Robust alternatives or explicit outlier handling may be needed, with choices documented.
+
+Cluster membership is often uncertain, yet hard labels imply certainty. Mixture models can provide posterior membership probabilities; K-means distances can show relative proximity, but are not calibrated probabilities. Patients near boundaries may switch groups with small measurement changes. Avoid assigning a treatment or diagnosis solely from unstable membership.
+
+## Reproducibility and deployment
+
+Report inclusion criteria, unit, features, transformations, distance, algorithm, random starts, initialization, K selection, and software version. Provide code and a clear assignment procedure. If any feature selection or dimension reduction used the full dataset, describe this and avoid claiming unbiased external performance.
+
+Before operational use, define how new patients are assigned, how missing or out-of-range values are handled, and whether the cluster model is frozen or periodically refit. Monitor cluster prevalence, feature distributions, membership uncertainty, and outcomes. A change in assay or care pathway can shift the partition. Re-estimate clusters only with a documented versioning and validation process.
+
+Clustering can support service design if groups lead to feasible, beneficial actions. Evaluate those actions prospectively. A cluster taxonomy that does not improve prediction, treatment choice, or communication may add complexity without utility. Keep the distinction between exploratory pattern discovery and validated clinical classification clear.
+
+### Distance geometry in mixed health data
+
+Most clustering results are consequences of a distance matrix. Numeric variables may be standardized, transformed, or weighted; binary and nominal features need a dissimilarity definition; and missing pairs may be excluded or imputed. If different patient pairs have distances computed from different observed subsets, those distances may not be comparable. State the rules and evaluate sensitivity to them.
+
+For Gower distance, numeric differences are scaled by observed ranges and categorical matches contribute zero while mismatches contribute one, with contributions averaged across available features. A broad range can compress clinically meaningful differences, and a rare category can have disproportionate influence. Consider clinically chosen weights and show how cluster assignments change. Mixed-data methods such as partitioning around medoids can use arbitrary dissimilarities and are less sensitive to extreme observations than K-means, but are not immune to poor representations.
+
+Correlated variables effectively reweight a construct. If five laboratory values measure similar renal function, they can collectively dominate one symptom score. Examine correlation structure and consider combining redundant measures, using a justified dimension reduction, or weighting domains before clustering. Domain weighting changes the question and should be reported as a substantive choice.
+
+## Alternative algorithms and what they optimize
+
+Hierarchical agglomerative clustering starts with individual observations and repeatedly merges the closest groups according to a linkage rule. Single linkage can form elongated chains; complete linkage favors compact groups; average linkage uses average pairwise distances; Ward linkage seeks increases in within-cluster variance for squared Euclidean settings. A dendrogram shows nested merges, but the vertical scale and cut height do not reveal a natural number without additional evidence.
+
+Model-based clustering assumes data arise from a mixture of distributions and estimates component parameters and membership probabilities. A Gaussian mixture can represent elliptical groups and quantify uncertainty, but may fit skewed or heavy-tailed clinical measures poorly. Bayesian information criterion can guide component number under model assumptions; it should be complemented by diagnostics, stability, and interpretability. Latent class models for categorical indicators make their own conditional-independence and measurement assumptions.
+
+Density methods such as DBSCAN define clusters as dense regions and can label isolated observations as noise. They may suit irregular geometric structures, but results depend on neighborhood radius and minimum density. In high dimensions, density becomes sparse and parameter choice difficult. Spectral clustering constructs a graph of similarities and partitions its eigenstructure; it can find nonconvex patterns but requires a defensible affinity matrix and can be sensitive to graph construction.
+
+No method is universally superior. Internal metrics tend to favor particular shapes and distance assumptions. Compare algorithm families only when each is meaningfully specified and validated. A simpler solution with stable assignments and coherent clinical profiles may be more useful than an intricate model with slightly better internal score.
+
+### More rigorous assessment of cluster number
+
+Use multiple criteria with distinct interpretations. The elbow curve plots within-cluster sum of squares; it describes fit improvement, not evidence that groups exist. Average silhouette width compares separation and cohesion but depends on distance and can prefer a small number of broad groups. Gap statistic contrasts observed dispersion with reference data generated under a null. Mixture-model criteria compare likelihood penalized for complexity, conditional on a probability model.
+
+The null reference matters. A uniform reference over a bounding box may be inappropriate for skewed or correlated biomedical variables. Compare against simulated data preserving marginal and perhaps correlation structure where feasible. If a claimed subtype structure is no better than a continuous gradient, clustering may discretize a continuum rather than discover categories.
+
+Assess whether a cluster solution is robust to patient resampling, initializations, feature subsets, scaling, missing-data choices, and sites. A consensus matrix shows how often pairs co-cluster across runs. Stability alone does not validate meaning: a strong age gradient can create stable partitions with arbitrary boundaries. Combine stability with external, prespecified clinical criteria.
+
+### Worked stability analysis
+
+Suppose 500 bootstrap samples are drawn from a cohort and a three-cluster solution is refit each time. After aligning labels, a pair of patients is assigned to the same cluster in 470 of 500 runs, yielding co-clustering frequency 0.94. Another pair is together in only 260 runs (0.52), suggesting uncertain boundary membership. Summarize within-cluster consistency and inspect whether a small group persists. Do not report only the best-fitting run.
+
+~~~r
+set.seed(50)
+x <- scale(dat[c("age", "creatinine", "symptom_score")])
+km <- kmeans(x, centers = 3, nstart = 50)
+sil <- cluster::silhouette(km$cluster, dist(x))
 mean(sil[, "sil_width"])
-```
+~~~
 
-In a predictive pipeline, centering, scaling, feature selection, and cluster fitting must be learned on training data; assign validation patients to frozen centroids. In exploratory subtype work, distinguish discovery from validation: derive groups in one cohort, specify a reproducible assignment rule, then examine reproducibility and external clinical associations elsewhere. If outcomes informed feature choice, k selection, or naming, later outcome comparisons are post-selection and hypothesis-generating. Report cluster sizes, profiles, uncertainty in membership, and patients poorly assigned near boundaries. For mixed data, Euclidean k-means is usually inappropriate; consider Gower distances with suitable clustering or model-based approaches and explain the implied geometry.
+This computes one internal silhouette summary for one standardized dataset and fixed K. It does not include selection uncertainty or prove clinical validity. For stability, repeatedly resample patients, refit scaling and clustering, align labels, and summarize agreement. If sites are the target of transport, assess solutions across sites rather than only random patient samples.
 
+## Post-cluster outcome analysis
 
-## Development workflow: from question to a defensible cluster solution
+Clusters are often compared on outcomes to claim clinical relevance. If clustering features were selected or transformed using outcome information, those outcome differences are partly built in. Even without direct outcome use, exploring many values of K and many outcomes creates selection. Treat such results as exploratory, report all evaluated solutions and outcomes, and validate the chosen profile in independent data.
 
-Define the scientific role of clustering before fitting it. In exploratory work, the purpose may be to summarize heterogeneity and generate hypotheses. In a predictive pipeline, the purpose may be to assign new patients using a rule learned from training data. These require different evaluation plans. State the eligible population, measurement window, features, transformations, distance, algorithm, and proposed use. Avoid using future outcomes or variables downstream of the phenotype definition to create the groups.
+Cluster membership is a derived variable with uncertainty. Regression that treats a selected hard assignment as known can understate uncertainty in downstream associations. In probabilistic mixture models, posterior membership probabilities can be propagated or sensitivity analyses can compare hard and soft assignment. For K-means, bootstrap assignment stability provides an empirical view, though it is not a formal posterior probability.
 
-Preprocessing is part of the model: imputation, transformations, scaling, feature selection, dimensionality reduction, and the clustering algorithm must be documented. In prediction tasks, learn those transformations and the clusters in training folds only; map validation patients to the frozen solution. In exploratory taxonomy work, assess sensitivity to plausible preprocessing and algorithm choices. The cluster count should be informed by multiple diagnostics and scientific utility rather than selected because one value produces an attractive narrative.
+Do not infer treatment-effect heterogeneity from differing outcome rates across clusters. High baseline risk does not mean greater relative or absolute treatment benefit. To estimate whether treatment effects vary, use a randomized design or causal methods that directly model treatment-effect heterogeneity, preserve uncertainty, and validate the subgroup policy.
 
-Quantify both separation and stability. Silhouette width measures relative distances under the chosen metric; bootstrap co-clustering evaluates reproducibility under resampling; neither establishes clinical meaning. Report cluster sizes and uncertainty. A high silhouette score can describe geometrically distinct groups that are biologically trivial, while lower separation may be expected for continuous disease spectra. Do not dichotomize continuous phenotypes solely to make a clean figure.
+## Deciding if a cluster is clinically useful
 
-For a deployment rule, save the exact training centers or medoids, scaling parameters, feature order, missing-data procedure, and software version. Evaluate assignment coverage, distance to the nearest cluster, and out-of-support frequency in an external cohort. Re-fitting clusters in each validation sample does not test whether the original classifier transports. For etiologic or prognostic interpretation, examine prespecified associations in independent data and account for multiple comparisons. If outcomes influenced clustering decisions, call the findings exploratory and avoid ordinary confirmatory p-values.
+A useful subgroup should have a reproducible profile, adequate size, a plausible relation to the clinical construct, and a decision that differs in a beneficial way. Define what action might follow before labeling clusters. If no feasible action exists, the taxonomy may be descriptive only. Evaluate whether the grouping adds information beyond continuous risk scores or established classifications.
 
-A report should include cohort flow, missingness, feature rationale, preprocessing, distance, algorithm, initialization strategy, candidate cluster counts, selection criteria, stability, cluster profiles, and validation population. Describe limitations of the induced geometry: labels are arbitrary, membership can be uncertain, and the groups need not correspond to natural biological kinds. Clinical terminology such as subtype, endotype, or treatment-responsive group needs independent evidence beyond a clustering output.
+Engage clinicians and patients in interpreting profiles. A statistical group driven by utilization may describe barriers to care rather than a patient phenotype. A group with severe symptoms but missing laboratory values may reflect measurement access. Name clusters descriptively from measured features and avoid stigmatizing labels. Check whether membership maps to socioeconomic or demographic proxies and what consequences follow.
 
-## Alternative algorithms and mixed-type patient data
+External replication need not reproduce identical centroids, but should show comparable structure and actionable meaning. Freeze a cluster assignment rule and test it in new data when future classification is intended. If each cohort is reclustered independently, matching groups post hoc can be subjective; report matching criteria and ambiguity.
 
-Hierarchical agglomerative clustering starts with each patient as a singleton and repeatedly merges the closest groups. The linkage rule determines how distance between groups is defined: single linkage can chain observations through bridges; complete linkage favors compact groups but is sensitive to outliers; average linkage uses average pairwise distance; Ward linkage merges groups that minimally increase within-cluster sum of squares and is most naturally paired with Euclidean geometry. A dendrogram displays nested merges, but drawing a horizontal cut at a particular height is still a choice of cluster count. Rescaling features can change the entire tree.
+## Operational assignment and uncertainty
 
-Density-based methods such as DBSCAN identify regions with enough observations within a radius epsilon and classify sparse points as noise. They can detect non-spherical shapes and do not require k, but epsilon and minimum-neighbor settings can be difficult in mixed-density health data. High-dimensional distances weaken the notion of density. A “noise” observation may be a rare but clinically important patient, not a data error. Report the fraction designated noise and examine who they are.
+A deployment rule must include feature definitions, transformations, model parameters, and how new patients are assigned. K-means assigns to the nearest centroid, even for a patient far outside the training range. Add a support measure such as distance to nearest centroid and specify when the model abstains. For density methods, new points may be labeled noise; for hierarchical clustering, a rule for assigning new observations is not inherent and must be designed.
 
-For categorical or mixed data, ordinary Euclidean distance after arbitrary numeric coding is generally inappropriate. Gower dissimilarity can combine numeric ranges and categorical mismatches, after which partitioning-around-medoids can yield observed patients as representatives. Model-based latent class analysis instead posits a mixture of class-specific distributions; posterior probabilities quantify membership conditional on that model. Conditional independence of indicators within classes is a strong assumption and local dependence can create spurious extra classes. These methods answer different questions and should not be compared by a single fit score alone.
+Monitor cluster prevalence, distances, missingness, and outcomes over time. Shifts may indicate a changing population, measurement pipeline, or care process. Refitting the clusters can change labels and complicate comparisons; maintain versioned solutions and validate any update. If clusters inform treatment allocation, prospectively test the policy and include safeguards for uncertain membership.
 
-```r
-# Hierarchical clustering illustration for continuous standardized markers
-Z <- scale(dat[c("crp", "albumin", "egfr")])
-d <- dist(Z, method = "euclidean")
-hc <- hclust(d, method = "ward.D2")
-plot(hc, labels = FALSE, hang = -1)
-groups <- cutree(hc, k = 3)
-table(groups)
-```
+## Reporting an exploratory cluster analysis
 
-Ward clustering is sensitive to outliers and favors compact groups. Check robustness with other plausible linkage or distance choices and resampling. The dendrogram is descriptive: it does not establish that three classes exist. For a clinical presentation, show feature profiles and overlap rather than treating arbitrary cluster numbers as ordered severity.
+Report the sample, unit, feature rationale, preprocessing, distance, algorithm, initialization, software, cluster-number criteria, and every major analysis choice. Show cluster sizes, profiles in original units, distributions and within-cluster spread, missingness, site composition, and assignment uncertainty. Include stability results and external validation when available. Distinguish discovery from confirmatory evidence.
 
-## Cluster stability and reproducible assignment
+Make clear whether the output is an exploratory description, a replicated taxonomy, a predictive feature, or an implemented classification. Avoid claiming “subtypes” when a continuous risk gradient or sampling artifact could explain the grouping. Share code and seeds where possible. A transparent account lets readers judge what structure the data support and what remains a hypothesis.
 
-A practical stability analysis repeatedly samples patients, refits the complete preprocessing and clustering pipeline, and compares partitions on overlapping patients. The adjusted Rand index compares pairwise same/different assignments while correcting for chance; values near one indicate similar partitions, while values near zero are consistent with chance-level agreement. Its interpretation depends on cluster size and number. Per-patient co-clustering probabilities can show that a broad group is stable while borderline members move between groups. Report both global and patient-level stability rather than choosing the most favorable statistic.
+### When clusters should remain exploratory
 
-For a cluster intended to guide care, define a patient assignment rule and a policy for ambiguity. K-means can assign to the closest center, but distance to the center should be compared with training distributions. A patient far from every center should not be forced into a familiar category without warning. A model-based mixture can retain posterior probabilities rather than applying a hard maximum-probability label. Evaluate whether uncertainty is concentrated in a clinically meaningful subgroup or reflects noisy assays.
-
-The validation plan should separate geometric reproducibility, biological plausibility, prognostic association, treatment interaction, and clinical utility. Replication of the same profiles in a second cohort supports reproducibility. It does not show that groups have different causal treatment responses. A treatment-selection claim needs an appropriately designed interaction analysis or trial, with adequate power and prospective confirmation. Avoid naming a cluster “responder” because its observed outcome was favorable after exploratory inspection.
-
-
-## Full comparative analysis: selecting and validating a solution
-
-Assume 500 patients have four skewed inflammatory measurements, 12% missingness in one assay, and two hospitals. The team seeks exploratory profiles, not an individual risk score. First display distributions by site and missingness. If one hospital uses a different assay platform, standardization pooled across sites can create clusters that primarily identify institution. Investigate harmonization and include a site-held-out sensitivity analysis. Impute only with a defensible approach; mean imputation can create artificial central points and change cluster geometry. The analysis plan should state whether outliers are errors to correct, rare cases to retain, or a separate population of interest.
-
-Log-transform positive markers where measurement science supports it, then center and scale. Compare k-means for compact spherical groups, hierarchical Ward clustering for nested structure, and a medoid approach if robustness to outliers is important. Candidate k values should be evaluated using dispersion, silhouette, cluster-size plausibility, and bootstrap stability. Suppose k=2 yields clusters of 310 and 190 with mean silhouette .31; k=3 yields a group of 9 and silhouette .34. The small increase may not justify a rare cluster unless those nine patients form a reproducible and clinically meaningful profile. Use resampling to test whether the nine-person group recurs.
-
-```r
-set.seed(17)
-features <- c("crp", "ferritin", "albumin", "neutrophils")
-# Example only: imputation should be learned and sensitivity-tested.
-med <- vapply(dat[features], median, 0.0, na.rm=TRUE)
-X <- as.data.frame(Map(function(x, m) { x[is.na(x)] <- m; x },
-                       dat[features], med))
-Z <- scale(log1p(X))
-ks <- 2:5
-fits <- lapply(ks, function(k) kmeans(Z, centers=k, nstart=100))
-data.frame(k=ks,
-  withinss=sapply(fits, `[[`, "tot.withinss"),
-  min_cluster=sapply(fits, function(f) min(f$size)))
-```
-
-The median-imputation example is intentionally a sensitivity-analysis starting point, not a universally recommended missing-data solution. Repeat with an appropriate imputation method and alternate transformations. Bootstrap patients, refit preprocessing and clustering, and compare co-clustering; preserve site structure if sampling by hospital. Once selected, describe clusters by original-unit distributions with uncertainty, not only standardized centroids. Replicate the fixed feature definition in an independent cohort, then ask whether profiles correspond to known biology or useful decisions. Outcome differences discovered after trying multiple k values remain exploratory. Neither a silhouette statistic nor a clinically appealing label establishes a natural subtype.
-
-
-## Clinical interpretation and treatment relevance
-
-A stable profile is an empirical description of a cohort under a chosen representation. Clinical interpretation should start with original-scale measurements, distributions, and overlap. Cluster centroids can hide skew, outliers, and multimodality; report medians, quantiles, proportions, and patient examples that are de-identified. Describe how many members fall near the boundary and whether group differences are larger than assay reproducibility. If measurements have clinically established reference ranges, present them alongside standardized summaries.
-
-An association between cluster membership and outcome is not evidence of distinct response to treatment. To claim that cluster-guided treatment improves outcome, estimate a prespecified treatment-by-cluster interaction under an appropriate design, ideally a randomized trial or a robust causal analysis with adequate overlap and event counts. A subgroup with a high event rate may simply be a severity stratum. The utility of a taxonomy depends on whether it changes a decision and whether that decision improves outcomes. Cluster-based labels should not be used to restrict care without prospective evidence.
-
-Ethical review matters when groups correlate with race, disability, language, or access. These variables may reflect structural exposures and measurement differences rather than intrinsic biology. Examine how cluster assignment changes under alternative feature sets and assess whether labels could stigmatize patients. Include affected clinical communities in defining intended use and communication. Use neutral descriptive names until mechanisms are independently established. A reproducible, carefully qualified phenotype can be valuable without being framed as a newly discovered disease subtype.
-
-
-## Statistical reporting after exploratory discovery
-
-After groups are fixed, report profiles with uncertainty intervals and avoid treating sample-derived clusters as fixed without qualification. Bootstrap intervals for cluster-specific means can be misleading if cluster assignments are held fixed; a full-pipeline bootstrap should repeat preprocessing and clustering, align labels, and summarize both profile and membership variability. If alignment is unstable, describe that instability rather than forcing a one-to-one match. When testing multiple outcomes, label the analysis exploratory and control the false-discovery rate only as a partial safeguard; multiplicity correction does not remove selection bias from choosing the representation based on observed outcomes.
-
-For longitudinal subtyping, trajectory mixture models assume a particular number and shape of latent trajectories and may assign people probabilistically. Compare predicted trajectories with observed individual paths and inspect whether a subgroup is driven by follow-up duration or informative dropout. Patients with more visits can dominate distance-based methods unless observation schedules are standardized or modeled. State whether the aim is to discover retrospective disease courses or classify future patients from early information. These are different scientific questions and require different validation designs.
-
-A transparent report should make the solution reproducible without asserting that there is one uniquely correct partition. Provide code or precise settings, feature definitions, transformation parameters, distance or likelihood, random seeds, and stability results. Publish a cluster assignment rule only if it has been validated for new patients. Otherwise, present the work as cohort exploration and use it to formulate independent hypotheses.
-
-
-In every report, distinguish the exploration sample from any validation sample and specify which choices were made before validation. A second cohort should be used to test a frozen representation and assignment strategy; re-discovering an attractive partition independently is evidence of recurring structure, but not proof that the original labels transfer. Present both perspectives clearly. These distinctions let readers assess how much evidence supports the cluster solution and prevent descriptive grouping from being mistaken for a validated clinical classification.
-
-
-Cluster count should therefore be treated as a modeling decision with uncertainty, not as a discovered constant. Reporting solutions across a small set of defensible counts can show which broad profiles persist and which finer subdivisions are fragile. Independent replication and clinical utility remain the key next steps.
-
-
-Where assignment is intended for future patients, define a reject option for low-confidence or out-of-support cases and report its frequency. Performance among confidently assigned patients should be reported together with coverage, since refusing difficult assignments can make apparent validity look better. Keep an exploratory cluster map separate from any clinical classification claim until the assignment rule has been validated prospectively.
-
-
-If no reliable assignment or replication is available, retain the result as an exploratory summary rather than a clinical tool.
-
-
-Reference the cluster count, stability criterion, and external replication plan in the analysis protocol where possible. This keeps exploratory choices transparent and makes the evidence easier to reproduce.
+If no independent cohort or actionable distinction exists, present the groups as an exploratory summary and avoid naming them as disease subtypes. State what additional data or prospective evidence would change that interpretation.
 
 ## References and further reading
 
-- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505)
-- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
-- MacQueen J. Some methods for classification and analysis of multivariate observations. In: *Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability*. 1967;1:281–297. [Project Euclid](https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/Proceedings-of-the-Fifth-Berkeley-Symposium-on-Mathematical-Statistics-and/citation)
-- von Luxburg U. A tutorial on spectral clustering. *Statistics and Computing*. 2007;17:395–416. [doi:10.1007/s11222-007-9033-z](https://doi.org/10.1007/s11222-007-9033-z)
+- MacQueen J. Some methods for classification and analysis of multivariate observations. *Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability*. 1967;1:281–297. [Project Euclid](https://projecteuclid.org/ebooks/berkeley-symposium-on-mathematical-statistics-and-probability/Proceedings-of-the-Fifth-Berkeley-Symposium-on-Mathematical-Statistics-and-Probability-Volume-1/chapter/Some-methods-for-classification-and-analysis-of-multivariate-observations/bsmsp/1200512992).
+- Hennig C. Cluster-wise assessment of cluster stability. *Computational Statistics & Data Analysis*. 2007;52:258–271. [doi:10.1016/j.csda.2006.11.025](https://doi.org/10.1016/j.csda.2006.11.025).
+- See [K-nearest neighbors](k-nearest-neighbors.html) for distance-based supervised prediction.

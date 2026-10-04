@@ -1,156 +1,135 @@
 ---
 title: Reporting and interpreting results
-summary: Reporting guidelines (CONSORT, STROBE, STARD) and the interpretive discipline — confidence intervals, effect sizes, and the difference between statistical and clinical significance.
+summary: Present estimates, uncertainty, design context, and clinical meaning without overstating what a statistical analysis can establish.
 ---
 
-## Overview and key ideas
+## Overview
 
-A result is not reported until it has been *communicated*: a number with its uncertainty, in a context a reader can evaluate. The field has settled on **reporting guidelines** — structured checklists that specify what must be stated for each study design — and most journals require the relevant one:
+Statistical reporting is part of the analysis, not a final formatting step. The reader needs to know what was estimated, in whom, over what period, with what uncertainty, and under which assumptions. A small p-value cannot replace those details. A well-reported result connects design, estimand, model, effect size, uncertainty, and substantive interpretation without claiming more than the evidence supports.
 
-- **CONSORT** — randomised controlled trials: flow of participants through allocation and analysis, the primary analysis exactly as pre-specified, and all results for all prespecified endpoints.
-- **STROBE** — observational studies (cohort, case–control, cross-sectional): the population, why, exposure and outcome definitions, confounders considered, and the quantitative measures of association with their precision.
-- **STARD** — diagnostic accuracy studies: the reference standard, blinding of readers, the 2×2 counts, and sensitivity/specificity (or, where appropriate, likelihood ratios and ROC points).
+The core is to separate three questions: What is the estimated effect or association? How uncertain is it? What does it mean for decisions or practice? These questions are related but not interchangeable. Statistical significance does not establish clinical importance; a wide interval does not prove no effect; and an adjusted association is not automatically causal.
 
-Beyond the checklist, good reporting means three things about every key result: (1) the **point estimate** (the effect size, in clinically meaningful units), (2) its **uncertainty** (95% confidence interval), and (3) the **interpretation in plain terms** — what the number means for the patient, not just for the p-value. A result reported as only "p = 0.03" discards the two most important pieces of information.
+## Start with the estimand and denominator
 
-The interpretive core: **statistical significance is not the finding; the effect size and its precision are the finding.** The p-value answers a fixed null question; the confidence interval answers the useful one — how large, and how precisely estimated, is the effect? A narrow interval that excludes both the null and the minimal clinically important difference is a genuinely reassuring result; a wide interval that merely fails to reach 0.05 is a much weaker claim, and the two must not be presented the same way.
+State the target contrast in plain language. “The intervention reduced mean symptom score by 2.4 points at 12 weeks among randomized participants” is more informative than “the treatment coefficient was significant.” Define the population, treatment conditions, outcome, follow-up, and handling of events such as discontinuation or rescue therapy. For observational studies, state the exposure contrast and adjustment target, and distinguish association from a causal estimate.
 
-## When to use it
+Show denominators at each stage: assessed, eligible, enrolled, randomized or included, analyzed, and with outcome data. For longitudinal studies, report follow-up at each visit; for survival studies, provide numbers at risk and event counts. Missingness and exclusions can change the population represented by the estimate. If the analysis is complete-case, say how many were excluded and why.
 
-| Setting | Example question |
-| --- | --- |
-| A finished RCT | Does the manuscript report the CONSORT flow, the pre-specified primary analysis, and effect sizes with CIs for every key endpoint? |
-| An observational cohort | Are the exposures, outcomes, and confounders defined clearly enough (STROBE) that the hazard ratio can be judged for residual confounding? |
-| A diagnostic test evaluation | Is the reference standard and the blinding of test readers stated (STARD), so the sensitivity is not inflated by verification bias? |
-| A journal submission | Does the paper state which guideline it followed, with the completed checklist as a supplement? |
+## Estimates with uncertainty, not just thresholds
 
-These rules apply to any quantitative result in a paper, abstract, conference slide, or press release. The guideline is chosen by the *design of the study*, not by what is convenient to report.
+Report the effect estimate and confidence or credible interval in original units whenever possible. A mean difference of −2.4 points with 95% CI −4.1 to −0.7 conveys direction, magnitude, and precision. A p-value such as 0.006 adds evidence against a specified null under a model; it does not say the effect is large, important, or likely to replicate. Report exact p-values to a useful precision, avoiding “p=0.000.”
 
-## Assumptions and limitations
+For a risk ratio, include group risks so readers can assess absolute impact. If 12% versus 16% experience an outcome, the risk ratio is 0.75 and the risk difference is −4 percentage points. The corresponding number needed to treat is 25 over the stated horizon, but its uncertainty may be wide and it depends on the population's baseline risk. Relative effects often appear more impressive than their absolute impact.
 
-- **Guidelines are checklists, not validators** — a CONSORT-compliant trial can still be biased by poor randomisation or selective follow-up; the checklist makes the bias *visible*, not absent.
-- **The confidence interval inherits the model's assumptions** — a CI around a hazard ratio presumes proportional hazards; around a regression coefficient, linearity and independent errors. Reporting the CI without checking its assumptions is reporting a number, not a guarantee.
-- **STARD results are only as good as the reference standard** — if the "gold standard" is imperfect or differs by group, sensitivity and specificity are mismeasured in a direction the 2×2 table cannot reveal.
-- **A reporting guideline cannot fix a study that wasn't designed to answer the question** — post-hoc subgroup "findings" reported as if confirmatory are the most common interpretive failure, and no checklist can launder them.
+```r
+with(dat, c(
+  risk_treat = mean(event[arm == "treatment"]),
+  risk_control = mean(event[arm == "control"])
+))
+tab <- with(dat, table(arm, event))
+prop.test(tab[, "1"], rowSums(tab), correct = FALSE)
+```
 
-## Worked example
+The code assumes `event` is coded 0/1 and the table columns are labeled accordingly. For small samples, clustered allocation, stratification, or covariate-adjusted estimands, use the corresponding design-aware analysis rather than this simple comparison. The report should identify whether the effect is crude, adjusted, marginal, or conditional.
 
-A 500-patient RCT of a new vaccine reports, per CONSORT: 250 per arm randomised, 246 and 244 analysed; 9 cases in vaccine, 21 in placebo. The hazard ratio for infection is 0.42 (95% CI 0.19–0.93), p = 0.031.
+## Interpreting intervals and p-values
 
-The correct interpretation is layered. First, the *effect*: vaccinated patients had about 58% fewer infections (HR 0.42), and the 95% CI (0.19–0.93) says the true protection could plausibly range from 7% to 81% — so the result is statistically significant but imprecisely estimated. Second, the *clinical* read: even the worst end of the interval (HR 0.93) is a small benefit, while the central estimate is large; the authors should state whether a 58% relative reduction meets the threshold for adoption given cost and side effects. Reporting only "p = 0.03, vaccine effective" would have discarded the range and the magnitude. The CONSORT flow table lets a reader confirm the 250→246/244 drop did not break the randomisation.
+A 95% frequentist confidence interval arises from a procedure that would cover the fixed parameter in 95% of repeated samples under its assumptions. It is not a 95% posterior probability statement about the parameter. A Bayesian credible interval does have posterior probability interpretation conditional on the prior and model. Use the correct language, and do not switch interpretations for convenience.
 
-## Interpretation and common pitfalls
+A p-value is the probability, assuming a particular null model and analysis procedure, of data at least as incompatible with that null as those observed. It is not the probability the null is true, the probability results are “due to chance,” or a measure of clinical importance. The threshold 0.05 is conventional, not a scientific boundary. Estimates just above and below it can be nearly identical.
 
-- **Treating p < 0.05 as "real" and p ≥ 0.05 as "nothing"** — significance is a binary gate the data crossed by chance of the null; the size and precision of the effect, from the CI, carry the scientific content.
-- **Reporting a p-value without the estimate and CI** — the most common and most damaging omission; it makes the effect size and its uncertainty unknowable to the reader.
-- **Cherry-picking significant subgroup or secondary endpoints** as if they were the primary analysis; the guideline (and the SAP) exist to prevent exactly this.
-- **Conflating statistical and clinical significance** — a highly significant 1-point blood-pressure change may be clinically trivial, while a borderline 15-point change may be transformative; both require the effect size in context, not just the p.
+Confidence intervals also need careful interpretation. They summarize uncertainty under a model and sampling design. A narrow interval can be precisely biased if confounding or measurement error is ignored. A wide interval may include both meaningful benefit and harm, showing that evidence is inconclusive rather than demonstrating equivalence. Equivalence or noninferiority requires a prespecified margin and an analysis designed for that question.
 
-Reporting recommendations change over time: use the current design-specific checklist (CONSORT 2025 for randomized trials, STROBE for observational studies, STARD for diagnostic accuracy, and TRIPOD+AI for prediction models using regression or machine learning). A checklist supports completeness; it neither certifies low risk of bias nor substitutes for protocol/SAP access. Report denominators, missingness, analysis populations, effect scale, precision, and deviations from planned methods. Interpret intervals against a clinically meaningful threshold where one is defined, and avoid treating a 95% confidence interval as a 95% probability statement about the fixed parameter.
+## From statistical effect to clinical meaning
+
+Compare effects with a clinically important threshold established independently of the observed estimate where possible. If a symptom scale has a minimally important difference of 3 points and the estimated benefit is 2.4 with interval 0.7 to 4.1, the data are compatible with a small effect and with a clinically important effect; a p-value alone conceals that uncertainty. Consider the duration of benefit, adverse effects, burden, costs, and affected subgroups.
+
+For prognostic outcomes, report absolute risks at a meaningful horizon in addition to relative measures. Hazard ratios do not directly translate into risk ratios. For a time-to-event analysis, predicted survival curves or restricted mean survival time differences can be easier to interpret than a single hazard ratio, especially when proportional hazards is questionable. State the time horizon and censoring assumptions.
+
+In prediction studies, performance should include calibration, discrimination, and clinical utility rather than only AUC. In diagnostic studies, sensitivity and specificity must be accompanied by prevalence-sensitive predictive values and the reference standard. In economic evaluations, report incremental costs, effects, uncertainty, and perspective. The measure should match the decision question.
+
+## Multiplicity, subgroups, and selective reporting
+
+When many outcomes, time points, subgroups, or model specifications are examined, the chance of at least one apparently unusual result increases. Identify the primary endpoint and analysis as prespecified or exploratory. If multiplicity control was planned, describe the family of hypotheses and method. For exploratory analyses, report the breadth of analyses rather than presenting the most favorable estimate as a confirmatory discovery.
+
+Subgroup claims require a test of interaction, not one significant subgroup result and one nonsignificant result. A treatment effect being statistically significant in younger patients but not older patients does not establish that effects differ. Show subgroup-specific estimates and intervals, interaction estimate and interval, and caution about low power. Avoid causal claims from post hoc subgroup partitions unless the design and analysis support them.
+
+## Tables and figures that serve the reader
+
+Tables should show group-specific denominators and outcome summaries alongside contrasts. Avoid duplicating every number in prose. Label units, follow-up, adjustment variables, and reference categories. Distinguish standard deviation (variation among individuals) from standard error (precision of an estimate). A forest plot can display estimates and intervals across outcomes or studies, but axis limits should not exaggerate small differences.
+
+Figures should include meaningful labels, uncertainty where relevant, and legible scales. Survival plots need numbers at risk; calibration plots need a reference line and preferably uncertainty; longitudinal trajectories should show sample counts if attrition changes composition. Do not truncate axes in a way that visually magnifies trivial changes without a clear cue.
+
+## Reading results against the design
+
+Interpretation begins with how observations entered the analysis. Random assignment supports an intention-to-treat contrast when outcomes are adequately ascertained, but missing outcome data and nonadherence can threaten the comparison. In a cohort, treatment choice may reflect severity, access, or clinician preference; a regression-adjusted contrast is only causal under exchangeability, positivity, consistency, and correct analysis assumptions. In a case-control study, the sampled ratio of cases to controls is set by design, so it cannot be read as population disease prevalence.
+
+For repeated or clustered observations, the effective amount of independent information may be closer to the number of people or clusters than the number of rows. Standard errors that ignore dependence are often too small. State the analysis unit and covariance method. If a cluster-robust method has few clusters, small-sample corrections or randomization inference may be necessary; a large person-level sample does not compensate for only a handful of independent clinics.
+
+Model diagnostics inform interpretation but do not prove a model is correct. Check functional form, influential observations, residual structure, proportional hazards where relevant, and calibration for prediction models. A model selected after inspecting the data has additional selection uncertainty. Show sensitivity analyses for plausible specifications, especially when the substantive conclusion changes.
+
+## When the question is equivalence or noninferiority
+
+A nonsignificant difference in a superiority test does not show treatments are equivalent. Equivalence requires a prespecified margin defining differences small enough to be clinically negligible and a confidence interval entirely within both bounds. Noninferiority asks whether a new intervention is not unacceptably worse than control by a margin; the one-sided interval must exclude losses beyond that margin. The margin should be clinically justified and preserve a meaningful fraction of established benefit.
+
+For example, if a noninferiority margin is 5 percentage points and the estimated risk difference (new minus standard) is 1 point with a 95% interval −2 to 4 points, the upper limit excludes a loss greater than 5 and supports noninferiority under the prespecified analysis. The same interval does not establish equality; it permits modest benefit or harm. Report the margin, direction, analysis populations, and sensitivity analyses, because departures from assigned treatment can bias toward no difference.
+
+## More than one useful effect scale
+
+The choice between absolute and relative scales is substantive. A constant risk ratio can imply very different risk differences for low- and high-risk populations. If baseline risk is 2%, a 25% relative reduction corresponds to 0.5 percentage points; if baseline risk is 20%, it corresponds to 5 points. Number needed to treat is the inverse of absolute risk difference, is horizon-specific, and becomes unstable near zero. Include uncertainty and avoid presenting a single NNT without its time frame.
+
+For continuous outcomes, report the mean difference in native units and consider a standardized effect only when scales differ across studies. A standardized mean difference can conceal the real-world magnitude and depends on the chosen standard deviation. For skewed outcomes, a mean difference may be sensitive to outliers; report medians or quantiles as descriptive summaries but ensure the inferential estimand matches them. A ratio of means or log-scale difference may be preferable for multiplicative effects.
+
+For survival endpoints, a hazard ratio is conditional on proportional hazards and compares instantaneous event rates among those still at risk. It is not a ratio of cumulative risks. If hazards are nonproportional, report time-specific effects or restricted mean survival time, such as average event-free time through a clinically chosen horizon. Absolute survival curves show how the difference evolves and support patient-centered interpretation.
+
+## Uncertainty beyond the confidence interval
+
+The reported interval typically quantifies sampling uncertainty under the selected model. It may not include uncertainty about confounding, outcome measurement, missing-data assumptions, model selection, transport to another setting, or implementation. State important non-sampling uncertainties separately. A precise estimate from a poorly measured endpoint or an unrepresentative convenience sample is not necessarily reliable.
+
+Sensitivity analyses should be motivated by plausible threats, not used as a menu to find a preferred result. For unmeasured confounding, show how strong an omitted factor would need to be to change the conclusion. For missing outcomes, vary assumptions beyond MAR. For prediction, evaluate temporal and geographic transport. For meta-analysis, assess heterogeneity and small-study effects. If a result is robust across plausible assumptions, that is informative; if not, the unresolved assumptions belong in the conclusion.
+
+Avoid describing a p-value as a measure of evidence strength without context. A p-value depends on the null, sample size, model, and analysis plan. A tiny effect in a huge dataset can produce a small p-value; an important effect in a small study can be uncertain. An interval shows a range of values compatible with the data under a procedure, though not a list of equally plausible truths. Prior evidence and study quality also shape scientific interpretation.
+
+## A concise results checklist
+
+Before writing the conclusion, verify that the reported population and estimand match the protocol; denominators and missingness are visible; estimates use a clear scale and unit; uncertainty is presented; the primary and exploratory analyses are distinguished; model adjustment and diagnostics are described; clinical importance and harms are considered; and the wording respects the design. Report deviations and multiplicity rather than hiding them in supplementary material. Make figures and tables interpretable without requiring the reader to infer the reference group or follow-up period.
+
+The conclusion should summarize magnitude, uncertainty, applicability, and key limitations in that order. It should not repeat only whether a null-hypothesis threshold was crossed. If the interval remains broad, say what important benefit and harm remain plausible and what further evidence would resolve the question.
+
+## Write conclusions that remain true when the estimate shifts
+
+Readers often remember the headline rather than technical caveats. A useful conclusion states what the study found and the main uncertainty in a sentence that would still be accurate if the point estimate moved modestly. “The intervention reduced 90-day readmission” overstates the trial example, whose interval includes no difference. “Readmission was lower in the intervention group, but the estimate was imprecise and compatible with no difference” stays faithful to the evidence.
+
+If an analysis was exploratory, name it as such near the result rather than only in the limitations section. If adjustment was chosen after looking at model diagnostics, describe that process. If data or code cannot be shared, explain the access route or restriction. Transparency gives readers enough information to distinguish a planned analysis from one selected after results were known.
+
+When space is limited, retain the estimate, interval, scale, population, and horizon in the main text; secondary diagnostics can move to a supplement. A compact but complete report is more useful than a short abstract that says only “significant” or “not significant.” Abstract conclusions deserve particular care because many readers will not see the full methods or limitations.
+
+For two studies of the same treatment, one may estimate a 3-point benefit with a 95% interval of 0.2 to 5.8, while another estimates 2.8 points with an interval of −0.5 to 6.1. The estimates are nearly identical; their p-values differ because precision differs. Calling one positive and the other negative exaggerates the evidence of inconsistency. Compare estimates and intervals directly, and if the studies can be combined, use a synthesis that represents between-study heterogeneity rather than counting “significant” results.
+
+Good reporting helps the next researcher plan a study: an effect estimate and interval provide more information about plausible magnitudes than a binary significance label. Sharing the analysis plan, outcome definitions, and code further supports replication and cumulative evidence.
+
+Describe absolute effects over a stated time horizon.
+
+Include units and denominator in every main result table.
+
+## A worked reporting example
+
+In a randomized trial of 400 adults, 24 of 200 assigned to a counseling intervention and 32 of 200 assigned to usual care were readmitted within 90 days. Risks are 12% and 16%; the risk difference is −4 percentage points, risk ratio 0.75. An approximate 95% interval for the risk difference is −10.8 to 2.8 percentage points. The result is compatible with a potentially useful reduction but also with little benefit or slight harm. It would be misleading to state simply that the intervention “reduced readmission by 25%” without noting the relative scale, absolute risks, interval, and follow-up.
+
+A balanced report might say: “By 90 days, readmission occurred in 24/200 (12%) participants assigned to counseling and 32/200 (16%) assigned to usual care. The risk difference was −4.0 percentage points (95% CI −10.8 to 2.8), and the risk ratio was 0.75. The interval includes no difference and remains compatible with both a clinically relevant reduction and little benefit. Follow-up was complete for 97% and 96%, respectively.” This reports the contrast without converting uncertainty into certainty.
+
+## Language, causal boundaries, and reproducibility
+
+Use “associated with” for observational estimates unless a causal design and assumptions justify causal language. “After adjustment” does not mean “independent effect” in a causal sense. State covariates and explain why they were selected; adjusting for a mediator or collider can introduce bias. In trials, preserve the randomized comparison as primary when appropriate and explain departures from intention-to-treat.
+
+Avoid “trend toward significance,” “almost significant,” “proved,” and “no effect” when intervals remain compatible with meaningful effects. Prefer “the estimate was…” and “the interval was compatible with…” If results conflict with prior evidence, consider differences in population, outcome, design, and chance rather than dismissing one result by significance status.
+
+Reproducible reporting includes protocol or analysis-plan references, software and version, model specification, transformations, missing-data approach, and deviations from planned analyses. Share code and data where ethical and lawful, or explain access restrictions. Report enough detail for independent analysts to reproduce the estimate and understand analytic flexibility.
 
 ## References and further reading
 
-## Estimate, uncertainty, and clinical meaning
-
-## Reporting models and diagnostics
-
-## Common interpretation errors
-
-## Worked result interpretation
-
-Suppose an RCT estimates risk difference −0.02 (95% CI −0.045 to 0.005) and RR 0.80 (95% CI 0.62–1.03). A careful statement is: “The estimated 2-year event risk was 2 percentage points lower with treatment; the interval is compatible with 4.5 points lower to 0.5 points higher. Relative risk was estimated at 0.80, with interval including no difference.” Avoid saying treatment “reduced risk by 20%” as a definitive finding; that frames the point estimate without uncertainty. Whether evidence is sufficient depends on clinical threshold and study quality.
-
-For an observational adjusted OR of 0.70, state “odds were lower” and describe adjustment set; do not claim 30% lower risk. If causal interpretation is intended, explain identification assumptions and sensitivity to unmeasured confounding. For a predictive model, AUC=.82 does not mean 82% accuracy; report calibration and threshold performance.
-
-## Audience-specific communication
-
-## Evidence strength and causal language
-
-## Report uncertainty honestly
-
-Distinguish sampling error from systematic error and model uncertainty. A confidence interval does not include unmeasured confounding unless explicitly modeled; a posterior interval is conditional on its prior and likelihood. Report design limitations, missingness, measurement error, and selection transparently. Avoid overprecise wording when the data are sparse or assumptions weak. The strongest conclusion is the one supported by effect size, interval, design quality, and sensitivity—not by a single thresholded p-value.
-
-When multiple analyses disagree, show the range and explain differences in estimand/assumptions. Do not privilege a favorable analysis without justification. Provide protocol/SAP deviations and all outcomes, including harms. If a claim depends on a subgroup or post hoc threshold, label it and recommend independent confirmation.
-
-Use verbs aligned with design: randomized assignment may support causal inference for the specified estimand if conduct and missing-data assumptions are sound; cohort associations require confounding/selection assumptions; cross-sectional associations often have ambiguous temporality. “Associated with” is safer than “caused” when identification is not established. For prediction models, say “predicts” only in a validated population and distinguish prognostic association from treatment benefit.
-
-State important limitations with direction where possible. For example, differential loss to follow-up among sicker participants may bias results toward healthier outcomes, though the direction depends on group patterns. Generic limitations that “more research is needed” are less useful than explaining which uncertainty changes decisions.
-
-## Complete results reporting
-
-## Reporting limitations constructively
-
-If conclusions rely on a particular model or threshold, show sensitivity to reasonable alternatives. Report null and adverse outcomes with the same visibility as favorable outcomes, and disclose analysis changes made after seeing results.
-
-## Final communication check
-
-When space is limited, preserve effect estimate, interval, denominator, and design limitations before secondary p-values or model details.
-
-Ensure reporting follows the appropriate guideline and checklist, with deviations explained rather than used as a substitute for methodological description.
-
-### Example language
-
-Prefer: “The adjusted difference was −2.0 points (95% CI −4.1 to 0.1), compatible with a modest benefit or little difference.” Avoid “almost significant” or “proved no effect.” For observational data, report association and causal assumptions separately. For models, distinguish discrimination from calibration; for tests, report prevalence and predictive values at the use setting. Plain language should preserve uncertainty rather than remove it.
-
-Make the conclusion answer the prespecified question, identify the population and horizon, and state practical relevance. Avoid extrapolating beyond studied populations or turning exploratory analyses into recommendations.
-
-Before submission, verify every abstract and discussion claim against the estimate and interval. Check that units, denominators, reference group, horizon, and adjusted/unadjusted labels are consistent across text, tables, figures, and supplement. Report deviations and funding/conflicts, and use guideline checklists relevant to the study design.
-
-For each limitation, describe the mechanism, likely direction if known, and impact on interpretation. “Residual confounding is possible” is less informative than naming a plausible unmeasured severity factor and explaining how it might affect treatment assignment and outcome. State which results are robust to alternate assumptions and which are not. Limitations should calibrate the conclusion rather than serve as a generic closing paragraph.
-
-Distinguish internal validity, precision, and transportability. A well-randomized but narrow trial may have strong internal validity and limited generalizability; a representative survey may estimate prevalence precisely but not causal effects. Keep conclusions aligned to the design's strengths and limits.
-
-Include participant flow, exclusions, baseline characteristics with clinically relevant distributions, outcome denominators, missingness, adverse events, protocol deviations, and all prespecified analyses. For models, report covariate handling and diagnostics. For meta-analysis, include study selection and heterogeneity. For diagnostic studies, include threshold and reference standard. Use relevant reporting guidelines (CONSORT, STROBE, STARD, TRIPOD, PRISMA) as checklists, not substitutes for transparent methods.
-
-When results are null, report estimates and intervals and distinguish evidence of absence from absence of evidence. If an interval excludes a minimally important effect, explain that; if it is wide, acknowledge uncertainty. Avoid changing the conclusion based on whether p=.049 or .051.
-
-Scientific reports need methods and uncertainty detail; clinical summaries should translate effects to natural frequencies and meaningful horizons; public communication should avoid relative-only framing and explain uncertainty plainly. Keep the underlying estimate consistent across audiences. Visual displays should show denominators and reference groups. Do not use truncated axes or icon arrays that exaggerate small differences.
-
-Do not say “the treatment caused a 20% reduction” when the estimate is an odds ratio of 0.80; state odds and translate to absolute risk if possible. Do not interpret a hazard ratio as cumulative risk reduction. Do not describe a nonsignificant result as “no effect”; state which effects remain compatible with its interval. Avoid “trend” for p=.06 and avoid equating statistical significance with clinical importance. For a Bayesian posterior probability, state the model/prior assumptions and differentiate it from a frequentist p-value.
-
-## Reporting absolute effects with baseline scenarios
-
-When relative effects are more transportable than baseline risk, provide absolute effects for several plausible baseline risks at a fixed horizon. For RR=.8, baseline risks 2%, 10%, and 30% imply risk reductions 0.4, 2, and 6 percentage points (NNT 250, 50, and about 17). This shows how the same relative estimate maps to different decisions. Do not imply all scenarios were observed in the trial; label them as model-based translations and propagate uncertainty when possible.
-
-## Abstract and main-text discipline
-
-Abstracts should give design, setting, sample size, primary outcome, effect estimate with interval, and conclusion proportionate to evidence. Avoid unsupported causal verbs in observational studies. Main text should identify prespecified analyses and report absolute counts, denominators, missingness, and adverse events. Supplementary analyses should be indexed and linked, not used to bury inconvenient outcomes. Ensure values in abstract, text, tables, and figures agree through scripted output generation.
-
-State model family, link, covariates, functional forms, clustering/correlation structure, variance estimator, and missing-data assumptions. Report how continuous predictors were modeled and why. Include diagnostics relevant to the model: residuals and calibration for regression, proportional-hazards assessment for Cox models, influence and convergence for mixed models, and calibration/discrimination for prediction. Diagnostics should inform interpretation and sensitivity analysis rather than be used as a pass/fail ritual.
-
-For adjusted results, explain the target population and whether estimates are conditional or marginal. A coefficient is not automatically an adjusted population effect. State how standard errors were calculated and whether model selection was prespecified. If assumptions are materially violated, report alternative analyses and how conclusions change.
-
-## Transparent deviations and multiplicity
-
-Compare the report with protocol, registry, and SAP. Disclose outcome changes, added analyses, and timing relative to unblinding. For exploratory analyses, say how many outcomes, cutpoints, subgroups, and models were considered when known. Multiplicity adjustment is not always required for exploration, but selective emphasis must be avoided. Provide all estimates in supplement or data repository where possible.
-
-Report an effect estimate with confidence or credible interval on a clinically interpretable scale. A p-value measures compatibility of data with a model-based null, not the probability the null is true and not the size or importance of an effect. A small p-value can accompany a trivial effect in a large study; a clinically important estimate can be imprecise in a small study. Interpret the full interval against prespecified clinical thresholds and plausible harms.
-
-For binary outcomes, present event counts and absolute risks by group alongside relative measures. For survival outcomes, state time horizon, risk sets, censoring, competing events, and whether a hazard ratio assumes proportional hazards. For continuous outcomes, include units, baseline/follow-up distributions, and meaningful thresholds. For observational studies, distinguish adjusted association from causal effect and state assumptions. For prediction, report calibration and decision relevance in addition to discrimination.
-
-## Confidence intervals and p-values
-
-A 95% frequentist confidence procedure covers the true parameter in 95% of repeated samples under model assumptions; after observing data, it is not a 95% posterior probability statement. The interval includes sampling uncertainty but not automatically bias, measurement error, model selection, or multiplicity. A p-value below .05 does not indicate practical importance or replication probability. Avoid binary “significant/non-significant” language where estimates and intervals can communicate gradation.
-
-When many outcomes, subgroups, time points, or models are examined, selective reporting inflates false-positive risk. Identify primary and secondary analyses and explain multiplicity strategy. Exploratory findings can be reported transparently as exploratory; they need independent confirmation. Report all prespecified outcomes regardless of significance and disclose protocol/SAP deviations with dates and rationale.
-
-## Tables, figures, and reproducible claims
-
-Every table should state analysis denominator, missing data, units, reference group, and adjustment set. Avoid significance stars without estimates and intervals. Forest plots should show effect scale and direction; survival plots should include numbers at risk; ROC curves should identify thresholds or intended operating point. Use captions that allow figures to be interpreted without searching the methods. Round consistently and avoid excessive decimals that imply unsupported precision.
-
-Distinguish prespecified results from post hoc analyses and label subgroup findings accordingly. A “trend toward significance” is not a distinct evidential category. Do not claim equivalence from nonsignificance. Report both absolute and relative effects when they answer complementary questions, and avoid translating odds or hazards directly to risk without appropriate baseline information.
-
-- Wasserstein RL, Schirm AL, Lazar NA. Moving to a world beyond “p<0.05”. *The American Statistician*. 2019;73(sup1):1–19. https://doi.org/10.1080/00031305.2019.1583913
-- Greenland S, Senn SJ, Rothman KJ, et al. Statistical tests, P values, confidence intervals, and power. *European Journal of Epidemiology*. 2016;31:337–350. https://doi.org/10.1007/s10654-016-0149-3
-
-- CONSORT 2025. [BMJ 2025;389:e081123](https://doi.org/10.1136/bmj-2024-081123)
-- STROBE Statement. [The Lancet 2007;370:1453–1457](https://doi.org/10.1016/S0140-6736(07)61602-X)
-- Bossuyt PM, Reitsma JB, Bruns DE, et al. STARD 2015. [BMJ 2015;351:h5527](https://doi.org/10.1136/bmj.h5527)
-- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
-
-- Altman DG, Schulz KF, Moher D. *The CONSORT Statement: Revised Recommendations for Reporting Parallel Group Randomised Trials*. BMJ.
-- von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP. *The STROBE Statement: Strengthening the Reporting of Observational Studies in Epidemiology*.
-- Bland M. *Statistics in Practice: A Guide to the Statistical Methods in Medicine and the Health Sciences*. Chapman and Hall.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-
-The [confidence intervals article](../inference/confidence-intervals.html) develops the interval interpretation used throughout.
+- Wasserstein RL, Lazar NA. The ASA statement on p-values: context, process, and purpose. *The American Statistician*. 2016;70:129–133. [doi:10.1080/00031305.2016.1154108](https://doi.org/10.1080/00031305.2016.1154108)
+- Altman DG, Bland JM. Absence of evidence is not evidence of absence. *BMJ*. 1995;311:485. [doi:10.1136/bmj.311.7003.485](https://doi.org/10.1136/bmj.311.7003.485)
+- Cumming G. The new statistics: why and how. *Psychological Science*. 2014;25:7–29. [doi:10.1177/0956797613504966](https://doi.org/10.1177/0956797613504966)
+- CONSORT 2010 Statement: updated guidelines for reporting parallel group randomised trials. [doi:10.1136/bmj.c332](https://doi.org/10.1136/bmj.c332)
+- STROBE Statement for reporting observational studies. [strobe-statement.org](https://www.strobe-statement.org/)

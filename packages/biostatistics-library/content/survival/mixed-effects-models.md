@@ -1,188 +1,151 @@
 ---
 title: Mixed-effects models
-summary: Regression for longitudinal and clustered data that separates between-subject and within-subject variation.
+summary: Model clustered and repeated outcomes with fixed effects for population relationships and random effects for variation across people, clinics, or other groups.
 ---
 
-## Overview and key ideas
+## Overview
 
-A **mixed-effects model** (linear mixed model, LMM) extends ordinary linear
-regression to repeated and clustered observations by adding **random
-effects** — random intercepts and, if needed, random slopes — for each subject
-on top of the fixed effects that answer the research question. The typical
-form is:
+Mixed-effects models combine fixed effects, which describe average relationships, with random effects, which represent variation across clusters or individuals. They are useful when observations are correlated because people are measured repeatedly, patients share clinics, or samples are nested within sites. Modeling dependence improves uncertainty estimates and can describe heterogeneity, but does not automatically solve confounding or missing-data problems.
 
-Y_ik = beta_0 + beta_1 x_ik + u_i + e_ik, where u_i ~ N(0, sigma_u²) is the
-subject-specific deviation from the population intercept and e_ik ~ N(0, sigma_e²)
-is the residual. The random term makes observations from the same subject
-correlated, and the fixed effects are estimated with all available data —
-including subjects who missed some visits — under maximum likelihood.
+The target interpretation depends on the model and link. In a linear mixed model, fixed effects often represent population-average mean differences under common assumptions. In a logistic mixed model, coefficients are conditional on random effects and are subject-specific; they generally differ from marginal population-average effects from GEE. Choose a model based on the scientific estimand and data structure.
 
-The fixed-effect estimates are what the paper reports; the variance components
-(sigma_u², sigma_e²) quantify how much of the total variability is between
-people versus within people over time.
+## Separate within-person and between-person variation
 
-## When to use it
+For continuous outcome (Y_{ij}) measured for person (i) at time (j), a random-intercept model is \(Y_{ij}=\beta_0+\beta_1t_{ij}+b_{0i}+\epsilon_{ij}\), with (b_{0i}\sim N(0,\sigma_b^2)\) and residual \(\epsilon_{ij}\sim N(0,\sigma^2)\). The random intercept captures stable differences between people; repeated measurements from the same person are correlated through shared (b_{0i}).
 
-| Setting | Example question |
-| --- | --- |
-| Longitudinal trial | How does haemoglobin change over 12 months in iron deficiency, and does iron therapy alter the slope? |
-| Growth studies | How do children's heights grow, and does nutrition change the trajectory? |
-| Clustered data | How do hospital-level staffing levels relate to readmission, when patients are nested within hospitals? |
+The intraclass correlation in this simple model is \(\sigma_b^2/(\sigma_b^2+\sigma^2)\), the proportion of total variance attributable to between-person differences. If \(\sigma_b^2=16\) and residual variance is 9, ICC is 16/25=0.64; two measurements from the same person are strongly correlated. This affects standard errors and the information gained from repeated visits.
 
-Choose a mixed model when you want a **subject-specific** interpretation
-("this individual's expected trajectory"), when the number of levels of a
-clustering factor is large, or when you want to predict for individuals.
+Random slopes allow individual trajectories to vary: \(Y_{ij}=\beta_0+\beta_1t_{ij}+b_{0i}+b_{1i}t_{ij}+\epsilon_{ij}\). The covariance between random intercept and slope describes whether people with higher baseline values tend to change faster or slower. Random effects should reflect plausible heterogeneity and be supported by enough independent clusters and repeated observations.
 
-## Assumptions and limitations
+Within-person and between-person associations can differ. If a patient's biomarker rises over time, the association between that within-person change and outcome may not equal the association between patients with different average biomarker levels. Decompose a time-varying predictor into the person's mean and deviation from that mean. This distinguishes a within-person effect from a between-person effect and avoids conflating them in one coefficient.
 
-- **Normality** of random effects and residuals; the LMM is least-squares in
-  fixed effects and likelihood-based in variance components, so departures can
-  bias standard errors more than point estimates.
-- **Linearity** in the fixed effects; if growth is curvilinear, include
-  polynomial or spline terms in time.
-- The chosen **covariance structure** must be plausible: an uncorrelated
-  structure ignores the data's design, and a compound-symmetry structure can
-  be wrong for data whose correlation decays with time.
-- With a small number of clusters (fewer than ~5–10 hospitals, say),
-  variance components are estimated imprecisely and fixed-effect standard
-  errors need cluster-robust or small-sample adjustments.
-- Missing data are handled as missing-at-random by default; informative
-  dropout violates that.
-
-## Worked example
-
-A trial randomises 200 children with iron-deficiency anaemia to oral iron
-(n = 100) or placebo (n = 100), measuring haemoglobin at baseline, 3, 6, and
-12 months. A mixed model with random intercepts and a fixed effect for time ×
-treatment interaction gives an interaction coefficient of 1.1 g/dL
-(95% CI 0.7 to 1.5): iron patients' haemoglobin rose about 1.1 g/dL more than
-placebo patients' by 12 months, after allowing for each child's own baseline
-level. The random-intercept variance (sigma_u² = 0.21) versus residual variance
-(sigma_e² = 0.14) means about 60% of the variability is between children, so
-averaging everyone's 12-month value into one comparison would discard most of
-the signal.
-
-## Interpretation and common pitfalls
-
-- Fixed-effects and random-effects estimates of the **treatment effect** can
-  differ: in a random-effects model the effect can be read as how a given
-  person's outcome changes, while in a GEE it is the average change across
-  people; choose the estimand first, then the model.
-- Reporting standard errors from a model fitted with a misspecified
-  covariance structure; use likelihood-ratio tests or information criteria to
-  compare structures, but do not treat the chosen structure as truth.
-- Confusing the random intercept with a covariate: the random intercept
-  absorbs each subject's stable baseline, so a fixed baseline covariate should
-  not also be added carelessly — check for separation and interpretability.
-- Extrapolating beyond the observed time range: the model interpolates the
-  visits you measured; predicted values past the last visit assume the
-  trajectory continues as modelled.
-
-Random intercepts and slopes induce a covariance pattern through the distribution of latent subject effects; they are not merely a way to “account for repeated measures.” Likelihood-based mixed models can use incomplete outcome trajectories under a missing-at-random assumption conditional on included variables and the observed history. This does not justify ignoring predictors of missingness or dropout. Random-effects normality and covariance assumptions can affect inference, and a population-average estimand may call for GEE instead. Include time-by-treatment interactions when the treatment contrast can evolve, and use planned contrasts to make the comparison at meaningful visits explicit.
-
-## References and further reading
-
-## Model interpretation and covariance
-
-## Random intercept and slope example
-
-## Worked coefficient and variance interpretation
-
-Consider a model `score ~ treatment * time + (1 | id)` with treatment coded 1 for intervention and time in weeks. If the time coefficient is −0.4 and interaction is 0.15, the control group declines 0.4 score units/week, while the treated group declines 0.25/week. At week 8, the model-estimated between-arm contrast relative to baseline is 1.2 units. This is an average fixed-effect contrast if random effects have mean zero. If outcome scores are bounded or highly skewed, Gaussian residual assumptions may be poor; robust intervals, transformation, or an appropriate ordinal/count model could be needed.
-
-Suppose random intercept variance is 25 and residual variance 36. For two observations close in time under a random-intercept-only model, the implied correlation is (25/(25+36)=0.41). This model implies constant covariance across times, which may be unrealistic if correlation decays. A random slope makes covariance depend on time and may yield near-perfect correlation at nearby measurement times while allowing trajectories to diverge. Examine model-implied covariance against empirical within-person patterns.
-
-## Estimation, REML, and boundary tests
-
-REML maximizes a likelihood based on error contrasts and typically reduces small-sample bias in variance components. Fixed-effect comparisons require ML because restricted likelihoods depend on fixed-effect design. Testing a random-effect variance of zero is on the boundary of parameter space; a conventional one-degree-of-freedom chi-square reference is not generally correct. Parametric bootstrap or mixture reference distributions may be more appropriate. Report estimation method and convergence warnings; a numerical convergence message is not a guarantee that the model is identified.
-
-For non-Gaussian GLMMs, likelihood approximations can influence estimates. Adaptive quadrature may improve accuracy at additional computational cost, whereas Laplace approximations are faster. Compare integration settings for important parameters, inspect separation and sparse clusters, and consider penalization or weakly informative Bayesian priors when estimates diverge. Interpret priors transparently and assess sensitivity.
-
-Suppose blood pressure is measured at baseline and months 3, 6, and 12. A random-intercept model assumes participants differ in their underlying level but share a common mean slope; adding a random slope permits individual slopes to vary. If time is in months, the fixed treatment-by-time coefficient is the between-arm difference in average monthly change. Rescale time to years or center it at 6 months to improve coefficient interpretation and numerical conditioning. Plot observed trajectories and group means before fitting; nonlinearity may be more important than random-slope complexity.
+For example, for repeated blood pressure \(X_{ij}\), include person mean \(\bar X_i\) and deviation \(X_{ij}-\bar X_i\). The coefficient for deviation describes how outcome changes when a person is above their own usual pressure; the mean coefficient compares people with different usual pressures. This is descriptive unless time-varying confounding and measurement error are addressed, but it clarifies what variation supports each estimate.
 
 ```r
 library(lme4)
-fit <- lmer(bp ~ treatment * splines::ns(month, df = 3) + baseline_bp +
-              (1 + month | id), data = visits, REML = TRUE)
-```
-
-Natural spline terms allow a flexible population mean, while the random slope remains linear here. This mismatch can be sensible when individual deviations are approximately linear, but inspect diagnostics and compare justified structures. With four visits, a fully unstructured random-effects and residual covariance may be over-parameterized. Use likelihood, residual structure, and scientific design—not a convergence-free model alone—to select complexity.
-
-## Subject-specific versus population-average interpretation
-
-For Gaussian identity-link models, fixed effects in a linear mixed model can also describe marginal mean contrasts under mean-zero random effects. For nonlinear links, conditional and marginal effects differ. A logistic mixed model's exponentiated treatment coefficient is a conditional odds ratio for individuals with the same random effect. Population-average risk differences require integrating predicted outcomes over the random-effects distribution and averaging covariates. Setting random effects to zero estimates a typical conditional subject, not the average population risk.
-
-If the policy question concerns average outcome across all eligible patients, calculate marginal standardized predictions. If the question concerns a patient with a given latent propensity, conditional predictions may be useful but are harder to validate clinically. Report which interpretation is intended, and be careful that random effects can absorb heterogeneity without identifying its source.
-
-## Diagnostics and model uncertainty
-
-## Missing-data sensitivity worked plan
-
-## Predicting an individual trajectory
-
-## Model reporting template
-
-### Interpretation checklist
-
-Clarify whether each coefficient describes a population mean or conditional subject-specific effect, and whether predictions include random-effect integration. Report time units, reference time, random-effects terms, variance components, residual assumptions, and handling of incomplete trajectories. Provide fixed-effect contrasts with intervals at useful times and model diagnostics. A random intercept captures modeled dependence but does not correct confounding, selection, or missing-not-at-random dropout.
-
-State outcome distribution/link, fixed effects and interactions, random-effects structure, residual covariance, estimation method, optimizer and convergence, missingness assumption, and software. For continuous outcomes, provide variance components and ICC when informative; for nonlinear outcomes, clarify conditional versus marginal contrasts. Explain time centering and units so intercepts are interpretable. Report estimated means or contrasts at planned times with intervals rather than only omnibus tests. Share code that constructs long data and derives visit time, since errors in data reshape often alter dependence structure.
-
-Do not present random-effect variance as evidence of biologically meaningful subgroups without validation. A continuous distribution of participant deviations is not equivalent to latent classes. Mixture models or trajectory groups introduce additional assumptions and should be externally validated before clinical subgroup claims.
-
-Conditional fitted trajectories combine fixed effects with estimated participant random effects (BLUPs). These are shrinkage estimates: participants with sparse data are pulled toward the population mean more strongly than those with many observations. They should not be interpreted as error-free personal parameters. Prediction intervals for a future observation must include residual variation and uncertainty in fixed/random effects; confidence bands for the mean are narrower and answer a different question. Validate individual prediction by holding out participants, not random visits, to prevent leakage of each person's trajectory into both training and validation.
-
-For clinical deployment, check calibration across time and subgroups and evaluate whether random-effect estimation is available at the time decisions are made. If predictions are needed before repeated data accumulate, random effects estimated from future visits are unavailable. Report the prediction time, history used, and update scheme.
-
-Suppose participants with worsening symptoms are more likely to miss later visits. A likelihood mixed model using observed outcomes is valid under MAR conditional on observed history included in the model, but worsening not captured by previous measurements makes MNAR plausible. First include strong observed predictors of attendance and outcome, then describe missingness by prior outcome and arm. As sensitivity analysis, use pattern-mixture imputation that shifts missing outcomes by δ points relative to MAR predictions, varying δ over clinically plausible deterioration. Plot the treatment contrast across δ and identify the tipping point where inference changes. This does not estimate the true MNAR mechanism; it shows dependence of conclusions on untestable assumptions.
-
-Joint models can link longitudinal outcome and time-to-dropout/event through shared random effects, but add distributional assumptions and computational complexity. Use them when the joint process is scientifically relevant, not as an automatic cure. Compare to simpler MAR analyses and report sensitivity to the association structure.
-
-## Marginal contrasts from a mixed model
-
-For Gaussian outcomes with identity link, fixed effects often yield marginal mean contrasts directly under zero-mean random effects. For logistic mixed models, obtain population-average probability by integrating over random-effect distribution. In practice, simulate random effects from estimated distribution for each covariate profile, calculate predicted probabilities under each treatment, and average over target covariates and random draws. Plugging in random effect zero systematically differs from integration because the inverse-logit is nonlinear. Include uncertainty from fixed effects and variance components, preferably using bootstrap or posterior draws.
-
-Check residual-versus-fitted plots, Q-Q plots for conditional residuals and random effects, temporal residual autocorrelation, and influential groups. Normality violations may matter most for variance estimates and prediction at extremes; robust alternatives or bootstrap can be considered. Singularity indicates one or more random-effect variance components are near zero or correlations are at boundaries; simplify the covariance structure if unsupported and report the decision. Compare predictions under alternative plausible structures.
-
-For binary outcomes, separation and sparse cluster-level outcomes can destabilize GLMM estimates. Bayesian priors or penalization may regularize, but prior sensitivity should be assessed. For few groups, random-effect variance is weakly identified and asymptotic Wald intervals may be unreliable. Parametric bootstrap or profile likelihood can improve inference. Random effects also do not solve informative dropout; joint longitudinal-survival models may be needed when the repeated marker and event process share latent factors and the scientific aim warrants the added assumptions.
-
-### Random effects do not replace design
-
-Repeated outcomes may be nested in patients, patients nested in clinics, and clinics nested in regions. A multilevel model can represent several covariance levels, for example `(1 | region/clinic/id)`, but inference still depends on sufficient independent units at each level and on the sampling/randomization design. If treatment is assigned by clinic, the effective information for treatment is driven by clinics; many patient records cannot compensate for very few randomized clinics. Cluster-robust or randomization-based sensitivity analyses may be needed.
-
-Random-effects assumptions should be checked through distribution plots and sensitivity analyses, especially when there are few groups or strong skew. A random slope correlated with the intercept may be weakly identified; centering time and simplifying unsupported covariance can improve stability. Avoid selecting random-effects structure solely by a sequence of p-values. Fixed-effect estimates can be sensitive to omitted nonlinear time trends, while random effects capture heterogeneity, not systematic mean misspecification.
-
-A linear mixed model for participant \(i\) at visit \(j\) can be written \(Y_{ij}=X_{ij}^T\beta+Z_{ij}^Tb_i+\epsilon_{ij}\), with random effects \(b_i\sim N(0,G)\) and residuals \(\epsilon_i\sim N(0,R_i)\). Fixed effects describe population mean associations conditional on modeled covariates; random effects represent participant-specific departures and induce within-person dependence. A random intercept captures persistent level differences. A random slope allows individual trajectories to vary. These are assumptions about a distribution, not literal claims that each patient's true effect was randomly assigned from a normal population.
-
-In a random-intercept model, the intraclass correlation under homoscedastic residuals is \(\tau^2/(\tau^2+\sigma^2)\). If between-person SD is 8 and residual SD is 10, ICC is 64/(64+100)=0.39: observations from the same person are substantially correlated. Random slopes and serial residual correlation create richer covariance patterns. The model should reflect the visit schedule and scientific trajectory; an unnecessarily complex random-effects covariance may fail to converge, while an oversimplified structure can misstate uncertainty.
-
-```r
-library(lme4)
-fit <- lmer(score ~ treatment * time + baseline_score + (1 + time | id),
-            data = long_data, REML = TRUE)
+fit <- lmer(score ~ treatment * time + baseline_score +
+              (1 + time | patient_id), data = long_dat)
 summary(fit)
 ```
 
-The treatment-by-time coefficient estimates difference in mean change per unit time when time is linear and the interaction is coded accordingly. Center time at a meaningful visit to interpret main effects. For treatment comparisons across follow-up, derive estimated marginal means or contrasts at prespecified times. `lmer` assumes Gaussian residual and random-effect distributions for likelihood inference; inspect residuals, fitted-versus-residual patterns, influential participants, and singular-fit warnings. A singular fit often means the data do not support the specified random-effects complexity.
+This model assumes a linear mean trajectory and normally distributed random effects and residuals. Time may need a categorical, spline, or nonlinear form. `patient_id` is the repeated-measure unit; add a clinic-level term if appropriate and adequately supported. Check convergence, singular fit, residual patterns, and sensitivity to random-effects structure.
 
-## Likelihood, missing visits, and model selection
+## Fixed effects, random effects, and the estimand
 
-Restricted maximum likelihood (REML) estimates variance components with less small-sample bias, but likelihood comparisons of models with different fixed effects should use maximum likelihood (ML), not REML. Variance-component tests are boundary problems because a variance cannot be negative; standard chi-square likelihood-ratio approximations may fail. Information criteria and likelihood comparisons supplement, but do not replace, design-based reasoning and diagnostics. Predefine fixed effects and covariance structure whenever possible.
+Fixed effects describe average covariate relationships across the modeled population. Random effects represent latent cluster-specific deviations drawn from a distribution. For example, a random clinic intercept allows baseline outcome levels to vary by clinic, while a treatment random slope allows treatment association to vary across clinics. These are distributional assumptions, not merely software options.
 
-Likelihood-based mixed models use all available outcome measurements under a missing-at-random assumption conditional on variables in the model. MAR means missingness can depend on observed data but not on the unobserved outcome after conditioning. It is not empirically testable from observed outcomes alone. If dropout depends on unobserved deterioration, standard likelihood estimates may be biased; pattern-mixture, selection, joint models, or sensitivity analyses can assess departures. Include strong predictors of both missingness and outcome, but avoid treating this as proof of MAR.
+A subject-specific prediction includes estimated random effects for a known individual; a population-average prediction integrates over the random-effects distribution. For a Gaussian identity-link model these can align for mean contrasts, but for nonlinear links they differ. In logistic regression, a conditional OR of 0.60 can correspond to a marginal OR closer to 0.70 because averaging over heterogeneity changes the scale. Report which prediction or effect is given.
 
-For binary or count outcomes use generalized linear mixed models, remembering that conditional odds ratios differ from marginal population-average effects. Estimation may use Laplace approximation or adaptive quadrature; check convergence, separation, and sensitivity to integration settings. Marginal predictions can be obtained by integrating over random effects rather than setting random effects to zero, which targets a different quantity.
+Random effects are often treated as independent of included covariates. If cluster-level characteristics correlate with unobserved cluster effects, this assumption can fail. Include relevant cluster-level predictors, or use within-between decompositions to separate individual and cluster associations. A random intercept does not control all cluster-level confounding automatically.
 
-Report outcome scale, fixed and random effects, covariance structure, estimation method, missing-data assumption, convergence, and how contrasts were calculated. Avoid describing a random intercept as automatically correcting every dependence problem. Repeated measurements may also have serial correlation remaining after random effects; compare residual diagnostics and justified covariance alternatives. For cluster randomized data, randomization unit and analysis unit must align, and degrees-of-freedom corrections may be needed with few clusters.
+## Site effects and exchangeability
 
-- Laird NM, Ware JH. Random-effects models for longitudinal data. *Biometrics*. 1982;38:963–974. https://doi.org/10.2307/2529876
-- Bates D, Mächler M, Bolker B, Walker S. Fitting linear mixed-effects models using lme4. *Journal of Statistical Software*. 2015;67:1–48. https://doi.org/10.18637/jss.v067.i01
+Fixed effects can represent a finite set of specific sites rather than a population distribution of sites. A site-indicator model estimates site-specific intercepts without assuming sites are exchangeable draws. This can control stable site differences when there are enough sites, but site coefficients are not generalized. Random effects partially pool site estimates and support prediction for new sites if the distributional model is credible.
+
+The random-effect distribution is usually assumed normal and independent of residual error. Strong departures may affect variance estimates and cluster-specific prediction. With many clusters, fixed-effect estimates can be fairly robust to moderate nonnormality; with few clusters or extreme imbalance, assumptions matter more. Bayesian hierarchical models can regularize variance components, but prior choice then deserves sensitivity analysis.
+
+## Longitudinal treatment example
+
+Suppose a trial measures pain at baseline, 1, 3, and 6 months. A treatment-by-time interaction estimates how mean trajectories differ. With time categorical, each interaction is the treatment difference in change from baseline to that visit. With numeric time, it is a difference in linear slope per month. The latter is more parsimonious but assumes linear trajectory; compare fitted values with observed summaries.
+
+If treatment-by-month-6 coefficient is −2.0 (SE 0.8), the estimated additional improvement at six months is 2 points in the favorable direction, with 95% CI approximately −3.6 to −0.4 under the chosen coding. Explain the sign and scale, and consider whether 2 points is clinically important. If baseline is included as an outcome repeated measure and covariate, avoid redundant parameterization; specify the analysis model clearly.
+
+## Random-effects structure and covariance
+
+A random intercept imposes a compound-symmetry-like correlation for repeated observations under equal residual variance. A random slope gives correlation that can vary with time. Residual autocorrelation may remain even after random effects; models can add AR(1) residual structure, though support varies by software. Choose covariance structure based on measurement schedule and scientific expectations, and avoid maximal random-effects structures unsupported by data.
+
+Singular fits occur when one or more variance components are estimated near zero or correlations at boundaries. They can indicate overparameterization, insufficient clusters, or genuinely negligible variation. Simplify based on a prespecified hierarchy and scientific rationale, not just to obtain a desired p-value. Report singularity and sensitivity to reasonable structures.
+
+For cluster trials, a random intercept for clinic accounts for outcome correlation but treatment effect remains a fixed average unless a random treatment slope is included. With few clinics, variance estimates can be imprecise and standard asymptotic tests anti-conservative. Use small-sample degrees-of-freedom corrections or cluster-level/randomization-based inference where appropriate. The number of clusters, not patient count alone, limits information about cluster-level treatment.
+
+### Interpreting the intraclass correlation
+
+Under a random-intercept Gaussian model, ICC quantifies similarity of outcomes from the same cluster. If ICC is 0.10 and average clinic size is 20, the familiar design effect is approximately \(1+(20-1)(0.10)=2.9\): variance can be nearly three times that under independent sampling. Unequal cluster sizes can increase it further. This approximation explains why cluster trials need enough clinics, but it is not a substitute for design-specific power calculations.
+
+For a logistic mixed model, latent-scale ICC uses logistic residual variance \(\pi^2/3\) and can be difficult to interpret as an observed-scale correlation. Report the variance component and, where useful, predicted probabilities or marginal correlation. ICC depends on outcome prevalence and model scale; avoid comparing values across radically different populations without context.
+
+Random slopes induce richer covariance patterns. In the linear model, covariance between observations at times \(t\) and \(s\) includes \(Var(b_0)+(t+s)Cov(b_0,b_1)+tsVar(b_1)\). Correlation may increase or decrease with time. If measurements are highly irregular, a random slope may not adequately represent serial dependence; consider residual correlation structures.
+
+## Binary and count outcomes
+
+Generalized linear mixed models extend random effects to non-Gaussian outcomes. A logistic mixed model uses a logit link and conditional odds ratios; a Poisson mixed model models counts with log link and can include an exposure offset. Random effects capture heterogeneity and induce within-cluster dependence. Distributional assumptions become important, particularly with few clusters or rare outcomes.
+
+For binary outcomes, conditional odds ratios are not marginal risk ratios. Calculate population-average probabilities by integrating predictions over random effects or use marginal standardization. For counts, check overdispersion and zero inflation; a random intercept may absorb some heterogeneity but not necessarily all. State whether estimates are cluster-specific or population-averaged.
+
+```r
+fit_bin <- glmer(event ~ treatment + age + (1 | clinic),
+                 data = dat, family = binomial())
+exp(fixef(fit_bin)["treatmentactive"])
+```
+
+The exponentiated coefficient is a clinic-conditional OR, not an absolute risk difference. Compute marginal predictions for clinical communication and validate the model. With sparse events, separation or boundary estimates may require penalized methods or Bayesian priors.
+
+## Missing outcomes and unbalanced follow-up
+
+Likelihood-based mixed models can use participants with different numbers of observed measurements under a MAR assumption conditional on included variables and observed history. They do not require every participant to have the same visits. If dropout depends on unobserved outcomes after conditioning, estimates can be biased. Compare dropout by group and history, include predictors of missingness, and perform MNAR sensitivity analyses.
+
+Intermittent missingness and dropout have different patterns. A participant missing month 3 but observed at month 6 contributes both observed outcomes. The model assumes the observed data likelihood is correctly specified. Multiple imputation can be used as a sensitivity or primary method, but the imputation model must preserve within-person dependence and analysis interactions.
+
+The MAR assumption is conditional on all included observed information, including prior outcomes if they predict dropout. If dropout depends on unobserved worsening after conditioning, likelihood estimates may be biased. Pattern-mixture sensitivity analyses can shift imputed post-dropout values in a direction representing plausible deterioration, while selection models link response probability to the unseen outcome. Results should show whether clinically relevant conclusions change over plausible values.
+
+If treatment discontinuation is an intercurrent event, decide whether the target is treatment-policy (continue follow-up regardless of discontinuation) or hypothetical (outcome had treatment continued). Missing after discontinuation is not automatically equivalent to the hypothetical estimand. Collecting outcomes after discontinuation supports a treatment-policy analysis and avoids strong extrapolation.
+
+## Model checks and predictions
+
+Inspect residuals versus fitted values and time, normal Q-Q plots for Gaussian residuals and random effects, and influence of clusters. For generalized models, use simulation-based residual diagnostics and check calibration. Assess whether random effects are approximately modeled; inferences for fixed effects may be robust to some deviations with many clusters, but predictions for new clusters depend directly on the random-effects distribution.
+
+Distinguish prediction for an existing cluster from a new cluster. Existing-cluster predictions may condition on estimated random effects (BLUPs), which are shrunk toward zero. New-cluster predictions integrate over the random-effects distribution and have greater uncertainty. Report prediction intervals or uncertainty bands, not just fitted means. Validate predictive performance at the level of intended use.
+
+### Interpreting a treatment-by-time coefficient
+
+Suppose the model uses months as a numeric variable and estimates treatment-by-time coefficient −0.25 points per month (SE 0.10), with lower scores better. This says the active group improves by an additional 0.25 points per month relative to control under the linear mean trajectory. Over six months, the modeled difference in change is −1.5 points, but its standard error is not simply six times 0.10; calculate the linear contrast and use the coefficient covariance matrix. If the time pattern is not linear, this extrapolation is inappropriate.
+
+With categorical visits, each treatment-by-visit coefficient compares the treatment difference in change at that visit to the reference visit. Report the reference period and derive visit-specific contrasts. A main treatment coefficient then refers only to the reference time, often baseline, and may not represent a clinically relevant follow-up effect.
+
+For random slope models, fixed treatment-by-time terms describe the average trajectory, while random slope variance describes individual variation around it. A significant mean effect can coexist with substantial patient-to-patient heterogeneity. Plot predicted population mean and, when useful, distribution of individual trajectories; avoid presenting shrunken empirical Bayes predictions as directly observed individual effects.
+
+## Causal and design limitations
+
+Mixed-effects models account for correlation; they do not randomize exposure or eliminate unmeasured confounding. In observational data, cluster random effects may be correlated with treatment choice, violating model assumptions. Include measured confounders and consider fixed effects or within-cluster contrasts when appropriate, recognizing that time-invariant exposures cannot be estimated with cluster fixed effects.
+
+In longitudinal causal analyses, time-varying confounders affected by prior treatment require methods beyond ordinary mixed regression, such as marginal structural models. Conditioning on post-treatment variables can bias total effects. Define the estimand and temporal ordering before selecting covariates.
+
+## Small samples and computational behavior
+
+Variance components are estimated near a boundary of zero, so standard Wald intervals and likelihood-ratio tests can be inaccurate in small samples. Profile likelihood or parametric bootstrap intervals may better reflect asymmetry. For a random effect with estimated variance zero, the data provide little evidence of between-cluster heterogeneity under the fitted model; this does not prove observations are independent or justify ignoring the assignment design.
+
+Convergence warnings, singular covariance matrices, and correlations estimated near ±1 indicate the random-effects structure may be too complex or poorly identified. Center and scale time, simplify unsupported covariance terms, and compare prespecified structures. Do not increase optimizer iterations indefinitely without diagnosing the issue. Report software, optimizer, convergence checks, and any simplification.
+
+In cluster-randomized trials with few clusters, mixed models can still have biased fixed-effect standard errors. Kenward–Roger or Satterthwaite degrees of freedom, small-sample corrections, or randomization-based inference may be needed. The number of independent randomization units is the main constraint; adding patients to a few clinics helps less than adding clinics.
+
+## Choosing between mixed models and GEE
+
+Use a mixed model when cluster- or person-specific trajectories, variance components, or predictions for existing and new clusters matter. Use GEE when a marginal population-average mean is primary and enough independent clusters support sandwich inference. For continuous Gaussian outcomes, point estimates can be similar, but standard errors and missing-data handling differ. For binary outcomes, subject-specific and population-average coefficients differ even when both models fit well.
+
+Neither method is universally “more correct.” A random-effects distribution imposes assumptions about heterogeneity and can provide efficient estimates if reasonable. GEE relies on a marginal mean model and robust variance asymptotics. With few clusters, ordinary GEE sandwich inference can fail; mixed models also need small-sample corrections. Compare estimates on the same estimand scale before treating differences as a model conflict.
+
+If the goal is an average risk difference, fit a model that supports standardized marginal predictions or use GEE with an appropriate identity link if stable. A logistic mixed model coefficient does not directly answer that question. For causal effects with time-varying confounding, neither routine mixed regression nor ordinary GEE may suffice; g-methods may be needed.
+
+## Reporting subject- and population-level results
+
+State which levels receive random effects, which terms are fixed, the covariance structure, estimation method, and whether predictions condition on estimated cluster effects or average over the distribution. Report variance components and intervals where meaningful. For binary outcomes, label exponentiated coefficients as conditional odds ratios and provide marginal predicted risks when decisions are population-based.
+
+For longitudinal analyses, state time coding and reference visit, treatment-by-time contrasts, and missingness assumptions. Include predicted trajectories with uncertainty and distinguish population mean from individual predicted path. For cluster studies, report number of clusters and size distribution. The repeated-measures-designs article compares approaches to within-person correlation and visit scheduling.
+
+Avoid describing random effects as “random variation” without explaining their role. A random intercept captures shared cluster propensity under a model; it does not absorb every unmeasured confounder. A random slope estimates heterogeneity across sampled clusters but may be imprecise when few clusters are observed. These limitations should shape any claim about between-site variation.
+
+Use prediction intervals when communicating expected outcomes for a new clinic or patient trajectory; confidence intervals around the average fixed effect omit much of that predictive heterogeneity. Clearly distinguish uncertainty in the population mean from spread among individuals.
+
+Model outputs should identify the target cluster population and the scale on which effects are estimated, since prediction for a known site and an unseen site are different tasks.
+
+For longitudinal prediction, validate predictions at the future visit and in the population where they will be used. Random-effect shrinkage can improve prediction for an observed patient with repeated history, but a baseline-only prediction for a new patient has greater uncertainty. State which setting a reported prediction represents.
+
+When an estimated variance is near zero, report the uncertainty and model structure rather than interpreting the point estimate as proof of no clustering.
+
+## References and further reading
+
+- Laird NM, Ware JH. Random-effects models for longitudinal data. *Biometrics*. 1982;38:963–974. [doi:10.2307/2529876](https://doi.org/10.2307/2529876)
 - Fitzmaurice GM, Laird NM, Ware JH. *Applied Longitudinal Analysis*. 2nd ed. Wiley; 2011.
-
-- Pinheiro J, Bates D. *Mixed-Effects Models in S and S-PLUS*. Springer.
-- Diggle P, Heagerty P, Liang K, Zeger S. *Analysis of Longitudinal Data*.
-  Oxford University Press.
-- Fox J, Weisberg S. *An R Companion to Applied Regression*. Sage.
-
-*The "Generalized estimating equations" article contrasts the population-
-averaged alternative to the subject-specific perspective used here.*
+- McCulloch CE, Searle SR, Neuhaus JM. *Generalized, Linear, and Mixed Models*. 2nd ed. Wiley; 2008.
+- Bates D, Mächler M, Bolker B, Walker S. Fitting linear mixed-effects models using lme4. *Journal of Statistical Software*. 2015;67(1):1–48. [doi:10.18637/jss.v067.i01](https://doi.org/10.18637/jss.v067.i01)
+- The [repeated-measures designs article](repeated-measures-designs.html) compares longitudinal design and analysis choices.

@@ -1,188 +1,141 @@
 ---
 title: Kaplan–Meier curves and the log-rank test
-summary: Estimating survival curves from censored data and comparing groups with the most widely used survival test.
+summary: Estimate and compare event-free survival while accounting for right-censoring, risk sets, curve uncertainty, and the limitations of a global rank test.
 ---
 
-## Overview and key ideas
+## Overview
 
-The **Kaplan–Meier (product-limit) estimator** computes the survival function
-S(t) step by step: at each time a failure occurs, the current survival estimate
-is multiplied by (1 − d/n), where d is the number of failures at that time and
-n is the number still at risk just before it. Censored patients leave the risk
-set but do not trigger a step. The result is a step function that is the
-non-parametric maximum likelihood estimate of S(t) under independent
-censoring.
+Kaplan–Meier curves estimate the probability of remaining event-free over time when participants have different follow-up lengths and some outcomes are censored. The log-rank test compares groups using the event times and risk sets across follow-up. Together they offer a basic, design-transparent description of time-to-event outcomes, but neither automatically adjusts for confounding nor answers every clinical question.
 
-The **log-rank test** compares two or more groups on these curves. It counts,
-at each failure time, how many failures occurred in each group (observed, O)
-versus how many were expected given the at-risk composition (expected, E), and
-tests whether O − E differs from zero, weighted equally across all time points.
-It is a chi-squared test with one degree of freedom per additional group and is
-the default test for comparing survival groups.
+Use curves to show when events occur and how the event-free proportion evolves, not just whether a final p-value crosses a threshold. Use the log-rank test for a global comparison under assumptions that give similar meaning to differences across time. If curves cross or treatment effects change over time, the test may be hard to interpret and a single hazard ratio may conceal benefit-harm patterns.
 
-## When to use it
+## Construct the curve from event and censoring times
 
-| Setting | Example question |
-| --- | --- |
-| Randomised trial | Do two chemotherapy regimens give different 2-year disease-free survival? |
-| Cohort study | Does diabetes alter survival after an acute myocardial infarction? |
-| Comparative effectiveness | How do outcomes differ between two surgical approaches to hip replacement? |
+For each distinct event time (t_j), count (n_j), the number at risk immediately beforehand, and (d_j), the number of events. The Kaplan–Meier estimate is:
 
-Use the log-rank test specifically when you want a single test of "do these
-survival curves differ at any time?" and the difference, if present, is
-approximately proportional over time (one curve is consistently above the
-other).
+\[
+\widehat S(t)=\prod_{t_j\le t}\left(1-\frac{d_j}{n_j}\right).
+\]
 
-## Assumptions and limitations
-
-- **Independent censoring**, as for the survival function itself: censoring
-  must be unrelated to future event risk given the measured covariates.
-- The log-rank test has maximum power when the **hazard ratio is constant**
-  over time. If curves cross — early harm then late benefit, or the reverse —
-  the log-rank test can fail to detect a real difference, and the hazard
-  ratio itself becomes uninterpretable as a single number.
-- With few failures the chi-squared approximation to the log-rank statistic is
-  poor; use exact or permutation-based variants in very small studies.
-- Kaplan–Meier estimates at times when the risk set is very small are
-  imprecise; report the number at risk alongside the curves.
-- The method handles only group-level comparisons; adjusting for covariates
-  requires regression (Cox model).
-
-## Worked example
-
-A trial randomises 300 patients with advanced non-small-cell lung cancer to
-chemotherapy (n = 150) or chemo-immunotherapy (n = 150). At 24 months, the
-Kaplan–Meier disease-free survival is 0.18 (95% CI 0.11 to 0.27) with
-chemotherapy and 0.34 (0.24 to 0.44) with chemo-immunotherapy. At each failure
-time the observed minus expected counts are accumulated; the resulting
-statistic is (O − E)²/E = 8.2, giving a log-rank chi-squared of 8.2 on 1 df,
-p < 0.01. Interpretation: patients receiving chemo-immunotherapy had
-significantly longer disease-free survival, with an estimated 16-percentage-
-point advantage at 2 years; the curves do not cross and the new regimen
-remains superior throughout follow-up.
-
-## Interpretation and common pitfalls
-
-- Crossing curves: a non-significant or even a significant log-rank p-value
-  becomes misleading when curves cross; report the curves, examine the hazard
-  ratio over time, and consider a test that weights early or late differences.
-- "No difference in median survival" does not imply identical curves; medians
-  are a single summary of two very different shapes.
-- Comparing medians when the median is not reached (survival at end of
-  follow-up above 50%) forces arbitrary choices; compare the whole curves and
-  report the test.
-- Censoring heavily in one group near the end of follow-up can make late
-  estimates in that group unstable; check the at-risk table before
-  interpreting differences at long times.
-
-The log-rank test compares entire event-time distributions and is most powerful under proportional hazards; crossing curves can yield a small or misleadingly uninformative global contrast despite clinically important time-varying differences. It does not estimate an effect size. Pair it with survival probabilities at prespecified times or restricted mean survival time (RMST), and state the horizon for RMST. Numbers at risk are essential because tail estimates may be based on very few individuals; confidence bands widen as risk sets shrink.
-
-## References and further reading
-
-## Product-limit estimation in practice
-
-## Confidence intervals and quantiles
-
-## Worked example with group comparison
-
-Suppose 100 participants are randomized to each arm, with 40 and 50 events respectively by 24 months. KM survival at 24 months might be 0.58 vs 0.46 after accounting for censoring, so the absolute event-free survival difference is 12 percentage points at that horizon. The log-rank test uses all event-time risk sets, not only the 24-month counts, and may yield a different significance impression. Report risk sets and confidence intervals; a curve-based difference at a single horizon has uncertainty and should be prespecified if it is a primary contrast.
-
-For a teaching-only complete follow-up scenario with no censoring, 24-month risks would be 40% and 50%; with censoring, those crude proportions are biased summaries of risk unless censoring is independent and follow-up patterns match. KM uses the event/censoring times to estimate survival under independent censoring. If dropout is informative, the curve remains biased even though censoring is represented mathematically.
-
-## Weighted and adjusted survival summaries
-
-## Plotting and table construction
-
-## Fixed-time absolute effects and RMST
-
-## Conditional versus marginal curves
-
-### Interpretation checklist
-
-State whether the event is death, recurrence, or a composite; identify censoring and competing events; show follow-up and risk sets; and report an absolute contrast at a prespecified time or RMST when useful. The median may not be reached and should not be extrapolated. A log-rank p-value does not measure effect size, clinical importance, or PH validity. Explain whether the plotted curves are unadjusted, stratified, or standardized.
-
-Unadjusted KM curves are marginal for the observed groups but can be confounded in observational comparisons. Stratified KM curves condition on a categorical covariate and may become unstable with many strata. Model-adjusted curves are conditional predictions unless averaged over a target population. A standardized marginal curve predicts each eligible person's survival under each exposure and averages; this yields a defined population contrast but relies on model and causal assumptions. Label plots accordingly and do not call an adjusted curve “Kaplan–Meier” unless it is a genuine nonparametric estimator.
-
-For randomized allocation, the unadjusted KM curve preserves the assignment contrast, while adjusted curves can improve precision if prespecified. If treatment adherence differs, an as-treated KM curve loses randomization and can be biased. Retain ITT as the primary assignment comparison and treat per-protocol curves as assumption-dependent supplementary analyses.
-
-At a prespecified time τ, report \(\hat S_1(\tau)-\hat S_0(\tau)\) with an interval. The event-risk difference is the negative of this survival difference when the event definition is the complement and competing risks are absent. Do not call a survival difference an event-risk reduction without clarifying sign and horizon. RMST difference integrates the entire curve to τ and can be interpreted as event-free time gained/lost; it is robust to PH violation but depends on the chosen truncation time and follow-up support.
-
-For example, survival probabilities 0.72 and 0.64 at 2 years imply an 8 percentage-point higher event-free probability in the first group at 2 years. This does not imply 8% longer survival or an 8% hazard reduction. If median survival is not reached, fixed-time probability or RMST may still be estimable and clinically useful. Use intervals and avoid extrapolating the KM tail.
-
-Survival plots should show confidence bands, censoring marks when legible, and a risk table aligned to time ticks. Risk-table counts include people event-free and uncensored just before each tick; they are not numbers originally enrolled. Avoid extending the curve beyond the last event/censoring time or presenting a long flat tail with no risk-set context. Use consistent time units, clear event-free outcome label, and group names instead of generic 0/1. A table of survival probability and interval at selected times can aid accessibility.
-
-KM curves are step functions; smoothing them can imply unobserved changes. If curves cross, show the crossing clearly and discuss nonproportionality. Separate panels can obscure direct comparison, while overlapping confidence bands are not a formal test of no difference. A log-rank p-value belongs in text or figure caption with the test specified; avoid treating the plot as a binary significant/nonsignificant graphic.
-
-## Bootstrap uncertainty and clustered observations
-
-For RMST or standardized curves, bootstrap resampling should follow the independent sampling unit. In a cluster-randomized trial, resample clusters within randomization strata, not individual patients. In a matched cohort, resample matched sets where appropriate. Percentile intervals may perform poorly with small samples; consider studentized or model-based alternatives. Report bootstrap replicate count, resampling unit, and failed-fit handling. A bootstrap cannot repair confounding, informative censoring, or sparse support.
-
-To adjust for baseline differences, fit a survival regression and predict survival under each group for every participant, then average predictions over a common target population. This standardization yields marginal curves under model assumptions; bootstrap individuals or clusters according to sampling design for confidence bands. Alternatively, inverse-probability treatment weights can create a weighted pseudo-population, but extreme weights and censoring require diagnostics. State whether the result targets the treated, overall eligible, or another population.
-
-An adjusted Cox curve generated from a single mean covariate vector is not generally equivalent to population-standardized survival, particularly with nonlinear covariate effects. Show adjusted absolute risks at prespecified times and curves if they support interpretation. A log-rank test is an unadjusted test and is not a substitute for adjusted estimand estimation in observational comparisons.
-
-Greenwood's variance estimates uncertainty on the survival scale; log, log-log, or arcsine transformations can improve interval behavior near boundaries. The log-log transformation is common and produces limits between zero and one after back-transformation. At a fixed time, the interval assumes appropriate independent censoring and can be wide when few remain at risk. Median survival is a quantile of the survival distribution. Its confidence interval is obtained by inverting confidence bands for the survival curve, so one or both endpoints may be unestimable if the curve's band does not cross 0.5.
-
-The mean survival time is not estimable nonparametrically when the tail is censored; report restricted mean survival up to a common τ instead. Select τ before analysis based on clinically relevant follow-up and adequate support in both groups. The RMST is the area under the survival curve up to τ, and the between-group difference is measured in units of event-free time. A positive difference of 1.2 months through 24 months means an average of 1.2 more event-free months within that restricted horizon, not a lifetime gain.
-
-## Log-rank statistic and alternatives
-
-At each event time, the log-rank score is observed minus expected events in each group under equal hazards; summing across times yields a chi-square statistic. It gives greater influence to times with larger risk sets and events. With proportional hazards, it is locally efficient; with crossing hazards, effects in opposite directions can cancel. Weighted log-rank tests can emphasize early or late differences, but choosing weights after inspecting curves inflates type-I error. Prespecify the test and show survival contrasts regardless of significance.
-
-For nonproportional hazards, report complementary summaries such as time-specific survival difference, RMST, or milestone risk, each with interval and horizon. These remain sensitive to the selected time horizon, so show curves and avoid cherry-picking. A Cox HR and log-rank p-value are closely related under the PH model; reporting both without a clear purpose can create the appearance of independent evidence.
-
-## Surveyed and matched survival data
-
-Standard KM assumes independent participants. If data are clustered by family, clinic, or matched set, ordinary confidence intervals may be too narrow; use appropriate robust or stratified methods. In matched observational cohorts, stratified log-rank comparisons preserve matched-set structure, while weighted curves may target marginal risks. Survey-weighted survival estimation needs design-based methods. A visually adjusted curve should identify the covariate distribution and method used; simple stratification by one factor is not general adjustment.
-
-### Numerical product-limit example
-
-Suppose 10 participants are event-free at baseline. At month 2, two events occur while all 10 are at risk, so survival becomes \(1×(1-2/10)=0.80\). One participant is censored at month 3; this person contributes to the risk set through month 3 but causes no step. At month 5, one event among the seven remaining at risk multiplies survival by \(6/7\), giving \(0.80×6/7≈0.686\). Risk sets are updated in event-time order; censoring before an event time reduces the denominator for later events. This product-limit construction is why censoring times must be retained, not merely the final event/censoring counts.
-
-The curve is a step function and estimates survival only over times supported by observed follow-up. At the maximum follow-up, one or two participants may remain, so a flat tail is not evidence of zero hazard. Median confidence intervals can be wide or unbounded if the lower survival confidence limit never crosses 0.5. Report that uncertainty rather than presenting a precise-looking median alone.
-
-At each distinct event time \(t_j\), let \(n_j\) be the number at risk just before that time and \(d_j\) the number of events. The Kaplan–Meier estimator is \(\hat S(t)=\prod_{t_j\le t}(1-d_j/n_j)\). A censored observation reduces subsequent risk sets but does not cause a downward step in the curve. The estimator assumes censoring is independent of event time, possibly conditional on modeled covariates. Tied events are handled together at a time point; the conventional product-limit estimate applies the full observed decrement.
-
-Greenwood's variance is \(\widehat{Var}(\hat S(t))=\hat S(t)^2\sum_{t_j\le t}d_j/[n_j(n_j-d_j)]\). Since survival is bounded between zero and one, transformed intervals such as log-log intervals are preferable to an untransformed Wald interval. Median survival is the first time the estimated survival falls to 0.5; if the curve stays above 0.5, the median is not reached and should be reported as not estimable, not extrapolated from the tail.
+Censoring removes a participant from future risk sets but does not lower the curve. For example, if 50 patients enter, 3 have events before any censoring, and then 5 are censored before the next event, the first step is 47/50=0.94. If the next event occurs with 42 remaining at risk, the second step multiplies by 41/42, giving 0.918. The estimate reflects the conditional event-free fractions among those still followed.
 
 ```r
 library(survival)
-km <- survfit(Surv(followup_months, event) ~ arm, data = trial)
-summary(km, times = c(6, 12, 18), extend = FALSE)
-plot(km, col = c("steelblue", "firebrick"), lty = 1,
-     xlab = "Months since randomization", ylab = "Survival probability",
-     conf.int = TRUE, mark.time = TRUE)
+fit <- survfit(Surv(followup_days, event) ~ arm, data = dat)
+plot(fit, col = c("grey40", "steelblue"), lty = 1:2,
+     xlab = "Days from randomization",
+     ylab = "Event-free survival probability")
+legend("bottomleft", legend = levels(dat$arm),
+       col = c("grey40", "steelblue"), lty = 1:2)
+summary(fit, times = c(90, 180, 365))
 ```
 
-The time variable must begin at the chosen origin (often randomization), and `event` should be 1 only for the event being analyzed. Do not use `extend = TRUE` to imply survival beyond the observed follow-up without clearly marking that extrapolation. Add a risk table and censoring marks; many marks close together can make the curve unreadable, so show a table or concise note instead. Report numbers at risk at meaningful times because the uncertainty in the tail grows as the risk set shrinks.
+The event indicator is 1 for the prespecified event and 0 for right censoring. Add confidence intervals and a number-at-risk table to the figure. Define the time origin and event in captions. If a competing event prevents the event of interest, use cumulative incidence methods rather than treating the competing event as ordinary censoring.
 
-## Comparing groups and limits of the log-rank test
+Greenwood's formula estimates pointwise uncertainty. Log-log confidence intervals respect the 0-to-1 range and are commonly used. The median survival is the earliest time the curve reaches 0.5; if it never does, the median is not reached. Fixed-time survival estimates with intervals are often more clinically useful. Restricted mean survival time (RMST), the area under (S(t)) through a chosen horizon, provides an average event-free time contrast when proportional hazards is doubtful.
 
-The log-rank test compares observed with expected event counts over event times under the null of equal hazards. It is most powerful under proportional hazards and uses event-time ordering rather than a fixed time-point risk. It is not a test of equality of medians, nor does a small p-value quantify clinical importance. If hazards cross, positive and negative contributions can cancel, reducing power; weighted tests target different departures and should be prespecified.
+## What the log-rank test compares
+
+At each event time, the log-rank test compares observed events in each group with the number expected if groups had the same hazard among those at risk. These differences are summed over event times and standardized by their variance. Under the null of equal survival distributions and independent censoring, the statistic is approximately chi-squared. The test is powerful when the hazard ratio is roughly constant over time, because differences accumulate consistently.
+
+With two groups, a two-sided log-rank p-value tests whether the observed event-time distributions differ globally. It does not estimate how large the difference is, identify when it appears, or provide a causal effect. Report the curves, fixed-time risks, and a contrast with uncertainty alongside the test. If participants were randomized, preserve the randomized comparison; if observational, the test is unadjusted and confounded comparisons are likely.
 
 ```r
-survdiff(Surv(followup_months, event) ~ arm, data = trial, rho = 0)
+survdiff(Surv(followup_days, event) ~ arm, data = dat, rho = 0)
 ```
 
-`rho = 0` gives the standard log-rank test. A generalized Wilcoxon-type weighting gives more influence to earlier events but changes the alternative emphasized. Plot curves and consider proportional-hazards diagnostics. Report an effect estimate with interval—such as a Cox hazard ratio if its assumptions are suitable, a time-specific risk difference, or RMST difference—not only the log-rank p-value.
+`rho = 0` gives the ordinary log-rank test. Weighted alternatives such as the Gehan–Breslow or Tarone–Ware tests emphasize earlier events; a Fleming–Harrington weight can emphasize early or late differences. Choosing a weight after inspecting the curves inflates false-positive risk. Prespecify it and explain the clinical time window it targets.
 
-## Competing events and censoring
+For two groups, at event time (t_j), if (n_{1j}) of (n_j) at risk are in group 1 and (d_j) total events occur, the expected group-1 events under equal hazards are (d_j n_{1j}/n_j). The log-rank score sums observed minus expected events over event times; its variance accounts for the hypergeometric allocation of events under the null. The standardized score squared is approximately chi-squared with one degree of freedom. This connects the test to actual observed risk sets rather than comparing end-of-study proportions.
 
-If a different event precludes the event of interest (for example, non-cardiovascular death before cardiovascular death), ordinary KM censoring estimates a hypothetical net survival, not the observed-world probability. For actual event probability use the cumulative incidence function; the Gray test compares subdistribution functions, while cause-specific hazard models address rates among those still event-free. Choose based on question. Independent censoring is a substantive assumption: withdrawals related to impending events can bias the curve. Describe censoring reasons and use sensitivity analysis or IPCW when warranted.
+The log-rank test is closely related to the score test for a Cox model with a binary group indicator. Its natural alternative corresponds roughly to a constant hazard ratio, so it is particularly efficient when proportional hazards holds. Under nonproportional hazards, a significant test still indicates some global difference, but direction and timing require inspection. A nonsignificant result can reflect crossing effects, too few events, or wide uncertainty; it is not evidence that curves are identical.
 
-Comparisons of KM curves are unadjusted. If groups differ in prognostic characteristics, adjustment may be appropriate, but adjusted curves require standardization over a target covariate distribution. In randomized trials, unadjusted curves preserve the randomization contrast, although prespecified covariate-adjusted analyses can improve precision. The curve describes the observed study population and does not alone establish that an intervention caused differences.
+For more than two groups, the log-rank test is omnibus. A significant result says at least one survival distribution differs, not which pair differs. Pairwise post hoc tests create multiplicity and should be adjusted or labeled exploratory. If groups are ordered doses, a prespecified trend test may answer a different question more efficiently.
 
-- Kaplan EL, Meier P. Nonparametric estimation from incomplete observations. *JASA*. 1958;53:457–481. https://doi.org/10.1080/01621459.1958.10501452
-- Peto R, Peto J. Asymptotically efficient rank invariant test procedures. *JRSS A*. 1972;135:185–207. https://doi.org/10.2307/2344317
-- Andersen PK, Geskus RB, de Witte T, Putter H. Competing risks in epidemiology. *International Journal of Epidemiology*. 2012;41:861–870. https://doi.org/10.1093/ije/dyr213
+## Weighted tests and time-varying effects
 
-- Peto R, Peto J. Asymptotically efficient rank invariant test procedures. *Journal of the Royal Statistical Society: Series A*. 1972;135:185–207. [doi:10.2307/2344317](https://doi.org/10.2307/2344317)
-- Royston P, Parmar MKB. Restricted mean survival time: an alternative to the hazard ratio for the design and analysis of randomized trials with a time-to-event outcome. *BMC Medical Research Methodology*. 2013;13:152. [doi:10.1186/1471-2288-13-152](https://doi.org/10.1186/1471-2288-13-152)
+The Fleming–Harrington family weights event-time contributions by functions of estimated survival, often denoted (\widehat S(t)^\rho[1-\widehat S(t)]^\gamma). Setting positive \(\rho\) emphasizes earlier times when survival is high; positive \(\gamma\) emphasizes later times as survival falls. These tests can be useful when a biologically credible effect pattern is known in advance, but selecting among many weights after plotting the data invalidates nominal p-values.
 
-- Klein JP, Moeschberger ML. *Survival Analysis: A Self-Learning Text*.
-  Springer.
-- Collett D. *Modelling Survival Data in Medical Research*. Chapman & Hall/CRC.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+If treatment benefit is expected only shortly after randomization, a weighted test may target that pattern, but the analysis plan should define the window or weights ahead of time. Another strategy is a combination test that protects type I error across a limited prespecified family of weights. Such methods can gain power under nonproportional hazards while preserving calibration, but the resulting claim is more complex and needs clear explanation.
 
-*The "Cox proportional hazards model" article shows how to extend group
-comparisons to adjusted, covariate-based analysis.*
+When proportional hazards fails, alternatives include time-specific survival differences, RMST differences through a prespecified horizon, or a flexible model with time-varying coefficients. A single hazard ratio averaged over follow-up can be hard to interpret and may depend on censoring patterns. Presenting only a weighted test p-value without an effect estimate is inadequate for clinical interpretation.
+
+## Interpreting an illustrative trial
+
+Suppose 1-year event-free survival is estimated as 0.84 for treatment and 0.76 for control. Their estimated event risks are 16% and 24%, a difference of −8 percentage points by one year. If the log-rank p-value is 0.03, the result is evidence against equal survival curves under the test assumptions. The p-value does not mean treatment reduces each patient's event risk by 8% or that there is a 97% probability treatment works. Give confidence intervals for the group estimates and, ideally, the difference.
+
+If control survival is 0.76 but 15% of that group is censored before one year, the Kaplan–Meier estimate uses remaining participants under independent censoring. It is not simply 1 minus observed event count divided by enrolled count. If censoring is related to prognosis, both curve and test can be biased. Compare censoring patterns and consider sensitivity methods.
+
+## Assumptions and curve diagnostics
+
+The Kaplan–Meier estimator assumes independent censoring, at least conditional on any variables used to stratify or adjust. The log-rank test also assumes independent observations and uses the risk sets correctly. In cluster-randomized or matched data, naive standard errors and p-values may be invalid; account for clustering or use a design-aware analysis. The test does not handle confounding in observational studies.
+
+Plot censoring marks where helpful, display numbers at risk below the x-axis, and limit the display horizon to where follow-up supports interpretation. A flat tail with few participants is not strong evidence of durable protection. Assess whether entry times, follow-up, or endpoint ascertainment differ across groups. Report median follow-up with a method appropriate for censoring, commonly reverse Kaplan–Meier.
+
+Crossing curves are a warning that a single global test or proportional-hazards summary may be misleading. The log-rank test can lose power when effects change sign, because early and late differences cancel. Examine prespecified time-specific survival contrasts or RMST; avoid searching many cut points until one gives a small p-value. If early benefit followed by later harm is scientifically plausible, plan analyses that reflect that pattern.
+
+The Kaplan–Meier estimator also assumes the event process is sufficiently well-defined and that observation times are measured accurately. Interval-censored events need methods beyond ordinary step curves. Delayed entry requires defining when participants enter risk sets. If participants contribute multiple episodes, standard methods assuming one independent survival time per person understate uncertainty; use recurrent-event or frailty approaches suited to the question.
+
+The curve should display pointwise confidence bands or intervals at prespecified times. Pointwise 95% intervals do not form a simultaneous 95% band over the entire curve; avoid saying the true curve lies inside the whole band with 95% probability. When comparing two groups, uncertainty in their difference is not obtained by visually checking overlap of separate intervals. Use a direct contrast with its own interval.
+
+Number-at-risk tables should align with time ticks and include the count entering each interval. Consider also showing cumulative events and censorings. If groups differ in recruitment or follow-up, curves may be supported by different risk sets. Use a common time axis and state if truncating the plot for readability. Show confidence intervals or bands without visual clutter, especially when late estimates are unstable.
+
+### Interpretation of a fixed-time difference
+
+Suppose (\widehat S_A(365)=0.84) and (\widehat S_B(365)=0.76). At one year, estimated event risks are 0.16 and 0.24; their absolute difference is −0.08. This calculation is straightforward only when the outcome is a single event without competing risks and censoring assumptions support both estimates. The difference is not the same as the hazard ratio. Confidence limits for each curve do not directly produce the interval for the difference; estimate that contrast using an appropriate method, often with bootstrap or model-based standardization.
+
+If the survival curves are close early and diverge later, the one-year difference summarizes only that horizon. If they cross, the absolute difference can change sign by time. Choose horizons clinically and report more than one when the trajectory itself matters. Avoid interpreting a single timepoint selected because it yielded the most favorable contrast.
+
+## Competing events and estimand choices
+
+If death prevents recurrence, censoring deaths and plotting one minus Kaplan–Meier estimates a net risk under a hypothetical elimination of death. It overestimates the observed-world recurrence probability when competing death is common. The cumulative incidence function estimates the probability of recurrence before death and should be used for absolute prognosis. Cause-specific hazard comparisons answer a different question: event rate among those still event-free from all causes.
+
+Choose the estimand before analysis. A composite endpoint may count recurrence or death; a competing-risk estimand may focus on recurrence before death; a cause-specific hazard may target event process. Each has different interpretation and can yield different conclusions. The censoring-and-survival-functions article provides further detail on competing risks.
+
+## Model-based follow-up to the global comparison
+
+A Cox model can adjust for prespecified covariates and estimate a hazard ratio if proportional hazards is reasonable. Check proportionality with scaled Schoenfeld residuals and graphical patterns; a test p-value alone is insufficient. If effects vary with time, report time-varying effects or a more interpretable absolute measure. Covariate-adjusted curves require model-based standardization and should state the population over which predictions are averaged.
+
+For a causal trial interpretation, randomization supports the assignment contrast but missing outcomes, nonadherence, and censoring may still matter. For observational data, a log-rank result is crude; confounding adjustment and a causal estimand are needed before claiming an intervention effect. A Kaplan–Meier plot is descriptive, not a causal design.
+
+## Censoring patterns and follow-up reporting
+
+The log-rank test and Kaplan–Meier curves require censoring independent of event time, often conditional on group and measured covariates. If treatment follow-up is shorter due to toxicity or withdrawal related to prognosis, the analysis may be biased. Report numbers and reasons censored by group and compare follow-up distributions. Inverse-probability-of-censoring weighting or joint models may address measured informative loss, but both introduce assumptions and require diagnostics.
+
+Median follow-up is best estimated with reverse Kaplan–Meier, treating the event of interest as censored and censoring as the event. This estimates potential observation time rather than the median of observed times, which is distorted by early events. Report median follow-up and range or interquartile range, event counts, and numbers at risk. Avoid saying “all participants were followed for one year” when only a fraction reached that horizon.
+
+## Why a global test cannot replace estimation
+
+The log-rank test compresses all event-time information into one statistic. It does not convey absolute risk, treatment benefit magnitude, timing, or patient-level prediction. A very large study can produce a small p-value for a trivial survival difference; a small study can have a large observed difference with a wide interval. Report curves and quantitative contrasts regardless of significance.
+
+If the primary scientific question is “How much event-free time is gained through two years?”, RMST aligns directly with it. If the question is “What fraction remain event-free at 12 months?”, report a fixed-time survival probability or risk difference. If the question concerns instantaneous process rates, a hazard model may fit. Choosing the estimand first helps avoid defaulting to the log-rank test because software offers it.
+
+The test's validity depends on independent participants or appropriate clustering. In a cluster-randomized study, comparing individual event times as though participants were independently assigned can overstate evidence. Use a stratified or cluster-level design-based test, a frailty or marginal model with correct variance, or another prespecified method. For matched pairs, account for matching in the analysis.
+
+## Writing a clear figure caption
+
+A useful caption names population, time origin, event, group assignment, censoring mark meaning, confidence interval type, and number-at-risk rows. State that the log-rank test is unadjusted if applicable. For example: “Kaplan–Meier estimates of relapse-free survival from randomization; ticks denote censoring; shaded areas are pointwise 95% confidence intervals; numbers below the axis are at risk; unadjusted log-rank p=0.03.” Add competing-event handling and horizon when relevant.
+
+When a plot includes an adjusted analysis, state how covariates were incorporated and the population used to standardize predictions. A weighted log-rank test should name its weights and rationale. If several analyses are shown, distinguish primary from exploratory in the caption and text. Avoid giving a single p-value without identifying the exact test, especially when weighted and unweighted comparisons are both presented.
+
+Survival comparisons should also be interpreted with clinical context: event severity, available subsequent treatments, and follow-up burden. A difference in time to a minor event can have a different value from a difference in mortality. Curves do not encode these consequences, so discuss benefits and harms across relevant outcomes rather than treating event-free survival as the only meaningful result.
+
+## Comparing curves when the event is rare
+
+With few events, the Kaplan–Meier curve changes in large steps and the log-rank approximation may be poor. Exact or permutation-based methods can be considered when randomization permits, preserving allocation strata and censoring structure. Confidence intervals for survival can be wide and asymmetric. Report the actual number of events and avoid interpreting a smooth-looking plot created by interpolation as dense evidence.
+
+For small randomized studies, a randomization test can compare a prespecified survival statistic under assignments allowed by design. One option is a log-rank statistic, permuted at the patient or cluster assignment unit. The test is exact for the sharp null under the actual allocation mechanism, but a confidence interval requires inverting a specified effect model and may assume a common additive shift in event times or a proportional-hazards structure. State the null and effect assumption.
+
+## Multiple groups and adjusted comparisons
+
+When comparing several treatment arms, an omnibus log-rank test is a first global test. Pairwise comparisons need multiplicity control if confirmatory. If one group is a standard comparator and several doses are tested, Dunnett-type procedures or a prespecified dose-trend contrast may be more efficient than every pair. Plot all group curves and report a coherent hierarchy of claims.
+
+Covariate-adjusted survival curves can be generated from a Cox model by predicting each participant under each group and averaging. This is standardization, not simply plotting a curve at mean covariate values, which may describe a fictitious patient. Choose the target population (trial participants, eligible population, or another cohort) and bootstrap the full estimation procedure for intervals.
+
+## References and further reading
+
+- Kaplan EL, Meier P. Nonparametric estimation from incomplete observations. *JASA*. 1958;53:457–481. [doi:10.1080/01621459.1958.10501452](https://doi.org/10.1080/01621459.1958.10501452)
+- Mantel N. Evaluation of survival data and two new rank order statistics arising in its consideration. *Cancer Chemotherapy Reports*. 1966;50:163–170.
+- Fleming TR, Harrington DP. *Counting Processes and Survival Analysis*. Wiley; 1991.
+- Royston P, Parmar MKB. Restricted mean survival time: an alternative to the hazard ratio for the design and analysis of randomized trials. *BMC Medical Research Methodology*. 2013;13:152. [doi:10.1186/1471-2288-13-152](https://doi.org/10.1186/1471-2288-13-152)
+- The [censoring and survival functions article](censoring-and-survival-functions.html) reviews risk sets and censoring.

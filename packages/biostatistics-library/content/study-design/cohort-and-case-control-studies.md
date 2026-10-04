@@ -1,156 +1,148 @@
 ---
 title: Cohort and case-control studies
-summary: Two observational designs that track the exposure-to-outcome route — cohorts follow exposed subjects forward in time, case-control studies compare past exposures of cases and controls.
+summary: How longitudinal follow-up and outcome-based sampling answer different epidemiologic questions.
 ---
 
-## Overview and key ideas
+## Overview
 
-A **cohort study** starts from the exposure: exposed and unexposed individuals are identified and followed over time, and outcome rates are compared between the two groups. It estimates incidence (cumulative incidence or incidence rate) directly, and the effect measure is the **relative risk (RR)**. A cohort can be *prospective* — exposure ascertained before any outcome, the classical form — or *retrospective* — exposure and outcome both recovered from existing records (hospital or employment registers). The time direction of inference is the same in both; only the calendar direction differs.
+Cohort and case-control studies are observational designs that organize evidence differently. A cohort begins with people at risk, classifies exposure or strategy, and observes outcomes over time. A case-control study samples people according to outcome status, then compares prior exposure. The cohort preserves a denominator and can estimate risk or rate directly; ordinary case-control sampling fixes the number of cases and controls, so its sample proportions do not reveal population risk.
 
-A **case-control study** starts from the outcome: people with the outcome (cases) and people without it (controls) are selected, and their past exposures are compared. Because the numbers of cases and controls are fixed by design, incidence cannot be estimated; the natural effect measure is the **odds ratio (OR)**, which approximates the relative risk when the outcome is rare in the source population (**rare-disease assumption**).
+Neither design is inherently prospective or retrospective. A historical cohort can reconstruct entry and follow-up from records; a case-control study can measure exposure after case identification. The key is the sampling frame: who could become a case, when eligibility begins, and how the comparison group represents that source population.
 
-A third distinction matters in practice: in a cohort, the effect can be reported as a relative risk (risk ratio) or, with person-time follow-up, as a **rate ratio** using incidence rates; in a case-control study, the only directly estimable ratio is the odds ratio. The case-control OR can be converted to a risk ratio only when the outcome incidence in the source population is known from an independent source — otherwise it should be reported as an odds ratio, full stop.
+## Map eligibility, time zero, and observation
 
-The two designs are mirror images: a cohort fixes the exposure and watches for the outcome; a case-control fixes the outcome and looks back for the exposure.
+For a cohort, specify inclusion criteria, exposure strategies, time zero, outcome definition, follow-up end, and censoring. Time zero should align with eligibility and treatment assignment. If treated participants are classified by a prescription filled after cohort entry, the waiting interval must not be counted as treated time. Otherwise, treated people had to remain alive and event-free long enough to qualify, creating immortal-time bias.
 
-A further efficiency point: a cohort can answer several outcome questions at once from a single follow-up (hence "cohort studies" as long-running research programmes), while a case-control study is built around one outcome and one exposure — extending it to a second outcome requires a fresh selection of cases and controls.
+New-user designs align covariate measurement before treatment initiation and avoid mixing long-term survivors with new initiators. An active comparator can make treatment choices more comparable by restricting both groups to people facing a similar clinical decision. This does not guarantee exchangeability, but helps define a useful contrast.
 
-## When to use it
+In case-control work, define the source population that produced the cases, diagnostic criteria, incident versus prevalent status, and exposure window. Controls must have been eligible to become cases in that population. With risk-set sampling, controls are selected from those still at risk at each case time; they may later become cases. Controls sampled once at the end of follow-up represent a different design.
 
-| Setting | Example question |
-| --- | --- |
-| Rare outcome, well-defined exposure | Does a particular gene variant predispose to early-onset Alzheimer disease? (A case-control study finds enough cases; a cohort would wait decades.) |
-| Common exposure, rare or slow outcome | Silica dust exposure and lung cancer incidence among mine workers over 20 years (prospective or record-based cohort). |
-| Long latency, waiting is infeasible | Cigarette smoking and lung cancer, reconstructed from registry records (retrospective cohort) or exposure histories (case-control). |
-| One exposure, several outcomes | A women's health cohort: incidence of fracture, coronary disease, and breast cancer in hormone-therapy users vs non-users. |
-| Newly identified exposure | A case-control study of cancer cluster near a new industrial chemical release. |
+## Choose the measure the sampling supports
 
-Rule of thumb: a cohort is more efficient when the exposure is common; a case-control study is more efficient when the outcome is rare. A practical way to choose is to ask which arm of the mirror image is cheap: if you can identify and follow the exposed, do a cohort; if you can identify cases from a registry or hospital system, do case-control.
+A cohort with complete fixed-horizon follow-up can compare risks. If follow-up differs, incidence rates divide events by person-time; a rate ratio is not a risk ratio. Survival methods handle event timing and censoring, subject to their assumptions. For competing events, cumulative incidence estimates the real-world probability of the event before a competing event; Kaplan–Meier treating competing events as censoring estimates a different hypothetical quantity and overstates actual probability.
 
-## Assumptions and limitations
+A case-control odds ratio from cumulative sampling estimates the source-population disease odds ratio and approximates a risk ratio only when the outcome is uncommon. Under incidence-density sampling, the exposure odds ratio estimates the incidence-rate ratio without a rare-disease assumption. These interpretations follow from sampling, not from the logistic regression software.
 
-- **Cohort** — long follow-up for rare outcomes is expensive and produces loss to follow-up; incidence estimates assume the cohort is representative of the exposed source population; the at-risk time scale must be handled correctly (person-time vs cumulative incidence).
-- **Cohort** — if the outcome develops at different times, comparing proportions (cumulative incidence) and rates (incidence per person-time) can give different pictures: a cohort with longer follow-up in the exposed group will show higher cumulative incidence even if the hazard is identical.
-- **Case-control** — controls must be sampled from the same **source population** that generated the cases; selecting hospital controls who share the exposure of interest (Berkson selection bias) inflates or deflates the OR.
-- **Case-control** — the OR ≈ RR approximation holds only when the outcome is rare in the source population; for common outcomes the OR overstates the RR.
-- **Both** — exposure measurement error and recall bias (worse in case-controls, where cases and controls interview differently); confounding is handled by design (restriction, matching) or analysis (stratification, regression), not by the design itself.
+Example: an exposed cohort contributes 18,000 person-years and 36 events; an unexposed cohort contributes 24,000 person-years and 30 events. The rates are 2.0 and 1.25 per 1,000 person-years. The rate ratio is 1.6 and rate difference 0.75 per 1,000 person-years. Assuming independent Poisson counts, the log-rate-ratio standard error is √(1/36+1/30)=0.245; an approximate 95% interval for the ratio is exp[log(1.6) ± 1.96(0.245)] = 0.99 to 2.60. This interval is imprecise and assumes comparable person-time and Poisson variation.
 
-## Worked example
+    events <- c(36, 30)
+    py <- c(18000, 24000)
+    rate <- events / py
+    irr <- rate[1] / rate[2]
+    se <- sqrt(1 / events[1] + 1 / events[2])
+    c(rate_exposed_per_1000 = rate[1] * 1000,
+      rate_unexposed_per_1000 = rate[2] * 1000,
+      IRR = irr,
+      lower = exp(log(irr) - 1.96 * se),
+      upper = exp(log(irr) + 1.96 * se))
 
-A retrospective cohort followed 4,000 long-term smokers and 4,000 never-smokers for 20 years using hospital and death records. One hundred twenty lung cancers occurred among smokers and 12 among never-smokers. Cumulative incidence: 120/4,000 = 3.0% vs 12/4,000 = 0.3%, so RR = 3.0% / 0.3% = **10.0**.
+This is a crude comparison. Confounding adjustment, clustering, overdispersion, or recurrent events require additional modeling and variance choices.
 
-In a separate case-control study, 200 incident lung-cancer cases and 200 age-matched controls were interviewed. Smoking history was present in 160 cases and 80 controls. OR = (160 × 120) / (40 × 80) = **6.0**.
+## Construct a valid case-control sample
 
-Both point to a strong association; the OR of 6.0 is a reasonable approximation of the RR here because lung cancer is uncommon in the source population over 20 years. If the outcome were common, the OR would overstate the relative risk and should be reported as an odds ratio, not a risk ratio. Note also the contrast in denominators: the cohort's 120 vs 12 events are incidence counts from 8,000 person-followed subjects, while the case-control counts (160 vs 80) are exposure counts in selected cases and controls — the two 2×2 tables answer different questions even though they come from the same population.
+Suppose a study selects 100 cases and 100 controls. Exposure is present in 60 cases and 30 controls. The odds ratio is (60×70)/(40×30)=3.5. It is incorrect to say the exposed participants have 3.5 times the risk from these data alone: investigators selected case and control totals. The source-population sampling scheme determines whether this odds ratio has a risk-odds or rate-ratio interpretation.
 
-## Interpretation and common pitfalls
+    tab <- matrix(c(60, 40, 30, 70), nrow = 2, byrow = TRUE)
+    or <- (tab[1, 1] * tab[2, 2]) / (tab[1, 2] * tab[2, 1])
+    se <- sqrt(sum(1 / tab))
+    c(OR = or, lower = exp(log(or) - 1.96 * se),
+      upper = exp(log(or) + 1.96 * se))
 
-- Treating a case-control odds ratio as a relative risk when the outcome is common — the OR is then an overestimate of the RR.
-- Selecting controls from the same hospital as cases for a condition with a shared exposure (e.g., comparing stroke to angina in a cardiac ward) — Berkson bias, not a valid reference.
-- **Immortal time bias** in retrospective cohorts: defining exposure as "ever treated" counts follow-up time before treatment initiation as exposed, artificially favouring the exposed group.
-- Matching cases and controls on a variable and then ignoring the matching in the analysis (or matching on a non-confounder such as the outcome's consequence, which can induce bias).
-- Using a single control group when the source population is heterogeneous: matching on age, sex, or calendar period, or using two control groups, reduces residual confounding from the strongest, well-measured variables.
-- Reporting the OR from a hospital-based case-control study as if it applied to the whole population: the OR is valid for the source population from which the cases arose (that hospital's catchment), not automatically for the nation.
+Controls drawn from hospitals can be problematic if their admission causes relate to exposure. Population controls better represent the source population but may be harder to recruit. Prevalent cases select people who survived or remained diseased long enough to be sampled; if exposure affects survival, this creates prevalence-incidence (Neyman) bias. Objective records, blinded coding, and standardized interviews reduce some recall and interviewer differences, but administrative data can misclassify exposure too.
+
+Matching can improve efficiency or control design variables, but is not itself confounder control. Individually matched sets generally need conditional logistic regression; frequency matching requires appropriate adjustment for matching variables. Overmatching can reduce exposure variation and precision. Explain whether controls can later become cases and whether controls may be selected more than once.
+
+## Account for changing exposure and follow-up
+
+Exposure can change over time. Baseline classification may dilute effects of initiation or discontinuation; time-updated exposure can create time-varying confounding when prior exposure changes later confounders. For acute effects, define short, biologically plausible risk windows. For chronic disease, latency may demand lag periods and cumulative exposure measures. Avoid using exposure information after outcome onset.
+
+Loss to follow-up can bias cohort estimates when related to prognosis after conditioning on measured history. Report follow-up by exposure group and reasons for loss. Inverse probability-of-censoring weights or sensitivity analyses may be appropriate, but depend on measured predictors and positivity. Competing risks need a stated estimand: cause-specific hazard for etiologic rate among those still event-free, or cumulative incidence for actual probability in the presence of competing events.
+
+Nested case-control and case-cohort sampling can reduce expensive biomarker assays. A nested case-control study samples controls from cohort risk sets, preserving incidence-density interpretation. A case-cohort design takes a baseline subcohort and adds all incident cases, allowing study of multiple outcomes but requiring design-aware variance estimation and weights as needed.
+
+## Make confounding adjustment follow the design
+
+Cohort adjustment should target the specified population. Standardization estimates marginal risks under each strategy; propensity matching or weighting may target the matched population or full cohort, depending on implementation. Check covariate balance and treatment overlap. Extreme weights signal inadequate support; trimming changes the target population.
+
+For case-control data, control selection and matching define the analysis. Conditional logistic regression compares exposure within matched sets. With frequency matching, include matching factors in an unconditional model. In either design, choose confounders from temporal and causal knowledge. Do not adjust indiscriminately for post-exposure mediators when estimating total effects. A cohort improves the chance of establishing temporality but does not by itself make treatment groups exchangeable.
+
+## Report enough detail to reconstruct the comparison
+
+Describe source population, eligibility, exposure and outcome definitions, index date, follow-up, censoring, missingness, and control selection. Give absolute risks where the design permits them, and explain the interpretation of each measure. A causal interpretation needs consistency, exchangeability, and positivity, plus appropriate handling of selection and measurement. Report which assumptions were supported by design and which remain unverified.
+
+For observational treatment comparisons, a target-trial specification can clarify eligibility, assignment strategies, time zero, follow-up, outcome, and analysis. This prevents common errors such as assigning exposure based on future behavior or comparing participants at different clinical decision points. Sensitivity analysis should address plausible residual confounding, measurement error, and informative loss rather than serving as a generic robustness label.
+
+## Translate a cohort into an explicit analysis
+
+The cohort denominator is not just the enrollment count. It changes when people enter a dynamic population, when eligibility is restricted, and when participants are censored. A closed cohort enrolls a defined set and follows them; an open cohort allows entry and exit, often contributing person-time while each member is at risk. In either case, report how event-free time is accrued and whether delayed entry occurs. A participant recruited years after becoming at risk is not automatically observed from disease-free baseline.
+
+For a simple fixed-horizon cohort with complete follow-up, a two-by-two table gives risk. With unequal follow-up, person-time rates are useful if the rate is meaningful and event occurrence is modeled appropriately. A Poisson regression can include the logarithm of person-time as an offset:
+
+    fit <- glm(events ~ exposure + age_group,
+               offset = log(person_years),
+               family = poisson(), data = cohort)
+    exp(coef(fit))
+
+The exponentiated exposure coefficient is a conditional rate ratio under the model. Check for overdispersion and within-person or within-site dependence; robust sandwich variance or a negative-binomial model may be needed. If age-specific baseline rates differ, directly standardizing rates to a common age distribution can make groups more comparable. Model adjustment does not replace transparent denominators.
+
+## Distinguish hazards, risks, and competing events
+
+The hazard is an instantaneous event rate among people still event-free at that moment. It is not a probability and its risk-set population changes over time. A hazard ratio can be non-proportional or difficult to interpret as follow-up progresses. Report survival or cumulative incidence at clinically meaningful times when possible, along with absolute differences.
+
+When a competing event prevents the outcome of interest, such as death before dementia diagnosis, the cumulative incidence function estimates the actual probability of the event in the presence of that competing event. Treating death as ordinary censoring in Kaplan–Meier analysis answers a hypothetical question in which death is removed and generally overstates real-world probability. Cause-specific hazard analyses can be useful for etiologic questions about rates among those still at risk; subdistribution models relate covariates to cumulative incidence. State which question drives model choice.
+
+Recurrent events need their own estimand. Is the outcome first hospitalization, total admissions, time between admissions, or days alive and out of hospital? A first-event survival analysis discards later burden. Andersen–Gill models assume a particular counting-process structure; frailty models describe heterogeneity between individuals; negative-binomial models can compare counts with overdispersion. Choose based on the clinical quantity and show absolute event burden when readers need it.
+
+## Make case-control sampling efficient without losing its logic
+
+Incidence-density sampling is especially useful when exposure assays are costly. For each incident case at time t, select controls from cohort members who remain at risk at t. A control may be sampled more than once or later become a case. The conditional logistic odds ratio estimates an incidence-rate ratio because each case is compared with the exposure distribution in its contemporaneous risk set. Matching on age or calendar time can align risk sets but the analysis must preserve the matched sets.
+
+Cumulative sampling selects controls among those who did not become cases by the end. Its odds ratio is tied to cumulative disease odds and approximates the risk ratio when disease is rare. If controls are sampled with unequal probabilities, weights may be required. For a case-cohort design, a random subcohort is sampled at baseline and all cases are included; this can support study of several outcomes using the same biomarker sample, but the variance estimator must reflect the sampling scheme.
+
+Case definition matters as much as control selection. Broad definitions increase sensitivity but may include false positives; narrow definitions improve specificity but can select a more severe subset. If exposure measurement differs by case status, differential error is possible. Use blinded laboratory assays and standardized extraction where feasible. Report the number eligible, contacted, enrolled, and analyzed in each group, plus how nonresponse relates to exposure history.
+
+## Example: what risk-set sampling buys
+
+Imagine a cohort of 20,000 people followed for 10 years, with 80 incident cases. Detailed metabolomic assays are affordable for the cases and 4 controls per case, not the entire cohort. Sampling 320 controls from the risk sets reduces assay cost substantially while preserving the incidence-density contrast. If the scientific aim shifts to absolute 10-year risk, however, the sampled case-control dataset alone does not directly supply that risk; use the parent cohort data or known sampling fractions and an appropriate method.
+
+This illustrates a general principle: efficient sampling preserves information for a specified estimand, not every possible estimand. Before sampling, specify whether the target is a rate ratio, risk ratio, etiologic odds ratio, or prediction model. The choice affects control sampling, matching, weights, and analysis.
+
+## Report the design rather than only the model
+
+For cohort reports, include entry criteria, exposure definition, time zero, follow-up, censoring rules, person-time, outcome ascertainment, and competing event handling. For case-control reports, state the source population, case definition, control sampling, risk-set rules, matching, and whether controls could later become cases. Give the crude counts and denominators that allow readers to see what was observed.
+
+Present confounder adjustment as part of the design rationale. Explain which measured variables preceded exposure, whether they are common causes, how balance or model fit was assessed, and what overlap remained. Use directed acyclic graphs or a written causal rationale for consequential choices. Sensitivity analyses should address plausible residual confounding, exposure error, selection, and loss to follow-up.
+
+## Design a defensible exposure window
+
+Exposure definitions should distinguish initiation, current use, cumulative dose, and duration. A single baseline measure can misclassify people who later stop, switch, or start. Repeated measures improve temporal detail but also raise analytic questions: is the target effect of baseline assignment, current exposure, cumulative exposure, or a dynamic strategy? A biologically justified lag can reduce reverse causation when preclinical disease changes behavior or prescribing. Select the lag before examining outcome associations and show sensitivity to plausible alternatives.
+
+Outcome ascertainment should be comparable across exposure groups. Registry linkage can capture events outside study visits but may depend on access and coding practice. Active follow-up can improve completeness but may produce differential detection if one group is contacted more often. Validate algorithms against charts or adjudicated outcomes when feasible; report sensitivity and specificity or positive predictive value if known.
+
+## Check whether follow-up supports the intended target
+
+Censoring occurs at administrative end, withdrawal, loss to follow-up, or competing event depending on the estimand. Administrative censoring may be unrelated to prognosis if calendar time is handled appropriately. Withdrawal can be informative. Describe censoring patterns and compare reasons between exposure groups. Inverse-probability weighting is one option under conditional independent censoring, but weights require positive observation probability and adequate models. A complete-case analysis silently assumes a selected group can stand in for those lost.
+
+Transport from a cohort to a broader population also requires care. The study effect may apply to participants with measured covariate support; patients excluded by eligibility, care setting, or treatment contraindications may have different effects. Report the recruitment context and relevant effect modifiers. Standardization to external population data can improve transport only when those modifiers are measured and the study includes sufficient support.
+
+## Keep the denominator auditable
+
+A participant flow diagram should show the source population, exclusions before time zero, exposure groups, events, censoring, and analytic sample. Report person-time alongside event counts when a rate is estimated. State whether the denominator is people, person-years, or matched risk sets. This lets readers detect denominator changes caused by exclusions, delayed entry, or sampling fractions.
+
+Present crude and adjusted estimates with the same effect scale where possible. Give absolute risks or rates alongside relative measures and identify the standard population used for adjustment. If matching or weighting changes the target population, name it directly. A table of model coefficients alone cannot communicate who the estimate represents.
+
+## Reconcile design efficiency with evidence strength
+
+The efficiency of a case-control sample is valuable when assays or follow-up are costly, but the parent sampling frame remains part of the inference. Retain linkage to the cohort when possible so absolute risk, sampling weights, and outcome rates can be recovered. If only the sampled data are available, avoid presenting estimates that require the unsampled denominator. A cohort’s apparent comprehensiveness is also no guarantee of validity: missing exposure history, outcome coding, and loss to follow-up can erase its advantage unless measurement and follow-up are adequate.
+
+## Interpret the occupational cohort contrast
+
+In the worked rate example, the rate difference of 0.75 events per 1,000 person-years can be translated into an excess of about 7.5 events per 10,000 person-years if the rate is stable and the exposed population is comparable. This is not the same as 7.5 excess people per 10,000 over ten years: follow-up duration, competing mortality, and changing rates affect cumulative risk. Report both rate and horizon-specific risk when the cohort supports each.
 
 ## References and further reading
 
-## Cohort design: entry, follow-up, and measures
-
-## Cohort estimands and analysis variants
-
-## Competing risks and recurrent events
-
-For a first event with competing causes, the cumulative incidence is the real-world probability of the event by time (t) before a competing event. Kaplan–Meier treating competing events as censoring estimates a hypothetical net risk and overestimates actual probability. Cause-specific hazards describe instantaneous rates among those still free of any event; subdistribution hazards model cumulative incidence. Choose the measure that matches the clinical question and report absolute cumulative incidence at specified times. For recurrent events, define whether the estimand is first event, event count, time between events, or total burden. Andersen–Gill, conditional frailty, negative binomial, and marginal rate models encode different assumptions about within-person dependence and event history.
-
-## Bias from exposure timing and immortal person-time
-
-Exposure status should be determined using information available at the beginning of the risk interval. If follow-up begins before exposure classification is complete, assign the intervening time correctly (unexposed, a grace-period regime, or excluded by design) rather than backdating treatment. Landmark analyses define eligibility and exposure at a fixed landmark and begin follow-up after it, but estimate effects among landmark survivors. New-user designs reduce prevalent-user depletion and align covariate measurement before initiation. Active comparators can reduce confounding by indication by comparing patients eligible for similar treatment decisions.
-
-## Case-control sampling efficiency
-
-In incidence-density sampling, each case's controls come from the risk set at that event time; the conditional logistic OR estimates the incidence rate ratio regardless of outcome rarity. In cumulative sampling, controls are sampled from noncases at the end of follow-up and the OR approximates a risk ratio only when disease is rare (or can be converted with baseline risk information). Nested case-control analysis can lower biomarker assay cost, but sampled controls may be reused and weights may be needed if sampling fractions vary. Document matching and risk-set construction sufficiently for replication.
-
-The cohort framework accommodates several estimands that should not be conflated. Cumulative risk compares probabilities by a fixed horizon; incidence density compares events per person-time; a risk difference counts excess events per population; survival contrasts account for timing and censoring. Risk ratios, rate ratios, hazard ratios, and odds ratios answer different questions. For a fixed horizon with complete follow-up, a simple risk ratio is transparent. With unequal follow-up or censoring, time-to-event methods are needed, and competing events require cumulative incidence if the target is actual event probability.
-
-An open (dynamic) cohort allows entry and exit over time, while a closed cohort follows a defined baseline population. Open cohorts often use person-time rates; closed cohorts support cumulative incidence if follow-up is adequately observed. A nested case-control study samples controls from a cohort risk set at each case time, reducing assay costs while preserving the efficiency of incidence-density odds-ratio estimation. A case-cohort design samples a subcohort at baseline and includes all incident cases; it can support multiple outcomes but requires design-weighted variance estimation. These are sampling variants of a cohort, not generic unmatched case-control studies.
-
-### Worked rate comparison
-
-In an occupational cohort, exposed workers contribute 18,000 person-years with 36 events; unexposed workers contribute 24,000 person-years with 30 events. Rates are 2.0 and 1.25 per 1,000 person-years. The incidence-rate ratio is 1.6 and the rate difference is 0.75 per 1,000 person-years. Under a Poisson model, an approximate log-rate-ratio SE is \(\sqrt{1/36+1/30}=0.245\); the 95% interval is \(\exp[\log(1.6)\pm1.96(0.245)]≈0.99\) to 2.60. This interval is imprecise and roughly compatible with no rate difference as well as a substantial elevation. It assumes independent Poisson counts and comparable person-time definitions; overdispersion, recurrent events, or clustering require other variance models.
-
-```r
-events <- c(36, 30)
-py <- c(18000, 24000)
-rate <- events / py
-irr <- rate[1] / rate[2]
-se_log_irr <- sqrt(1 / events[1] + 1 / events[2])
-c(rate_exposed_per_1000 = rate[1] * 1000,
-  rate_unexposed_per_1000 = rate[2] * 1000,
-  IRR = irr,
-  lower = exp(log(irr) - 1.96 * se_log_irr),
-  upper = exp(log(irr) + 1.96 * se_log_irr))
-```
-
-The calculation does not adjust for confounding, age structure, or clustering. A Poisson regression with log person-time offset can adjust measured covariates, but evaluate overdispersion and use robust variance if needed. Standardization can yield adjusted absolute rates in a stated target population.
-
-## Outcome and exposure ascertainment
-
-## Confounding control and target population
-
-The cohort's eligibility criteria define the population to which standardized effects may generalize. Propensity scores can match, stratify, or weight measured baseline covariates, but each method targets a potentially different population and depends on overlap. Matching often discards nonmatchable participants and estimates an effect among those retained. Inverse-probability treatment weighting may target all eligible participants but is unstable under extreme weights. Check covariate balance and effective sample size and report the target after trimming or restriction.
-
-For case-control studies, matching factors should be controlled by design-appropriate analysis. Individual matching typically uses conditional logistic regression, which compares exposure within matched sets; frequency matching uses unconditional regression with matching factors. Matching on too many variables can create sparse sets or overmatching. Matching does not guarantee control of other confounders and can reduce efficiency when a matching factor is weakly associated with exposure.
-
-Define a risk window for exposure before outcome to avoid reverse causation and immortal time. For acute effects, a long exposure look-back can misclassify relevant timing; for chronic disease, latency may require long lags and cumulative exposure metrics. Repeated exposure measurement reduces misclassification but creates time-varying confounding and requires methods aligned with the treatment regime. Use blinded outcome adjudication or validated algorithms; differential surveillance can lead exposed groups to have more outcomes detected even when true incidence is equal.
-
-In case-control studies, choose controls from the source population that produced the cases, and use the same eligibility and time frame. For risk-set sampling, each control must be at risk at the case's event time; sampling controls only once at baseline changes the interpretation. Frequency matching should be reflected in analysis and does not remove confounding on its own. Explain whether a control can later become a case and how repeated selection is handled.
-
-## Causal interpretation and reporting
-
-Construct an explicit causal contrast before selecting covariates. Confounding adjustment should use pre-exposure causes of exposure and outcome; post-exposure mediators are not adjusted when estimating total effects. For time-varying treatment and confounding, specify sequential strategies and consider marginal structural models. Report missing follow-up, linkage failure, competing events, exposure changes, and sensitivity analyses. Cohort design establishes temporal sequence more readily than cross-sectional designs but is not automatically causal; selection into the cohort and loss to follow-up can still undermine comparability.
-
-### Time zero and immortal time
-
-Suppose medication initiators must fill a prescription within 30 days after hospital discharge, while follow-up for outcomes begins on discharge. A patient classified as treated must remain alive and event-free long enough to fill the prescription; the pre-fill interval is “immortal” for that group. Counting it as treated follow-up artificially favors treatment. Assign exposure at a common time zero, use a grace-period design with cloning/censoring/weighting, or formulate a target trial that aligns eligibility, assignment, and follow-up. The method is secondary to making the treatment strategies and time zero explicit.
-
-For a cohort with time-varying treatment, baseline exposure classification may misrepresent later use. Updating exposure can create time-varying confounding if prior treatment affects subsequent confounders. Standard time-dependent Cox regression may adjust for these variables in a way that blocks prior treatment effects; marginal structural models can target regime effects under stronger sequential assumptions. Describe exposure windows and lag periods to reduce reverse causation when early symptoms change treatment.
-
-A cohort is defined by eligibility, exposure or treatment strategies, time zero, follow-up, outcome, and censoring rules. Time zero must align across eligibility and treatment assignment; if exposed participants must survive long enough to begin treatment while controls are followed from an earlier date, immortal-time bias can result. New-user active-comparator designs can improve alignment by comparing patients at the same clinical decision point. In prospective cohorts, measurement can be planned; in retrospective cohorts, data availability and coding validity constrain what can be inferred.
-
-When every participant has a common follow-up window, estimate risk and risk ratios. With unequal observation time, incidence rates use person-time, but a rate ratio is not a risk ratio and assumes a meaningful rate model. For time-to-event outcomes, Kaplan–Meier and Cox approaches account for right censoring under assumptions; informative censoring requires adjustment or sensitivity analysis. Loss to follow-up should be reported by exposure and prognosis, not hidden under a single total.
-
-## Case-control design and sampling
-
-Case-control sampling selects based on outcome status, then compares prior exposure. It is efficient for rare disease or long latency because one need not follow a huge disease-free cohort. With cumulative sampling from a closed cohort, the odds ratio estimates the disease odds ratio. With incidence-density (risk-set) sampling, controls are sampled from people still at risk when each case occurs; the exposure odds ratio estimates an incidence rate ratio, even when outcomes are not rare. Controls may later become cases and can be sampled more than once depending on protocol. Matching can improve efficiency and control design variables but requires matched analysis; it does not itself eliminate confounding.
-
-Controls should represent the exposure distribution in the source population that generated the cases. Hospital controls may be unsuitable if their admission causes are related to exposure. Population controls can be difficult to recruit and may have lower response. Define incident versus prevalent cases, diagnostic criteria, exposure window, and index date. Prevalent case-control studies can suffer Neyman bias because exposure affects survival or disease duration. Recall and interviewer bias are reduced by objective records, blinded coding, and standardized instruments, though records also misclassify.
-
-Example: In a case-control sample, exposure is present in 60/100 cases and 30/100 controls. The OR is \((60×70)/(40×30)=3.5\). It is not valid to say exposed people have 3.5 times the risk based on these sampled counts; case and control totals were fixed by design. Under incidence-density sampling, it may estimate a rate ratio. Under rare-disease assumptions and cumulative sampling, it may approximate a risk ratio.
-
-```r
-tab <- matrix(c(60, 40, 30, 70), nrow = 2, byrow = TRUE)
-or <- (tab[1, 1] * tab[2, 2]) / (tab[1, 2] * tab[2, 1])
-log_or_se <- sqrt(sum(1 / tab))
-c(OR = or, lower = exp(log(or) - 1.96 * log_or_se),
-  upper = exp(log(or) + 1.96 * log_or_se))
-```
-
-The Wald interval is only approximate and can be unreliable with sparse cells. Use conditional logistic regression for individually matched sets, and account for matching factors in frequency-matched designs. Matching on a variable unrelated to exposure can reduce efficiency; matching on a consequence of exposure can induce bias.
-
-## Analysis, causal contrasts, and reporting
-
-Confounder adjustment should follow causal structure, not automatic significance testing. In cohorts, estimate marginal risks or rates in addition to model coefficients when clinical decisions require absolute effects. In case-control studies, conditional and unconditional logistic regression answer different model-based contrasts depending on sampling and matching. Report selection of controls, source population, exposure ascertainment, matching, nonresponse, and sensitivity analyses for misclassification and unmeasured confounding.
-
-For either design, specify how eligibility, exposure, outcome, and follow-up were operationalized before inspecting associations. Handle competing events according to the estimand. A cause-specific hazard and cumulative incidence answer different questions. Avoid classifying exposure using future information, adjusting indiscriminately for post-exposure variables, or comparing prevalent cases with controls without considering survival selection. State clearly whether the estimand is associational, predictive, or causal and what assumptions support it.
-
-- Rothman KJ, Greenland S, Lash TL. *Modern Epidemiology*. 3rd ed. Lippincott Williams & Wilkins; 2008.
-- Hernán MA, Robins JM. *Causal Inference: What If*. 2020. https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/
+- Hernán MA, Robins JM. [*Causal Inference: What If*](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/). Chapman & Hall/CRC; 2020.
+- Rothman KJ, Greenland S, Lash TL, eds. *Modern Epidemiology*. 3rd ed. Lippincott Williams & Wilkins; 2008.
 - Pearce N. What does the odds ratio estimate in a case-control study? *International Journal of Epidemiology*. 1993;22:1189–1192. https://doi.org/10.1093/ije/22.6.1189
-
-- [STROBE Statement](https://www.strobe-statement.org/), reporting guidance for cohort, case-control, and cross-sectional studies.
-- Hernán MA, Robins JM. [*Causal Inference: What If*](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/). Chapman & Hall/CRC, 2020.
-- Rothman KJ, Greenland S, Lash TL, eds. *Modern Epidemiology*. 3rd ed. Lippincott Williams & Wilkins, 2008.
-- Klein J, Moeschberger M. *Survival Analysis: A Self-Learning Text*. Springer.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-
-The [bias and confounding article](/biostatistics-library/study-design/bias-and-confounding.html) develops selection, information, and confounding bias in detail.
+- STROBE. [Strengthening the Reporting of Observational Studies in Epidemiology](https://www.strobe-statement.org/).
+- Hernán MA, Sauer BC, Hernández-Díaz S, Platt R, Shrier I. Specifying a target trial prevents immortal time bias and other self-inflicted injuries in observational analyses. *Journal of Clinical Epidemiology*. 2016;79:70–75. https://doi.org/10.1016/j.jclinepi.2016.04.014

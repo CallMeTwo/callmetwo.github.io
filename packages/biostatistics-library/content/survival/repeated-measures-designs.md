@@ -1,196 +1,142 @@
 ---
 title: Repeated-measures designs
-summary: Study designs where the same subjects are measured several times, and why simple t-tests fail on such data.
+summary: Plan studies with multiple observations per person or cluster, separating within-subject change from between-subject differences and modeling dependence appropriately.
 ---
 
-## Overview and key ideas
+## Overview
 
-A **repeated-measures design** observes the same subject on multiple occasions:
-before and after a treatment, at clinic visits, or at fixed intervals. The
-defining feature is that observations from the same person are **correlated** —
-a patient's diastolic blood pressure at visit 2 carries information about visit
-1 — while observations from different people are independent. This within-
-subject correlation violates the independence assumption of ordinary t-tests
-and ANOVA.
+Repeated-measures designs collect multiple outcomes from the same person, household, clinic, or other unit. They can reveal change over time and improve precision, but observations within a unit are correlated and cannot be treated as independent rows. The design determines which changes can be estimated, how timing affects interpretation, and which analysis methods are defensible.
 
-Two related designs matter. In a **within-subject (crossover or pre-post)**
-design, every subject receives all conditions, acting as their own control
-for greater precision. In a **parallel-group longitudinal** design,
-different subjects receive different treatments and are followed over time,
-combining a between-subject factor with a repeated time factor. The analysis
-problem in both is the same: model the mean response as a function of time and
-treatment while accounting for the covariance structure of the repeated
-observations.
+The central planning questions are: what is the experimental or sampling unit, what is the primary time contrast, how will repeated observations be scheduled, and what sources of dependence must be handled? Repeated measurements do not automatically increase the effective sample size in proportion to the number of visits. More observations can add information about trajectories, but between-person heterogeneity and missing follow-up limit gains.
 
-## When to use it
+## Choose a design that identifies the contrast
 
-| Setting | Example question |
-| --- | --- |
-| Clinical trial | Does a new antihypertensive lower blood pressure more than placebo across 12 weeks of follow-up? |
-| Paediatrics | How does lung function change with age, and does inhaled therapy modify that trajectory? |
-| Rehabilitation | Does physiotherapy improve pain scores from baseline through six weeks? |
+In a parallel-group trial, participants are randomized once and followed at multiple times. The treatment contrast compares groups at each follow-up or compares trajectories. In a crossover study, each participant receives multiple treatments in sequence; within-person comparison can improve efficiency, but requires assumptions about washout, period effects, and carryover. In a paired design, two conditions or body sites are measured within a person, with pair as the analysis unit.
 
-Repeated measures are most valuable when between-subject variability is large but each
-subject is stable — comparing the same person across conditions beats comparing different patients.
+Repeated cross-sectional sampling measures different individuals from the same population at each time. It estimates population change but not individual trajectories. A panel cohort repeatedly measures the same participants, allowing within-person change but requiring attention to attrition and practice effects. Ecological time series aggregate outcomes by period and can support interrupted time-series analyses, but do not identify individual-level change.
 
-## Assumptions and limitations
+Choose follow-up times based on the expected response dynamics and decision. Early visits capture onset or acute harms; later visits assess persistence. If treatment effect is expected to peak around month 3, sparse measurements only at baseline and month 12 can miss the time course. Too many visits increase burden and missingness. Prespecify windows and allowable visit deviations.
 
-- **Sphericity** (or its generalisation, compound symmetry): in repeated
-  measures ANOVA, the variances of the pairwise differences between time
-  points must be equal; real longitudinal data often violate this, and the
-  Greenhouse–Geisser correction adjusts degrees of freedom, though model-based
-  approaches are preferred.
-- **Balanced data**: classic repeated-measures ANOVA wants the same set of
-  visits for everyone; real studies have dropouts and missed visits, which
-  move the analysis toward mixed models or GEE.
-- **Independence between subjects** must still hold; clustering (patients from
-  the same clinic) needs additional modelling.
-- Attrition bias: if the patients who drop out differ systematically from
-  those who remain, trajectory estimates for the completers do not represent
-  the original cohort.
+## Independent units, repeated observations, and power
 
-## Worked example
+The independent unit is the unit randomized or independently sampled. In a trial randomizing 40 clinics with 30 patients each, there are 40 treatment assignments, not 1,200. In a patient-randomized longitudinal study with six visits, there are 1,200 measurements but 200 independent patients. Analyses and power calculations must reflect the actual level of assignment and dependence.
 
-In a crossover trial, 40 adults with mild hypertension record home systolic
-blood pressure weekly for 8 weeks on usual care and 8 weeks on a new agent
-(order randomised). The mean fall in systolic pressure is 2.1 mmHg on usual
-care and 9.4 mmHg on the new agent. Because each subject is measured under
-both conditions, the paired difference (new minus usual) has mean 7.3 mmHg
-with SD 5.8, giving a 95% CI of 7.3 ± 1.99 × 5.8/sqrt(40) = 7.3 ± 1.8, i.e.
-5.5 to 9.1 mmHg. The within-subject design shrinks the standard error to
-about 0.9 mmHg; an unpaired comparison of the two sets of readings, ignoring
-that the same 40 people produced both, would have a roughly two-fold larger
-standard error and could miss the effect.
+For a simple repeated-measures outcome with (m) equally spaced visits and within-person correlation \(\rho\), the variance of a person-level mean can be approximated as \(\sigma^2[1+(m-1)\rho]/m\). If \(m=4\) and \(\rho=0.6\), this is \(\sigma^2(2.8/4)=0.70\sigma^2\), not \(0.25\sigma^2\) as if visits were independent. Repeated measurements help, but diminishing returns occur as correlation rises.
 
-## Interpretation and common pitfalls
+For cluster randomization, a rough design effect is (1+(\bar m-1)\rho_c), where \(\bar m\) is cluster size and \(\rho_c\) intracluster correlation. Unequal cluster sizes inflate it. Planning should use plausible ICC, number of clusters, cluster-size variability, attrition, and the intended model. Adding clusters generally provides more information about a cluster-level treatment effect than adding observations to a few existing clusters.
 
-- Running separate t-tests at each time point and ignoring the correlation
-  inflates the type I error; with six visits that is up to six tests, each
-  adding error.
-- Reporting a single "average over all visits" per subject and then doing a
-  standard two-sample test discards the time information and the within-
-  subject precision that motivated the design.
-- Averaging subjects' individual slopes and assuming those slopes are
-  representative can misstate the population mean trajectory when slopes and
-  intercepts trade off.
-- Ignoring missing visits: complete-case analysis keeps only subjects with
-  every visit, which can be a biased subset; model-based methods use all
-  available measurements under a stated missingness assumption.
+## Define the outcome trajectory and estimand
 
-Choose the estimand before selecting the covariance model: a treatment-by-time contrast at week 12, an average difference over follow-up, and a trajectory difference are distinct questions. A baseline-adjusted follow-up analysis can be more efficient than analyzing change scores in a randomized trial when baseline predicts outcome; the approach should be prespecified and aligned with the estimand. For informative dropout, standard likelihood or GEE analyses do not automatically remove bias. Include sensitivity analyses under plausible departures from missing-at-random, and report visit-specific sample sizes and the missing-data strategy.
+The estimand might be a treatment difference at a particular visit, difference in change from baseline, average difference over follow-up, slope difference, or area-under-trajectory contrast. These are not interchangeable. A treatment-by-time interaction tests whether treatment contrasts vary across time under the specified time coding; it does not automatically represent a clinically meaningful trajectory summary.
 
-## References and further reading
+Categorical time makes few assumptions about shape but uses more parameters and gives visit-specific comparisons. Numeric time is parsimonious but assumes the chosen functional form, often linear. Splines can represent nonlinear trends; knots should be planned based on expected response and sample size. In nonlinear trajectories, a single slope can obscure early benefit followed by waning.
 
-## Design choices: timing, balance, and estimands
+Baseline outcome may be included as a covariate in an analysis of follow-up outcomes or modeled as part of the repeated response vector. Avoid including baseline twice in a way that creates redundancy. In randomized trials, ANCOVA often improves precision for a prespecified follow-up endpoint. For trajectory analysis, a mixed model with baseline and post-baseline repeated outcomes can use all measurements under MAR, but the estimand and covariance need clear specification.
 
-## Choosing a covariance strategy
+## Example: trial with repeated symptom scores
 
-## Worked treatment-by-time contrast
-
-Suppose average pain scores are measured at baseline and 4, 8, and 12 weeks. A linear mixed model with categorical visit and treatment-by-visit interaction estimates a separate intervention-control contrast at each follow-up visit. If the week-12 coefficient is −1.8 points (95% CI −3.0 to −0.6) on a 0–10 scale, the estimated difference favors treatment by 1.8 points at week 12, with an interval excluding zero. Whether it is clinically important depends on a prespecified meaningful-change threshold and harms/burden. A global interaction test alone would not provide this visit-specific interpretation.
-
-If time instead enters linearly, the interaction estimates difference in slope. A coefficient of −0.15 pain points/week implies an additional 1.8-point reduction over 12 weeks under a linearity assumption. Plot data and fitted means to assess whether early response plateaus or reverses. The categorical and linear-time models answer different questions and should not be selected after checking which is significant.
-
-## Baseline adjustment and change scores
-
-For randomized trials with baseline and follow-up continuous outcomes, ANCOVA of follow-up on treatment and baseline is usually more efficient than unadjusted change comparison when baseline predicts follow-up. Change-score analysis constrains the baseline coefficient to one; ANCOVA estimates it from data. Both can estimate a randomized group contrast under suitable models, but in nonrandomized studies baseline adjustment does not by itself control confounding or regression to the mean. If baseline values differ by chance, include the prespecified baseline measure and explain the estimand.
-
-With multiple follow-ups, baseline can be modeled as a covariate or included as one of the repeated outcomes depending on question. Do not treat post-randomization measurements as baseline covariates. For outcomes with floor/ceiling effects, consider models respecting bounds and report scale interpretation. Standardized effect sizes can aid comparison but should complement raw-unit differences.
-
-## Multiplicity and trajectory summaries
-
-Testing treatment effects at many visits raises multiplicity. Options include one prespecified primary visit, a global trajectory test followed by controlled contrasts, hierarchical testing, or simultaneous confidence bands. A global test asks whether any modeled trajectory difference exists; it does not establish benefit at every time. For a trajectory summary, area under the curve, slope, time to response, or proportion achieving meaningful improvement can be clinically interpretable if defined before analysis. Report raw mean profiles as well as model contrasts and confidence intervals.
-
-The design determines the covariance structure. Compound symmetry assumes equal correlation among all pairs of visits; AR(1) assumes correlation decays with visit lag; unstructured covariance estimates each variance and covariance and can be efficient with enough participants and few time points, but can be unstable with many visits. Random-intercept models imply a particular covariance that may not match decay over time. Mixed models can combine random effects and residual serial correlation; GEE specifies a working correlation and robust sandwich variance. Use the simplest structure consistent with the design and scientific process, then assess residual dependence.
-
-Sphericity in repeated-measures ANOVA is equality of variances of pairwise differences, a condition stronger than equal marginal variances. Mauchly's test has limited reliability in small samples and excessive sensitivity in large ones; Greenhouse–Geisser or Huynh–Feldt corrections adjust degrees of freedom but do not change the modeled means. Mixed models avoid the sphericity requirement but impose their own covariance and missingness assumptions. Report the covariance choice and any correction.
-
-## Sample size with repeated observations
-
-The benefit from repeated measures depends on within-person correlation and the contrast. Baseline adjustment can substantially reduce variance when baseline predicts follow-up, but extra post-baseline observations may add less if highly correlated. Design simulations should reproduce planned visit schedule, covariance, dropout, treatment-by-time effect, and analysis model. If treatment effect is expected to emerge gradually, powering only for a final visit can differ from powering for a slope or global trajectory. Use the primary estimand to drive calculation and prespecify any fallback if convergence fails.
-
-For a cluster or stepped-wedge repeated-measures design, there are at least two correlation structures: within participant over time and participants within cluster. Secular trends are especially important in stepped wedges because intervention exposure is correlated with calendar period. Include period effects and account for cluster-level allocation; power depends on number of clusters and timing, not only total participant-visits. Simulation is generally preferable to a simple design-effect formula.
-
-## Measurement schedule, burden, and informative observation
-
-## Analysis choices for incomplete trajectories
-
-## Sample-size worked reasoning
-
-## Interpretation of within-person change
-
-### Reporting checklist
-
-Give the visit schedule and windows, primary trajectory estimand, covariance model, analysis population, missingness assumptions, and treatment-discontinuation strategy. Plot group means with intervals and show denominators by visit; make clear whether participants differ across waves. Report raw-unit contrasts and clinically meaningful thresholds. Repeated measurements improve characterization of change but do not create independent participants or eliminate confounding in uncontrolled designs.
-
-An average trajectory can hide heterogeneous response: some participants improve, some remain stable, and some worsen. Show distributions or individual trajectories where sample size permits, while avoiding overplotting and selective illustration. The estimated population mean change does not imply that a typical individual changes by exactly that amount. Random slopes describe modeled heterogeneity but can be sensitive to visit count and covariance assumptions. If responder categories are clinically important, define thresholds prospectively and report their uncertainty alongside continuous outcomes.
-
-Distinguish statistical from reliable change. A change can exceed measurement error yet be too small to matter clinically, or be clinically important but imprecisely estimated. Report scale units, validated minimal important difference if available, and confidence intervals. For within-person monitoring, measurement error and individual prediction intervals matter more than group mean standard errors.
-
-Suppose baseline-follow-up outcome SD is 10 and baseline-follow-up correlation is 0.6. ANCOVA residual variance is approximately \(10^2(1-.6^2)=64\), compared with 100 for an unadjusted follow-up comparison. This can reduce required N by about 36% under ideal linear-model assumptions. The gain depends on correlation being similar in the trial population and a correctly specified baseline adjustment. For a multi-visit trial, this simple calculation is only an intuition; simulate the full covariance and missingness structure.
-
-For cluster repeated measures, include within-person correlation, within-cluster correlation, and correlation across cluster-periods. In stepped-wedge designs, secular trend modeling can dominate power. Report number of clusters, periods, sequence allocation, average participants per cluster-period, expected ICCs, and attrition. Sensitivity scenarios should vary ICC because it is often poorly estimated in small pilots.
-
-Mixed-model likelihood and multiple imputation can use partially observed outcome histories under MAR when the model includes predictors of missingness and outcome. GEE with empirical covariance typically needs MCAR for naive consistency; weighted GEE can relax this to MAR given correctly modeled observation probabilities. Complete-case analysis requires stronger assumptions and often loses precision. Last observation carried forward assumes no change after the last observation and understates uncertainty, so avoid it as default. State the missingness mechanism assumed and why plausible.
-
-For multiple imputation, include all repeated outcomes, treatment, baseline predictors, auxiliary variables related to dropout, and design factors. Preserve nonlinear time trends, treatment-by-time interactions, and clustering. Impute at the correct level for cluster trials; individual-level imputation ignoring cluster can shrink within-cluster dependence. Examine convergence and compare distributions of observed and imputed values. Conduct MNAR sensitivity analyses for outcomes after dropout, particularly when deterioration or adverse effects cause missed visits.
-
-## Data management and protocol deviations
-
-Specify one row per person-visit or one row per interval, unique keys, visit windows, allowable duplicates, and adjudication of measurements outside windows. Preserve original timestamp and source to reproduce derived time variables. Define handling of unscheduled visits and repeated measures within a window before looking at outcomes (for example, closest to target date). Document treatment discontinuation and rescue therapy as intercurrent events, not merely missing visits. These operational rules can change which measurement enters the estimand and should be reproducible from code.
-
-Visit timing can affect what is estimated. Measurements close to treatment initiation may capture acute response; widely spaced visits can miss transient harms. Define windows and rules for unscheduled measurements. If visit attendance depends on worsening or improvement, observed measurement times are informative and standard mixed models can be biased. Joint models for outcome and visit intensity, inverse intensity weighting, or sensitivity analyses may be appropriate, depending on the observation process. Record reasons for unscheduled visits and missed visits.
-
-Repeated testing can cause practice or learning effects; biological markers may have diurnal variation; and instruments can drift. Standardize procedures, train assessors, calibrate instruments, and retain raw data with timestamps. Distinguish random measurement error from systematic change in measurement conditions. Reliability studies with replicate measurements can quantify within-person noise and inform the minimum detectable change, which is not the same as a clinically important change.
-
-### Regression to the mean and baseline imbalance
-
-Participants are sometimes enrolled because a measurement is unusually high, then improve on repeat testing even without intervention. This regression to the mean can be mistaken for treatment response in single-arm pre/post designs. A concurrent randomized control group helps separate natural fluctuation from treatment effect. Comparing change scores does not automatically solve the problem, especially if baseline measurement error is substantial. ANCOVA of follow-up adjusted for baseline is generally efficient under randomization and often handles chance baseline imbalance well, while the estimand remains a between-arm follow-up contrast.
-
-Repeated measurement itself can alter behavior or assessment (testing effects), and instruments can drift over time. Maintain calibration and blinded measurement where possible, and distinguish biological change from measurement-process change. If the study aims to estimate within-person variability, replicate measurements close together may be needed; if the aim is long-term trajectory, schedule observations to capture clinically relevant curvature rather than simply maximizing count.
-
-Repeated-measures designs collect multiple observations from the same participant, allowing study of within-person change and potentially improving precision. The design must define baseline, follow-up schedule, primary time point or trajectory contrast, and allowable visit windows. More measurements do not always mean more information: closely spaced observations add less independent information when within-person correlation is high, and measurement burden can increase dropout. Equal visit schedules simplify interpretation; event-triggered or irregular schedules may be clinically necessary but require explicit modeling of observation times.
-
-Distinguish a repeated cross-sectional sample from a longitudinal cohort. In repeated cross-sections, each time point may include different people and estimates population-level change; in a longitudinal design, within-person dependence and attrition shape the estimand. A complete-case analysis of only participants with every visit discards partial information and can select a healthier subset. Use all available data under a justified missingness model, and describe participant flow by visit.
-
-For a two-arm study with baseline and follow-up, ANCOVA of follow-up on treatment and baseline often gives a more precise treatment contrast than comparing raw change scores when baseline predicts follow-up. For multiple follow-up visits, a treatment-by-time interaction estimates differential trajectories. If nonlinear change is expected, categorical visit effects or splines avoid forcing a straight line. Decide whether the target is average between-group difference at each visit, average slope, area under the trajectory, or a clinically meaningful summary.
-
-## Correlation and analysis models
-
-Repeated observations from one person are correlated. Repeated-measures ANOVA assumes a restrictive covariance structure, including sphericity for univariate within-subject tests. Greenhouse–Geisser corrections adjust degrees of freedom when sphericity is violated, but mixed models and GEE can represent unbalanced schedules and broader covariance structures. Mixed models produce subject-specific conditional effects for nonlinear outcomes; GEE estimates population-average contrasts with robust variance given enough independent clusters.
+Suppose 240 participants are randomized to treatment or control, with pain scores at baseline and months 1, 3, and 6. Lower scores are better. A linear mixed model with categorical visit, treatment, baseline score, and treatment-by-visit interaction estimates adjusted mean differences at each visit. If the month-6 contrast is −1.8 points (95% CI −3.0 to −0.6), interpret it against a prespecified clinically important difference, perhaps 2 points. The confidence interval includes effects smaller than that threshold and effects near it.
 
 ```r
 library(lme4)
-long_data$time_f <- factor(long_data$visit)
-fit <- lmer(outcome ~ treatment * time_f + baseline + (1 | id),
-            data = long_data, REML = TRUE)
-anova(fit)
+dat$visit <- factor(dat$visit, levels = c("1m", "3m", "6m"))
+fit <- lmer(score ~ treatment * visit + baseline_score +
+              (1 | participant_id), data = dat)
+summary(fit)
 ```
 
-Categorical time estimates a treatment contrast at each visit relative to the reference. The example assumes Gaussian outcomes, a random intercept, and likelihood-based inference under MAR. Consider random slopes if individual trajectories plausibly vary and data support their estimation. Use planned contrasts with multiplicity control or clear labeling as exploratory; do not select a favorable visit after inspecting many p-values. For binary or count outcomes, choose an appropriate GLMM or GEE and state whether odds, risk, or rate contrasts are reported.
+This example assumes continuous approximately Gaussian residuals and a random intercept. For numeric time, the coefficient represents a linear treatment difference in slope. Cluster-randomized allocation requires clinic-level structure and small-sample inference. Check fit and missingness; a random intercept does not fix informative dropout.
 
-## Sample size and missingness
+## Crossover and within-person comparisons
 
-Power for longitudinal designs depends on the covariance matrix, not only number of visits. Baseline-follow-up correlation can increase precision for an adjusted treatment contrast, while high within-person correlation means later visits add diminishing information. Clustered recruitment, unequal allocation, visit-specific attrition, and treatment-by-time effects should be represented in simulation or validated software. Planning only for a cross-sectional endpoint can underpower trajectory interactions.
+Crossover studies compare treatment periods within the same participant, controlling stable person-level characteristics. Randomize treatment sequence and allow an adequate washout. Period effects occur when outcome changes over calendar or study period; sequence effects can arise from differential order; carryover occurs when prior treatment affects later outcomes. Analyze period and sequence according to the design, and assess carryover with scientific reasoning rather than a low-powered preliminary test alone.
 
-Missingness should be summarized by arm and visit, with reasons and timing. Likelihood mixed models are valid under MAR conditional on observed variables included in the model and correct specification; GEE's ordinary estimating equations generally need stronger missingness conditions, while weighted GEE can address observed-history-dependent dropout. Neither resolves missing-not-at-random dropout without assumptions. Conduct sensitivity analyses such as delta-adjusted multiple imputation or pattern-mixture models when clinically plausible deterioration influences missingness.
+A two-period crossover estimate can be a within-person difference adjusted for period. If treatment effects are not reversible or disease progresses, crossover may be inappropriate. Dropout after the first period can destroy the within-person comparison and induce selection. A parallel design may be preferable despite larger sample needs.
 
-Control measurement conditions across visits: instrument versions, assessor training, time of day, and protocol deviations. Practice effects, maturation, seasonal change, regression to the mean, and concurrent interventions can mimic change. In uncontrolled before-after studies, secular trends cannot be separated from intervention effects without additional assumptions or a comparison group. In randomized studies, retain intention-to-treat assignment and define strategies for treatment discontinuation and rescue therapy.
+Paired measurements also arise in diagnostic method comparisons or bilateral procedures. Analyze the within-pair difference and account for pair. Treating paired readings as independent discards correlation and usually wastes precision. Conversely, pairing does not remove time-varying confounding or guarantee exchangeability if order was not randomized.
 
-Report the visit schedule, analysis population, covariance model, time coding, estimand, missing-data method, effect estimates with intervals at clinically meaningful times, and sensitivity analyses. Plot individual trajectories lightly behind group summaries where useful; show denominators at each visit. Avoid relying solely on a global interaction p-value, which does not reveal size, direction, or clinical importance of the differences.
+## Correlation structures and analysis choices
+
+Linear mixed models represent subject-specific trajectories through random intercepts and slopes. Generalized estimating equations estimate population-average effects with a working correlation and robust variance. Repeated-measures ANOVA imposes restrictive balance and covariance assumptions and handles incomplete follow-up poorly. Choose based on outcome type, target effect, number of clusters, and missingness.
+
+An unstructured covariance estimates a separate covariance for each pair of visits and can be flexible but parameter-intensive. Compound symmetry assumes constant correlation; AR(1) assumes correlation declines with visit lag. Random intercept/slope models imply a particular covariance shape. Inspect empirical correlations and fit diagnostics, but avoid selecting a structure based only on a data-driven criterion. Prespecify plausible alternatives and test sensitivity.
+
+For binary outcomes, marginal GEE and logistic mixed models estimate different effects. For count outcomes, include person-time or exposure offsets when appropriate. For time-to-event outcomes with recurrent events, standard repeated-measures methods are not automatically suitable; choose recurrent-event survival methods. The outcome process drives method choice.
+
+The covariance structure affects efficiency and sometimes finite-sample inference, but it is not the estimand. In a randomized study, treatment-by-visit mean contrasts can remain the target under several reasonable covariance models, while standard errors differ. Use a structure that converges and matches the visit spacing; compare a small number of prespecified alternatives. An unstructured covariance with eight visits has 36 unique covariance parameters before means, often too many for a modest sample.
+
+Mixed models make predictions conditional on random effects or averaged over their distribution; GEE directly targets population-average means. In Gaussian identity-link settings, fixed-effect averages often coincide, but random-effects and residual covariance assumptions differ. In logistic settings, subject-specific and marginal ORs differ by noncollapsibility. Report the scale and level rather than calling both simply “the treatment effect.”
+
+Repeated-measures ANOVA is most suitable for balanced designs with complete data and restrictive covariance assumptions such as sphericity. Greenhouse–Geisser corrections address some violations for omnibus within-subject tests but do not solve dropout or irregular visits. Modern mixed models offer more flexibility, provided the mean and missingness assumptions are credible.
+
+For a time-to-event outcome with repeated episodes, define whether the target is first event, event count, gap time, or mean cumulative function. Andersen–Gill models, conditional recurrent-event models, frailty models, and joint frailty models answer different questions and treat terminal events differently. A repeated-measures Gaussian model on event counts may lose timing information and mishandle at-risk exposure.
+
+## Missing visits and informative dropout
+
+Missing visits reduce information and can bias estimates if missingness depends on unobserved outcomes. Mixed models use incomplete trajectories under MAR conditional on included variables and observed history. GEE generally requires stronger missingness assumptions unless weighted methods are used. Multiple imputation can support sensitivity analyses but must preserve longitudinal correlation, time trends, and interactions.
+
+Record reasons for missed visits, treatment discontinuation, and withdrawal. Continue outcome collection after treatment stops when possible. Compare missingness by arm, visit, baseline severity, and prior outcomes. Plan an MNAR sensitivity analysis such as delta adjustment or a pattern-mixture model. Last observation carried forward assumes no change after the last measurement and is generally not a neutral solution.
+
+Suppose at month 6, outcome missingness is 8% in control and 20% in active treatment, with more active-arm withdrawals following adverse events. A complete-case comparison selects different subsets and can bias the treatment contrast. A mixed model under MAR can use baseline and earlier outcomes, but if participants with unobserved worsening are more likely to withdraw, an MNAR sensitivity shift is needed. Report missingness by reason and arm, not just the overall percentage.
+
+For a delta analysis, impute missing outcomes under MAR, then shift missing values in one group by a clinically plausible amount. Repeat across a prespecified range and plot effect estimates with intervals. The tipping point where conclusions change summarizes robustness, not the true unseen outcomes. State whether the primary estimand is treatment-policy, hypothetical, or another strategy for intercurrent events.
+
+Inverse-probability weighting can reweight observed visits by the predicted probability of remaining observed. For longitudinal dropout, weights depend on prior covariates and outcomes. Extreme weights indicate limited support; report truncation and effective sample size. Weighting and MI both rely on measured histories and model assumptions; neither resolves MNAR without additional assumptions.
+
+## Measurement and operational design
+
+Repeated measurement itself can alter responses through learning, fatigue, or testing effects. Standardize instruments, timing windows, administration mode, and assessor training. Calibrate devices and define how duplicate measurements are combined. In clinical settings, visit timing may be triggered by symptoms; irregular observation can be informative and should be modeled or carefully described.
+
+Reduce avoidable burden by collecting measurements that answer the estimand. Long questionnaires and frequent visits can increase attrition. Remote measurements may improve completion but alter measurement properties. Plan site procedures, reminders, window rules, and data quality checks. If a primary endpoint is measured several times, define which visit or summary is confirmatory to avoid selective reporting.
+
+Sample-size planning should simulate the planned analysis when trajectories, unequal visit schedules, cluster randomization, or dropout are important. Inputs include between-person variance, residual variance, within-person correlation, clinically meaningful treatment contrast, number and timing of visits, cluster size, and attrition. Report sensitivity across plausible correlations; optimistic assumptions about correlation can make a design appear more efficient than it is.
+
+More frequent measurement can improve estimation of nonlinear trends and event timing, but gains diminish when adjacent values are highly correlated. Increasing sample size often improves population effect precision more than adding many visits to each participant. Consider burden, cost, and missingness jointly with statistical efficiency. A design with fewer strategically timed visits can outperform a dense schedule that causes attrition.
+
+## Reporting and interpretation
+
+Report the experimental unit, number of repeated observations per participant, visit schedule, treatment contrast, time coding, covariance structure, missingness handling, and number of independent clusters. Show group trajectories with uncertainty and visit-specific denominators. Distinguish within-person changes from between-group effects. Avoid interpreting a significant interaction without presenting the estimated contrasts and their intervals.
+
+The analysis should reflect the design. A highly flexible model cannot create information at unobserved times or repair differential attrition. If individual trajectories are highly variable, report that heterogeneity as well as the average. For clinical decisions, pair average effects with responder distributions or clinically meaningful thresholds when prespecified.
+
+## Contrast calculation for a time interaction
+
+Suppose a model codes control as 0, active as 1, and month 1 as the reference. Treatment coefficient is −0.5 and treatment-by-month-6 coefficient is −1.3. The month-6 treatment contrast is −1.8 points. Its variance is (Var(\hat\beta_T)+Var(\hat\beta_{T6})+2Cov(\hat\beta_T,\hat\beta_{T6})); the standard error cannot be obtained by adding the separate standard errors. Use a contrast function or model-based marginal means to calculate the estimate and interval.
+
+If there are multiple follow-up contrasts, define whether month 6 is primary and whether secondary visit comparisons are adjusted for multiplicity. A joint test of all treatment-by-visit terms asks whether trajectories differ at any visit; it does not identify the most important time. Prespecify the clinically relevant comparison and show all planned time-specific estimates to avoid cherry-picking.
+
+Baseline adjustment should also match the design. For a single primary post-baseline endpoint, ANCOVA commonly models follow-up score as outcome with baseline score covariate. Comparing change scores can be less efficient when baseline and follow-up are correlated and may be sensitive to regression to the mean. With several repeated follow-ups, a mixed model can include baseline or constrain baseline means according to randomization. State exactly how baseline contributes.
+
+## Design choices that affect interpretation
+
+Measurement timing should be aligned to the intervention's expected mechanism. If pharmacologic response reaches steady state after four weeks, a day-3 endpoint may not answer the primary effectiveness question. If harms occur early and benefits accrue later, collect sufficiently frequent early and long-term outcomes. A single endpoint can hide a tradeoff; consider a prespecified benefit-risk framework rather than treating all visits as independent outcomes.
+
+In crossover designs, washout should reflect pharmacokinetics and carryover, and period duration should be adequate to observe response. If treatment effects persist after washout or disease changes irreversibly, a crossover comparison may be biased. Analyze sequence and period effects as planned, and avoid excluding participants based on post-randomization completion without sensitivity analysis.
+
+For observational panels, repeated measures can control stable individual characteristics through fixed-effects methods, but time-varying confounding remains. A person-fixed-effect analysis removes time-invariant factors but cannot estimate effects of exposures that do not change within person and may amplify measurement error. Mixed models assume random effects independent of covariates unless specified otherwise. Neither approach automatically makes the analysis causal.
+
+## A reporting example
+
+An interpretable report might state: “Mean pain was measured at baseline and months 1, 3, and 6. We estimated treatment differences at each follow-up using a linear mixed model with categorical visit, baseline pain, treatment-by-visit interactions, and a participant random intercept. The primary contrast was adjusted mean difference at month 6; lower values favor treatment. Standard errors used the model-based covariance and 95% confidence intervals. Follow-up completion was 91% in treatment and 94% in control; a delta-adjusted analysis assessed departures from MAR.” This makes the estimand, coding, and limitations visible.
+
+Include numbers of participants and observations at each visit, not only the enrolled total. If model-based estimates use all available records, explain that participants with incomplete records contribute observed data under the stated missingness assumption. Show uncertainty bands and clarify whether they represent confidence intervals for group means or prediction intervals for individuals.
+
+For trials, report allocation ratio and whether follow-up windows were adhered to. For observational panels, explain recruitment and attrition over time. If visit schedules differ between groups, describe how timing was handled and assess whether measurement opportunity itself is informative.
+
+When the primary contrast is a single follow-up endpoint, a design emphasizing baseline-adjusted precision may be simpler than testing the entire trajectory. When treatment dynamics themselves matter, collect enough intermediate visits to distinguish onset, peak, and waning. The measurement schedule should follow the scientific question, not just clinic convenience.
+
+Report protocol deviations in visit timing and whether measurements outside allowed windows were included; timing shifts can affect response interpretation.
+
+For home monitoring, consider whether device adherence and measurement time are informative rather than assuming a complete regular panel.
+
+Device calibration should be consistent across visits.
+
+Record calibration drift as a potential source of apparent change.
+
+## References and further reading
 
 - Fitzmaurice GM, Laird NM, Ware JH. *Applied Longitudinal Analysis*. 2nd ed. Wiley; 2011.
-- Gueorguieva R, Krystal JH. Move over ANOVA: progress in analyzing repeated-measures data. *Archives of General Psychiatry*. 2004;61:310–317. https://doi.org/10.1001/archpsyc.61.3.310
-- Diggle PJ, Heagerty P, Liang KY, Zeger SL. *Analysis of Longitudinal Data*. 2nd ed. Oxford University Press; 2002.
-
-- Vickers AJ, Altman DG. Analysing controlled trials with baseline and follow up measurements. *BMJ*. 2001;323:1123–1124. [doi:10.1136/bmj.323.7321.1123](https://doi.org/10.1136/bmj.323.7321.1123)
-
-- Dupont WD, Schuemaker M. *Design and Analysis of Clinical Research*.
-  Lippincott Williams & Wilkins.
-- Bland M, Altman DG. *Statistics with Confidence: Confidence Intervals and
-  Guide to Statistical Analysis with Medcalc*. BMJ Books.
-- Diggle P, Heagerty P, Liang K, Zeger S. *Analysis of Longitudinal Data*.
-  Oxford University Press.
-
-*The "Mixed-effects models" and "Generalized estimating equations" articles
-develop the two main model-based approaches to these designs.*
+- Diggle PJ, Heagerty P, Liang K-Y, Zeger SL. *Analysis of Longitudinal Data*. 2nd ed. Oxford University Press; 2002.
+- Liang K-Y, Zeger SL. Longitudinal data analysis using generalized linear models. *Biometrika*. 1986;73:13–22. [doi:10.1093/biomet/73.1.13](https://doi.org/10.1093/biomet/73.1.13)
+- Laird NM, Ware JH. Random-effects models for longitudinal data. *Biometrics*. 1982;38:963–974. [doi:10.2307/2529876](https://doi.org/10.2307/2529876)
+- ICH E9(R1): Addendum on Estimands and Sensitivity Analysis in Clinical Trials; 2019. [ich.org](https://www.ich.org/page/efficacy-guidelines)

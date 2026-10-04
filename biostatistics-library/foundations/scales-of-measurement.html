@@ -111,174 +111,78 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Understanding variables <span class="sep">/</span> <strong style="color:#273e3b">Scales of measurement</strong></div>
         <h1 class="article-title">Scales of measurement</h1>
         <p class="article-summary">Nominal, ordinal, interval and ratio scales describe how much structure a variable carries, and the structure fixes which operations are valid.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#measurement-scales-transformations-and-model-meaning">Measurement scales, transformations, and model meaning</a></li><li class="h3"><a href="#worked-example-log-scale-and-ratio-interpretation">Worked example: log scale and ratio interpretation</a></li><li class="h3"><a href="#validity-of-a-scale-in-context">Validity of a scale in context</a></li><li class="h2"><a href="#construct-validity-and-differential-measurement">Construct validity and differential measurement</a></li><li class="h3"><a href="#worked-example-reliability-and-attenuation">Worked example: reliability and attenuation</a></li><li class="h3"><a href="#scale-transformations-in-a-regression">Scale transformations in a regression</a></li><li class="h3"><a href="#choosing-and-reporting-scale-sensitive-methods">Choosing and reporting scale-sensitive methods</a></li><li class="h2"><a href="#agreement-repeatability-and-meaningful-change">Agreement, repeatability, and meaningful change</a></li><li class="h3"><a href="#worked-calculation-detectable-change">Worked calculation: detectable change</a></li><li class="h2"><a href="#agreement-is-not-correlation">Agreement is not correlation</a></li><li class="h2"><a href="#scaling-and-standardization-decisions">Scaling and standardization decisions</a></li><li class="h2"><a href="#ordinal-regression-and-threshold-effects">Ordinal regression and threshold effects</a></li><li class="h2"><a href="#measurement-time-and-meaningful-comparability">Measurement time and meaningful comparability</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#what-comparisons-the-scale-permits">What comparisons the scale permits</a></li><li class="h2"><a href="#coding-choices-become-model-statements">Coding choices become model statements</a></li><li class="h2"><a href="#example-ordinal-symptom-scores">Example: ordinal symptom scores</a></li><li class="h2"><a href="#reliability-validity-and-error">Reliability, validity, and error</a></li><li class="h2"><a href="#missingness-and-denominator-discipline">Missingness and denominator discipline</a></li><li class="h2"><a href="#choosing-a-representation-for-analysis">Choosing a representation for analysis</a></li><li class="h2"><a href="#binary-outcomes-and-thresholded-measurements">Binary outcomes and thresholded measurements</a></li><li class="h2"><a href="#counts-censoring-and-detection-limits">Counts, censoring, and detection limits</a></li><li class="h2"><a href="#ordinal-models-and-their-assumptions">Ordinal models and their assumptions</a></li><li class="h2"><a href="#standardization-and-comparability-across-groups">Standardization and comparability across groups</a></li><li class="h2"><a href="#a-disciplined-measurement-workflow">A disciplined measurement workflow</a></li><li class="h2"><a href="#interpreting-change-on-a-scale">Interpreting change on a scale</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>The <strong>scale of measurement</strong> classifies a variable by the structure its values
-carry, in four ascending levels:</p>
-<ul>
-<li><strong>Nominal</strong> — categories with no order (blood group, sex, hospital site).
-Summarise with counts and proportions; models can use indicator variables
-without implying a numeric order.</li>
-<li><strong>Ordinal</strong> — ordered categories with unequal or unknown spacing (NYHA
-class I–IV, pain mild/moderate/severe). Ranking is valid; arithmetic is not.</li>
-<li><strong>Interval</strong> — ordered, equal-spaced values with no true zero (Celsius
-temperature, IQ, dates). Differences are meaningful; ratios are not (20°C
-is not twice as hot as 10°C).</li>
-<li><strong>Ratio</strong> — interval plus a true zero, so ratios are meaningful (weight,
-blood pressure, concentrations, durations, counts).</li>
-</ul>
-<p>The level is not a property of the quantity but of the <em>scale chosen to record
-it</em>: weight is a ratio scale in kilograms but ordinal if recorded only as
-&quot;underweight / normal / overweight&quot;. The recorded scale is the ceiling on the
-analyses you can legitimately do — ratio-scale information cannot be recovered
-from a coarser record.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<p>Scale of measurement is fixed when the instrument is designed, because it
-decides which statistics and tests are admissible. Typical scenarios:</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Heart-failure clinic</td>
-<td>Patients are graded NYHA I–IV (ordinal) and weighed (ratio); which summaries are valid for each?</td>
-</tr>
-<tr>
-<td>Quality survey</td>
-<td>Staff rate communication &quot;poor/fair/good/excellent&quot; (ordinal) — can we compute a mean?</td>
-</tr>
-<tr>
-<td>Lab reference interval</td>
-<td>Serum creatinine is ratio-scale, supporting both mean and coefficient of variation.</td>
-</tr>
-<tr>
-<td>Trial endpoint</td>
-<td>Time to first event (ratio, survival analysis) versus &quot;event by 90 days&quot; (nominal) — a design choice, not a technicality.</td>
-</tr>
-</tbody></table>
-<p>In a heart-failure clinic, NYHA class is ordinal: class III is worse than II,
-but the &quot;distance&quot; II→III need not equal III→IV. Weight is ratio-scale: a 70
-kg patient really weighs twice a 35 kg patient, so ratios and geometric means
-are legitimate. The same patient, measured on scales of different richness,
-supports different analyses.</p>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li><strong>The recorded scale is a ceiling, not a floor.</strong> Once a continuous
-measurement is collapsed into categories, the finer information is gone.
-Record at the finest defensible scale and bin only at analysis time, if ever.</li>
-<li><strong>Interval scales lack a true zero.</strong> For Celsius, &quot;10 degrees higher&quot; is
-meaningful but &quot;twice as warm&quot; is not; ratio-based operations (coefficients
-of variation, relative changes) should be avoided on interval data.</li>
-<li><strong>Ordinal spacing is unknown.</strong> Treating Likert or NYHA scores as
-equally-spaced numbers is a modelling assumption that should be stated, not
-assumed.</li>
-<li><strong>Some &quot;categorical&quot; data are interval in disguise.</strong> Recording time-of-day
-as &quot;morning/afternoon/evening&quot; throws away interval structure that could
-support time-based analysis.</li>
-</ul>
-<p>The classification breaks down for variables measured on different scales in
-different contexts (a date is interval; a duration is ratio) and for hybrid
-instruments, where the scale is assigned per item rather than per
-questionnaire.</p>
-<h2 id="worked-example">Worked example</h2>
-<p>A heart-failure clinic records, for 120 patients, NYHA class (ordinal), body
-weight (ratio) and serum sodium concentration (ratio). NYHA class III is the
-mode (45 patients, 37.5%); the class distribution is best summarised by the
-mode and the proportion in III–IV. Median weight is 78 kg (IQR 70–86); a
-geometric mean is meaningful for positive values when a multiplicative summary
-is useful. Serum sodium has a mean of 138 mmol/L (SD 3.1); concentration has a
-meaningful zero, so ratios are defined, though the coefficient of variation is
-not necessarily the clinically most useful summary.</p>
-<p>The point: the same 120 patients support a mode and proportions for the
-ordinal variable and medians and IQR (or means and SDs if roughly symmetric)
-for numeric variables. The recorded scale constrains interpretation, but it
-does not alone dictate a statistical method: distribution, design, estimand
-and model assumptions matter too.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Computing a mean on ordinal data and reporting it as a &quot;score&quot;.</strong> A mean
-of 2.4 on a 1–4 NYHA scale implies equal spacing; report proportions by
-class or the median unless the spacing assumption is defensible.</li>
-<li><strong>Confusing the quantity with the scale.</strong> Sodium is intrinsically a ratio
-quantity, but if the lab only reports &quot;normal/low/high&quot; the recorded scale
-is nominal and only counts are valid.</li>
-<li><strong>Taking ratios on interval data.</strong> &quot;Sodium changed by a factor of two&quot; or
-&quot;Celsius temperature doubled&quot; misuses a scale with no true zero.</li>
-<li><strong>Binning at data entry.</strong> Recording a continuous lab value as
-&quot;above/below the reference range&quot; in the form makes later continuous
-analysis impossible even if the raw value existed in the lab report.</li>
-</ul>
-<h2 id="measurement-scales-transformations-and-model-meaning">Measurement scales, transformations, and model meaning</h2>
-<p>The classical nominal, ordinal, interval, and ratio categories describe which transformations preserve meaning. Nominal labels permit relabeling; only equality/inequality is meaningful. Ordinal data preserve rank under any strictly increasing transformation, but spacing is unknown. Interval data preserve differences under positive affine transformations: Celsius and Fahrenheit have different zeros but equal intervals. Ratio scales have a meaningful zero, so ratios such as “twice as long” are interpretable. These categories help prevent nonsensical summaries, but modern measurement also asks how a construct is operationalized and whether the instrument behaves similarly across groups.</p>
-<p>A statistical model places additional structure on the scale. Treating ordinal scores as numbers assumes a particular spacing; treating an interval score as Gaussian assumes a residual distribution, not merely equal intervals. Transformations affect coefficient interpretation. In a model of log outcome, a coefficient β corresponds to a multiplicative factor exp(β); if β=.20, the factor is 1.22, approximately a 22% increase. A log transformation is only valid for positive values and changes the estimand from an arithmetic mean contrast to a geometric-scale contrast unless retransformation is handled carefully.</p>
-<p>Categorizing a continuous variable is not an innocent change of scale. It loses within-category ordering, makes results depend on cut points, and can create residual confounding. If a threshold is clinically established, binary classification may answer an important decision question, but retain and report the underlying continuous measurement where possible. Standardization to z-scores is useful for comparing measurements on different units, but it does not make different constructs equivalent.</p>
-<h3 id="worked-example-log-scale-and-ratio-interpretation">Worked example: log scale and ratio interpretation</h3>
-<p>Suppose a linear model for log(CRP) estimates a treatment coefficient β=−0.223. Exponentiating gives exp(−0.223)=0.80, so the fitted geometric mean under treatment is 80% of control, or 20% lower on the ratio scale. The coefficient itself is not a reduction of 0.223 mg/L. A confidence interval for β, for example (−0.40, −0.05), transforms to (exp(−.40), exp(−.05))=(0.67, 0.95). These are ratios of conditional geometric means under model assumptions.</p>
-<pre><code class="language-r">beta &lt;- -0.223
-ci &lt;- c(-0.40, -0.05)
-c(ratio = exp(beta), percent_change = 100 * (exp(beta) - 1),
-  ratio_lower = exp(ci[1]), ratio_upper = exp(ci[2]))
+          <h2 id="overview">Overview</h2>
+<p>A measurement scale describes which comparisons and mathematical operations are meaningful for recorded values. The familiar nominal, ordinal, interval, and ratio categories help analysts avoid treating labels as quantities or assuming equal spacing where none exists. In health research, however, the scale alone does not determine the analysis: the scientific construct, measurement process, sampling design, and intended interpretation matter too.</p>
+<p>A variable’s numeric storage type is not its measurement scale. Hospital IDs may be integers but are nominal labels. A 0–10 pain score is ordered and often analyzed as approximately continuous, but equal spacing between adjacent ratings is an assumption, not a fact guaranteed by the digits. Age in years is a ratio measure with a meaningful zero, while calendar year has equal intervals but no natural zero for ratio statements.</p>
+<h2 id="what-comparisons-the-scale-permits">What comparisons the scale permits</h2>
+<p>Nominal variables identify categories without an inherent order: blood group, clinic, or pathogen type. Valid summaries include category counts, proportions, and the mode. A regression model uses indicator variables or contrasts to compare categories; assigning A=1, B=2, C=3 and fitting a slope would invent an order and spacing. Reference-category choices change coefficient presentation but not fitted contrasts when the same model is parameterized consistently.</p>
+<p>Ordinal variables have order, but distances between categories are unknown or unequal. Pain described as none, mild, moderate, severe is ordinal. Medians, cumulative proportions, and rank-based summaries respect this ordering. Treating a five-category quality-of-life item as numeric assumes that a one-category increase has a comparable meaning at every point. That approximation may be useful for some composite scales, but should be justified and tested against ordinal models or alternative summaries.</p>
+<p>Interval scales have equal units but an arbitrary zero. Temperature in Celsius is an example: a 20-degree increase is comparable across the scale, but 20°C is not “twice as hot” as 10°C. Ratio scales have a meaningful zero, so ratios can be interpreted: a 20-minute wait is twice a 10-minute wait. Many biomedical quantities (mass, concentration, elapsed time) are ratio-scaled, though censoring, detection limits, and assay transformations can complicate their practical analysis.</p>
+<p>The scale classification is best treated as a guide to defensible statements. It does not ban all parametric methods for ordinal data or require a particular method for nominal data. A model can estimate a scientifically useful summary under assumptions, but analysts should explain the assumptions and compare conclusions under plausible alternatives.</p>
+<h2 id="coding-choices-become-model-statements">Coding choices become model statements</h2>
+<p>Coding determines the contrast a model estimates. For a binary treatment coded 0/1, a linear regression coefficient is the mean difference between groups under model conditions. For a nominal variable with four clinics, indicator coding estimates three contrasts against a reference clinic. Changing the reference changes coefficients but not fitted values. The reference should be clinically interpretable and explicitly stated.</p>
+<p>For an ordered exposure, assigning scores 1, 2, 3, 4 and fitting a single slope imposes a linear trend per category step. If actual category distances are unclear, this may hide a nonlinear pattern. A safer first model may use indicator variables, then test a prespecified trend contrast if the scientific question supports it. Data-driven choice between many codings can exaggerate evidence; report how the parameterization was selected.</p>
+<p>Continuous measures should retain meaningful units where possible. A regression coefficient per 1 mmHg can be hard to read; per 10 mmHg may be clearer, while standardizing to a standard deviation eases comparison across variables but obscures clinical units. Scaling changes coefficient magnitude and interpretation, not the underlying fit for simple linear transformations. Nonlinear transformations, such as log concentration, alter the modeled relationship and need substantive justification.</p>
+<p>Categorization of continuous data loses information and can create artificial jumps. Suppose a biomarker’s association with risk is smooth but analysts divide it at 5.0 units. Patients at 4.99 and 5.01 become categorically different while values 1 and 4.99 are treated alike. Cutpoints chosen to maximize a p-value produce biased estimates and unstable thresholds. Use continuous modeling, possibly with prespecified splines, and display the estimated relationship; if a clinical threshold is needed, validate it independently.</p>
+<h2 id="example-ordinal-symptom-scores">Example: ordinal symptom scores</h2>
+<p>Imagine a 5-item symptom questionnaire with each item scored 0 to 4, where larger values mean worse symptoms. Summing gives a total from 0 to 20. A one-point total increase could arise from several patterns: one item worsened by one level or five items each changed slightly. The sum treats item contributions as additive and equally weighted. That may be acceptable if the instrument’s validation supports it, but the total does not become a ratio measure: a score of 12 does not imply twice the symptom burden of 6.</p>
+<p>For a single ordinal item, report category distributions and consider a cumulative-logit model. Its proportional-odds assumption states that the predictor effect is common across thresholds, such as odds of rating moderate-or-worse versus lower categories and severe versus less severe. Check that assumption; if violated, partial proportional odds or category-specific approaches may be warranted. For a validated multi-item total, researchers often use a linear model when distributions and residuals are sufficiently well behaved, but sensitivity analyses with ordinal or robust methods can assess dependence on that approximation.</p>
+<p>A group comparison could report median scores and category proportions, then estimate an adjusted mean difference on the validated total. If the groups have means 8.2 and 6.7, the difference is 1.5 points. Its clinical meaning depends on the instrument’s minimally important difference and measurement error, not just a p-value. If the important-change threshold is 2 points, the observed difference may be statistically detectable but below that threshold; uncertainty around the estimate should still be considered.</p>
+<pre><code class="language-r"># validated total score, assuming all items satisfy scoring rules
+fit &lt;- lm(total_score ~ treatment + baseline_score + age, data = dat)
+summary(fit)
+confint(fit, &quot;treatmentnew&quot;)
+
+# Single ordered item: proportional-odds model
+library(ordinal)
+dat$item &lt;- ordered(dat$item, levels = 0:4)
+fit_ord &lt;- clm(item ~ treatment + age, data = dat, link = &quot;logit&quot;)
+summary(fit_ord)
 </code></pre>
-<p>If the clinical target is the arithmetic mean CRP, this transformed coefficient does not directly answer it. Retransformation can require a residual-variance correction, and that correction can differ by group if variances are unequal.</p>
-<h3 id="validity-of-a-scale-in-context">Validity of a scale in context</h3>
-<p>A scale&#39;s label does not guarantee valid interpretation. A 0–10 pain rating is bounded and ordinal in a strict sense, but a validated multi-item score may often be analyzed approximately continuously if the distribution and study objective support it. Check floor and ceiling effects, missing item rules, reliability, responsiveness, and measurement invariance across language or demographic groups. A one-unit difference should have a defensible interpretation. For scores derived from questionnaires, follow the instrument&#39;s scoring manual rather than improvising sums or imputations.</p>
-<p>Select a summary and model that preserve the scientifically relevant information and state the assumptions needed. Report original units alongside standardized effects when practical. Include units in variable names or metadata, define transformations, and ensure plots display interpretable axes. Measurement theory references and instrument-specific validation studies are essential when the construct is not directly observable.</p>
-<h2 id="construct-validity-and-differential-measurement">Construct validity and differential measurement</h2>
-<p>Many biomedical variables are latent constructs: pain, frailty, anxiety, adherence, and quality of life cannot be read directly from a device. A questionnaire operationalizes a construct through items, scoring, and timing. Content validity asks whether items cover the intended domain; construct validity asks whether scores behave as predicted; criterion validity compares with an accepted measure when one exists; responsiveness asks whether change in score reflects meaningful change. Reliability is necessary for some uses but does not alone establish validity. Details belong with the measurement-tool article, but the analytic consequence is direct: a scale with different meaning across groups can create biased comparisons.</p>
-<p>Measurement invariance asks whether the item-score relationship is comparable across groups or time. Differential item functioning can occur when people with the same latent severity answer an item differently because of language or culture. If measurement is not invariant, observed score differences may combine construct differences and instrument behavior. Translation requires cultural adaptation and validation rather than literal substitution. Record instrument version, interviewer mode, language, calibration, and assessment window.</p>
-<h3 id="worked-example-reliability-and-attenuation">Worked example: reliability and attenuation</h3>
-<p>Classical measurement error provides a useful approximation. If observed X = true X + independent mean-zero error, then in simple linear regression the slope is attenuated toward zero by approximately the reliability ratio Var(true X)/Var(observed X). If true exposure variance is 9 and measurement-error variance is 3, reliability is 9/(9+3)=0.75. A true slope of 2 would be expected to appear near 1.5 under this simplified model. This is not a universal correction: systematic error, differential error, nonlinear models, and confounding require more careful methods.</p>
-<pre><code class="language-r">var_true &lt;- 9
-var_error &lt;- 3
-reliability &lt;- var_true / (var_true + var_error)
-true_slope &lt;- 2
-c(reliability = reliability,
-  approximate_observed_slope = reliability * true_slope)
-</code></pre>
-<p>Repeated measurements or validation substudies can estimate measurement properties, but the replicate design must match the error source. Technical replicates measure instrument variation; repeated visits include biological variation; independent raters measure inter-rater agreement. Bland–Altman limits of agreement assess individual-level differences between methods and should not be replaced by correlation, which can be high despite systematic disagreement.</p>
-<h3 id="scale-transformations-in-a-regression">Scale transformations in a regression</h3>
-<p>If a ratio-scale biomarker is log-transformed, a linear coefficient can be translated to a ratio. If Y=log(X), a coefficient of .10 implies exp(.10)=1.105, approximately a 10.5% increase in the geometric-scale outcome per one-unit predictor increase. If the predictor is itself standardized, define exactly which SD was used. For a logit model, a coefficient is a log odds ratio; exponentiating produces an odds ratio, not a risk ratio. For ordinal logistic regression, proportional odds imposes one common odds ratio across cumulative thresholds.</p>
-<pre><code class="language-r">beta &lt;- 0.10
-c(ratio = exp(beta), percent_change = 100 * (exp(beta) - 1))
-</code></pre>
-<p>Coefficient interpretations should specify the contrast and conditional variables. Interaction terms mean the effect varies with another predictor; a single coefficient no longer summarizes an overall association. Present predicted outcomes at meaningful values when that improves interpretation.</p>
-<h3 id="choosing-and-reporting-scale-sensitive-methods">Choosing and reporting scale-sensitive methods</h3>
-<p>Use medians and rank-based procedures when order is defensible but intervals are not, while noting that rank tests are not generic tests of medians under all distribution shapes. For multi-item scores, follow validated scoring rules and assess ceiling/floor effects. For bounded proportions, beta regression may be useful for continuous values strictly between zero and one; zeros and ones require a model that represents those masses. For counts, distinguish a count scale from an ordinal rating with integer labels. Always retain original units in tables and plots where possible, and describe transformations, cutoffs, and scoring decisions before reporting model outputs.</p>
-<h2 id="agreement-repeatability-and-meaningful-change">Agreement, repeatability, and meaningful change</h2>
-<p>A scale used for group comparisons may still be inadequate for monitoring individual change. Measurement error creates a smallest detectable change; clinical importance is a separate threshold. For two repeated measures with reliability ICC and SD σ, a common standard error of measurement is SEM=σ√(1−ICC), and the 95% minimal detectable change for a difference is about 1.96√2×SEM under standard assumptions. A change can be statistically detectable at group level while smaller than measurement noise for an individual.</p>
-<h3 id="worked-calculation-detectable-change">Worked calculation: detectable change</h3>
-<p>Suppose a functional score has SD 12 and test-retest ICC .84. SEM=12√.16=4.8 points. The individual-level minimal detectable change is 1.96√2(4.8)=13.3 points. A mean improvement of 3 points in a large trial might be estimated precisely and potentially matter clinically, even though a 3-point change in one person cannot be confidently distinguished from measurement variation under this reliability estimate. The concepts answer different questions.</p>
-<pre><code class="language-r">sd_score &lt;- 12; icc &lt;- 0.84
-sem &lt;- sd_score * sqrt(1 - icc)
-mdc95 &lt;- qnorm(.975) * sqrt(2) * sem
-c(SEM = sem, MDC95 = mdc95)
-</code></pre>
-<p>This calculation assumes stable true status between repeated measurements, independent measurement errors, and an appropriate ICC definition. If patients truly change between test and retest or error variance differs by severity, the interpretation changes. Use validation-study estimates from a population and administration mode relevant to the current use.</p>
-<h2 id="agreement-is-not-correlation">Agreement is not correlation</h2>
-<p>Correlation measures co-ranking or linear association, not interchangeability. Two devices can have correlation 0.99 while one reads every value 10 units higher. For paired methods, plot difference against average, estimate mean bias, and calculate limits of agreement (mean difference ±1.96 SD of differences) if differences are approximately normal and variance is stable. Examine proportional bias and clinically acceptable limits. If measurements are repeated across subjects, use methods that account for within-person replication.</p>
-<p>A high Cronbach alpha indicates internal consistency under assumptions, but alpha rises with item count and can be high for redundant items; it does not establish unidimensionality or validity. Factor structure, item behavior, test-retest reliability, inter-rater agreement, and responsiveness may each matter for a tool&#39;s intended use. Choose reliability evidence matched to the measurement context.</p>
-<h2 id="scaling-and-standardization-decisions">Scaling and standardization decisions</h2>
-<p>Z-standardizing a measurement (subtract mean, divide by SD) helps optimization and coefficient comparison but makes the unit sample-dependent. If different studies standardize to different SDs, standardized coefficients are not directly comparable. Centering can make an intercept meaningful but does not change fitted values in a model with an intercept. Rescaling age from years to decades changes coefficient units by a factor of ten, not model fit. Explain any scale transformation so coefficients retain clinical interpretation.</p>
-<p>For bounded scores, a linear model can predict impossible values near boundaries. Inspect fitted range and residuals; ordinal, beta, censored, or item-response models may better represent the measurement process. However, complex models can be less transparent and need adequate data. Choose the simplest model that respects the score&#39;s meaningful structure and the estimand, and report the original scale so readers can judge practical size.</p>
-<h2 id="ordinal-regression-and-threshold-effects">Ordinal regression and threshold effects</h2>
-<p>For an ordinal outcome with levels mild, moderate, severe, cumulative-logit proportional-odds regression models logit[P(Y≤j)] as a threshold-specific intercept minus a shared linear predictor. A positive coefficient shifts probability toward higher categories under common coding conventions, but software signs differ. The proportional-odds assumption says the predictor has the same log-odds effect at every threshold. Assess this assumption; if it fails, partial proportional-odds or multinomial models may be preferable, at a cost in complexity and precision.</p>
-<p>Report predicted category probabilities rather than only a common odds ratio when that helps clinical interpretation. A common odds ratio does not mean each category&#39;s probability changes by the same amount. Check sparse categories and consider combining adjacent levels only when clinically sensible and prespecified. For a single ordinal item, a mean score makes an equal-spacing assumption; state it if used.</p>
-<h2 id="measurement-time-and-meaningful-comparability">Measurement time and meaningful comparability</h2>
-<p>The same scale can behave differently at baseline and follow-up because of learning, treatment response, interviewer changes, or instrument drift. Longitudinal invariance asks whether item relationships remain stable over time. If not, an apparent score change may partly reflect the measurement process. Standard operating procedures, blinded assessors, device calibration, and training reduce avoidable drift. Include visit windows and assessment mode in the analysis data so such changes can be investigated rather than hidden.</p>
-<p>Before transforming a variable, write down what one unit means and what contrast matters. For a log-transformed outcome, specify whether conclusions concern geometric means, median ratios, or arithmetic means after correction. For z-scores, identify the reference distribution; for categories, define ordering and cut points; for scores, cite the scoring algorithm and missing-item policy. Scale decisions are part of the scientific model and should be reported with the same care as covariate selection.</p>
-<p>When scores contain multiple items, missing-item rules affect comparability. A total computed from all items is not directly comparable with a total computed from half the items unless the validated instrument permits prorating. Reverse-coded items must be recoded before summing, and category labels should remain consistent across language versions. Retain item-level data when permitted so scoring can be audited and alternative validated scores can be derived without re-contacting participants.</p>
-<p>Model checking should return to the scale of the observed variable. For binary outcomes, assess calibration and probabilities; for ordinal outcomes, compare predicted cumulative probabilities with observed category frequencies; for continuous outcomes, examine residual spread and influential points; for counts, inspect zeros and mean-variance behavior. A mathematically valid coefficient can still be scientifically uninterpretable if coding, units, thresholds, or reference levels are undocumented.</p>
+<p>The linear model estimates a conditional mean difference and requires an appropriate handling of missing items and residual behavior. The cumulative-logit coefficient is on the log odds scale for being at or above a category threshold (subject to package direction conventions); verify ordering and sign interpretation. Neither model validates the construct or proves that a score change matters to patients.</p>
+<h2 id="reliability-validity-and-error">Reliability, validity, and error</h2>
+<p>A scale’s numerical form does not establish that it measures the intended construct. Construct validity concerns whether evidence supports the intended interpretation and use. Reliability concerns consistency under conditions where the underlying construct is expected to remain stable. Agreement asks whether repeated measurements are close enough for practical use. A measure can be reliable but invalid if it consistently captures the wrong attribute.</p>
+<p>Measurement error can be random or systematic. Random error often attenuates associations when a predictor is measured imprecisely, though the exact effect depends on the model and error structure. Differential error by treatment group or time can bias a comparison in either direction. If an assay changes calibration midway through a cohort, an apparent temporal trend may be a laboratory artifact. Record instruments, versions, units, calibration, and training procedures.</p>
+<p>For inter-rater categorical data, percent agreement alone ignores agreement expected by chance and can behave oddly when prevalence is extreme. Kappa statistics adjust for chance under a particular marginal model, but should be paired with the confusion table and prevalence context. For continuous repeat measurements, an intraclass correlation summarizes reliability relative to between-person variability; Bland–Altman limits of agreement address absolute differences. High correlation is not evidence of agreement: two devices can rank patients identically while one reads consistently 5 units higher.</p>
+<h2 id="missingness-and-denominator-discipline">Missingness and denominator discipline</h2>
+<p>Every summary has a denominator. A percentage with 80 valid responses out of 100 enrolled participants differs from one based on all 100 if missing responses are common or patterned. Report counts in each category and missing values. Do not code “unknown” as a substantive category unless it represents a meaningful state and the analysis question supports it. Do not replace missing values with zero when zero has a clinical interpretation.</p>
+<p>For composites, follow the instrument’s validated scoring rule for incomplete items. If no rule exists, prespecify a minimum completion threshold and conduct sensitivity analyses. Reverse-coded questions must be reversed before scoring; inconsistent direction makes the total uninterpretable. Maintain item-level provenance so coding can be checked and corrections reproduced.</p>
+<h2 id="choosing-a-representation-for-analysis">Choosing a representation for analysis</h2>
+<p>Begin with the construct and intended claim. For nominal categories, ask whether comparisons are pairwise, global, or ordered. For ordinal data, determine whether category distances are defensible, whether a cumulative model is suitable, and whether proportional odds holds. For continuous variables, inspect distribution, nonlinearity, detection limits, and meaningful units. Avoid selecting categories solely because they improve statistical significance.</p>
+<p>Plots should match scale. Bar charts with counts or proportions suit nominal categories; ordered bars preserve ordinal order. Histograms, density plots, and scatterplots suit quantitative variables. Boxplots summarize distributions but can obscure multimodality and sample size, so show points or group counts when useful. A line joining nominal categories falsely implies continuity.</p>
+<p>For a regression, document coding, contrasts, transformations, reference levels, and units. Check model fit on the observed scale and test whether substantive conclusions survive reasonable alternatives. If a continuous predictor has a curved relationship, use flexible functions rather than arbitrary bins. If an ordinal outcome is treated as continuous, explain why that approximation is acceptable and show the distribution.</p>
+<h2 id="binary-outcomes-and-thresholded-measurements">Binary outcomes and thresholded measurements</h2>
+<p>A binary variable represents two categories, such as event/no event or test positive/negative. It is nominal even when stored as 0 and 1; the mean of the indicator is a proportion because the coding was chosen to represent event status. The risk difference is a difference between proportions, while logistic regression models log odds. The numeric labels do not justify treating categories as equally spaced values in every calculation; their use is meaningful because of the specific indicator coding.</p>
+<p>A continuous measure converted to binary changes the estimand and loses detail. For instance, classifying blood pressure as controlled versus uncontrolled discards differences within each group and can reduce power. The threshold may be clinically useful for an action, but the analysis should preserve the continuous measurement for description and modeling when possible. If measurement error moves patients across the threshold, classification instability should be assessed. Report the threshold source and whether it was prespecified.</p>
+<p>Rates require a time denominator. Ten infections among 100 people is a cumulative risk only if follow-up is defined and sufficiently comparable; 10 infections during 500 person-years is an incidence rate. The units differ, and a rate cannot be interpreted as a probability without assumptions about time and hazard. Person-time calculations also require clear rules for entry, exit, recurrent events, and competing events.</p>
+<h2 id="counts-censoring-and-detection-limits">Counts, censoring, and detection limits</h2>
+<p>A count is a nonnegative integer, but its measurement process determines useful modeling. A count of clinic visits may have many zeros and overdispersion; a Poisson model assumes conditional equality of mean and variance, while negative-binomial models permit extra variation. An offset for time at risk changes interpretation to a rate. Counts of multiple symptoms may instead form a scale with a limited range and require different handling. “Count data” is not one universal model class.</p>
+<p>Time-to-event data often include right censoring: for some participants, event time is only known to exceed their last observed time. Treating censored times as if the event occurred at censoring or dropping them changes the target and biases estimates. Survival methods use the partial information while relying on assumptions about censoring. Competing events, such as death before a nonfatal outcome, make the event type part of the measurement definition; cause-specific risk and subdistribution summaries answer distinct questions.</p>
+<p>Laboratory assays may report values below a limit of detection. Substituting zero or half the detection limit creates artificial values and can bias means, associations, and trend estimates. The data are interval-censored: the true value lies within a range. Methods should account for that censoring or report the limitation and conduct sensitivity analyses. Detection limits can also change across devices or calendar periods, undermining direct comparability.</p>
+<h2 id="ordinal-models-and-their-assumptions">Ordinal models and their assumptions</h2>
+<p>For an ordinal outcome with categories 0 through 4, a cumulative-logit model estimates a relationship between predictors and the cumulative odds across cutpoints. Under proportional odds, the predictor’s log-odds coefficient is shared across all thresholds. The common coefficient is concise and often efficient, but a treatment may improve mild symptoms without affecting severe symptoms, violating the common-effect assumption. Compare threshold-specific patterns and use diagnostics or alternative models when warranted.</p>
+<p>A simple example: if the odds ratio for being in a worse symptom category is 0.70 for treatment, the model suggests lower odds of worse ratings at each cumulative threshold, assuming the proportional-odds structure. It does not mean symptoms fall by 30%, nor that every patient improves. The odds ratio is conditional on included covariates and category ordering. Predicted category probabilities can make the result more understandable; check that they sum to one and vary plausibly over covariate values.</p>
+<p>When proportional odds is implausible, options include partial proportional-odds models, adjacent-category models, multinomial regression, or prespecified clinically meaningful dichotomies. Each changes interpretation and may require more data. Avoid trying many models and reporting only the most favorable result. Explain why the chosen model represents the scientific question and show sensitivity to defensible alternatives.</p>
+<h2 id="standardization-and-comparability-across-groups">Standardization and comparability across groups</h2>
+<p>Measurement scales can operate differently across populations. A translated questionnaire may use familiar wording but evoke different response thresholds; a diagnostic test may have different sensitivity by age or disease spectrum; a device may behave differently on darker skin tones. These differences are measurement noninvariance. Comparing group means or rates assumes that the scale has comparable meaning, and that assumption deserves evidence.</p>
+<p>For multi-item constructs, factor analysis and item-response models can assess whether item structure and thresholds are similar across groups. Differential item functioning occurs when people with the same underlying trait respond differently to an item because of group membership. If invariance fails, group contrasts in total scores may conflate true construct differences with instrument behavior. Partial invariance, item-level modeling, or group-specific calibration may be needed, with uncertainty and limitations reported.</p>
+<p>Standardization of units is a separate but related requirement. Converting mmol/L to mg/dL uses a known factor for a specific analyte; it does not harmonize assay calibration, specimen timing, or reference populations. Keep raw values and source metadata when possible. Document transformations and validate them against known ranges before pooling.</p>
+<h2 id="a-disciplined-measurement-workflow">A disciplined measurement workflow</h2>
+<p>Before analysis, create a variable dictionary with construct, source, unit, coding, allowable range, timing, and missing-value conventions. Verify whether categories are nominal or ordered, whether totals follow a validated instrument, and whether repeated measures are comparable. Plot raw distributions and inspect impossible values, floor/ceiling effects, heaping, and changes in data collection. Then select a summary and model whose interpretation matches the construct.</p>
+<p>If categories must be collapsed for privacy or sparse data, state the rule and preserve the original categories securely for audit where permitted. If values are transformed, name the transform and explain the back-transformed effect. If score differences are interpreted clinically, provide reliability and minimally important difference evidence. These steps keep a convenient data representation from quietly redefining the question.</p>
+<h2 id="interpreting-change-on-a-scale">Interpreting change on a scale</h2>
+<p>A difference score inherits the limitations of the underlying measure. A 2-point change on a validated symptom scale may be meaningful if supported by anchor-based studies, but its meaning can vary with baseline severity, population, and follow-up. Standardized effect sizes divide by a standard deviation and facilitate comparison across studies, yet the denominator depends on the sample and does not turn an abstract unit into a patient-important effect. Report the original-unit contrast alongside any standardized summary.</p>
+<p>For individual monitoring, distinguish measurement error from true change. A patient whose score moves by one point may simply reflect day-to-day variability. The standard error of measurement and smallest detectable change can help judge whether a change exceeds expected noise; a minimally important difference addresses whether the magnitude matters. These are distinct thresholds and should not be conflated. At group level, small average changes can be estimated precisely even when individual change is difficult to classify.</p>
+<p>When a threshold supports a clinical decision, evaluate consequences around the cutpoint. Report how many observations lie near it and whether plausible measurement error would change classifications. A model that predicts categories or risk groups should be externally checked for calibration and subgroup performance. Measurement decisions are part of clinical utility, not mere data formatting.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Agresti A. <em>Categorical Data Analysis</em>. 3rd ed. Wiley; 2013.</li>
 <li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
-<li>The <em>Describing data</em> articles in this library pair scales with appropriate
-summaries and plots.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Streiner DL, Norman GR, Cairney J. <em>Health Measurement Scales: A Practical Guide to Their Development and Use</em>. Oxford University Press.</li>
+<li>See <a href="validity-reliability-and-validation-of-measurement-tools.html">Validity, reliability, and validation of measurement tools</a> for measurement-property evidence.</li>
 </ul>
 
         </article>

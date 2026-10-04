@@ -111,169 +111,99 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Probability essentials <span class="sep">/</span> <strong style="color:#273e3b">Bayes’ theorem</strong></div>
         <h1 class="article-title">Bayes’ theorem</h1>
         <p class="article-summary">How to update the probability of disease after a test result using prevalence, sensitivity, and specificity.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#odds-form-and-likelihood-ratios">Odds form and likelihood ratios</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#bayesian-updating-likelihood-prior-and-posterior">Bayesian updating: likelihood, prior, and posterior</a></li><li class="h3"><a href="#worked-example-positive-predictive-value-and-likelihood-ratios">Worked example: positive predictive value and likelihood ratios</a></li><li class="h3"><a href="#beta-binomial-updating-for-a-risk">Beta-binomial updating for a risk</a></li><li class="h3"><a href="#reporting-bayesian-analyses">Reporting Bayesian analyses</a></li><li class="h2"><a href="#prior-specification-and-sensitivity-analysis">Prior specification and sensitivity analysis</a></li><li class="h3"><a href="#worked-example-posterior-probability-of-exceeding-a-threshold">Worked example: posterior probability of exceeding a threshold</a></li><li class="h2"><a href="#bayesian-intervals-and-frequentist-properties">Bayesian intervals and frequentist properties</a></li><li class="h2"><a href="#hierarchical-pooling-and-partial-pooling">Hierarchical pooling and partial pooling</a></li><li class="h2"><a href="#sequential-learning-and-decisions">Sequential learning and decisions</a></li><li class="h2"><a href="#conjugacy-as-transparent-algebra">Conjugacy as transparent algebra</a></li><li class="h3"><a href="#worked-example-gamma-poisson-rate-update">Worked example: Gamma-Poisson rate update</a></li><li class="h2"><a href="#calibration-prior-predictive-checks-and-conflict">Calibration, prior predictive checks, and conflict</a></li><li class="h2"><a href="#combining-prior-and-evidence-without-double-counting">Combining prior and evidence without double counting</a></li><li class="h2"><a href="#decision-thresholds-and-expected-loss">Decision thresholds and expected loss</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#diagnostic-testing-through-counts">Diagnostic testing through counts</a></li><li class="h2"><a href="#odds-and-likelihood-ratios">Odds and likelihood ratios</a></li><li class="h2"><a href="#bayesian-parameter-updating">Bayesian parameter updating</a></li><li class="h3"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#natural-frequencies-prevent-base-rate-errors">Natural frequencies prevent base-rate errors</a></li><li class="h3"><a href="#likelihood-ratios-and-sequential-evidence">Likelihood ratios and sequential evidence</a></li><li class="h2"><a href="#prior-predictive-checking-for-bayesian-models">Prior predictive checking for Bayesian models</a></li><li class="h2"><a href="#decisions-and-thresholds">Decisions and thresholds</a></li><li class="h3"><a href="#update-with-a-second-test">Update with a second test</a></li><li class="h3"><a href="#bayesian-estimation-of-a-probability">Bayesian estimation of a probability</a></li><li class="h2"><a href="#prior-sensitivity-and-reference-information">Prior sensitivity and reference information</a></li><li class="h3"><a href="#uncertainty-in-sensitivity-and-specificity">Uncertainty in sensitivity and specificity</a></li><li class="h3"><a href="#calibration-and-transport">Calibration and transport</a></li><li class="h3"><a href="#prior-odds-and-evidence-strength">Prior odds and evidence strength</a></li><li class="h3"><a href="#likelihood-and-posterior-predictive-checks">Likelihood and posterior predictive checks</a></li><li class="h2"><a href="#communicating-updates">Communicating updates</a></li><li class="h3"><a href="#diagnostic-test-uncertainty">Diagnostic test uncertainty</a></li><li class="h3"><a href="#calibration-and-subgroup-performance">Calibration and subgroup performance</a></li><li class="h3"><a href="#bayesian-decision-threshold">Bayesian decision threshold</a></li><li class="h3"><a href="#prior-probability-and-referral-populations">Prior probability and referral populations</a></li><li class="h3"><a href="#common-reporting-errors">Common reporting errors</a></li><li class="h3"><a href="#sensitivity-analysis-example">Sensitivity analysis example</a></li><li class="h3"><a href="#prior-data-conflict">Prior-data conflict</a></li><li class="h3"><a href="#clinical-thresholds-and-expected-consequences">Clinical thresholds and expected consequences</a></li><li class="h3"><a href="#bayesian-intervals-and-frequentist-calibration">Bayesian intervals and frequentist calibration</a></li><li class="h3"><a href="#population-transport-and-prior-sensitivity">Population transport and prior sensitivity</a></li><li class="h3"><a href="#communication-in-natural-frequencies">Communication in natural frequencies</a></li><li class="h3"><a href="#updating-clinical-evidence-responsibly">Updating clinical evidence responsibly</a></li><li class="h3"><a href="#communicating-posterior-intervals">Communicating posterior intervals</a></li><li class="h3"><a href="#practical-workflow">Practical workflow</a></li><li class="h3"><a href="#avoid-overconfident-likelihood-multiplication">Avoid overconfident likelihood multiplication</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>Bayes&#39; theorem converts what you knew <em>before</em> a test (the <strong>prior</strong> or pre-test
-probability) into what you know <em>after</em> it (the <strong>posterior</strong> or post-test
-probability):</p>
-<p>P(disease | positive test) = [P(positive | disease) × P(disease)] / P(positive)</p>
-<p>The numerator combines the test&#39;s <strong>sensitivity</strong> with the disease <strong>prevalence</strong>.
-The denominator, P(positive), averages the positive rate over people with and
-without disease, using sensitivity and <strong>specificity</strong>:</p>
-<p>P(positive) = sensitivity × prevalence + (1 − specificity) × (1 − prevalence)</p>
-<p>The result, P(disease | positive test), is the <strong>positive predictive value (PPV)</strong>
-— the quantity clinicians actually want. Its mirror image, P(disease | negative
-test), is the negative predictive value (NPV).</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Screening low-prevalence disease</td>
-<td>After a positive screening test in a general population, how likely is true disease?</td>
-</tr>
-<tr>
-<td>Diagnosis in high-risk groups</td>
-<td>In a symptomatic patient with high pre-test probability, how much does the same test change the probability?</td>
-</tr>
-<tr>
-<td>Sequential testing</td>
-<td>After two independent tests, what is the cumulative probability of disease?</td>
-</tr>
-<tr>
-<td>Interpreting false results</td>
-<td>How many positive results in a screening round will be false positives?</td>
-</tr>
-</tbody></table>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li><strong>Prevalence must be that of the population being tested.</strong> A PPV calculated
-from a low-prevalence screening population is meaningless in a specialist clinic
-where disease is common.</li>
-<li><strong>Sensitivity and specificity must apply to the tested population</strong> (spectrum
-bias: a test that performs differently in mild vs advanced disease gives a
-misleading PPV if those proportions are not the ones assumed).</li>
-<li>For sequential tests, the tests must be <strong>conditionally independent</strong> given the
-true disease state; using the same assay twice does not halve the error rate.</li>
-<li>The theorem is exact; all error comes from the input estimates and from the
-population assumptions behind them.</li>
-</ul>
-<h3 id="odds-form-and-likelihood-ratios">Odds form and likelihood ratios</h3>
-<p>Bayes&#39; rule can also be written as posterior odds = prior odds × likelihood
-ratio. For a positive result, LR+ = sensitivity/(1−specificity); for a
-negative result, LR− = (1−sensitivity)/specificity. This form makes sequential
-updating transparent: multiply odds by each test&#39;s likelihood ratio only when
-tests are conditionally independent given disease status, or when a joint
-model supplies the appropriate combined likelihood. Test performance can
-also change with disease severity and setting, so likelihood ratios estimated
-in a case-control sample should not be assumed to transfer unchanged to
-screening.</p>
-<h2 id="worked-example">Worked example</h2>
-<p>A blood test screens for a disease with 1% prevalence, 95% sensitivity, and 99%
-specificity. In 10,000 screened people:</p>
-<ul>
-<li>100 truly have the disease; 95 of them test positive (true positives).</li>
-<li>9,900 do not; 1% of them — 99 people — test positive (false positives).</li>
-<li>Total positives = 95 + 99 = 194, so PPV = 95/194 ≈ 0.49.</li>
-</ul>
-<p>Equivalently, directly from Bayes: PPV = (0.95 × 0.01) / [(0.95 × 0.01) +
-(0.01 × 0.99)] = 0.0095 / 0.0194 ≈ 0.49. So a positive result in this population
-is almost a coin flip: even a highly specific test yields a PPV near 50% when the
-disease affects only 1 in 100 people. If the same test is used in a group where
-prevalence is 20%, PPV jumps to (0.95 × 0.20)/(0.95 × 0.20 + 0.01 × 0.80) ≈ 96%
-— the same test, the same errors, a very different conclusion.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Base-rate neglect</strong> — quoting sensitivity/specificity while ignoring
-prevalence; a 99%-specific test can still produce more false than true positives
-in rare disease.</li>
-<li><strong>Confusing PPV with sensitivity</strong> — sensitivity is a property of the test
-(fixed, roughly, by the disease); PPV is a property of the <em>population</em> being
-tested and moves with prevalence.</li>
-<li><strong>Applying test characteristics out of context</strong> — a PPV from a research study
-with case-enrichment does not transfer to routine practice.</li>
-<li><strong>Ignoring changing prevalence</strong> — as screening erodes prevalence or as
-pre-test probability shifts with symptoms, the PPV of an unchanged test
-changes; update the prior accordingly.</li>
-</ul>
-<h2 id="bayesian-updating-likelihood-prior-and-posterior">Bayesian updating: likelihood, prior, and posterior</h2>
-<p>Bayes&#39; theorem follows from the definition of conditional probability: P(H|D)=P(D|H)P(H)/P(D). H is a hypothesis or state, D is observed evidence, P(H) is prior probability, and P(D|H) is the likelihood of the evidence under H. The denominator averages the likelihood over possible states. For two states, posterior odds equal prior odds multiplied by the likelihood ratio. This odds form makes clear that evidence changes prior odds according to how much more likely it is under one state than another.</p>
-<p>In diagnosis, the likelihood ratio for a positive result is sensitivity/(1−specificity), while that for a negative result is (1−sensitivity)/specificity. A test with a large positive likelihood ratio can raise disease probability substantially, but the posterior still depends on pretest probability. Pretest probability should come from the intended setting and patient characteristics, not from the test result being interpreted. Repeated tests cannot be treated as independent evidence if their errors share a mechanism or if the second test was selected based on the first.</p>
-<p>Bayesian inference also describes uncertainty about parameters. A prior distribution represents information or regularization before the current data; the likelihood represents the data model; the posterior is proportional to their product. A credible interval contains a stated posterior probability under the model and prior. Prior sensitivity is essential when data are sparse, events are rare, or the prior materially influences the result. A prior is not automatically subjective guesswork: it can encode external evidence, weak regularization, or exchangeability assumptions, but those choices must be transparent.</p>
-<h3 id="worked-example-positive-predictive-value-and-likelihood-ratios">Worked example: positive predictive value and likelihood ratios</h3>
-<p>For prevalence 1%, sensitivity 90%, and specificity 95%, prior odds are 0.01/0.99=0.0101. The positive likelihood ratio is 0.90/0.05=18. Posterior odds are 0.0101×18=0.1818. Converting back to probability gives 0.1818/(1+0.1818)=0.154. This matches the 2×2 table calculation: a positive test raises disease probability from 1% to about 15.4%, but does not make disease certain.</p>
-<pre><code class="language-r">prior &lt;- 0.01
-sensitivity &lt;- 0.90
-specificity &lt;- 0.95
-lr_pos &lt;- sensitivity / (1 - specificity)
-prior_odds &lt;- prior / (1 - prior)
-post_odds &lt;- prior_odds * lr_pos
-post_prob &lt;- post_odds / (1 + post_odds)
-c(likelihood_ratio = lr_pos, posterior_probability = post_prob)
+          <h2 id="overview">Overview</h2>
+<p>Bayes’ theorem updates a probability after observing evidence. It combines a prior probability with how likely the evidence is under competing states of the world. In clinical medicine, it converts pre-test probability into post-test probability using sensitivity and specificity, or updates belief about a treatment effect using a likelihood and prior distribution. The arithmetic is simple; the hard work is specifying the population, prior information, and evidence model correctly.</p>
+<h2 id="diagnostic-testing-through-counts">Diagnostic testing through counts</h2>
+<p>Suppose disease prevalence is 1%, test sensitivity is 90%, and specificity is 95%. Among 10,000 people, about 100 have disease, of whom 90 test positive. Of 9,900 without disease, 5% or 495 test positive falsely. Thus PPV=90/(90+495)=15.4%. Even a reasonably sensitive and specific test yields many false positives in a low-prevalence population.</p>
+<p>Bayes’ formula expresses this as P(D|+)=P(+|D)P(D)/P(+), where P(+)=P(+|D)P(D)+P(+|not D)P(not D). The prior/pre-test probability is prevalence or an individualized clinical probability before the result; likelihood terms encode test behavior; the posterior is probability of disease after the result.</p>
+<pre><code class="language-r">prev &lt;- .01
+sens &lt;- .90
+spec &lt;- .95
+ppv &lt;- sens * prev / (sens * prev + (1 - spec) * (1 - prev))
+ppv
 </code></pre>
-<p>This calculation assumes test characteristics transport to the current population and test reading is defined consistently. If multiple tests are conditionally dependent, multiplying their likelihood ratios overstates evidence.</p>
-<h3 id="beta-binomial-updating-for-a-risk">Beta-binomial updating for a risk</h3>
-<p>For x events among n exchangeable Bernoulli observations, a Beta(a,b) prior for event probability p and binomial likelihood yield a Beta(a+x,b+n−x) posterior. With a uniform Beta(1,1) prior and 8 events among 100 patients, the posterior is Beta(9,93), with mean 9/102≈0.0882. A 95% equal-tailed credible interval is obtained from the 2.5th and 97.5th percentiles of that beta distribution. This modest prior smooths estimates away from exact zero or one; with larger samples its influence wanes.</p>
-<pre><code class="language-r">x &lt;- 8; n &lt;- 100
-a_post &lt;- 1 + x
-b_post &lt;- 1 + n - x
-c(posterior_mean = a_post / (a_post + b_post),
-  lower = qbeta(0.025, a_post, b_post),
-  upper = qbeta(0.975, a_post, b_post))
+<p>This assumes sensitivity/specificity apply to the target population and test result is correctly classified. Predictive values change with prevalence even if test characteristics remain constant. Spectrum effects can also change sensitivity/specificity across settings.</p>
+<h2 id="odds-and-likelihood-ratios">Odds and likelihood ratios</h2>
+<p>Pre-test odds are p/(1−p). A positive likelihood ratio is LR+=sensitivity/(1−specificity), and post-test odds=pre-test odds×LR+. Convert back to probability by odds/(1+odds). For a negative result use LR−=(1−sensitivity)/specificity. This odds form is convenient for sequential evidence and illustrates that a test result multiplies, rather than replaces, prior odds.</p>
+<p>With prevalence .01, pre-test odds≈.0101 and LR+=.90/.05=18, giving post-test odds≈.182 and probability .154. A positive result raises probability substantially, yet does not make disease more likely than not. A second test’s likelihood ratio can be multiplied only if conditional independence is defensible given disease status; correlated tests can double-count the same signal.</p>
+<h2 id="bayesian-parameter-updating">Bayesian parameter updating</h2>
+<p>In Bayesian statistics, a prior density p(θ) and likelihood p(y|θ) produce posterior p(θ|y)∝p(y|θ)p(θ). A credible interval contains a stated posterior probability under the model and prior. The prior encodes knowledge or regularization before the current data; it should be described and checked with prior predictive simulations. Weakly informative priors can stabilize implausible estimates without dominating data, but “noninformative” is not invariant across parameterizations.</p>
+<h3 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h3>
+<p>Do not confuse P(Disease|positive) with P(positive|Disease); these reverse conditional probabilities and can differ greatly. A positive predictive value from a referral clinic may not transport to population screening. The prior should represent pre-test risk in the evaluated population, not a generic prevalence from an unrelated setting. For treatment effects, Bayesian posterior probabilities depend on prior and likelihood; they are not frequentist p-values.</p>
+<p>Bayes’ theorem updates evidence but does not correct biased tests, selection, confounding, or data leakage. Report the prior, likelihood, target population, and sensitivity analysis. If the decision is whether to treat, posterior probability alone is not enough: harms, benefits, costs, and patient preferences determine the action threshold.</p>
+<h2 id="natural-frequencies-prevent-base-rate-errors">Natural frequencies prevent base-rate errors</h2>
+<p>The prevalence calculation becomes intuitive when represented as a cohort of 10,000. With 1% disease prevalence, 100 people have disease and 9,900 do not. Sensitivity .90 yields 90 true positives and 10 false negatives. Specificity .95 yields 9,405 true negatives and 495 false positives. Of 585 positive tests, 90 are true disease, so PPV=15.4%. The false-positive count is large because the non-diseased group is much larger than the diseased group.</p>
+<p>Changing prevalence changes predictive value. At 10% prevalence among 10,000, there are 1,000 diseased, 900 true positives; 9,000 non-diseased, 450 false positives; PPV=900/(900+450)=66.7%. Sensitivity and specificity were held constant in this arithmetic. In practice, spectrum effects can change them too, so transportability is not guaranteed.</p>
+<h3 id="likelihood-ratios-and-sequential-evidence">Likelihood ratios and sequential evidence</h3>
+<p>LR+ compares probability of a positive result in diseased versus non-diseased people. LR− compares probability of a negative result under those conditions. A positive result multiplies pre-test odds by LR+; a negative result multiplies by LR−. An LR near 1 provides little information. Odds convert to probability by p=odds/(1+odds).</p>
+<p>With prior probability .10, odds=.111. If LR+=5, posterior odds=.556 and probability=.357. A “positive” result therefore raises risk from 10% to about 36%, not to 50%. Whether that crosses a treatment or confirmatory-testing threshold depends on consequences. A second test may contribute another LR, but only if results are conditionally independent given disease or the joint likelihood is modeled. Two correlated biomarkers can supply much less combined evidence than multiplying their marginal LRs suggests.</p>
+<h2 id="prior-predictive-checking-for-bayesian-models">Prior predictive checking for Bayesian models</h2>
+<p>For parameter inference, prior predictive simulation asks what data the prior and likelihood imply before observing the study. If a prior on a treatment effect predicts implausibly large response rates, extreme negative probabilities, or impossible biomarker values, it should be reconsidered. This check is distinct from posterior predictive checking, which evaluates whether the fitted model can reproduce observed features.</p>
+<p>An informative prior should describe evidence source, population, outcome definition, and why it is exchangeable with the current setting. Historical controls may differ in supportive care or eligibility. Robust mixture priors can discount historical information when current data conflict, but the borrowing rule should be designed and simulated before the trial.</p>
+<h2 id="decisions-and-thresholds">Decisions and thresholds</h2>
+<p>A posterior disease probability does not alone determine action. If treatment prevents a severe outcome with little harm, a lower threshold may be rational; if treatment is toxic, a higher threshold may be preferred. Expected utility or a decision curve formalizes benefit and harm. The test decision can involve confirmatory testing, surveillance, or treatment, each with different consequences.</p>
+<p>Bayes’ theorem updates probabilities conditional on stated evidence. It cannot correct a biased sample, imperfect reference standard, or unmeasured confounding. Report prevalence source, test characteristics and uncertainty, target population, and any dependence assumptions. For Bayesian parameter analyses, report prior, likelihood, posterior summaries, and sensitivity analysis. Keep posterior probability distinct from p-value and from action threshold.</p>
+<h3 id="update-with-a-second-test">Update with a second test</h3>
+<p>Suppose pre-test probability is 15%, LR+ for an initial test is 4, and a confirmatory test has conditional LR+=6 among people positive on the first test. Initial odds=.15/.85=.176; after the first result, odds=.706 and probability=.414. If the second result is conditionally independent given disease, odds then become 4.24 and probability=.809. The independence condition is strong: tests using the same biomarker may have correlated errors, so multiply joint likelihood ratios only if validated.</p>
+<p>A sequential pathway changes who receives the second test. Its sensitivity and specificity in first-test-positive patients may differ from values measured in an unselected cohort. Verification bias occurs if only positives receive the reference standard; then estimated test accuracy can be biased. Model the testing pathway and report the population to which test performance applies.</p>
+<h3 id="bayesian-estimation-of-a-probability">Bayesian estimation of a probability</h3>
+<p>For k successes among n Bernoulli observations, a Beta(a,b) prior is conjugate: posterior is Beta(a+k,b+n−k). With a uniform Beta(1,1) prior and 12/200 events, posterior is Beta(13,189); posterior mean is 13/202≈6.44%, slightly above sample proportion 6%. A prior centered near a known baseline risk can shrink more strongly, but its influence should be examined.</p>
+<pre><code class="language-r">k &lt;- 12; n &lt;- 200
+post_a &lt;- 1 + k; post_b &lt;- 1 + n - k
+c(mean = post_a/(post_a + post_b),
+  quantile(qbeta(c(.025, .975), post_a, post_b)))
 </code></pre>
-<p>The posterior assumes a common risk and conditionally independent observations. Clustered patients or changing risks require hierarchical or regression models. A credible interval does not include uncertainty about model structure or prior choice; show sensitivity to reasonable alternatives when the data are weak.</p>
-<h3 id="reporting-bayesian-analyses">Reporting Bayesian analyses</h3>
-<p>State the likelihood, prior distributions and scales, computation method, convergence diagnostics for simulation, posterior summaries, and sensitivity analyses. Distinguish posterior probability of a hypothesis from a frequentist p-value. A posterior probability that a parameter exceeds a clinically meaningful threshold can directly address a decision question, but a treatment decision also depends on harms, costs, and preferences. Prior-posterior plots can reveal whether the data dominate the prior. The Bayes theorem and frequentist/Bayesian inference articles elsewhere in the library develop these interpretations.</p>
-<h2 id="prior-specification-and-sensitivity-analysis">Prior specification and sensitivity analysis</h2>
-<p>Bayesian results can be sensitive to prior choice when information is limited. A conjugate prior makes updating transparent, but convenience does not make the prior scientifically neutral. For a binomial probability, Beta(1,1) is uniform on the probability scale; Beta(.5,.5) is Jeffreys&#39; prior and places more mass near boundaries. A prior uniform on log odds is different again. Prior distributions should be assessed on the parameter scale clinicians understand, not only by their algebraic form.</p>
-<p>In a nonrandomized comparison with sparse events, a weakly informative prior on log odds ratios can reduce implausibly extreme estimates caused by complete separation. Such regularization is especially helpful when there are many covariates relative to events, but the posterior still depends on model structure and prior scales. Compare plausible priors and report whether conclusions change. A “noninformative” prior does not exist independently of parameterization; transformations of parameters change what uniformity means.</p>
-<h3 id="worked-example-posterior-probability-of-exceeding-a-threshold">Worked example: posterior probability of exceeding a threshold</h3>
-<p>For 8 events among 100 participants and Beta(1,1) prior, the posterior is Beta(9,93). The posterior mean is 9/102=.0882. Suppose a clinically important threshold is 10%. Compute P(p&gt;.10|data)=1−F_Beta(.10;9,93), which is approximately 0.309. This is a decision-relevant probability but does not itself decide whether to act: expected benefits, harms, and consequences of false decisions still matter.</p>
-<pre><code class="language-r">a_post &lt;- 9; b_post &lt;- 93
-p_gt_10 &lt;- pbeta(0.10, a_post, b_post, lower.tail = FALSE)
-credible_interval &lt;- qbeta(c(.025, .975), a_post, b_post)
-c(posterior_mean = a_post/(a_post+b_post),
-  probability_above_10pct = p_gt_10,
-  lower = credible_interval[1], upper = credible_interval[2])
-</code></pre>
-<p>The prior contributes one pseudo-count to events and non-events under Beta(1,1), though this pseudo-count interpretation is specific to conjugate updating. If the 100 observations are clustered or from a selected population, the binomial likelihood is inadequate. A hierarchical model may partially pool site-specific risks; a transport model may be needed for another population.</p>
-<h2 id="bayesian-intervals-and-frequentist-properties">Bayesian intervals and frequentist properties</h2>
-<p>A 95% credible interval has 95% posterior probability under the model and prior. It does not automatically have 95% frequentist coverage for every parameter value; coverage can be checked by simulation under repeated data-generating conditions. Conversely, a confidence interval&#39;s repeated-sampling coverage does not provide a posterior probability statement after observing data. In many regular large-sample problems the intervals are numerically similar, but their interpretations and sensitivity differ.</p>
-<p>Bayesian credible intervals can be equal-tailed or highest posterior density (HPD). Equal-tailed intervals allocate 2.5% posterior probability to each tail; HPD intervals contain the highest-density region but can be nonunique for multimodal distributions. State which is used. For asymmetric posteriors, the posterior mean, median, and mode differ; choose summaries based on loss function and decision context. If squared-error loss is relevant, posterior mean minimizes expected squared error; absolute-error loss favors the median.</p>
-<h2 id="hierarchical-pooling-and-partial-pooling">Hierarchical pooling and partial pooling</h2>
-<p>Suppose several hospitals each have a binary event rate. Separate estimates are noisy, while a single pooled estimate ignores real variation. A hierarchical model assumes site risks arise from a shared distribution and learns both overall distribution and site-specific values. Small sites are pulled more toward the overall mean; large sites remain closer to their data. This partial pooling can stabilize estimates, but depends on exchangeability: sites should plausibly be draws from a common population after included covariates. Extreme sites should not be dismissed as noise if they signal different care or data quality.</p>
-<p>Posterior predictive checks compare simulated replicated data from the fitted model with observed features, such as event counts, zero counts, or between-site variation. Convergence diagnostics assess computation, not model truth. For Markov chain Monte Carlo, inspect trace plots, effective sample sizes, and R-hat; also check sensitivity to parameterization and priors. Report computational settings sufficiently for reproducibility.</p>
-<h2 id="sequential-learning-and-decisions">Sequential learning and decisions</h2>
-<p>Bayesian updating can incorporate evidence sequentially: posterior after study one becomes prior for study two if the likelihoods and populations are appropriately compatible. Avoid double-counting participants or reusing the same evidence. In clinical trials, Bayesian monitoring rules can define stopping based on posterior probabilities, but type I error and operating characteristics should be evaluated by simulation over null and alternative scenarios. A posterior probability threshold alone is not a full design.</p>
-<p>For decisions, choose an action a to maximize posterior expected utility E[U(a,θ)|data]. This formalizes how uncertainty, benefit, harm, and preferences combine. Sensitivity to utility assumptions can be as consequential as prior sensitivity. The Bayesian article complements the library&#39;s randomized-trial, decision-curve, and health-economics articles.</p>
-<h2 id="conjugacy-as-transparent-algebra">Conjugacy as transparent algebra</h2>
-<p>The beta-binomial update works because the likelihood contributes p^x(1−p)^(n−x), while the Beta(a,b) prior contributes p^(a−1)(1−p)^(b−1). Multiplying yields Beta(a+x,b+n−x). Posterior precision grows with total pseudo-count a+b+n, while posterior mean is a weighted average of prior mean a/(a+b) and observed proportion x/n. The weights are prior effective sample size and data sample size. This interpretation helps explain shrinkage and how prior influence declines as n grows.</p>
-<p>For a Poisson count x over exposure T and Gamma(shape a, rate b) prior on λ, the posterior is Gamma(a+x,b+T). Its mean is (a+x)/(b+T). Parameterization matters: some software uses a scale rather than a rate, and confusing them yields incorrect results. Always state distribution parameterization.</p>
-<h3 id="worked-example-gamma-poisson-rate-update">Worked example: Gamma-Poisson rate update</h3>
-<p>Assume a Gamma(2,100) prior for events per person-year, using shape-rate notation; prior mean is .02. Observe 12 events over 500 person-years. Posterior is Gamma(14,600), mean 14/600=.0233 per person-year. The data update prior belief rather than simply reporting 12/500=.024; with more exposure, the posterior mean moves closer to the observed rate.</p>
-<pre><code class="language-r">shape_post &lt;- 2 + 12
-rate_post &lt;- 100 + 500
-c(posterior_mean = shape_post / rate_post,
-  lower = qgamma(.025, shape_post, rate = rate_post),
-  upper = qgamma(.975, shape_post, rate = rate_post))
-</code></pre>
-<p>The prior is illustrative and must be justified against external knowledge. Gamma-Poisson conjugacy assumes a constant rate and Poisson counts; heterogeneity or time-varying rates needs a different model. If prior and current study populations differ, exchangeability is questionable and borrowing should be discounted or modeled hierarchically.</p>
-<h2 id="calibration-prior-predictive-checks-and-conflict">Calibration, prior predictive checks, and conflict</h2>
-<p>Before seeing data, simulate parameters and data from the prior predictive distribution. Ask whether the implied event counts, risks, or treatment effects are plausible. A prior may look weak on the coefficient scale but imply near-certain outcomes over a clinical horizon. After observing data, compare prior and posterior and check for conflict: if the observed likelihood lies in a tail of prior predictive outcomes, investigate population differences, data errors, or prior misspecification. Sensitivity to a robust mixture prior can reduce overconfident borrowing from potentially incompatible historical data.</p>
-<p>Prior predictive checks do not select a prior uniquely; they expose implications for review. Posterior predictive checks then assess whether fitted models can reproduce key data features. Both are necessary because a posterior can be computationally well-behaved while the model fails to represent observed heterogeneity or tail behavior.</p>
-<h2 id="combining-prior-and-evidence-without-double-counting">Combining prior and evidence without double counting</h2>
-<p>Prior information may come from previous trials, registries, or expert elicitation. If historical participants overlap with the current dataset, counting them again as prior evidence double-counts information. If the earlier and current populations differ, a fully exchangeable prior can overstate borrowing. Commensurate or power priors discount historical data according to compatibility; robust mixture priors allow a component with weak borrowing. The model choice should be motivated and sensitivity reported.</p>
-<p>A simple meta-analytic prior for a treatment effect can use a normal distribution centered on prior evidence with variance reflecting both its uncertainty and expected between-study heterogeneity. A very narrow prior implies strong transportability across studies; this should be questioned when eligibility, standard care, outcome definition, or follow-up differ. Plot prior and likelihood on the same scale to reveal conflict.</p>
-<h2 id="decision-thresholds-and-expected-loss">Decision thresholds and expected loss</h2>
-<p>Posterior probability is an input to decisions, not a decision rule by itself. For a binary action with benefit B if disease is treated and harm H if a person without disease is treated, treat when posterior disease probability exceeds H/(B+H) under a simple utility model. If false negatives have substantial harm, the threshold falls; if treatment toxicity is high, it rises. Real decisions can include diagnostic costs, downstream testing, and patient preferences. A threshold chosen for one setting may not be appropriate in another.</p>
-<p>Decision analysis should show how conclusions change across plausible utility values and posterior uncertainty. This connects Bayesian estimation with decision-curve analysis and health economics, while keeping the probability model and preference assumptions distinct.</p>
-<p>In clinical communication, convert posterior probabilities to natural frequencies when useful. A 15.4% probability among positive tests can be described as roughly 15 true cases among 100 positive results under the stated prevalence and test performance. Include the false-positive count and setting so patients understand why the same test result can imply a different probability in primary care and a specialty clinic.</p>
-<p>A posterior probability is conditional on the model being used. If disease prevalence is misspecified, test accuracy is poorly estimated, or the likelihood ignores dependence, the numerical posterior can be sharply wrong despite exact arithmetic. Communicate the inputs and perform sensitivity analysis over plausible prevalence and test-performance ranges. Calibration against outcomes in the intended clinical workflow is necessary before deploying a Bayesian risk estimate as a decision aid.</p>
+<p>A posterior credible interval is conditional on prior and binomial model. If participants are clustered or risk varies, the simple binomial likelihood underestimates uncertainty; use a hierarchical model or beta-binomial variation.</p>
+<h2 id="prior-sensitivity-and-reference-information">Prior sensitivity and reference information</h2>
+<p>Priors should be specified on the parameter scale and justified by prior predictive behavior. A uniform prior on probability is not uniform on log odds or logit scale. An informative prior may be valuable when previous high-quality trials exist, but populations, endpoints, and care standards must be comparable. Discount or robustify historical borrowing when conflict is plausible.</p>
+<p>Show posterior results under at least a defensible primary prior and plausible alternatives when prior influence could matter. Report posterior probabilities for clinically meaningful thresholds rather than only a posterior mean. State whether a prior is skeptical, weakly informative, or based on external data, and explain the source.</p>
+<h3 id="uncertainty-in-sensitivity-and-specificity">Uncertainty in sensitivity and specificity</h3>
+<p>The 90% sensitivity and 95% specificity in the screening example are estimates, not constants. Their uncertainty depends on how many diseased and non-diseased participants were tested. If sensitivity is estimated from 100 diseased people, a few classifications can shift it materially. PPV uncertainty depends jointly on prevalence and test performance. A plug-in Bayes calculation may therefore look more certain than evidence warrants.</p>
+<p>For formal inference, use a joint model for prevalence, sensitivity, and specificity or propagate uncertainty by bootstrap/Bayesian posterior simulation. Preserve the sampling design: case-control diagnostic studies often oversample disease and require separate prevalence information to estimate predictive values. Verification of disease status only among test-positive participants creates verification bias.</p>
+<h3 id="calibration-and-transport">Calibration and transport</h3>
+<p>A predicted probability is calibrated if, among people assigned probability p, approximately fraction p experience the event. Test likelihood ratios and Bayesian posterior risks should be checked in the target setting. A model calibrated in a specialty clinic may overpredict in primary care because prevalence and case mix differ. Recalibration of the intercept may address prevalence shift under assumptions, but changes in sensitivity or disease spectrum require more extensive validation.</p>
+<h3 id="prior-odds-and-evidence-strength">Prior odds and evidence strength</h3>
+<p>With prior probability .01, pre-test odds are about 1:99. An LR+ of 10 gives posterior odds 10:99 and probability about 9.2%, not 10% exactly. Even a strong likelihood ratio may leave low posterior probability when prior risk is tiny. Conversely, a negative result with LR−=.1 can leave substantial risk when prior probability is high. Clinical thresholds should be compared with posterior probability, and additional testing may be warranted.</p>
+<h3 id="likelihood-and-posterior-predictive-checks">Likelihood and posterior predictive checks</h3>
+<p>In Bayesian models, posterior predictive checks simulate replicated data from the posterior and compare features such as event rates, extremes, subgroup patterns, and residual correlations with observed data. Poor fit signals that the likelihood may miss heterogeneity or dependence. A posterior distribution can be numerically precise and still be misleading under model misspecification. Sensitivity to priors addresses only one source of modeling uncertainty.</p>
+<h2 id="communicating-updates">Communicating updates</h2>
+<p>A transparent statement gives prior probability, test result, likelihood ratio or sensitivity/specificity, and posterior probability. If risk is described as “one in N,” convert consistently and specify the population. For treatment models, show posterior interval and probability beyond a clinically relevant threshold, along with prior and model. Separate statistical belief updating from the decision about whether to treat.</p>
+<h3 id="diagnostic-test-uncertainty">Diagnostic test uncertainty</h3>
+<p>The sensitivity and specificity estimates themselves have binomial uncertainty, and prevalence may also be estimated imprecisely. A useful sensitivity analysis varies all three across plausible ranges and recalculates PPV/NPV. For example, a test with fixed sensitivity/specificity may have much lower PPV when prevalence halves. If clinical action depends on a threshold, show whether the posterior probability crosses that threshold across the range rather than reporting a single plug-in estimate.</p>
+<h3 id="calibration-and-subgroup-performance">Calibration and subgroup performance</h3>
+<p>A test’s likelihood ratio can vary by disease severity, age, comorbidity, or setting. Sensitivity measured in severe hospitalized cases may overstate performance in early disease screening. Validate predictive values in the target population or transport using prevalence and spectrum information. A positive result does not have one universal meaning across settings.</p>
+<h3 id="bayesian-decision-threshold">Bayesian decision threshold</h3>
+<p>Suppose treatment is beneficial if disease is present but causes harm if absent. Expected utility can define the posterior probability threshold at which treatment’s expected benefit exceeds expected harm. That threshold depends on outcome values and treatment effects, not just test accuracy. Shared decision-making may alter utilities. Keep clinical decision thresholds distinct from statistical cutoffs such as p&lt;.05.</p>
+<h3 id="prior-probability-and-referral-populations">Prior probability and referral populations</h3>
+<p>A pre-test probability should represent the person’s clinical population before the test. A study that recruits many cases and controls for precision does not preserve disease prevalence; its PPV is not a population PPV. Referral clinics are enriched for disease, so a positive result there has higher predictive value than in community screening. When moving between settings, update using a defensible prevalence and assess whether likelihood ratios transport.</p>
+<h3 id="common-reporting-errors">Common reporting errors</h3>
+<p>Do not say a test is “95% accurate” without defining accuracy as a weighted combination of sensitivity and specificity at a particular prevalence. Do not describe sensitivity as the chance a positive patient has disease. State the denominator and target. For Bayesian analyses, do not call a 95% credible interval a confidence interval or omit the prior that generates it.</p>
+<h3 id="sensitivity-analysis-example">Sensitivity analysis example</h3>
+<p>If prevalence falls from 2% to .5% while sensitivity .90 and specificity .95 remain fixed, PPV becomes .009/(.009+.04975)=15.3%. If specificity improves to .99 at .5% prevalence, PPV becomes .0045/(.0045+.00995)=31.1%. This shows why small specificity changes can strongly affect screening PPV at low prevalence. Treat these as scenarios, not a guarantee: performance may change with disease spectrum and verification method.</p>
+<h3 id="prior-data-conflict">Prior-data conflict</h3>
+<p>A strong prior can conflict with current evidence. In a Bayesian model, report the conflict, inspect data and model fit, and perform sensitivity analyses with weaker or robust priors. Automatically overriding current data with historical information or discarding a prior after observing results undermines the analysis plan. In hierarchical borrowing, quantify how much prior effective sample size contributes.</p>
+<h3 id="clinical-thresholds-and-expected-consequences">Clinical thresholds and expected consequences</h3>
+<p>A posterior probability of 20% can warrant treatment if missed disease is catastrophic and treatment is safe, while a 70% probability may not justify a toxic intervention. Decision threshold depends on relative harms and benefits. Expected utility compares outcomes weighted by their values; diagnostic decision curves express net benefit over threshold probabilities. Bayes supplies updated risk, while utility determines action.</p>
+<h3 id="bayesian-intervals-and-frequentist-calibration">Bayesian intervals and frequentist calibration</h3>
+<p>A 95% credible interval contains 95% posterior probability conditional on prior and model. Its repeated-sampling coverage may be above or below 95% depending on prior and truth. A frequentist 95% confidence interval has long-run coverage under its procedure but not posterior interpretation. Report the framework accurately and assess sensitivity when decisions are high stakes.</p>
+<h3 id="population-transport-and-prior-sensitivity">Population transport and prior sensitivity</h3>
+<p>Predictive values depend on prevalence, but likelihood ratios can also vary with disease spectrum. Recalculate posterior risks across plausible prevalence and accuracy ranges when a test moves from specialty care to screening. In Bayesian parameter analysis, vary prior scale and shape; a prior that looks weak on one parameterization may be informative on another. Report how clinically relevant posterior probabilities change, not merely that a sensitivity analysis was run.</p>
+<h3 id="communication-in-natural-frequencies">Communication in natural frequencies</h3>
+<p>For patient discussions, “about 15 of 100 positive results indicate disease” may be clearer than PPV=.15. Use a denominator appropriate to the decision and explain uncertainty in test performance. Natural frequencies preserve the base rate and help patients understand false-positive follow-up burden.</p>
+<h3 id="updating-clinical-evidence-responsibly">Updating clinical evidence responsibly</h3>
+<p>The prior is an explicit starting point, not a claim of certainty. Current evidence changes it through the likelihood, while model checking and replication determine whether the update is credible. For diagnostic use, show how risk changes across plausible prevalence; for treatment inference, show prior sensitivity and clinically relevant posterior probabilities. Separate the posterior statement from the utility-based decision.</p>
+<h3 id="communicating-posterior-intervals">Communicating posterior intervals</h3>
+<p>A credible interval’s probability statement is conditional on model and prior. If a 95% posterior interval for risk is 3% to 9%, the model assigns 95% posterior probability to that interval. It does not mean 95% of future patients will have risk in that range; that requires a predictive distribution. In counseling, distinguish uncertainty about a population parameter from variability in an individual’s outcome.</p>
+<h3 id="practical-workflow">Practical workflow</h3>
+<p>Define the target population and prior risk; check test performance in a comparable spectrum; calculate posterior risk with a transparent table or odds update; evaluate uncertainty and dependence; then compare with decision thresholds and patient preferences. Reassess calibration after implementation. This workflow keeps a correct equation from being used with mismatched inputs.</p>
+<h3 id="avoid-overconfident-likelihood-multiplication">Avoid overconfident likelihood multiplication</h3>
+<p>In sequential testing, dependence is often hidden by treating each result as new independent evidence. If two tests share the same assay platform or biomarker, their errors may be correlated even after conditioning on disease. Use joint performance data or a model that includes dependence. Multiplying likelihood ratios without this check can produce a posterior probability that is far too high.</p>
+<p>A final report should state the posterior’s conditioning assumptions and whether probability refers to disease, a parameter, or a future outcome; these are distinct targets.</p>
+<p>In high-stakes settings, show alternative prior and test-performance scenarios and explain whether the action decision changes.</p>
+<p>When discussing an individualized posterior risk, specify whether the prior is population prevalence or a patient-specific pre-test probability based on symptoms and history.</p>
+<p>A threshold-based treatment decision should also consider the probability and severity of harms under treatment, not disease probability alone.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li><p>Deeks JJ, Altman DG. <a href="https://doi.org/10.1136/bmj.329.7458.168" target="_blank" rel="noopener noreferrer" class="ext-link">Diagnostic tests 4: likelihood ratios</a>. <em>BMJ</em>. 2004.</p>

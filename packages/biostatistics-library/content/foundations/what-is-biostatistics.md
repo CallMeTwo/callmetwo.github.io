@@ -3,183 +3,126 @@ title: What is biostatistics?
 summary: The branch of statistics applied to biological and medical research — turning messy data into trustworthy evidence.
 ---
 
-## Overview and key ideas
+## Overview
 
-[Biostatistics](https://en.wikipedia.org/wiki/Biostatistics) (also
-[biometry](https://en.wikipedia.org/wiki/Biometry)) is the application of
-statistical methods to biology, medicine and public health. Where general
-statistics develops the mathematics of inference, biostatistics focuses on
-the practical problems of real research: how to design a study, how to
-summarise what was measured, how to quantify uncertainty, and how to report
-findings honestly.
+Biostatistics is the discipline of designing health research and reasoning from its data. It links a scientific question to a study plan, a measurable outcome, an estimand, an analysis, and a conclusion whose uncertainty and limits are explicit. It is not simply a menu of tests: the same dataset can support different answers depending on who was observed, what was measured, and which comparison was intended.
 
-A biostatistician works at every stage of a study:
+A useful way to see the discipline is as a chain of decisions. Researchers define a target population and question; design determines which comparisons are credible; measurement converts clinical concepts into recorded variables; statistical models summarize patterns under stated assumptions; and interpretation asks what those summaries can support in practice. Weakness at an early link cannot usually be repaired by a more elaborate model at the end.
 
-- **Before data collection** — choosing a study design and calculating the
-  sample size needed to answer the question reliably.
-- **During analysis** — selecting appropriate tests, building models, and
-  checking their assumptions.
-- **After analysis** — interpreting results in clinical terms and writing
-  methods and results sections that other researchers can reproduce.
+## Start with the question and target quantity
 
-## When to use it
+Before collecting or analyzing data, specify the population, exposure or intervention, comparator, outcome, and time horizon. For a treatment question, distinguish the effect of assignment from the effect of adherence, and decide whether the target is an average effect, a subgroup effect, or the outcome expected for an individual. These quantities are called estimands. A vague question such as “does treatment work?” does not define which effect is to be estimated.
 
-Any study that draws conclusions from samples rather than whole populations
-relies on biostatistics. Typical settings include:
+Consider a trial that randomizes 200 adults with hypertension, 100 to a new drug and 100 to usual care, and measures systolic blood pressure after 12 weeks. One estimand is the mean difference in 12-week pressure under assignment to the new drug versus assignment to usual care among eligible participants. A different estimand concerns the effect if every participant adhered to treatment. The first follows randomization; the second requires assumptions or additional design because adherence is not randomized.
 
-| Setting | Example question |
-| --- | --- |
-| Clinical trials | Does a new treatment reduce mortality compared with the standard? |
-| Epidemiology | Is exposure to air pollution associated with higher asthma rates? |
-| Screening programmes | How well does this test detect disease in early stages? |
-| Health services research | Does the intervention change wait times or outcomes? |
+Define the outcome in observable terms and identify its denominator. “Hospital complications” might mean at least one complication per person within 30 days, a count of complications, or a time-to-first-event outcome. These choices change both the analysis and the clinical meaning. Specify how deaths, loss to follow-up, and events after treatment discontinuation are handled. Write these decisions in the protocol before inspecting comparative results whenever feasible.
 
-## Assumptions and limitations
+## Design determines the strength of a comparison
 
-Statistical conclusions are only as strong as the data and design behind
-them. Common pitfalls that statistics alone cannot fix:
+Randomization balances measured and unmeasured baseline causes in expectation, making the assigned groups comparable on average. It does not ensure perfect balance in one finite trial, prevent missing outcomes, or guarantee that the intervention was delivered as planned. Allocation concealment, blinding where possible, follow-up, and intention-to-treat analysis protect different links in the inference.
 
-- **Selection bias** — the sample does not represent the population of interest.
-- **Confounding** — a third variable explains the observed association.
-- **Missing data** — incomplete records that change who is being measured.
-- **Overinterpretation** — reading causation into an observational
-  association, or treating a p-value of 0.06 as "nearly significant".
+When randomization is not feasible, an observational design can estimate associations and sometimes support causal inference, but the claim depends on assumptions. Confounding occurs when a common cause of exposure and outcome distorts their relationship. Selection into the study and measurement error can also bias results. Regression adjustment, matching, weighting, instrumental variables, and difference-in-differences answer different questions and require different assumptions; none transforms observational data into randomized data by itself.
 
-### Design, estimand and analysis belong together
+Design also determines dependence. Repeated measurements on one patient, patients clustered within clinics, and matched pairs do not provide the same amount of independent information as an equal number of unrelated observations. Analysis must reflect the sampling and assignment structure. For example, if 1,000 patients come from only 10 clinics, ignoring clinic-level similarity can make standard errors too small and confidence intervals too narrow.
 
-Start with a target population and a question that specifies the comparison,
-outcome and time horizon. The design determines what can be learned: random
-allocation can support a causal treatment contrast under appropriate conduct
-and follow-up, while an observational association requires attention to
-confounding and selection. Before seeing outcomes, an analysis plan should
-state the primary estimand, outcome scale, missing-data approach, subgroup
-analyses and sensitivity checks. Reporting an effect estimate with a
-confidence interval shows its magnitude and precision; neither a small p-value
-nor a complex model repairs poor measurement or a misaligned design.
+## Measurement and data are part of the method
 
-## Worked example
+Clinical constructs such as pain, function, or disease severity are not directly observed in the same way as age. They are represented by instruments, diagnostic criteria, laboratory assays, or coded records. Ask whether the measure captures the intended construct, whether it behaves consistently, and whether its error differs across groups or time. A highly reproducible instrument can still measure the wrong construct.
 
-Suppose a trial randomises 200 patients to a new drug and 200 to placebo.
-After one year, 18 of 200 in the drug group and 30 of 200 in the placebo
-group had the bad outcome. A biostatistician would compare the two event
-rates (9% vs 15%), test whether the difference is likely due to chance,
-estimate the effect size (e.g. relative risk ≈ 0.60), and report a confidence
-interval — not just a p-value — so readers can judge both precision and
-clinical importance.
+Make data definitions reproducible. Record units, allowable ranges, category coding, dates, derivations, and the source of each variable. A value of zero must be distinguishable from “not measured”; dates should be checked against plausible sequences; duplicate records should be resolved by rules set without knowledge of the desired result. Missingness is not automatically harmless. If sicker patients are more likely to miss a follow-up visit, a complete-case mean may describe a selected subset rather than all randomized patients.
 
-## Interpretation and common pitfalls
+A small audit can prevent a large analytic error. Suppose a laboratory result is stored in mg/dL for one site and mmol/L for another. Pooling the raw values creates a site artifact that may look like biological heterogeneity. Unit harmonization and source checks belong before model fitting, with corrections documented so another analyst can reproduce them.
 
-- A non-significant result is evidence of *no detectable effect*, not proof
-  of no effect.
-- Effect sizes matter more than significance: a statistically significant
-  2% improvement may be clinically irrelevant.
-- Always state the population the results apply to.
+## Estimation, uncertainty, and a worked comparison
 
-## From research question to defensible estimate
+An estimate is a data-based summary of a target quantity; uncertainty describes how much the estimate could vary under the study’s sampling process and model. For a simple randomized comparison, let the outcome be change in systolic pressure, with negative values indicating reductions. Suppose mean change is −8 mmHg in the new-drug group and −3 mmHg in usual care. The estimated difference is
 
-Biostatistics is best understood as a chain of decisions, each of which constrains the next. Begin by specifying the target population, the intervention or exposure, the comparator, the outcome, and the time horizon. This operational question determines the estimand: for example, a 12-month risk difference under assignment to treatment versus control among eligible adults. The design then determines what observations are available and which sources of bias require control. Measurement procedures define how the outcome is represented. Finally, the analysis estimates the prespecified contrast and communicates uncertainty. A sophisticated model cannot rescue a mismatch between the question and the observed data.
+\[
+\widehat{\Delta}= -8 - (-3) = -5\text{ mmHg}.
+\]
 
-A useful distinction is descriptive, predictive, and causal work. Description summarizes the observed sample, such as the proportion admitted to intensive care. Prediction estimates outcomes for future individuals and must be judged on data not used to fit the model, with calibration as well as discrimination. Causal inference asks what would have happened under alternative interventions; this requires a design or assumptions that identify a contrast between potential outcomes. The same dataset can support one aim strongly and another weakly. A high predictive accuracy does not demonstrate that changing a predictor will change the outcome.
+If the standard error of the difference is 1.8 mmHg, a rough 95% confidence interval is −5 ± 1.96(1.8), or −8.5 to −1.5 mmHg. This interval expresses sampling uncertainty under the analysis assumptions; it does not say there is a 95% probability that the fixed treatment effect lies in this particular interval. A p-value alone would discard much of the information about plausible magnitude and precision.
 
-The uncertainty statement should match the inferential target. A confidence interval quantifies the long-run behavior of a procedure under repeated sampling assumptions; a Bayesian credible interval summarizes posterior probability conditional on a likelihood and prior. Neither interval incorporates every uncertainty automatically. Measurement error, selection into the study, model misspecification, and unmeasured confounding require separate consideration. Report absolute effects alongside relative measures where possible: a relative risk of 0.75 means a 25% relative reduction, but its absolute meaning depends on baseline risk.
-
-### Worked calculation: two scales of treatment effect
-
-Suppose 18/200 participants assigned a new treatment and 30/200 assigned usual care experience an event by one year. The estimated risks are 0.09 and 0.15. The risk difference (treatment minus control) is −0.06, or 6 fewer events per 100 participants. The risk ratio is 0.09/0.15 = 0.60, a 40% relative reduction. The reciprocal absolute benefit is 1/0.06 = 16.7, often communicated as about 17 people treated for one fewer event over this period, subject to uncertainty and the trial estimand. These summaries answer different questions; reporting only the relative reduction can exaggerate the practical scale when baseline risk is low.
+A reproducible calculation from patient-level data can be made in R:
 
 ```r
-x_t <- 18; n_t <- 200
-x_c <- 30; n_c <- 200
-p_t <- x_t / n_t; p_c <- x_c / n_c
-c(risk_treatment = p_t, risk_control = p_c,
-  risk_difference = p_t - p_c, risk_ratio = p_t / p_c,
-  number_needed_to_treat = 1 / (p_c - p_t))
-# 0.09, 0.15, -0.06, 0.60, 16.67
+# change is follow-up minus baseline; assignment is randomized group
+with(dat, tapply(change, assignment, mean, na.rm = TRUE))
+fit <- lm(change ~ assignment, data = dat)
+confint(fit)
+summary(fit)
 ```
 
-This code computes point estimates only. A report should also give interval estimates and state whether the denominator is randomized participants, treated participants, or person-time. For clustered allocation, repeated outcomes, or censoring, the simple binomial calculation is not the correct uncertainty model.
+For a two-arm randomized study, the coefficient for `assignment` estimates the unadjusted mean difference when the reference level is usual care. Check factor ordering and missingness before interpreting it. If the outcome is skewed, binary, censored, or measured repeatedly, the model and estimand need to match that structure; the simple linear model is an illustration, not a universal default.
 
-### Practical analytic workflow
+Statistical compatibility is not the same as clinical importance. A 5 mmHg average difference may be meaningful for one population and insufficient for another depending on durability, adverse effects, burden, and baseline risk. Conversely, a clinically important estimate may be imprecise in a small study. Interpret the point estimate, interval, outcome definition, and study context together.
 
-Before analysis, inspect the protocol and data dictionary; identify unit, time origin, eligibility, allocation, clustering, repeated measurements, and missingness. Freeze primary outcome definitions and contrasts before examining treatment effects. Summarize missingness by arm and visit, validate ranges against source systems, and use plots to identify coding and distribution issues. Choose a model from the estimand and design, not from the smallest p-value. Check whether conclusions depend on plausible alternative assumptions. Archive code, software versions, data provenance, and decisions so another analyst can reproduce the result.
+## Models summarize data under assumptions
 
-Biostatistical practice is collaborative: clinicians establish meaningful thresholds and plausible mechanisms; data managers document how records arise; statisticians assess identification and uncertainty; patients help define outcomes that matter. The analyst should distinguish an observed association from a causal conclusion and translate the model output back into the population and time frame that motivated the study. References such as CONSORT, STROBE, and the National Academies' reproducibility report provide reporting frameworks, but they complement rather than replace sound design.
+A statistical model is a simplified representation of how observations relate to parameters. Linear regression describes a conditional mean as a linear combination of predictors; logistic regression models log odds; survival models describe event timing while accounting for censoring under specified assumptions. Model choice follows the outcome and design, not a search for whichever method yields a small p-value.
 
+Check whether model assumptions are plausible and whether conclusions depend on them. Diagnostics can reveal nonlinearity, influential observations, separation, poor residual behavior, or calibration problems. Robust standard errors may address certain variance misspecifications but do not repair confounding, selection bias, or a wrong outcome definition. Flexible machine-learning methods can improve prediction in some settings, but they still require leakage-safe validation and do not automatically estimate causal effects.
 
-## Worked example: randomized comparison and uncertainty
+For prediction, define the index time and horizon, ensure predictors are available at that time, and evaluate both discrimination and calibration in data that represent intended use. For causal inference, define the intervention contrast and identification assumptions. Prediction asks who is likely to experience an outcome; causal inference asks what would change under an intervention. Good performance at one task does not establish success at the other.
 
-Use the trial counts above to add uncertainty. Let pT=.09 and pC=.15. The estimated standard error of the risk difference is approximately sqrt[pT(1−pT)/200 + pC(1−pC)/200] = sqrt(.0004095+.0006375)=.0324. A simple Wald interval is −.06±1.96(.0324), or −.123 to .003. The interval includes no difference but also permits a clinically meaningful reduction of about 12 events per 100. A two-sided p-value near .06 would not justify declaring the treatments equivalent. Equivalence needs a prespecified margin and an analysis designed to rule out differences larger than that margin.
+## Evidence stewardship and communication
 
-```r
-p_t <- 18/200; p_c <- 30/200
-rd <- p_t - p_c
-se_rd <- sqrt(p_t*(1-p_t)/200 + p_c*(1-p_c)/200)
-rd + c(-1, 1) * qnorm(.975) * se_rd
-```
+Statistical analysis is one contribution to evidence, alongside clinical judgment, study conduct, measurement quality, and external replication. Prespecify primary outcomes and analysis choices when possible. Distinguish planned analyses from exploratory ones, report all relevant outcomes, and explain deviations. Selective reporting creates a misleading picture even when every individual calculation is correct.
 
-This large-sample Wald interval is pedagogical; score-based intervals generally have better behavior in small samples. For a randomized trial with stratification or clustering, use an estimator and standard error consistent with the randomization design. For censored time-to-event outcomes, a one-year binary risk comparison discards event timing and may mishandle censoring; use survival methods aligned with the estimand.
+Present absolute quantities when they help decisions. A relative risk reduction of 20% means different things when baseline risk is 2% versus 20%. Report denominators, follow-up duration, missingness, and uncertainty. Avoid treating a conventional significance threshold as a boundary between “works” and “does not work.” Protect privacy when publishing small cells or linked data, and document code and data transformations so the analysis can be audited.
 
-Biostatistics also distinguishes type I error, power, and precision. A design may control the long-run false-positive rate at 5% under a null model, but that does not mean a significant finding has a 95% probability of being true. Power is the probability of rejecting a specified null for a particular alternative, conditional on model assumptions. Sample-size calculations require a clinically meaningful effect, outcome variance or event rate, allocation ratio, significance level, desired power, and anticipated missingness. They do not guarantee representativeness or measurement quality.
-
-### Multiplicity, subgroup claims, and model flexibility
-
-When many outcomes, time points, models, or subgroups are examined, the chance of at least one small p-value rises. Prespecification, hierarchical outcome strategies, family-wise error control, or false-discovery control may be appropriate depending on whether claims are confirmatory or exploratory. Subgroup analyses need interaction tests and adequate sample sizes; finding significance in one subgroup but not another is not itself evidence that effects differ. Flexible model selection after inspecting results makes ordinary confidence intervals and p-values too optimistic unless selection is accounted for.
-
-A useful analysis plan names the primary contrast, handling of intercurrent events (such as treatment discontinuation or rescue medication), missing-data assumptions, covariates, multiplicity strategy, and sensitivity analyses. The estimand may be treatment-policy (effect of assignment regardless of discontinuation), per-protocol (effect under adherence assumptions), or another scientifically motivated target. These are distinct questions and can produce different answers. ICH E9(R1) provides a framework for making this explicit.
-
-### Reproducibility and responsible communication
-
-Reproducibility requires more than sharing a p-value. Provide a clear denominator, units, outcome definition, time horizon, effect measure, interval, and enough methods to recreate the analysis. Use version-controlled scripts, immutable raw data, and a record of transformations. Protect privacy and avoid publishing disclosive records. Report deviations from the protocol and distinguish planned from post hoc analyses. Readers should be able to see which conclusions are robust and which depend on assumptions. Biostatistics is most useful when it narrows uncertainty honestly and informs decisions without converting uncertainty into false certainty.
+A concise interpretation should answer: what population and period are represented; what quantity was estimated; how the data and design support that estimate; how uncertain it is; which systematic biases remain possible; and what action, if any, the evidence justifies. This makes the limits legible instead of burying them in a statistical appendix.
 
 
-## Distinguishing association, prediction, and intervention effects
+## Precision, sample size, and the information a study can provide
 
-A measured association describes how variables co-vary in observed data. Prediction asks how accurately information available at a defined time forecasts an outcome in new individuals. A causal estimand compares outcomes under alternative interventions, including counterfactual outcomes that cannot both be observed for one person. These aims lead to different design and validation choices. A prediction model may include variables that are consequences of disease if they are available at the prediction time, while causal adjustment for a post-treatment mediator can remove part of the total treatment effect. The same coefficient cannot be interpreted interchangeably across aims.
+Sample size planning begins with the estimand and design, then asks what precision or power is achievable under plausible assumptions. It is not a search for a magic minimum number. For a two-group comparison of means, precision depends on the outcome variance, allocation ratio, and number of independent participants. With clustering, repeated measures, or unequal sampling weights, the nominal participant count overstates information unless dependence is incorporated. A study with 400 people spread over four clinics may contain less independent information about a clinic-level intervention than a trial with 300 people randomized individually.
 
-For prediction, split data at the patient level so repeat visits from one person do not leak into both training and test sets. In temporal deployment, validate on a later period because coding and clinical practice drift. Evaluate calibration: among people assigned predicted risk 20%, about 20% should experience the outcome over the specified horizon. Discrimination alone, such as AUC, does not ensure accurate absolute risk. For causal work, identify confounders using design and subject-matter knowledge, and assess positivity: each relevant covariate pattern needs a meaningful chance of receiving each compared intervention. Extrapolation into unsupported regions depends heavily on the model.
+For illustration, if a mean difference of 5 units is the smallest clinically important effect and the standard deviation is 10, then the standardized difference is 0.5. A planned two-sided test at 5% significance and 80% power needs a sample size determined by that effect, variance, and allocation; changing the target difference to 2 units increases the required sample substantially. These calculations are conditional on assumptions, including outcome distribution, loss to follow-up, and analysis method. They do not guarantee an informative study if the measurement is unreliable or the intervention is poorly implemented.
 
-### Translating evidence into a decision
+Precision should also be considered for estimation rather than hypothesis testing. If the goal is to estimate prevalence with a 95% margin of error of 3 percentage points, a simple random sample size can be approximated with n = 1.96² p(1−p)/d². At p=0.5 and d=0.03, this is about 1,068 people before accounting for design effects or nonresponse. If prevalence is expected to be 0.1, the corresponding simple-random-sample estimate is about 384. The larger worst-case value protects against uncertainty in p. In real studies, cluster sampling, finite populations, unequal response, and subgroup objectives alter this calculation.
 
-Suppose a treatment lowers an outcome risk from 15% to 9%, but causes an additional adverse event in 2% of people. The treatment may still be preferred, but the risk difference alone is not a complete net-benefit calculation. Decision analysis combines event probabilities with utilities or costs: expected utility under an action is the sum of outcome utility times its probability. Utility weights should reflect patient preferences and time horizon. A statistically precise effect can remain decision-uncertain if preferences or downstream costs vary.
+A conventional power calculation answers a narrow design question under a specified model. It does not measure the probability that the scientific hypothesis is true, and it does not make an underpowered study worthless. Estimates and intervals from small studies can still inform later evidence synthesis, but conclusions should reflect wide uncertainty. Avoid retrospective “observed power,” which is largely a transformation of the p-value and adds no useful information beyond the estimate and confidence interval.
 
-A complete report therefore links the estimate to the action it informs. Identify the population, alternatives, outcome consequences, uncertainty, and assumptions about adherence or competing risks. Avoid translating an average effect into a guarantee for an individual. Explain absolute frequencies with a common denominator and time horizon, e.g. “about six fewer events per 100 treated for one year,” alongside relative effect and uncertainty.
+## Missing observations and incomplete follow-up
 
-## Choosing a measure before fitting a model
+Missing data affect both the amount of information and the population represented by an analysis. First describe the missingness by variable, treatment group, site, and time; then ask why values are absent. Missing completely at random means missingness is unrelated to observed or unobserved values, a strong condition. Missing at random allows dependence on observed information, while missing not at random allows residual dependence on the unseen value. These are assumptions about the data-generation process, not labels that can be proven by a statistical test.
 
-Risk difference is additive and directly conveys excess or prevented cases; risk ratio is multiplicative and often easier to compare across baseline risk; odds ratio is natural to logistic regression but can exaggerate relative risks for common outcomes; rate ratio uses person-time; hazard ratio compares instantaneous hazards among those still event-free. These measures are not interchangeable. A hazard ratio of 0.7 does not generally mean a 30% lower cumulative risk at a fixed time, especially under nonproportional hazards or competing events. The primary estimand should dictate the measure and model, not software defaults.
+Complete-case analysis is unbiased for some targets under restrictive conditions, but it can lose precision and change the analyzed population. Multiple imputation can be useful when its model includes relevant outcome, predictors, design variables, and auxiliary information, with analysis and imputation models aligned. It does not cure unmeasured missingness mechanisms automatically. Sensitivity analysis should examine plausible departures from the primary assumption, such as shifting imputed outcomes in one group by clinically interpretable amounts.
 
-## Choosing an analysis strategy: a compact case study
+In a randomized study, randomization protects baseline comparability, not necessarily post-randomization follow-up. If 15% of the intervention group and 5% of controls lack the primary outcome because of adverse effects, observed outcomes alone can bias the treatment comparison. Report the extent and reasons for missingness, how the primary analysis addresses it, and how conclusions respond to alternative assumptions. For time-to-event outcomes, distinguish administrative end of follow-up from loss to follow-up and consider whether censoring is plausibly independent after conditioning on modeled information.
 
-Imagine a pragmatic trial comparing a new discharge-planning service with usual care on 30-day readmission. The outcome is binary, but the design includes randomization by hospital and some patients may be readmitted more than once. Begin by deciding whether the estimand is the probability of any readmission by day 30, time to first readmission, or total recurrent admissions. For a one-time binary endpoint, calculate the risk in each randomized group and an absolute risk difference; account for site stratification and any cluster allocation in uncertainty. For recurrent events, define whether death terminates follow-up and consider a rate or recurrent-event model. This design question precedes the test choice.
+## Subgroups, multiplicity, and exploratory discovery
 
-The analysis population also matters. An intention-to-treat treatment-policy estimand compares groups as randomized despite discontinuation, while missing 30-day status still needs a strategy. Linkage to an administrative system might reduce missingness but can miss events outside the network. Prespecify adjustment for randomization strata, do not adjust for post-randomization adherence when estimating the total assignment effect, and conduct sensitivity analysis for unobserved outcomes. Report both absolute and relative effects with intervals and the follow-up horizon.
+Subgroup questions should be motivated by clinical reasoning and formulated as comparisons of effects between groups. Finding a statistically significant effect in one subgroup and a nonsignificant effect in another does not establish that the effects differ; the interaction itself needs evaluation. Sparse subgroup data produce imprecise estimates, and repeated searching across many candidate modifiers increases the chance of chance findings. Report subgroup estimates with intervals, identify prespecification, and treat exploratory signals as hypotheses for further study.
 
-This example illustrates why “use a chi-square test” is an incomplete answer. The test alone does not define the endpoint, handle clustering, specify the target effect, or address missingness. A methods section should make each choice understandable and reproducible.
+Multiplicity is broader than the number of p-values in a paper. Researchers may consider multiple outcomes, time points, transformations, subgroups, and analysis choices. Prespecification, transparent reporting, and replication can make exploratory work useful without pretending it was confirmatory. Adjustments such as family-wise error control or false-discovery-rate procedures are appropriate for some families of claims, but do not replace clear definition of the scientific question or effect magnitude.
 
-## Biostatistics and ethical stewardship
+Model selection also creates optimism. If dozens of predictors or cutpoints are explored and the best result is reported, ordinary confidence intervals and p-values ignore the search. For prediction, feature selection and tuning belong within resampling, and final performance should be evaluated in data not used to choose the model. For causal analyses, adjustment variables should be selected from the causal question and design rather than only from automated significance screening; conditioning on a collider can introduce bias even if it improves apparent fit.
 
-Statistical analyses affect clinical recommendations, resource allocation, and public understanding. Avoid selective reporting, outcome switching, and claims unsupported by uncertainty. Do not use statistical significance as a binary gate for whether an effect exists. Protect confidentiality in small cells and linked data; aggregate or suppress values when disclosure risk warrants it. When sharing code, remove credentials and direct identifiers. Document analytic limitations in language that decision-makers can use, including whether uncertainty is sampling-based, model-based, or due to unavailable information.
+## From one study to cumulative evidence
 
-## A checklist for interpreting a result
+Individual studies are pieces of evidence, not final answers in isolation. Systematic reviews assess which studies address a compatible question, how their designs differ, and whether estimates can be combined. A pooled effect can be precise yet misleading if interventions, populations, follow-up, or outcome definitions differ in ways that change the target. Random-effects models describe a distribution of study effects under assumptions; they do not make incomparable studies exchangeable by decree.
 
-Ask: What population and time period does the estimate describe? Was the sample selected in a way that supports this population claim? What exact outcome and denominator were used? Is the reported effect absolute, relative, a rate, or a hazard? What sources of uncertainty are represented in its interval, and what systematic biases are not? Was the analysis prespecified, and how many alternatives were examined? Is the result clinically meaningful, not merely statistically detectable? Would plausible missing-data, measurement, or model assumptions change the conclusion? These questions turn a result into evidence that can be evaluated rather than a number to accept or reject.
+Interpret a synthesis using both the average effect and the spread across studies. A prediction interval can convey the range of effects expected in a new setting when the random-effects assumptions are credible, while certainty assessments also consider risk of bias, inconsistency, indirectness, imprecision, and publication bias. A funnel plot or statistical asymmetry test is a diagnostic, not proof that unpublished negative studies exist. Clinical reasoning, registry searches, and sensitivity analyses matter.
 
-## Common reporting errors to avoid
+A practical evidence statement keeps levels of inference distinct: the observed study estimate; the causal or predictive claim supported by design and assumptions; the target settings to which results may transport; and the decision implications given benefits, harms, costs, and preferences. This structure avoids the common jump from “the coefficient is significant” to “the intervention should be adopted.”
 
-Do not equate a p-value with the probability that the null hypothesis is true, or a confidence interval with the range containing most individual values. Do not report a relative effect without baseline risk when an absolute interpretation matters. Do not call an association causal because a regression included many covariates. Do not infer no effect from a non-significant result when the interval still includes important benefit or harm. State who was studied and when; specify whether the effect is average, conditional, or individualized. These distinctions are central to responsible evidence use.
+## A reproducible analysis is an auditable argument
 
-## Role of uncertainty in evidence synthesis
+Reproducibility requires more than code that runs. The data dictionary should define units and derived variables; the analysis plan should identify the primary outcome and estimand; code should record transformations and model choices; and outputs should be linked to the analysis version. A clean computational environment, versioned dependencies, and synthetic examples help others rerun the workflow without exposing confidential records. When full data cannot be shared, provide sufficient documentation and controlled access procedures where appropriate.
 
-A single study contributes an estimate with uncertainty; systematic reviews combine results while considering differences in populations, interventions, outcomes, and risk of bias. A narrow interval within one study does not resolve heterogeneity across settings. Meta-analysis can improve precision for a shared estimand, but pooling unlike outcomes or incompatible designs creates a precise average with unclear meaning. Biostatistics helps make these decisions explicit, from study-level estimators through heterogeneity models and prediction intervals for effects in new settings.
+Analytic decisions should be visible in the report: exclusions, missing-data handling, deviations from protocol, model diagnostics, and sensitivity analyses. A reproducible pipeline can still produce a biased answer if its design assumptions are weak, so auditability and validity are complementary. Conversely, an apparently sound conclusion that cannot be checked is difficult to trust or extend.
+
+The final communication should let a reader reconstruct the reasoning from question to result. State the study design, target population, outcome, effect measure, time horizon, sample size, and uncertainty. Separate prespecified results from exploratory analyses. Explain what remains unknown and what additional evidence would change the decision. Those practices make statistical work useful beyond the analyst’s immediate calculation.
+
+Statistical reasoning also benefits from domain collaboration. Clinicians clarify what outcomes and effects matter; data managers explain how records were generated; patients and communities identify burdens and meaningful endpoints; and statisticians make the inferential consequences explicit. A shared vocabulary helps each contributor detect mismatches between the clinical question, the available data, and the conclusion being proposed.
 
 ## References and further reading
 
 - National Academies. [Reproducibility and Replicability in Science](https://doi.org/10.17226/25303). 2019.
 - STROBE Initiative. [Reporting guidance for observational studies](https://www.strobe-statement.org/).
 - CONSORT. [CONSORT 2025 statement](https://doi.org/10.1136/bmj-2024-081123). *BMJ*. 2025.
-
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
-  and Other Advanced Topics*. Brooks/Cole.
-- See also: the [Confidence intervals](../inference/confidence-intervals.html)
-  article in the *Statistical inference* section.
+- Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
+- See also [Confidence intervals](../inference/confidence-intervals.html) in the *Statistical inference* section.

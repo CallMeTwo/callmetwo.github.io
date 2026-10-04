@@ -3,145 +3,162 @@ title: Systematic reviews
 summary: A structured, reproducible method for locating, appraising and synthesising all relevant studies on a clinical question.
 ---
 
-## Overview and key ideas
+## Overview
 
-A systematic review answers a clearly formulated question by locating *all* relevant studies through a comprehensive, pre-specified search, selecting them against explicit eligibility criteria, appraising their risk of bias, and summarising the results. What distinguishes it from a narrative review is not the effort but the *process*: every step — search strings, databases, inclusion rules, quality checks — is documented before results are seen, so another team could repeat the work and reach the same study set.
+A systematic review uses explicit, reproducible methods to identify, select, appraise, and synthesize studies addressing a focused question. It differs from a narrative overview because eligibility, search, screening, data extraction, and synthesis decisions are documented in advance. A review can be systematic without a meta-analysis; pooling is appropriate only when studies estimate sufficiently compatible quantities.
 
-The standard workflow is: (1) frame a focused PICO-style question; (2) write the protocol, ideally registered (e.g. PROSPERO); (3) run the documented search across databases and grey literature; (4) screen titles/abstracts, then full texts, usually with two independent reviewers; (5) extract data and assess risk of bias (e.g. the Cochrane Risk of Bias tool for trials); and (6) synthesise narratively — or quantitatively via meta-analysis when the studies are similar enough to pool.
+A review is a research study with its own risks of bias. Incomplete searches, selective eligibility, data extraction errors, and unjustified pooling can mislead even when the included trials are well conducted. The protocol, audit trail, and careful interpretation are part of the evidence.
 
-The final product should be reportable step by step, and most teams use the PRISMA checklist to ensure none of the steps — including how disagreements between reviewers were resolved and who funded the review — is left out of the report.
+## Shape the question and eligibility
 
-## When to use it
+Define population, intervention or exposure, comparator, outcomes, design, setting, and follow-up. For diagnostic reviews, specify index test, reference standard, target condition, and participant spectrum. For qualitative or mixed-method reviews, use frameworks suited to those questions rather than forcing PICO. Eligibility criteria should distinguish the scientific scope from convenience restrictions such as language or publication status.
 
-| Setting | Example question |
-| --- | --- |
-| Clinical guideline development | What is the comparative effectiveness of biologic agents in moderate-to-severe Crohn's disease? |
-| Pre-surgical decision support | Does routine intraoperative antibiotic prophylaxis reduce infection after spine surgery? |
-| Drug safety | What is the risk of tendon rupture with fluoroquinolones in adults over 60? |
-| Resource allocation | Is home-based telemonitoring cost-effective for heart failure follow-up? |
+Choose primary outcomes and time points before screening. A single study may report multiple scales, analyses, and follow-ups. Specify which result is eligible and rules for selecting among them. Define unit of inclusion: report, study, trial, cohort, or dataset. Several publications can describe the same participant sample; treating them as independent studies double counts evidence.
 
-## Assumptions and limitations
+Register a protocol where appropriate and document amendments with dates and rationale. A protocol reduces outcome and analysis switching but cannot anticipate every issue. Transparent deviations are preferable to pretending the plan was unchanged.
 
-- **What you do not find, you cannot use** — the review is only as complete as its search; unindexed, unpublished and non-English studies (the "grey literature") are systematically missed, which biases results toward published, positive trials.
-- **Eligibility is a choice, not a fact** — excluding studies after seeing their results (e.g. dropping small trials that hurt the conclusion) invalidates the review; criteria must be fixed in the protocol.
-- **Garbage in, garbage out** — pooling high-bias studies gives a precise estimate of the wrong quantity; the risk-of-bias appraisal must feed the conclusions, not just a table.
-- **Staleness** — evidence moves; a review is a snapshot, and for fast-moving fields it should be treated as a date-stamped summary rather than a permanent verdict.
+## Search architecture and reproducibility
 
-## Worked example
+Search multiple bibliographic databases and relevant registries. Tailor controlled vocabulary and free-text terms to each platform. Search reference lists, citation indexes, trial registries, and grey literature where relevant. Database coverage and indexing differ, so a single broad Google-style query is rarely comprehensive.
 
-Question: does early goal-directed therapy (EGDT) reduce mortality in septic shock, or has it been superseded by bundle care? A team registers a PROSPERO protocol, searches MEDLINE, Embase and CENTRAL (plus trial registries and reference lists) through a fixed date, and applies pre-set inclusion rules: adult ICU trials, EGDT versus usual or bundle care, all-cause mortality at 28 days. They screen 1,240 records, read 94 full texts, and include 7 RCTs. Two reviewers independently extract outcomes and flag 4 trials with unclear allocation concealment. The narrative synthesis concludes that EGDT does not outperform structured bundle care on 28-day mortality — consistent with the large PROCESS trial — so the intervention is not adopted, even though early small trials had suggested a mortality benefit.
+A search strategy balances sensitivity and precision. Synonyms, spelling variants, brand and generic names, population terms, and indexing changes matter. Avoid unnecessary design filters that may miss eligible studies. Record database name, platform, complete strategy, date searched, limits, and number retrieved. Save exported records and deduplication decisions.
 
-Interpretation: the same clinical question, asked decades apart, produced opposite answers; only by pulling *all* the trials — including the larger, negative ones the earlier reviews never contained — could the field move on. That shift from hopeful small studies to null large trials is exactly what a systematic review is built to reveal, and it is why its conclusions carry so much weight.
+A librarian or information specialist can improve search coverage. Pilot the strategy against known eligible studies. Update searches before publication when evidence changes quickly. Automated text mining can prioritize screening, but should be validated and transparent; it does not justify omitting records without an established process.
 
-## Interpretation and common pitfalls
+## Screening and study flow
 
-- Treating a systematic review as automatically "the best evidence": if it includes only biased trials, or missed key studies, its summary can mislead just like a single poor trial.
-- Ignoring the risk-of-bias table: a pooled estimate from several high-risk trials is a precise estimate of a questionable quantity, not a reliable effect.
-- Assuming the search is exhaustive: if the review did not include grey literature or non-English work, the result set may be skewed toward positive findings.
-- Reading an older review as current: check the search date and any subsequent updates before basing a decision on it.
-- Assuming the review's included studies answer the exact question your patient raises; if eligibility criteria excluded, say, comorbid kidney disease, the conclusion may not transfer to a patient with it — the protocol's criteria define the answer's scope.
+Use two independent reviewers for title/abstract screening and full-text eligibility when feasible, with a prespecified conflict-resolution procedure. Pilot criteria on a sample and refine ambiguous definitions before full screening. Record full-text exclusion reasons and show the flow from identified records through studies included. A report-level flow is not a study count when multiple reports describe one study.
 
-Define eligibility and outcomes before searching, and publish a protocol where feasible. A complete search is reproducible only when databases, platforms, dates, full strategies, language restrictions, and supplementary sources are reported. Duplicate independent screening and extraction reduce errors; resolve disagreement by a documented process. Risk-of-bias assessment is study- and outcome-specific, and certainty of evidence is not the same as statistical significance or the pooled estimate. PRISMA improves reporting transparency but does not guarantee that the review methods are unbiased.
+Screening software can manage duplicates and decisions. Machine-learning prioritization may reduce workload if recall is monitored, but stopping early can miss relevant records. Report software and human oversight. Conflicts should be resolved using eligibility criteria rather than an informal preference for including or excluding an inconvenient result.
+
+## Extraction, verification, and risk of bias
+
+Extract study design, participants, setting, intervention, comparator, outcomes, follow-up, analysis, and results in a structured form. Define rules for multiple arms, adjusted estimates, missing summary statistics, and time points. Pilot extraction and independently verify critical outcome data, especially for large or influential studies. Contact authors where appropriate and document responses.
+
+Assess risk of bias using a design-specific tool. Randomized trials require evaluation of randomization, deviations, missing outcomes, measurement, and selective reporting. Observational studies need attention to confounding, selection, exposure classification, and outcome measurement. A quality score that adds domains into one number can obscure which bias threatens a particular result. Use domain judgments and explain how they affect synthesis.
+
+Outcome data can be extracted incorrectly through digitization, conversion, or transcription. Keep source page, table, and calculation notes. If a graph is digitized, preserve values and uncertainty about extraction. For shared controls or multi-arm studies, account for dependence rather than double counting the comparator group.
+
+## Synthesis decision and worked example
+
+Before pooling, confirm studies estimate a compatible effect for a sufficiently similar population, intervention, comparator, outcome, and time. A meta-analysis of risk ratios from comparable trials may be meaningful; combining odds ratios, hazard ratios, and risk differences without transformation changes the estimand. Clinical and methodological heterogeneity should be assessed before statistics.
+
+Suppose two trials report log risk ratios −0.20 and −0.35 with standard errors 0.10 and 0.15. Fixed-effect inverse-variance weights are 1/0.10²=100 and 1/0.15²=44.4. The pooled log ratio is [100(−.20)+44.4(−.35)]/144.4≈−.246, corresponding to RR≈0.78. This calculation assumes a common underlying effect and independent study estimates. It does not establish that pooling is clinically justified.
+
+If studies are too heterogeneous or outcome definitions incompatible, provide a structured narrative synthesis with tables and explain why pooling was inappropriate. Vote counting based on statistical significance is not a substitute: it ignores effect magnitude and precision. Synthesis may include ranges, direction, contextual differences, and certainty judgments.
+
+## Meta-analysis and heterogeneity
+
+A fixed-effect model estimates a common effect under assumptions; a random-effects model estimates an average across a distribution of study effects. Random effects do not make incompatible studies comparable. Report τ² and consider prediction intervals where meaningful. With few studies, heterogeneity estimates and random-effects intervals are unstable.
+
+Explore heterogeneity using prespecified subgroup hypotheses or meta-regression when enough studies support it. Study-level associations are ecological and may not represent patient-level effect modification. Avoid fitting many moderators to a small set of trials. Sensitivity analyses can examine risk-of-bias restrictions, alternative effect measures, and influential studies.
+
+Publication bias and selective dissemination can make available studies unrepresentative. Funnel plot asymmetry is not proof of publication bias; small-study effects can arise from heterogeneity, methodological differences, or chance. Search registries, compare protocols and publications, and use sensitivity analyses. Report what evidence may be missing.
+
+## Certainty and implications
+
+Certainty assessment considers risk of bias, inconsistency, indirectness, imprecision, and publication bias. A statistically precise pooled estimate can still be low certainty if studies are biased or indirect. A wide interval may include both meaningful benefit and harm. Separate certainty in the effect estimate from recommendations, which also involve values, resources, feasibility, and equity.
+
+Interpret average effects with clinical context and baseline risk. Relative effects can translate into different absolute effects across settings. State whether evidence applies to the population and intervention under consideration. Do not frame a non-significant result as proof of no effect unless the interval excludes important effects under a justified margin.
+
+## Reporting a review others can reproduce
+
+Follow PRISMA 2020 and provide protocol registration, eligibility criteria, full search strategies, screening process, extraction methods, risk-of-bias tool, synthesis decisions, and flow diagram. List excluded full texts with reasons and identify multiple reports of the same study. Provide data and code where permitted. Disclose conflicts and funding.
+
+Separate prespecified analyses from exploratory ones. Explain amendments, unavailable data, and any synthesis that could not be performed. Report effect estimates with intervals, heterogeneity, prediction intervals where appropriate, certainty, and limitations. A transparent review is useful even when it concludes that evidence cannot be pooled.
+
+### Protocol registration and amendment discipline
+
+A protocol specifies what question will be answered and how. Registering it makes the planned eligibility, outcomes, synthesis, and subgroup analyses visible to readers. Registration does not guarantee good methods and should not replace a full protocol. For living or rapidly changing evidence, include an update plan and version history.
+
+Amendments can be necessary when outcomes are not reported as expected, study designs differ from anticipated, or new evidence changes the question. Record amendment date, reason, and whether it preceded data extraction or analysis. Distinguish a decision made to resolve a technical issue from one made after seeing effect estimates. The latter may still be scientifically defensible but is exploratory and should be labeled.
+
+Prespecify rules for multiple reports, overlapping cohorts, time points, outcome scales, adjusted estimates, and missing data. A rule such as “select the most adjusted model” may not be appropriate if covariates differ or adjustment includes mediators. Define a hierarchy based on causal relevance and data availability, and test sensitivity to alternate eligible results.
+
+### Search sensitivity and update
+
+Search strategy should be reproducible line by line, including subject headings, field tags, Boolean logic, limits, and dates. Translate the strategy to each database rather than copying syntax mechanically. Validate retrieval against sentinel studies known to meet eligibility. If a sentinel is missed, investigate whether terms, indexing, or database coverage need adjustment.
+
+Report duplicate removal. Deduplication can be automated but false matches can merge distinct studies and missed matches can create redundant screening. Preserve identifiers and counts before and after deduplication. Citation chasing can find studies missed by indexing but should be documented with date and method. Trial registry searches may uncover completed but unpublished research; record registry and search fields.
+
+Searches become stale. Update before submission or decision use, particularly for fast-moving topics. A living review requires monitoring, versioned methods, and a clear process for updating screening, risk of bias, synthesis, and conclusions. Automated alerts and classifiers can prioritize new records, but humans should monitor missed eligible records and record recall.
+
+### Screening reliability and adjudication
+
+Two reviewers can interpret eligibility differently, especially for broad constructs, mixed populations, or outcomes with varying definitions. Pilot screening on a diverse sample, discuss disagreements, and clarify criteria before large-scale work. A kappa statistic can describe agreement but is affected by prevalence; report raw agreement and the nature of disagreements too. High agreement does not prove criteria are valid.
+
+At full text, record a primary exclusion reason using a prespecified hierarchy, such as wrong population, design, intervention, or outcome. If multiple reasons apply, a hierarchy prevents inconsistent counts. Maintain a link from each report to the underlying study. Use a flow diagram that distinguishes records, reports, and unique studies.
+
+Machine-assisted screening may order records by predicted relevance. If reviewers stop after a threshold, estimate missed-record risk and continue monitoring low-ranked records. Train and validate prioritization on a representative set, document software and stopping rules, and preserve a human-auditable record. Automation can reduce workload but does not eliminate selection bias.
+
+### Data extraction, conversions, and missing information
+
+A pilot extraction form should specify effect measure, group denominators, analysis population, follow-up, and variance data. Two extractors can independently extract primary outcomes or one can extract with independent verification. Resolve inconsistencies against source documents and retain page, table, and figure references. A data table should distinguish reported values from analyst-derived quantities.
+
+Conversions can introduce assumptions. Standard deviations may be reconstructed from standard errors, confidence intervals, or p-values; medians may be converted to means using distributional assumptions. If such methods are necessary, identify formulas and perform sensitivity analysis. Do not treat estimated variance as directly reported. For cluster trials, adjust for clustering if the published estimate ignores it; obtain ICC assumptions and test alternatives.
+
+When study data are missing, contact authors or search protocols, registries, and supplements. Report attempts and nonresponse. Do not substitute zero for an unreported outcome. If only a subset of outcomes is available, assess selective reporting risk. Narrative synthesis may be more honest than imputation across incompatible studies.
+
+### Choosing synthesis without pooling
+
+A structured narrative synthesis should group studies by clinically relevant characteristics, summarize design and risk of bias, and explain patterns in effect direction, size, and precision. It should not count how many studies are statistically significant. A forest plot can display estimates without a pooled diamond, allowing comparison while signaling that synthesis was not appropriate.
+
+Tables should include outcome definitions, follow-up, population, intervention, and result scales. Explain heterogeneity sources and avoid ranking interventions from indirect comparisons unless network methods and transitivity assumptions are justified. If studies use incompatible metrics, report them separately or transform only when necessary assumptions are credible.
+
+Certainty can be downgraded for inconsistency even when a pooled estimate is precise. Conversely, substantial statistical heterogeneity does not always mean effects differ in a clinically important way. Interpret the magnitude and context, not only an I-squared threshold. A prediction interval may be wide and more relevant to a new setting than the mean effect.
+
+### Meta-regression and subgroup hypotheses
+
+Study-level meta-regression associates effect estimates with study characteristics, such as mean age or intervention intensity. It is vulnerable to ecological bias: a relationship across study averages may not hold for individuals. With few studies, coefficients are unstable and multiple moderator searches produce false discoveries. Prespecify a small set of plausible moderators and treat results as exploratory.
+
+Subgroup analyses should be based on hypotheses that predict different effects, not on whether one subgroup is statistically significant. Within-study interaction evidence is preferable to comparing separate study subsets. Report interaction estimates and intervals. If subgroup data are absent or inconsistent, state that effect modification cannot be evaluated.
+
+### Risk of bias and sensitivity analysis
+
+Assess bias at outcome/result level when different outcomes within a study have different measurement or missingness. For randomized trials, consider randomization, deviations, missing data, measurement, and selective reporting. For observational studies, evaluate confounding and selection mechanisms. Use domain-level judgments with justifications; do not sum items into an unvalidated quality score.
+
+Sensitivity analyses can exclude studies at high risk of bias, vary correlation assumptions, choose alternate eligible time points, or test different synthesis models. These are meaningful only when motivated and reported fully. A robustness check does not prove absence of bias; it indicates whether conclusions change under specified alternatives.
+
+### Diagnostic reviews and network comparisons
+
+Diagnostic test reviews often require bivariate or hierarchical models to account for the correlation between sensitivity and specificity and threshold variation. Pooling sensitivity and specificity independently can produce incoherent summaries. Spectrum, reference-standard quality, and threshold differences are central. Assess patient flow and verification bias, and show a summary ROC curve or clinically meaningful operating points.
+
+Network meta-analysis compares multiple interventions using direct and indirect evidence. It requires transitivity: distributions of effect modifiers should be sufficiently comparable across comparisons. Inconsistency between direct and indirect evidence should be explored. Rankings alone are unstable and can obscure uncertainty; report effects and intervals, certainty, and assumptions.
+
+## Reproducibility and conflicts
+
+Keep a dated search log, screening decisions, extraction file, risk-of-bias judgments, analysis scripts, and change record. Use version control for code and a controlled data repository for extracted study-level information. Reviewers should disclose conflicts, funding, and relationships that may influence eligibility or interpretation. Independent adjudication can strengthen controversial decisions.
+
+Data and code sharing improves verification, but copyright, licensing, and publisher restrictions may limit full-text redistribution. Share citations, extraction schemas, code, and derived data where allowed. Document inaccessible reports and unresolved ambiguities. A reproducible workflow lets readers understand not only what was included but how reasonable alternatives might change the conclusion.
+
+## Communicating evidence for decisions
+
+Conclusions should be proportional to certainty and applicability. Identify populations and settings with direct evidence, those requiring extrapolation, and outcomes not studied. Present absolute effects using relevant baseline risks when possible. Explain whether a recommendation also depends on values, resources, feasibility, and equity. Avoid converting low-certainty pooled averages into categorical claims.
+
+A systematic review can be valuable when it finds that studies are too heterogeneous to pool or that evidence is absent. State the uncertainty and what studies would resolve it: better outcome standardization, longer follow-up, representative recruitment, or prospective validation. Evidence gaps are findings, not failures of the review.
+
+### Living review governance
+
+For an updateable review, define who monitors new evidence, how often searches run, and what change triggers reanalysis. Maintain versioned conclusions and distinguish evidence added at each update. A living process needs resources for screening, extraction, risk-of-bias assessment, and statistical review; an automated alert alone is not an update.
+
+When conclusions change, explain whether this reflects new studies, corrected data, altered methods, or changed clinical context. Notify users of prior versions where feasible and archive previous reports so decisions can be audited.
+
+Report the date of the last search prominently so readers can judge currency. Distinguish certainty in each outcome from the overall impression of a review, and identify whose perspective informed the question and interpretation.
+
+State whether protocol registration occurred before screening and provide the identifier. If unavailable, disclose that limitation and make the methods and amendments public where possible.
+
+Document any unavailable full texts, author contacts, and unresolved data questions that may affect inclusion or synthesis.
+
+Interpret findings with clinical, methodological, and population context rather than a pooled estimate alone.
+
+Avoid overstating certainty when evidence is indirect or incomplete.
+
+### Review update implications
+
+State the last search date and whether evidence published after that date could materially change the conclusion. For time-sensitive decisions, plan a search update before applying recommendations.
 
 ## References and further reading
 
-## Protocol, eligibility, and search architecture
-
-## Search sensitivity, precision, and reproducibility
-
-## From review question to analytic framework
-
-Eligibility criteria should be operational enough that two reviewers can apply them consistently. Define design restrictions, minimum follow-up, intervention dose, comparator, setting, outcome construct, and allowable study report types. Avoid outcome-driven inclusion decisions after seeing results. For broad questions, use a framework such as PICOS; for diagnostic reviews, define index test, target condition, reference standard, and intended clinical role; for prognosis, define population at risk, prognostic factor/model, outcome, and prediction horizon.
-
-Specify the primary estimand and synthesis strategy before extracting effects. For interventions this may be assignment effect at 12 months; for diagnostic tests, sensitivity/specificity at thresholds; for prognosis, calibration and discrimination at horizon. Decide how to handle multiple reports, arms, time points, and adjusted versus unadjusted estimates. Prefer estimates aligned with the causal question, but do not select the most favorable model.
-
-## Data extraction and verification
-
-## Search update and automation risks
-
-## Protocol deviations and transparent decisions
-
-Common deviations include adding outcomes after seeing studies, changing eligibility to enable pooling, or switching effect measure because one is significant. Maintain a dated amendment log with reason, timing, and whether results were known. Distinguish clarifications that do not affect evidence from analytic changes that can alter conclusions. Protocol registration improves transparency but does not eliminate selective decisions; compare final methods with protocol and explain differences.
-
-## Interpreting evidence for decisions
-
-A systematic review synthesizes evidence but does not itself guarantee certainty or applicability. Assess whether included populations, care settings, baseline risks, and intervention delivery match the decision context. Translate pooled effects to absolute effects for the target population and horizon, and discuss harms, resource use, equity, and patient preferences. When evidence is low certainty, recommendations should reflect uncertainty rather than present a pooled estimate as settled truth.
-
-Automated deduplication and screening tools can improve efficiency but may merge distinct reports or miss records due to metadata variation. Retain original citation IDs and audit a sample of deduplication decisions. Machine-learning prioritization can order records but stopping after a fixed number of irrelevant citations risks missed eligible studies; define validation/recall safeguards. Record software, version, and human oversight. Search automation should not obscure reproducible search strings.
-
-When updating a review, search from the last search date with validated strategy and rerun deduplication against prior records. Screen new records under the same criteria, reconcile amendments, and update PRISMA flow. If the review conclusion changes, explain which new evidence drove the change and whether synthesis methods remained constant.
-
-## Review bias and conflicts
-
-## Evidence tables and data visualization
-
-Archive protocol, search exports, screening decisions, extraction sheets, risk-of-bias judgments, and analysis code with version identifiers. This audit trail is essential when reviewers ask how a particular estimate or exclusion was derived.
-
-## Protocol registration and amendments
-
-Register the review protocol before screening where possible. Include eligibility, search strategy, outcomes, synthesis plans, and risk-of-bias tools. Amendments may be necessary as the evidence landscape becomes clear, but date them and explain whether knowledge of results could have influenced the choice. Compare protocol, registration, and final report systematically. If a planned meta-analysis is not performed because studies differ, explain why; if an unplanned synthesis is added, label it exploratory.
-
-Registration does not ensure quality or prevent duplication. Check for existing reviews and explain how the new question differs. For living reviews, version the protocol and document update procedures. Share search strings and extraction templates to support replication.
-
-Evidence tables should summarize study population, design, intervention/comparator, outcomes, follow-up, effect estimate, and risk of bias. Keep outcome time points explicit and avoid combining incompatible scales. Summary-of-findings tables show baseline risk, absolute effect, relative effect, participants/studies, certainty, and key footnotes. Forest plots should display study-level data and pooled estimate; harvest or effect-direction plots can help when pooling is not defensible. Visuals should not replace a transparent narrative of heterogeneity and limitations.
-
-Use consistent direction of benefit across outcomes and document conversions. Data extraction from figures should be flagged as estimated. Provide supplementary tables with all included studies and excluded full texts, as permitted. A reader should be able to trace each conclusion back to underlying evidence.
-
-Review authors' eligibility and interpretation decisions can be influenced by prior views or funding. Disclose conflicts and funding, use independent screening/extraction, and consider external peer review of protocol and search strategy. Industry-funded trials may differ in comparators and reporting; assess trial-level funding as context but do not substitute it for domain-based risk-of-bias assessment.
-
-Pilot a structured extraction form on several studies. Extract arm-level denominators, events, means/SDs, adjusted estimates, covariate sets, follow-up, and missingness. Capture page/table/figure source for every number and note whether values were digitized from plots or derived. Double-check critical outcomes independently. Contact authors for clarifications and log attempts. Harmonize units and direction with a reproducible transformation script while retaining original values.
-
-When studies report multiple adjusted estimates, choose according to a prespecified hierarchy (e.g. most fully adjusted without post-treatment mediators) and extract covariate set. Mixing adjusted and crude estimates can create heterogeneity. For cluster trials, adjust for intracluster correlation; for crossover, use paired variance; for multi-arm studies, account for shared comparators. The review analysis should respect the original design.
-
-## Synthesis without pooling
-
-When meta-analysis is inappropriate, structured synthesis should still compare study effects and uncertainty. Organize by intervention/comparator, outcome, setting, and risk of bias; describe direction and magnitude rather than count how many p-values are below .05. Vote counting by significance is misleading because power differs. Tables and visual displays such as harvest plots or effect-direction plots can summarize patterns, but avoid discarding intervals and sample size.
-
-Use SWiM reporting guidance when synthesis without meta-analysis. Explain grouping, prioritization, metric, and how evidence was synthesized. State why pooling was not appropriate and what can/cannot be concluded. Qualitative synthesis does not mean informal narrative; it still needs transparent methods.
-
-Search strategies trade sensitivity against precision. For intervention reviews, broad synonyms and controlled vocabulary reduce missed records; overly restrictive filters for randomized design or human studies can omit poorly indexed records. Validate search strings against a set of known relevant studies and ask an information specialist to peer-review the strategy (PRESS). Record database platform because syntax and indexing vary. Deduplicate records reproducibly and preserve both original and deduplicated exports.
-
-Update searches immediately before final synthesis if publication delay is long. Use trial registries and regulatory sources to find unpublished outcomes, and cite search dates. Citation chasing can find reports not captured by terms but is not a substitute for systematic database search. Contact authors for missing details using a standard, documented process.
-
-## Screening reliability and adjudication
-
-Two reviewers reduce erroneous exclusion, especially at full text. During pilot screening, calculate agreement only as a process check; kappa is prevalence-sensitive and is not a quality score. Resolve disagreement through discussion using written eligibility rules, then third-review adjudication if unresolved. Maintain a decision log when criteria are clarified. Screening software can prioritize records but human verification and transparent stopping rules remain necessary.
-
-Full-text exclusion reasons should be mutually exclusive and assigned consistently. One report may describe multiple studies; link reports to studies so participants are not double-counted. Conversely, one study may have multiple publications with distinct outcomes or follow-up; consolidate them under a study identifier before extraction.
-
-## Certainty, evidence profiles, and conclusions
-
-GRADE certainty applies to a specific outcome and body of evidence, not an article's overall quality. Imprecision considers whether intervals include materially different decisions; inconsistency considers magnitude/direction and plausible explanations; indirectness considers population/intervention/outcome alignment; publication bias considers missing evidence. Absolute effects should use an appropriate baseline risk and horizon, with assumptions stated. A strong recommendation cannot be inferred mechanically from high certainty; values, resources, equity, and feasibility matter.
-
-Conclusion language should match certainty. “Evidence suggests” and “we are uncertain” are often more accurate than definitive causal claims from low-certainty observational studies. Highlight evidence gaps and applicability, not only pooled significance. Explain whether recommendations are author interpretations or formal guideline panel judgments.
-
-A systematic review starts with a protocol that defines the question, population, interventions/exposures, comparators, outcomes, study designs, setting, and follow-up. A PICO question is a useful scaffold but may need extensions for diagnostic, prognostic, qualitative, or economic evidence. Specify primary versus secondary outcomes, time points, effect measures, subgroup hypotheses, and synthesis plans. Register in PROSPERO when eligible or publish a protocol; amendments should be dated and justified before results are known where possible.
-
-Search at least two relevant bibliographic databases and add trial registries, grey literature, reference lists, and citation tracking according to topic. Combine controlled vocabulary and free-text synonyms, adapt syntax to each platform, and seek information specialist review. Report exact strategies, dates, limits, and deduplication. A search ending years before publication can miss emerging evidence; update searches before final synthesis. Language restrictions and publication filters can introduce selection bias and should be justified.
-
-## Screening, extraction, and risk of bias
-
-Use two independent reviewers for title/abstract and full-text screening or a documented alternative with verification. Resolve disagreement through consensus or a third reviewer. Maintain reasons for full-text exclusion and present PRISMA flow counts. Pilot screening criteria and data extraction on diverse records to refine ambiguous definitions before full abstraction. Extract study design, setting, sample, interventions, outcome definitions, follow-up, analysis, funding, and conflicts, as well as numerical data needed for effect estimates.
-
-Risk-of-bias tools are design-specific: RoB 2 for randomized trials, ROBINS-I for nonrandomized intervention studies, QUADAS-2 for diagnostic accuracy, and QUIPS for prognostic studies. These assess domains tied to a result, not a single vague quality score. Assessors should judge each domain using supporting quotations and rationale. Risk-of-bias assessments inform certainty and sensitivity analyses; excluding all high-risk studies is not automatically appropriate because it may change the question and reduce evidence.
-
-## Synthesis decisions and certainty
-
-Decide whether meta-analysis is appropriate based on clinical and methodological comparability, not merely statistical test results. If pooling is inappropriate, use structured tables and synthesis without meta-analysis methods that preserve effect direction, magnitude, and uncertainty; avoid vote counting by statistical significance. For pooling, choose model/effect scale and handle multiple outcomes, missing SDs, cluster designs, and multi-arm correlations in advance. Explore heterogeneity with prespecified moderators and prediction intervals.
-
-GRADE assesses certainty across risk of bias, inconsistency, indirectness, imprecision, and publication bias for each outcome. Certainty is not a mechanical average and can differ across outcomes in the same review. Explain downgrading/upgrading decisions and link evidence to absolute effects at a relevant baseline risk. Distinguish certainty of evidence from strength of recommendation, which also involves values, resource use, equity, feasibility, and acceptability.
-
-## Reproducibility and living updates
-
-Maintain a review dataset with stable record IDs, search exports, screening decisions, extraction sources, and analysis scripts. Preserve original reports and page/table references for every extracted number. A living review requires surveillance intervals, update triggers, versioned search strategies, and transparent change logs; not every review needs continuous updating. Report PRISMA 2020 items, funding, conflicts, protocol deviations, and data/code availability. Reproducibility means another team can trace each included study and reproduce transformations from source data to synthesis.
-
-- Page MJ, McKenzie JE, Bossuyt PM, et al. PRISMA 2020 statement. *BMJ*. 2021;372:n71. https://doi.org/10.1136/bmj.n71
-- Sterne JAC, Savović J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomized trials. *BMJ*. 2019;366:l4898. https://doi.org/10.1136/bmj.l4898
-- Sterne JA, Hernán MA, Reeves BC, et al. ROBINS-I: a tool for assessing risk of bias in non-randomised studies of interventions. *BMJ*. 2016;355:i4919. https://doi.org/10.1136/bmj.i4919
-
-- Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. *BMJ*. 2021;372:n71. [doi:10.1136/bmj.n71](https://doi.org/10.1136/bmj.n71)
-
-- Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, et al. *Cochrane Handbook for Systematic Reviews of Interventions*, 2nd edn. Wiley-Blackwell.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Bland M, Altman DG. *Statistics with Confidence*. BNP Books.
-- The library's "Meta-analysis and forest plots" article covers the quantitative synthesis step.
+- Page MJ, McKenzie JE, Bossuyt PM, et al. PRISMA 2020 statement. *BMJ*. 2021;372:n71. [doi:10.1136/bmj.n71](https://doi.org/10.1136/bmj.n71).
+- Cochrane. *Cochrane Handbook for Systematic Reviews of Interventions*. [Handbook](https://training.cochrane.org/handbook).
+- See [Meta-analysis and forest plots](meta-analysis-and-forest-plots.html) and [Heterogeneity and publication bias](heterogeneity-and-publication-bias.html) for synthesis methods.

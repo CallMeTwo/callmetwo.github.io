@@ -3,149 +3,170 @@ title: Absolute risk differences
 summary: The simple difference in event risk between two groups — the effect size most directly tied to clinical decisions.
 ---
 
-## Overview and key ideas
+## Overview
 
-The **absolute risk difference** (ARD, or risk difference) is the arithmetic difference between two risks: ARD = risk(group 1) − risk(group 2). Unlike a ratio, it incorporates the baseline risk, so it answers the patient's real question — "how much better (or worse) will I actually do?" — and it is the quantity from which the number needed to treat (NNT = 1/absolute risk reduction) and number needed to harm are computed.
+The absolute risk difference compares the probability of an outcome between two groups: RD = risk in group 1 minus risk in group 0. It expresses how many more or fewer events occur per person or population over a specified period. An absolute contrast is often directly relevant to patients and services because it depends on baseline risk as well as relative treatment effect.
 
-The two measures are linked by RR = 1 + ARD / baseline risk, so they diverge systematically: the same relative effect produces a small ARD on a low baseline risk and a large one on a high baseline risk. Trials and guidelines therefore report both — the relative measure for consistency across populations, the absolute measure for decision-making.
+An absolute risk difference is not a complete causal claim by itself. Its interpretation depends on study design, population, outcome definition, follow-up, confounding control, and whether risks are measured or standardized. Always state the denominator, time horizon, and direction of subtraction. A negative difference can mean benefit or harm depending on which group is subtracted first.
 
-A worked pair makes the link concrete. The same drug, RR = 0.75, applied to two populations:
+## Risk difference versus relative effects
 
-| Population | Baseline risk | Treated risk | ARD | NNT |
-| --- | --- | --- | --- | --- |
-| High-risk (age 70+, prior MI) | 20% | 15% | 5% | 20 |
-| Low-risk (age 50, no comorbidity) | 4% | 3% | 1% | 100 |
+If risk is 20% under usual care and 15% under an intervention, RD=0.15−0.20=−0.05, a reduction of 5 percentage points. The risk ratio is .15/.20=.75, a 25% relative reduction. Both describe the same two risks but answer different questions. Reporting only the relative reduction can make the absolute benefit seem larger than it is when baseline risk is low.
 
-One relative effect, two very different absolute effects — the reason NNT is quoted alongside a trial's relative risk.
+Absolute differences vary across populations even when relative effects are similar. If baseline risk is 4% and the relative risk is .75, treated risk is 3% and RD is −1 percentage point. With a 20% baseline risk, treated risk is 15% and RD is −5 points. Transporting a relative effect does not guarantee that absolute benefit transports, because baseline risk and treatment effect heterogeneity may differ.
 
-## When to use it
+The number needed to treat (NNT) is often defined as 1/absolute risk reduction over a stated follow-up. For a 5-point reduction, NNT=20 over that period. This is an interpretation of a group average, not a prediction that every 20 treated patients produce exactly one prevented event. If the risk difference is uncertain or crosses zero, the reciprocal can be unbounded or change sign; report the risk difference and interval first.
 
-| Setting | Example question |
-| --- | --- |
-| Trial of a new antihypertensive | How many patients per 1,000 avoid a stroke over 10 years compared with standard therapy? |
-| Screening programme | How many breast cancer deaths are averted per 10,000 women screened over 10 years? |
-| Safety monitoring (NNH) | How many patient-years of a drug are needed to cause one case of drug-induced liver injury? |
-| Public health policy | What is the population-level impact of a 5% relative risk reduction for a rare disease? |
+### A 2×2 table calculation
 
-## Assumptions and limitations
+Suppose 30 of 200 people in an intervention group have a 30-day event, compared with 44 of 200 controls. Risks are 0.15 and 0.22. The intervention-minus-control difference is 0.15−0.22=−0.07, or 7 fewer events per 100 participants. A rough standard error is sqrt[.15(.85)/200 + .22(.78)/200] ≈ .039. A normal 95% interval is −.07 ± 1.96(.039), approximately −.147 to .007. It includes no difference and a potentially substantial reduction.
 
-- **Same time horizon and outcome definition** — the risks must be cumulative incidences over an identical follow-up in both groups; comparing a 5-year risk with a 10-year risk is meaningless.
-- **Cell counts for the interval** — the normal-approximation CI uses SE = sqrt(p1(1−p1)/n1 + p2(1−p2)/n2); with few events, exact (e.g. Newcombe) intervals are more reliable.
-- **Population-specific** — the same drug can have different ARDs in different populations even if its RR is constant, so the NNT from a trial is only a guide for your own patient.
-- **Statistical ≠ clinical** — on a very low baseline risk the ARD may be statistically significant yet clinically trivial; the reverse pattern (impressive ARD, wide CI crossing zero) is common in small trials.
+~~~r
+tab <- matrix(c(30, 170, 44, 156), nrow = 2, byrow = TRUE,
+              dimnames = list(group = c("intervention", "control"),
+                              outcome = c("event", "no_event")))
+risk <- tab[, "event"] / rowSums(tab)
+rd <- risk["intervention"] - risk["control"]
+rd
+~~~
 
-## Worked example
+For formal inference, use a suitable score-based interval for the difference or a regression/standardization approach that respects the design. If clustered randomization was used, account for clustering. The code assumes complete binary outcomes and equal follow-up; it does not adjust for baseline risk or missingness.
 
-Consider 10-year follow-up in 10,000 women aged 50–69 per arm of a mammography screening trial: 100 breast cancer deaths among screened women versus 120 among unscreened controls.
+## Estimation and uncertainty
 
-- Absolute risk reduction = 120/10,000 − 100/10,000 = **0.2 percentage points**.
-- Relative risk = 0.010 / 0.012 = **0.83** — a 17% relative reduction, which sounds much larger than the 0.2-point absolute reduction.
-- 95% CI: SE = sqrt(0.012 × 0.988/10,000 + 0.010 × 0.990/10,000) = 0.0015, so CI = 0.002 ± 1.96 × 0.0015 → roughly **−0.1% to +0.5%**, crossing zero.
-- NNT = 1/0.002 = **500**: 500 women need 10 years of screening to avert one breast cancer death.
+For independent binomial groups, the plug-in risk difference is p1−p0. A simple Wald standard error uses estimated binomial variances, but coverage can be poor with small samples or risks near 0 or 1. Newcombe-Wilson, score, or exact methods often behave better. For matched or paired outcomes, use within-pair information; treating paired observations as independent wastes or misstates uncertainty.
 
-Interpretation: the relative framing (17% reduction) and the absolute framing (0.2 points, about one death averted per 500 women screened) describe the same trial; the interval crossing zero means the reduction is not statistically conclusive at 5%, which is exactly the tension at the heart of real screening debates. For contrast: antibiotics versus placebo for sore throat resolve by day 6 in 74% versus 62% — the same modest relative effect (RR ≈ 1.19) is a large 12-point absolute difference because the baseline risk is high (NNT = 8).
+In randomized trials, an unadjusted risk difference estimates the marginal assignment contrast under follow-up assumptions. Baseline-adjusted regression can improve precision, especially when prognostic factors are strong. Obtain adjusted risks by standardizing predicted outcomes across the target population, then subtract them. A logistic coefficient is an odds ratio on a conditional scale, not an absolute risk difference. Report model-based risks and the standardization method.
 
-## Interpretation and common pitfalls
+~~~r
+fit <- glm(event ~ treatment + age + baseline_risk,
+           data = dat, family = binomial())
+d1 <- transform(dat, treatment = 1)
+d0 <- transform(dat, treatment = 0)
+r1 <- mean(predict(fit, d1, type = "response"))
+r0 <- mean(predict(fit, d0, type = "response"))
+c(risk_treated = r1, risk_control = r0, RD = r1 - r0)
+~~~
 
-- Reporting only the relative risk: "17% reduction" sounds striking, while 0.2 percentage points is the number a patient can weigh against harms and costs.
-- Misapplying NNT: it assumes your patient matches the trial population; NNT scales inversely with baseline risk, so it is much larger for a low-risk individual.
-- Ignoring the confidence interval: an absolute risk reduction whose interval crosses zero does not support a claim of benefit (or harm) at the 5% level.
-- Mixing ARD with incidence rates or different follow-up windows; the difference is only valid when both risks are cumulative over the same period.
-- Reporting the ARD as a stable constant: it is an estimate with its own sampling variability, and small studies of rare outcomes give ARD intervals wide enough to span both harm and benefit.
-
-In randomized studies, calculate the risk difference from the same population, outcome definition, and follow-up horizon in each arm. A risk difference of −0.002 corresponds to two fewer events per 1,000 over that horizon; its reciprocal gives an NNT of 500 only when the absolute difference is beneficial and the follow-up period is specified. Confidence intervals can cross zero, making reciprocal NNT intervals discontinuous and requiring careful presentation (often as benefit and harm regions). In observational studies, a crude difference is not necessarily causal; standardization or another justified adjustment targets a marginal contrast under assumptions such as exchangeability and positivity.
-
-## References and further reading
-
-## Estimation, uncertainty, and transport to a target population
-
-## Worked adjusted risk difference
+This g-computation example estimates a marginal contrast under the fitted model. In randomized data it can be a precision-adjusted estimate; in observational data causal interpretation requires exchangeability, positivity, consistency, and adequate model specification or a robust alternative. Bootstrap patients for uncertainty and repeat the model fit and standardization in each replicate.
 
 ## Unequal follow-up and competing events
 
-## Risk difference in nonrandomized data
+A proportion is a risk only over a defined follow-up and with adequate outcome ascertainment. If follow-up varies, comparing crude event proportions can be misleading. Survival methods estimate cumulative risk at a specified time while accounting for right censoring, under assumptions about censoring. State the horizon, such as 1-year risk difference, and use a method that incorporates censoring.
 
-The crude RD in an observational cohort is generally associational because exposure groups may differ in prognosis. Standardization estimates risks under each exposure in a target population if confounding is controlled by measured pre-exposure covariates and positivity holds. Inverse-probability weights can target the population average; matching may target overlap/matched population. Report covariate balance and effective sample size. If a key confounder is poorly measured, a narrow interval around adjusted RD does not remove bias; quantitative sensitivity analysis should accompany causal language.
+Competing events change the probability of the event of interest. If death prevents a nonfatal outcome, treating death as ordinary censoring estimates a different quantity than cumulative incidence. Define whether the target is cause-specific risk, composite outcome, or a hypothetical risk absent the competing event. Report competing-event frequency and method.
 
-When an exposure is continuous, a single RD requires a contrast (e.g. treatment at dose 10 versus 0) and a specified covariate distribution. Model splines or dose-response functions and report standardized risks across clinically relevant doses. Dichotomizing dose can discard information and create residual confounding. For effect modification, show absolute effects across prespecified risk groups, with uncertainty and no claim that the same NNT transports universally.
+For recurrent outcomes, risk of at least one event differs from event rate. One event per person denominator estimates cumulative occurrence; a recurrent-event rate uses person-time and can count multiple events. These measures have different clinical meanings and cannot be substituted without assumptions.
 
-If follow-up differs, compare cumulative incidence at a common time using survival methods rather than event proportions. With competing causes, estimate the cumulative incidence function for the event of interest; censoring competing events in KM estimates a hypothetical net event probability. A 2-year RD and a 5-year RD are different estimands and may differ if hazards vary over time. State the horizon, risk set, and competing-event treatment alongside any NNT translation.
+## Risk differences in observational data
 
-If proportional hazards is plausible, one may derive standardized survival from a Cox model, but an HR itself cannot be inverted into NNT. Restricted mean survival time difference gives absolute event-free time through τ and may be preferable when curves cross. For recurring outcomes, mean cumulative count difference can capture burden not reflected in first-event risk.
+In nonrandomized studies, crude RD can reflect confounding and selection. Standardization estimates risks under each exposure setting by predicting outcomes for a common covariate distribution and averaging. Inverse probability weighting reweights observations to create a pseudo-population with exposure independent of measured confounders under assumptions. Matching can target a matched population rather than the entire source population. State the target and method.
 
-## Statistical versus clinical thresholds
+Causal identification requires no unmeasured confounding conditional on covariates, positivity, consistency, and appropriate handling of selection and missingness. Risk differences can be estimated with outcome regression, propensity methods, or doubly robust estimators, but none guarantees these assumptions. Inspect overlap and avoid extrapolating to covariate patterns where one exposure group is absent.
 
-## Translating estimates into a decision
+Absolute effects can be heterogeneous. A common relative effect can imply larger absolute benefit among people with higher baseline risk. Conversely, effect modification may occur on both relative and additive scales. Report subgroup contrasts with prespecified rationale and uncertainty; do not infer benefit heterogeneity merely because one subgroup has a significant result and another does not.
 
-Suppose a decision threshold is an absolute reduction of at least 1 percentage point over 5 years. An estimate of −1.8 points with interval −3.2 to −0.4 crosses the threshold: benefit is plausible and clinically meaningful, but the interval also includes a smaller-than-important effect. Report this uncertainty rather than declaring the treatment effective solely because the interval excludes zero. A decision-maker may still favor treatment if low burden and strong preferences, but that is a benefit-harm judgment beyond the statistical test.
+## Statistical versus clinical importance
 
-Absolute benefits should be accompanied by harms and treatment burden using consistent populations and horizons. If adverse event risk increases by 0.5 points while target-event risk falls by 1.8 points, event severity and utility matter; event counts alone do not establish net benefit. Shared decisions can present natural frequencies and allow patient preferences to determine tradeoffs.
+An interval excluding zero does not imply a worthwhile effect. Compare the point estimate and interval with a clinically important difference defined using patient values, outcome severity, and intervention burden. A precise 0.5 percentage-point reduction may be negligible for a burdensome treatment; a wide interval may include meaningful benefit and harm.
 
-Clinical importance should be discussed against a prespecified minimally important risk difference, patient burden, cost, and harms. An interval excluding zero may still include effects too small to matter; an interval crossing zero may exclude large benefits and harms, supporting a narrower conclusion. Avoid equating “not statistically significant” with no absolute benefit. Show how uncertainty maps to decisions and which parameter values would change a recommendation.
+Equivalence and noninferiority questions require prespecified margins. Failure to find a significant difference does not establish equivalence. For noninferiority, the confidence interval must exclude a clinically unacceptable loss under the chosen scale and analysis. Margins should be justified clinically and statistically before results are known.
 
-Imagine a pragmatic trial of 1,000 participants per arm with 80 events on treatment and 100 on control. The crude RD is .08−.10=−.02. Suppose baseline risk factors are imbalanced by chance and a prespecified logistic model is used for precision. Predict each participant's risk twice—once with treatment and once with control—while keeping baseline covariates fixed; average predictions to obtain standardized (p_1) and (p_0). If predictions are .079 and .099, adjusted RD is −.020, or 20 fewer events per 1,000 over follow-up. Bootstrap the entire fitting/prediction procedure to obtain an interval. A coefficient OR from the logistic model is not itself this marginal RD.
+## Communication and NNT conventions
 
-For a nonrandomized cohort, the same computation additionally assumes no unmeasured confounding conditional on included baseline covariates, positivity, consistency, and valid outcome/censoring models. If treatment probability approaches zero or one for some profiles, predictions extrapolate beyond data and the contrast is weakly identified. Inspect overlap and target a population with support in both strategies.
+Report both group risks and the absolute difference, with units and follow-up. “Five fewer per 100 over 30 days” is more interpretable than “25% reduction” alone. If NNT is reported, state whether it treats or prevents one event, direction, horizon, and interval convention. When RD uncertainty crosses zero, an NNT interval may include benefit and harm regions; do not present a misleading finite range.
 
-## Communicating benefit and harm
+For patient communication, baseline risk matters. A relative risk reduction of 25% corresponds to 25 fewer per 100 if baseline risk is 100%, but only one fewer per 100 if baseline risk is 4%. Present natural frequencies using the target population and distinguish average effect from individual prediction.
 
-Present a natural-frequency display where possible: “per 1,000 treated for 2 years, estimated 80 events versus 100 under control, about 20 fewer; interval ranges from X fewer to Y more.” This communicates absolute impact and uncertainty without rhetorical emphasis on a relative percentage. Pair benefit with adverse events using the same horizon and denominator. If outcomes differ in severity, a simple count of benefit and harm events does not express net value; utility-weighted decision analysis requires explicit preferences.
+## Sample size and precision planning
 
-An NNT based on a composite endpoint should name components and whether recurrent events count. NNTs across different trials cannot be ranked without comparable populations, comparators, endpoint definitions, and durations. The same intervention's NNT changes with baseline risk and follow-up; report the trial-specific estimate, not a universal drug property.
+Planning an RD study should target a clinically meaningful difference and a desired interval width, not simply conventional power. Under independent binomial sampling, variance depends on both group risks and group sizes. Rare events require more participants to estimate a small absolute difference precisely. Cluster randomization inflates sample requirements according to cluster size and intraclass correlation; imbalance in cluster sizes can increase this further.
 
-## Interval estimation and number-needed-to-treat conventions
+For illustration, a control risk of 20% and an intervention risk of 15% imply a 5-point difference. If the true difference is only 1 point, substantially more participants are required to distinguish it from random error. Power calculations assume the baseline risk and effect are plausible; uncertainty in those inputs should be explored. In pragmatic trials, loss to follow-up and contamination also reduce effective information.
 
-For a risk difference, confidence intervals may be constructed from score intervals for the component risks rather than the Wald formula. Newcombe's method combines Wilson intervals and performs well across a range of proportions. In a randomized trial with covariate adjustment, use a model-based marginal contrast and calculate uncertainty with the model covariance, bootstrap, or randomization-respecting method. The estimator and interval should correspond: do not report a regression-standardized point estimate with a crude Wald interval.
+For an observational analysis, sample size alone does not ensure positivity. If very high-risk patients almost always receive treatment, the data may not identify the untreated risk for that group, even with thousands of records. Inspect covariate overlap, effective sample size under weighting, and extreme weights. Narrowing the target to supported patients may be more defensible than extrapolating.
 
-NNT is the reciprocal of an absolute risk reduction and must always name its time horizon and outcome. “NNT=20” is incomplete; say 20 patients treated for 5 years to prevent one event, compared with a specified alternative. NNT varies across baseline risk and follow-up duration, and it is unstable when the risk difference is near zero. If the treatment increases the event, report number needed to harm with clear sign conventions. NNT for a composite outcome should identify its components because a favorable composite may be driven by less serious outcomes.
+### Bootstrap uncertainty for adjusted contrasts
 
-When confidence limits for a risk difference cross zero, reciprocal limits split into benefit and harm regions around infinity. Reporting a bounded interval such as NNT 50–500 would conceal possible harm. A useful presentation shows absolute difference as the primary estimate and describes NNT benefit/harm regions or avoids the reciprocal summary when uncertainty is too broad. Small changes in risk difference near zero create very large changes in NNT, so decimal precision is inappropriate.
+When risks are obtained from regression standardization, bootstrap the independent units and repeat the complete estimation procedure: fit the model, predict under each exposure condition, average, and calculate the difference. If there are clinics or households, resample clusters. For propensity methods, re-estimate weights in each replicate. This captures some estimation variability but not unmeasured confounding or all model uncertainty.
 
-## Standardization and treatment effect heterogeneity
+~~~r
+set.seed(18)
+B <- 1000
+boot_rd <- replicate(B, {
+  id <- sample(seq_len(nrow(dat)), replace = TRUE)
+  d <- dat[id, ]
+  m <- glm(event ~ treatment + age + baseline_risk,
+           data = d, family = binomial())
+  r1 <- mean(predict(m, transform(d, treatment = 1), type = "response"))
+  r0 <- mean(predict(m, transform(d, treatment = 0), type = "response"))
+  r1 - r0
+})
+quantile(boot_rd, c(.025, .5, .975))
+~~~
 
-An adjusted marginal risk difference can be estimated by predicting each participant's risk under both strategies and averaging. This g-computation estimand is population-specific; changing the target covariate distribution changes absolute effect. If a treatment has a constant RR but different baseline risks, ARDs differ. If effects vary by covariate, both relative and absolute contrasts can vary. Report subgroup ARDs only when prespecified or clearly exploratory, and show intervals rather than assuming one trial NNT applies to everyone.
+This is a basic independent-patient bootstrap. It assumes a suitable model and complete cases; clustered sampling, missing data, or matched designs need different resampling. A percentile interval can perform poorly in small samples or with boundaries, so consider appropriate score or model-based intervals and report method.
 
-For transport to a clinical target population, reweight or standardize to its covariate distribution if those covariates modify outcome risk/effect and are measured in both source and target. This assumes conditional effect transportability and positivity. A treatment's observed absolute benefit in a high-risk trial may overstate benefit in a lower-risk clinic, even when relative efficacy transports. Baseline risk calculators can personalize ARD but require calibration and external validation.
+## Standardization target and transport
 
-## Beyond binary outcomes
+Adjusted risks depend on the covariate distribution over which predictions are averaged. Averaging over the study sample estimates a study-population marginal contrast. Averaging over an external target population requires target data, compatible covariate definitions, and adequate overlap. These targets can yield different absolute differences even with the same fitted conditional model.
 
-For recurrent events, a simple proportion with at least one event loses event burden; consider mean cumulative count difference over a horizon. For time-to-event outcomes, use cumulative incidence difference at a fixed time or RMST difference; do not apply NNT to a hazard ratio directly. For continuous outcomes, the mean difference is already absolute on the measurement scale, though clinical interpretation depends on scale and meaningful thresholds. For competing risks, the absolute difference in cumulative incidence is the probability contrast relevant to actual event occurrence.
+Standardization can make effect modification visible. Predict each person’s outcome under both exposure values, average the two sets of predictions within meaningful strata, and contrast. If a subgroup has a higher baseline risk, the absolute difference may be larger even under a constant relative effect. Report both baseline risk and treatment contrast. Avoid applying a sample-average RD to every individual.
 
-For independent binomial groups, let \(a\) and \(c\) be events among \(n_1\) and \(n_0\) participants. The plug-in estimate is \(\hat p_1-\hat p_0\). Its Wald standard error is
+### Rates, attributable fractions, and policy scale
 
-\[
-\widehat{SE}(RD)=\sqrt{\hat p_1(1-\hat p_1)/n_1+\hat p_0(1-\hat p_0)/n_0}.
-\]
+Risk difference can be used to estimate population impact only when exposure prevalence, causal interpretation, and target population are appropriate. A population attributable fraction depends on the causal effect and prevalence of exposure; it is not simply the observed fraction of cases exposed. For a policy, the number of events prevented can be approximated by RD multiplied by the eligible population, but only if uptake, adherence, effect transport, and follow-up align.
 
-This interval is simple but may have poor coverage when either event count is small or a risk is near zero or one. A Newcombe interval combines Wilson score limits for each risk; it avoids some impossible limits produced by the Wald method. For a randomized trial with stratification or baseline covariates, regression standardization often gives a more efficient marginal risk difference while retaining the interpretation as a difference in population risks.
+For event rates, the rate difference compares events per person-time and can accommodate recurrent outcomes. It does not equal the difference in cumulative risks when follow-up varies or hazards change. State units such as 3 fewer events per 1,000 person-years. For time-to-event effects, report a fixed-horizon risk difference alongside hazard ratios when possible because hazard ratios are not absolute risks and can be difficult to communicate.
 
-For example, imagine 80/1,000 events under treatment and 100/1,000 under control. The estimate is −0.020, or 20 fewer events per 1,000. The unadjusted standard error is \(\sqrt{.08(.92)/1000+.10(.90)/1000}=0.0126\). The rough 95% interval is −0.0447 to 0.0047, or 45 fewer to 5 more events per 1,000. The interval matters: the point estimate does not establish that benefit is certain.
+### Common interpretation traps
 
-```r
-event_t <- 80; n_t <- 1000
-event_c <- 100; n_c <- 1000
-p_t <- event_t / n_t
-p_c <- event_c / n_c
-rd <- p_t - p_c
-se <- sqrt(p_t * (1 - p_t) / n_t + p_c * (1 - p_c) / n_c)
-c(rd = rd, lower = rd - 1.96 * se, upper = rd + 1.96 * se)
-```
+Do not subtract percentages with different denominators or follow-up periods. Do not call an odds difference a risk difference. Do not reverse the subtraction direction without changing the label. Do not compute NNT from a relative risk alone without baseline risk. Do not interpret adjusted RD causally in observational data without assumptions. Do not treat a statistically significant difference as clinically important without a meaningful threshold.
 
-The reciprocal transformation deserves special care. If the entire risk-difference interval is below zero under treatment-minus-control coding, the NNT benefit interval is obtained by reciprocating magnitudes with signs handled explicitly. If the interval crosses zero, a single finite interval for NNT is misleading: it spans possible benefit, no effect, and harm. Report the risk difference and its interval as the primary result, then present NNT benefit and harm regions only with clear conventions and a stated horizon.
+A result should state: intervention and comparator; population; outcome and horizon; each group’s risk; absolute contrast and direction; interval method; adjustment or standardization target; and relevant missingness or competing events. This gives the reader the quantities needed to judge both magnitude and credibility.
 
-In an observational analysis, define the target population before estimating an adjusted contrast. Under conditional exchangeability, consistency, and positivity, a standardized risk under treatment level \(a\) is \(E_X[P(Y=1\mid A=a,X)]\). The causal risk difference is the difference between these standardized risks, not necessarily the coefficient of a logistic regression. A coefficient on the log-odds scale is conditional and non-collapsible; converting it to an absolute contrast requires predicted risks averaged over a specified covariate distribution. Different target populations can therefore have different ARDs even with a common conditional effect.
+## Marginal and conditional risk contrasts
 
-## Time-to-event outcomes and competing events
+An adjusted model can produce conditional contrasts at fixed covariate values or marginal contrasts averaged over a population. These are not always identical. Logistic regression’s conditional odds ratio is non-collapsible, and conditional risks averaged over a different covariate distribution can change. If the decision concerns expected events in a population, standardized marginal risks are often easier to interpret.
 
-When follow-up varies or censoring occurs, a simple event proportion ignores time at risk. A fixed-time risk difference should instead compare cumulative incidence by the same time \(t\). With competing events, the appropriate quantity for a real-world probability of the event is often the cumulative incidence function, not one minus a Kaplan–Meier curve that treats competing events as censoring. A difference in 5-year cumulative incidence is interpretable as an absolute probability difference at five years; it is not interchangeable with a hazard ratio or an incidence-rate difference.
+Choose adjustment variables based on design and causal structure. In a randomized study, baseline adjustment can improve precision; adjusting for post-randomization variables may block part of the effect or introduce bias. In observational data, adjust for confounders identified from subject-matter knowledge, not every available variable. Conditioning on a collider can create an association. Report the adjustment set and show overlap.
 
-Report the estimand, outcome definition, time origin, horizon, handling of competing events, and censoring assumptions. A risk difference of −0.02 at one year does not imply the same difference at five years. If curves cross, a single summary can conceal early harm and later benefit; show the curves and consider restricted mean event-free time or prespecified time-specific contrasts. For design planning, choose an effect on the scale clinicians will use, but account for the baseline risk and follow-up horizon that determine it.
+For a continuous outcome, the mean difference is a location contrast, not an absolute risk difference. For a binary outcome, use risks rather than logistic coefficients if communicating an RD. If model predictions are standardized, report the model family, link, covariates, and population used for averaging. Use robust or bootstrap intervals as justified by the design.
 
-- Newcombe RG. Interval estimation for the difference between independent proportions: comparison of eleven methods. *Statistics in Medicine*. 1998;17:873–890. https://doi.org/10.1002/(SICI)1097-0258(19980430)17:8%3C873::AID-SIM779%3E3.0.CO;2-I
-- Hernán MA, Robins JM. *Causal Inference: What If*. Chapman & Hall/CRC; 2020. https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/
-- Austin PC. Absolute risk reductions and numbers needed to treat can be obtained from adjusted survival models. *Statistics in Medicine*. 2010;29:1800–1809. https://doi.org/10.1002/sim.3913
+### Competing risks and estimand choices
 
-- Greenland S, Rothman KJ, Lachin JM. "Measures of Occurrence and Effect." In Rothman KJ, Greenland S, Lash TL (eds), *Modern Epidemiology*. Lippincott Williams & Wilkins.
-- Bland M, Altman DG. *Statistics with Confidence*. BNP Books.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- The library's "Risk ratios and odds ratios" article contrasts relative measures with these absolute ones.
+When death competes with a nonfatal outcome, cumulative incidence estimates the probability of the event before death. Treating death as ordinary censoring and using one minus Kaplan–Meier estimates a hypothetical net risk in a world where competing death is removed, not the observed probability. The risk difference between treatment groups depends on which estimand is desired. A composite outcome including death may answer a different clinical question.
+
+For treatment discontinuation or rescue therapy, define whether outcomes are analyzed by treatment assignment, while on treatment, or under a hypothetical no-rescue scenario. These estimands can produce different absolute differences. Randomization directly supports some contrasts more than others; censoring and missingness strategies require sensitivity assumptions. State how intercurrent events enter the question before computing risks.
+
+## NNT under uncertainty and time
+
+NNT is a nonlinear transformation. If the risk-difference interval is entirely beneficial, reciprocal endpoints yield an interval with reversed order. If it crosses zero, the NNT confidence set has disjoint benefit and harm regions and may extend to infinity. A simple symmetric interval around NNT is incorrect. Report the risk difference with its interval as the primary result and use a recognized method for NNT uncertainty.
+
+NNT varies with baseline risk, follow-up horizon, adherence, and competing events. “NNT of 20” without a time period is incomplete. For an intervention with both benefit and harm, report NNT to benefit and NNH to harm over the same horizon, with uncertainty. These are averages over a population, not guarantees for individuals.
+
+## Absolute effects for shared decisions
+
+Present natural frequencies using a denominator that matches the audience: for example, among 100 similar people followed for one year, 20 may experience the event under usual care and 15 under treatment. This communicates both baseline risk and absolute change. Show uncertainty and explain that the numbers reflect average study evidence, not certainty for one person.
+
+The same treatment can have different absolute benefit for people with different baseline risks. A risk model can stratify baseline risk, but applying one relative effect across strata assumes that relative effect transports. If treatment effects vary, individualized benefit prediction needs causal evidence and validation. Do not tell an individual their treatment benefit from prognostic risk alone.
+
+Equity also matters: treatment availability, adherence, and baseline risk can differ by setting. A population-level reduction estimated under trial uptake may overstate benefit where access is limited. Policy projections should incorporate realistic uptake and implementation, and identify groups who may be missed.
+
+When comparing studies, align outcome definitions, follow-up, and target populations before contrasting RDs. A smaller absolute effect may reflect lower baseline risk rather than weaker relative efficacy. Meta-analysis can pool compatible effects, but heterogeneity and transport should be reported rather than hidden in one average.
+
+An estimate’s precision should be interpreted alongside risk of bias, outcome measurement, adherence, and loss to follow-up. A narrow interval around a biased estimate remains misleading.
+
+State whether the estimate is descriptive or causal and distinguish the statistical interval from uncertainty due to unmeasured bias, selection, and transport.
+
+Use a consistent direction and unit when presenting all contrasts.
+
+## Translating results to the target population
+
+If risks are standardized to a target population, describe its covariate distribution and how it differs from the study sample. The contrast should not be transported beyond support without explicit extrapolation assumptions.
+
+## References and further reading
+
+- Altman DG, Andersen PK. Calculating the number needed to treat for trials where the outcome is time to an event. *BMJ*. 1999;319:1492–1495. [doi:10.1136/bmj.319.7223.1492](https://doi.org/10.1136/bmj.319.7223.1492).
+- Newcombe RG. Interval estimation for the difference between independent proportions: comparison of eleven methods. *Statistics in Medicine*. 1998;17:873–890.
+- See [Risk ratios and odds ratios](risk-ratios-and-odds-ratios.html) for relative measures.

@@ -3,347 +3,150 @@ title: Analysis of variance (ANOVA)
 summary: Comparing the means of three or more groups with a single F-test, then locating which pairs differ.
 ---
 
-## Overview and key ideas
+## Overview
 
-When you want to compare the means of three or more groups, a string of
-pairwise t-tests inflates the type I error rate (three comparisons at 5% each
-give about a 14% chance of at least one false positive). One-way analysis of
-variance (ANOVA) makes a single omnibus test of whether all group means are
-equal by partitioning the total variation into two components:
+Analysis of variance (ANOVA) is a linear-model framework for comparing means across groups. Its name reflects the decomposition of outcome variation into parts associated with modeled group differences and residual variation. For a one-way design, it tests the omnibus null that all population means are equal. The F statistic is a ratio of mean squares: variation among group means, scaled by group degrees of freedom, divided by residual variation within groups.
 
-- **Between-group variation** — how far each group mean lies from the overall
-  mean, summarised by MS_between = SSB / (k − 1).
-- **Within-group variation** — the scatter of individuals around their group
-  mean, summarised by MS_within = SSW / (N − k).
+ANOVA is not a separate species from regression. Coding a categorical treatment as a factor in a linear model yields the same fitted means and tests. This perspective makes extensions to covariate adjustment, factorial designs, contrasts, and unequal sample sizes natural, while reminding us that the design determines what comparisons are valid.
 
-Under the null hypothesis that all k group means are equal, the ratio
-F = MS_between / MS_within follows an F distribution with (k − 1, N − k)
-degrees of freedom. A large F means the group means are more spread out than
-can be explained by the within-group scatter alone. If the omnibus test is
-significant, a post-hoc procedure (e.g. Tukey's HSD) identifies which pairs
-of groups differ while controlling the family-wise error rate.
+## Reading the F test as a model comparison
 
-ANOVA is not a different kind of question from the t-test: for exactly two
-groups it is algebraically equivalent (F = t²). It extends the same logic to
-k groups, and to two-way designs (e.g. treatment × sex) that add main effects
-and an interaction term.
+Suppose k groups have sample sizes nᵢ, means x̄ᵢ, and a grand mean x̄. The between-group sum of squares is Σ nᵢ(x̄ᵢ−x̄)²; the residual sum of squares is ΣΣ(xᵢⱼ−x̄ᵢ)². Divide by k−1 and N−k respectively to obtain mean squares. Under equal means and the classical model, their ratio follows F(k−1,N−k). A large F says the observed separation of fitted group means is difficult to reconcile with the null and residual model. It does not identify which pair differs.
 
-## When to use it
+With exactly two groups, F=t² for the corresponding pooled-variance t test. With multiple groups, the omnibus test protects the global question; follow-up comparisons need a plan. Tukey intervals suit all pairwise comparisons, Dunnett compares several treatments with one control, and prespecified contrasts target scientific hypotheses more efficiently.
 
-| Setting | Example question |
-| --- | --- |
-| Multi-arm clinical trial | Do three glucose-lowering strategies produce different HbA1c at 12 months? |
-| Dose-response study | Does the outcome differ across four dose levels of the same drug? |
-| Two-way design | Do readmission rates differ by hospital and by patient age group, and do they interact? |
-| Quality improvement | Are length-of-stay distributions equivalent across four surgical units? |
+## Worked example: three dose groups
 
-Use one-way ANOVA for one factor with three or more independent groups. Use
-two-way ANOVA when you want to model two factors and their interaction
-simultaneously. For non-normal or ordinal outcomes use the Kruskal–Wallis
-test instead; for repeated measurements within subjects use
-repeated-measures ANOVA.
-
-## Assumptions and limitations
-
-- **Independence** — each subject contributes exactly one observation.
-  Repeated measures, matched groups, or clustering violate this and need
-  repeated-measures ANOVA, mixed models, or cluster-robust methods.
-- **Approximate normality within groups** — the F-test is reasonably robust
-  for moderate sample sizes; with small or heavily skewed groups, extreme
-  outliers can distort the result. Check group boxplots or Q–Q plots.
-- **Homogeneity of variances** — the groups should have similar variances.
-  With roughly equal group sizes the F-test tolerates mild
-  heteroscedasticity; with very unequal n and unequal variances, Welch's
-  ANOVA is the safer default. Levene's test screens for variance
-  differences.
-- **Fixed vs random effects** — the classical one-way ANOVA treats group
-  membership as fixed (you care about exactly these k groups). If the groups
-  are a random sample from a larger population, a random-effects model
-  changes both the hypothesis and the test.
-
-The test tells you only that *some* means differ, not which ones or by how
-much — plan your post-hoc comparisons before looking at the data.
-
-## Worked example
-
-A 12-month trial randomised 30 type 2 diabetes patients to three
-glucose-lowering strategies (n = 10 per arm). Mean HbA1c at 12 months was
-7.0% (standard care), 6.5% (drug A) and 6.0% (drug B), with each group's SD
-about 0.7.
-
-- SSB = 10[(7.0 − 6.5)² + (6.5 − 6.5)² + (6.0 − 6.5)²] = 5.0, so
-  MS_between = 5.0 / 2 = 2.5
-- SSW = 27 × 0.7² = 13.23, so MS_within = 13.23 / 27 = 0.49
-- F(2, 27) = 2.5 / 0.49 = 5.1, p ≈ 0.013
-
-The three strategies do not all give the same mean HbA1c. Tukey's HSD (with
-a critical difference of about 0.78%) separates standard care from drug B
-(1.0% apart, significant) but not the other pairs: drug A and drug B (0.5%
-apart) are not distinguishable at this sample size. Report all three group
-means with 95% CIs, not just the F statistic.
-
-## Interpretation and common pitfalls
-
-- **A significant ANOVA is not the end of the analysis.** It only says at
-  least one mean differs; without post-hoc comparisons you cannot say which.
-- **Do not "test down" with unadjusted pairwise t-tests.** Running all
-  pairwise t-tests after a significant ANOVA inflates the type I error; use
-  Tukey, Dunnett (versus a single control), or pre-planned contrasts.
-- **Unequal group sizes are a risk factor.** Very unequal n combined with
-  unequal variances can make the F-test anti-conservative or
-  over-conservative — check Levene's test and consider Welch's ANOVA.
-- **ANOVA compares means, not variances.** If the groups differ mainly in
-  spread rather than location, the F-test can mislead; inspect the
-  distributions before interpreting.
-
-## Model formulation and sums of squares
-
-One-way ANOVA is the ordinary linear model
-\(Y_{ij}=\mu+\tau_j+\epsilon_{ij}\), with a constraint such as
-\(\sum_j\tau_j=0\) to identify the parameters. Its F test compares a
-model with group-specific means against an intercept-only model. The total
-sum of squares decomposes as \(SST=SSB+SSW\):
-
-- \(SSB=\sum_j n_j(\bar Y_j-\bar Y)^2\) measures variation among group
-  means, weighted by group size.
-- \(SSW=\sum_j\sum_i(Y_{ij}-\bar Y_j)^2\) measures residual variation
-  within groups.
-- Dividing by degrees of freedom gives mean squares; their ratio is the
-  F statistic. Under the equal-mean null and model assumptions, the ratio
-  follows \(F_{k-1,N-k}\).
-
-The omnibus test has no direction and does not quantify how different the
-means are. A small p-value means at least one mean differs under the
-model, but it does not establish that every pair differs. Report an effect
-measure such as eta-squared \(SSB/SST\) or omega-squared, along with
-pairwise estimates and intervals. Eta-squared is upward biased in small
-samples; omega-squared applies a correction and can be slightly negative
-as an unbiased estimator, in which case it is often reported as zero with
-the untruncated estimate available.
-
-## Worked calculation and R implementation
-
-Use the existing illustration of three groups with n=10 each, means
-7.0, 6.5, and 6.0, and common SD 0.7. The grand mean is 6.5. Thus
-\(SSB=10[(0.5)^2+0^2+(-0.5)^2]=5.0\), and with within-group variance
-\(0.49\), \(SSW=27(0.49)=13.23\). The residual mean square is
-\(13.23/27=0.49\); the between-group mean square is 2.5; hence
-\(F=2.5/0.49=5.10\) with 2 and 27 degrees of freedom. The associated
-p-value is approximately 0.013. The sample eta-squared is
-\(5/(5+13.23)=0.274\), indicating that about 27% of observed sample
-variation is between these groups; it is not a causal or population
-variance decomposition without further assumptions.
+Consider change in a biomarker (lower is better) among 12 participants per arm. Suppose means are −1, −3, and −4 units, with a common within-group SD of 2.5. The grand mean is −8/3. Between-group SS is 12[(−1+8/3)²+(−3+8/3)²+(−4+8/3)²]=56. Residual SS is (36−3)(2.5²)=206.25 if the observed residual SD is 2.5. Thus MSbetween=28, MSwithin=6.25 and F=4.48 with 2,33 df. The exact p-value should be calculated from the data; a significant omnibus result would indicate some dose means differ, not a linear dose response or a clinically important effect.
 
 ```r
-dat <- data.frame(
-  hba1c = c(7.0, 6.5, 6.0),
-  arm = factor(c("standard", "drug_A", "drug_B")),
-  n = c(10, 10, 10), sd = c(.7, .7, .7)
-)
-# Reconstructing only the ANOVA summary quantities:
-grand <- weighted.mean(dat$hba1c, dat$n)
-ss_between <- sum(dat$n * (dat$hba1c - grand)^2)
-ss_within <- sum((dat$n - 1) * dat$sd^2)
-Fstat <- (ss_between / (nrow(dat) - 1)) /
-  (ss_within / (sum(dat$n) - nrow(dat)))
-c(F = Fstat, p = pf(Fstat, 2, 27, lower.tail = FALSE),
-  eta2 = ss_between / (ss_between + ss_within))
-```
-
-These are summary statistics, not patient-level observations, so they
-cannot support diagnostics or post-hoc calculations that need the actual
-within-arm values. With individual-level data, fit `aov(hba1c ~ arm,
-data = trial)` and examine residuals. Tukey intervals from `TukeyHSD()`
-protect the family of all pairwise comparisons under the equal-variance
-model; Dunnett contrasts are preferable when every active arm is compared
-only with a common control.
-
-## Assumption assessment and robust alternatives
-
-Independence is mainly secured by design, not by a residual plot. Check
-whether participants were randomized or sampled independently and whether
-multiple observations per person, household, clinic, or provider exist.
-If clustering is present, a standard ANOVA treats correlated observations
-as independent and understates uncertainty. Use mixed models, generalized
-estimating equations, cluster-level summaries, or cluster-robust inference
-appropriate to the design.
-
-Normality concerns the within-group errors (equivalently residuals), not
-the pooled raw outcome across all groups. With balanced groups and moderate
-sample sizes, the F test is reasonably robust to moderate departures, but
-heavy tails and outliers can dominate the mean and sum of squares. Inspect
-Q–Q plots and residual-versus-fitted plots, alongside raw data plots. A
-formal Shapiro–Wilk test can reject tiny harmless deviations in large data
-or miss important departures in small samples; it should not be used as an
-automatic switch between ANOVA and a rank test.
-
-Homogeneous variance matters most when group sizes are unequal. Levene or
-Brown–Forsythe tests can screen variance differences, but selecting the
-final procedure solely from a preliminary variance-test p-value creates a
-two-stage analysis whose properties are not the nominal ones. Welch's
-one-way test directly compares means without assuming equal variances and
-is often a good choice when heteroscedasticity is plausible. Games–Howell
-comparisons can follow Welch ANOVA. Kruskal–Wallis is not a universal
-heteroscedastic alternative: it tests rank distributions and can respond
-to shape or spread differences, not only median differences.
-
-## Factorial, repeated-measures, and covariate-adjusted ANOVA
-
-## Planned contrasts and multiplicity strategy
-
-An omnibus ANOVA should be paired with a prespecified follow-up strategy.
-If a new drug is compared with standard care and a second active drug is
-also studied, the key questions may be two active-versus-control contrasts,
-not every pair. Dunnett adjustment uses the shared-control correlation and
-usually provides more power than Tukey over all pairs. If the scientific
-hypothesis is that higher doses improve an outcome monotonically, a
-planned linear trend contrast can be more focused than an omnibus test,
-but it can miss a nonmonotone response. The contrast coefficients should
-sum to zero and be chosen before seeing the group means.
-
-For the three-arm HbA1c example, an active-treatment average versus
-standard care contrast has weights \((-1,0.5,0.5)\) if the group ordering
-is standard, drug A, drug B. Its estimate is
-\(-7.0+0.5(6.5)+0.5(6.0)=-0.75\) percentage points. With equal n=10 and
-pooled residual variance 0.49, its SE is
-\(\sqrt{0.49(1/10+0.25/10+0.25/10)}=0.271\). This planned average
-contrasts both active arms with control, but assumes that averaging them
-is scientifically meaningful. It does not show that each active agent is
-effective individually.
-
-```r
-trial <- data.frame(
-  hba1c = c(7.4, 6.8, 7.1, 6.9, 7.2, 6.7, 7.3, 6.6, 7.0, 7.0,
-            6.9, 6.4, 6.7, 6.5, 6.2, 6.8, 6.1, 6.6, 6.3, 6.5,
-            6.2, 5.8, 6.1, 5.9, 6.3, 5.7, 6.0, 5.8, 6.2, 6.0),
-  arm = factor(rep(c("standard", "drug_A", "drug_B"), each = 10),
-               levels = c("standard", "drug_A", "drug_B")))
-fit <- aov(hba1c ~ arm, data = trial)
+d <- data.frame(
+  arm = factor(rep(c("placebo", "low", "high"), each = 12),
+               levels = c("placebo", "low", "high")),
+  change = c(-1 + rnorm(12, 0, 2.5),
+             -3 + rnorm(12, 0, 2.5),
+             -4 + rnorm(12, 0, 2.5)))
+fit <- aov(change ~ arm, data = d)
 summary(fit)
+TukeyHSD(fit, "arm")
 ```
 
-The raw toy measurements need not reproduce the summary-statistic example
-exactly; they illustrate fitting the model to individual data. In a real
-analysis, estimate the planned contrast and its interval from the fitted
-model, then apply the prespecified multiplicity procedure if it belongs
-to a family of confirmatory tests. Avoid interpreting a significant
-omnibus F as permission to explore every pair at unadjusted alpha.
+The random values are simulated to illustrate workflow, not reproduce the arithmetic example. Report model-based contrasts and intervals, not only the omnibus p-value. For the scientific dose question, a planned linear trend contrast may be more relevant than every pairwise contrast.
 
-## Assumption checks with scientific judgment
+## Residual model and study design
 
-Residual diagnostics should be read alongside the design and outcome
-process. A single extreme length-of-stay observation may be a data error,
-a genuine medically complex patient, or a distinct population; deletion
-should not be automatic. Compare conclusions under robust or transformed
-models when influential observations materially change results, and report
-the estimand for each. A log transformation changes the target from an
-arithmetic mean difference in original units toward differences in log
-means or geometric means. Back-transformed group means are not generally
-the arithmetic means.
+Classical fixed-effects ANOVA assumes independent errors with common variance and approximately normal residuals for exact small-sample inference. Normality concerns residuals conditional on the design, not necessarily the pooled outcome. Mild departures are often tolerated in balanced designs, but outliers, severe skew, unequal variances combined with unbalanced group sizes, or dependence can invalidate the usual F calibration. Plot residuals against fitted values and group, inspect distributions, and understand data collection before choosing an alternative.
 
-Levene's test is itself sensitive to nonnormality and has limited power in
-small samples. A nonsignificant test does not prove equal variances.
-Welch ANOVA avoids requiring equal variances, while robust standard errors
-or bootstrap methods can provide alternatives under suitable sample sizes.
-If group sample sizes are very unequal, inspect both variance and outcome
-shape carefully. A rank-based alternative changes the estimand and should
-not be selected as a mechanical consequence of a diagnostic p-value.
+If variances differ, Welch’s one-way test avoids pooling a single variance estimate. If the estimand is a median or rank ordering, Kruskal–Wallis may be relevant, but it tests a distributional/rank contrast, not simply equality of means. For repeated observations, use a model that accounts for within-person covariance; treating each visit as independent understates uncertainty. For cluster-randomized data, include the cluster structure. A transformation changes the estimand scale and should be justified, not applied solely to obtain a smaller p-value.
 
-## Reporting and clinical meaning
+## Contrasts, adjustment, and meaningful effects
 
-## Sample size and precision for multiple means
+Factorial ANOVA estimates main effects and interactions. An interaction means the effect of one factor varies across levels of another; it often makes a single averaged main effect incomplete. State whether the model uses Type I sequential sums of squares, Type II, or Type III tests when the design is unbalanced, because these correspond to different hypotheses. In planned analyses, direct contrast estimates with confidence intervals are clearer than debating a generic sums-of-squares label.
 
-ANOVA power depends on the number of groups, allocation, residual SD, and
-the configuration of true means. A standardized omnibus effect is
-\(f=\sqrt{\sum_jp_j(\mu_j-\mu)^2}/\sigma\), where pj is the fraction
-assigned to group j. Cohen's conventional f labels are rough heuristics,
-not clinical criteria. Power is computed from a noncentral F distribution
-with noncentrality parameter related to total N and f; an omnibus design
-can be powered while specific pairwise contrasts remain imprecise. If a
-particular treatment-control contrast is the decision target, size the
-study for that contrast and account for multiplicity rather than relying
-only on omnibus power.
+Covariate adjustment can improve precision, especially in randomized trials with baseline outcome. State covariates in advance and use adjusted between-arm comparisons, not separate pre/post tests within arms. Report group means or adjusted means, the contrast, interval, degrees of freedom, and multiplicity handling. A statistically detectable difference is not automatically important; compare the estimate and interval with a clinically meaningful difference.
 
-With three equally allocated arms, two-sided pairwise comparisons after
-Tukey adjustment require more information than a single prespecified
-contrast. More groups also increase degrees of freedom and the number of
-potential comparisons. A balanced design is often efficient when costs
-and variances are similar; unequal allocation can be justified by shared
-control arms, safety needs, or recruitment constraints, but reduces
-precision for a fixed total sample size. Include attrition and any cluster
-design effect and choose a target difference that would change clinical
-decisions.
+### Factor coding and interpretable contrasts
 
-## Beyond one-way fixed-effects ANOVA
+The formula `outcome ~ arm` generally uses treatment coding: the intercept is the reference-arm mean, and coefficients represent differences from that arm. Changing the reference level changes coefficient labels but not fitted values or the global equality test. A contrast is a weighted combination of means, cᵀμ. Weights summing to zero compare means; weights such as (−1, 0, 1) test a linear dose trend for equally spaced doses, while (−1, 1/2, 1/2) compares control with the average of two active arms.
 
-## Reading post-hoc intervals in the example
+Prespecified contrasts usually answer the scientific question more directly than every possible pairwise comparison. They also avoid spending precision on irrelevant contrasts. In an unbalanced design, state how marginal means are averaged over other factors and covariates. Estimated marginal means can be standardized equally over factor levels or according to a target population distribution; these choices define different summaries.
 
-In the equal-size three-arm example, the standard error for a pairwise
-difference is \(\sqrt{MSE(1/10+1/10)}=\sqrt{0.098}=0.313\). Tukey's
-studentized-range critical value for three means and 27 residual degrees
-of freedom is about 3.5. The Tukey HSD threshold is
-\(q\sqrt{MSE/n}=3.5\sqrt{0.49/10}\approx0.78\), equivalently a
-simultaneous pairwise t threshold of about \((q/\sqrt2)(0.313)\). Thus
-the 1.0-point standard-care versus drug-B difference exceeds the
-simultaneous threshold, while 0.5-point differences do not. The original
-worked-example conclusion is correct; the common trap is multiplying the
-studentized-range critical value by the pairwise SE without dividing by
-\(\sqrt2\). The omnibus F can be significant even when some individual
-pairs are not.
+```r
+# Set dose order explicitly and fit a factor model
+trial$arm <- factor(trial$arm, levels = c("control", "low", "high"))
+fit <- lm(change ~ arm, data = trial)
 
-This illustrates why post-hoc arithmetic needs to use the actual
-procedure. Do not transfer a standard error or critical value from one
-method to another. Software output should be checked against the design,
-and pairwise confidence intervals should be reported so the uncertainty
-is visible rather than summarized by a binary significant/nonsignificant
-label.
+# A linear trend contrast for equally spaced doses:
+# control, low, high receive weights -1, 0, 1
+coef(fit)
+# Contrast packages can test the weighted mean contrast;
+# alternatively compare nested models or use emmeans::contrast().
+```
 
-Random-effects ANOVA is appropriate when the levels of a factor are
-sampled from a wider population and inference targets between-level
-variance, such as variability across hospitals. Its variance components
-answer a different question from fixed-effects contrasts among a specified
-set of hospitals. Mixed models can include random intercepts and slopes,
-but with very few clusters variance estimates are unstable and standard
-asymptotics may fail. State which factors are fixed or random based on
-the scientific sampling process rather than software defaults.
+If dose spacing is not equal, use scores reflecting actual dose distances rather than assuming equal increments. A test for linear trend does not establish a linear biological dose-response; inspect group means and consider nonlinear contrasts. A polynomial trend with three dose levels is only a compact description and can be unstable at boundaries.
 
-For bounded proportions or counts, Gaussian ANOVA may predict impossible
-values and violate variance assumptions. Binomial or count regression
-with an appropriate link models the outcome distribution directly.
-Repeated measures and nested data likewise call for covariance models
-rather than treating all measurements as independent. ANOVA is a useful
-linear-model framework, not a universal test for any outcome with groups.
+## Factorial designs and interaction
 
-Present each group mean and SD, n, and a plot showing raw data where
-possible. Report the omnibus F statistic with numerator and denominator
-degrees of freedom, p-value, and an effect-size measure; then state the
-planned contrasts with adjusted intervals. For repeated-measures designs,
-identify the within-subject covariance method, sphericity correction if
-used, and missing-data handling. In a trial, report baseline-adjusted
-contrasts when planned and avoid separate within-group pre/post tests as
-evidence of treatment efficacy. A significant difference can be small;
-compare intervals with a clinically meaningful difference and explain
-whether uncertainty remains compatible with benefit or harm.
+With two factors A and B, the model can include A, B, and A×B. The interaction asks whether the effect of A differs across levels of B on the modeled outcome scale. For a two-by-two design, the difference-in-differences is (μ11−μ10)−(μ01−μ00). An interaction can be clinically central even when neither averaged main effect is informative. Conversely, a statistically significant interaction may reflect a small departure from additivity that has little clinical consequence.
 
-Two-way ANOVA models two factors and their interaction. If treatment effect
-differs by sex, the interaction term is the direct test of that effect
-modification; significant main effects averaged over the other factor can
-be misleading. In unbalanced designs, sequential (Type I) sums of squares
-depend on term order, while Type II/III tests answer different conditional
-questions. State the parameterization and contrasts, especially with
-interactions. Estimated marginal means are often easier to communicate
-than raw coefficients.
+Interpret interactions by displaying cell means and simple contrasts with intervals, not by reporting only an interaction p-value. The “main effect of A” in a model with interaction is conditional on reference coding or a chosen averaging scheme. In unbalanced data, apparent main effects can be especially sensitive to how means are weighted. Clarify whether hypotheses are about treatment effects within strata, average effects over a target population, or an additive interaction.
 
-Repeated-measures ANOVA handles within-person measurements but classical
-versions require assumptions about covariance, including sphericity when
-there are more than two repeated levels. Greenhouse–Geisser corrections
-adjust degrees of freedom when sphericity fails, while mixed-effects models
-can represent flexible covariance and incomplete follow-up under a
-missing-at-random assumption. ANCOVA adjusts a post-treatment continuous
-outcome for baseline covariates; in a randomized trial, including baseline
-outcome can improve precision. The model should include treatment and
-baseline score, and the adjusted treatment contrast—not a set of within-arm
-pre-post tests—answers the randomized comparison.
+Do not infer interaction from one stratum having p<.05 and another p>.05. Test the difference between stratum effects directly. Interaction tests often have low power; wide intervals can leave substantial heterogeneity plausible. If a subgroup claim is confirmatory, prespecify it and account for multiplicity. If exploratory, report the estimates and describe the pattern without definitive subgroup language.
+
+### Covariate adjustment and baseline measurements
+
+An ANCOVA model includes treatment and prognostic baseline covariates to estimate adjusted group differences and often improves precision in randomized studies. For a baseline and follow-up outcome, the follow-up score adjusted for baseline is usually preferable to separate within-arm tests or an unadjusted change-score comparison when assumptions are reasonable. The treatment coefficient describes the adjusted contrast; report adjusted means and their difference with an interval.
+
+Covariates should be selected on substantive and design grounds, preferably before outcome analysis. Randomization protects treatment allocation in expectation, but finite samples can still show chance baseline imbalance; selecting covariates only because they are imbalanced can create unstable inference. Do not adjust for post-randomization variables such as adherence or intermediate biomarkers without an explicit causal estimand, because conditioning may introduce bias.
+
+The common-slope ANCOVA assumes the baseline-outcome relationship is the same across treatment groups. If treatment-by-baseline interaction is scientifically plausible, model and report it, with enough sample support. Nonlinear baseline associations can be handled with splines, but keep the treatment contrast interpretable. In observational data, covariate adjustment also requires no important unmeasured confounding and adequate overlap; ANOVA itself does not confer causal identification.
+
+## Repeated measures and clustered observations
+
+Ordinary one-way ANOVA assumes each observation is independent. When the same patient contributes measurements at multiple visits, within-person outcomes are correlated. Repeated-measures ANOVA imposes covariance structures and often requires complete balanced data and sphericity for univariate tests. Mixed-effects models can represent subject-specific intercepts or slopes and handle unbalanced visit schedules under a missing-at-random assumption conditional on included information. Generalized estimating equations target population-average effects with a working correlation and robust variance, requiring enough independent clusters.
+
+For a cluster-randomized trial, treatment is assigned to clinics or wards, so patients within a cluster do not provide independent treatment assignments. A multilevel model or cluster-robust analysis must respect the randomization unit. A large patient sample from only a few clusters can still yield weak treatment information. Report number of clusters, their size distribution, and the covariance method. Do not use a standard ANOVA on all patient rows and assume the degrees of freedom are determined by patient count.
+
+## Unequal variances and robust alternatives
+
+Classical ANOVA pools one residual variance across groups. When variance differs, Welch’s ANOVA adjusts the group means and degrees of freedom without assuming homoscedasticity. It is particularly useful when variances and sample sizes are both unequal. Robust trimmed-mean procedures or permutation tests may be useful for heavy tails, but the null and estimand must be stated: a permutation test is exact under exchangeability/randomization, not automatically under unequal group distributions.
+
+Transformations can stabilize variance, but a log-scale ANOVA compares means of logs, which typically corresponds to geometric means or multiplicative effects. Back-transforming requires careful interpretation. If an outcome is strongly skewed or bounded, a generalized linear model may align better with its support and mean-variance relationship. Choose based on the scientific parameter and diagnostics, not on which method yields significance.
+
+## Diagnostics as model questions
+
+Inspect residual-versus-fitted and residual-versus-group plots for heteroscedasticity and structure; use a Q-Q plot to identify severe tail departures; examine raw group data for outliers and multimodality. Residual normality matters most for small-sample calibration and prediction, while balanced designs can be reasonably robust to modest departures. Formal normality tests have high power to detect trivial deviations in large samples and low power in small samples. They should not be used as automatic gatekeepers.
+
+An outlier may be a data error, a valid extreme patient, or evidence the mean model is inadequate. Verify source data and report sensitivity analyses if an observation has substantial influence. Removing a valid patient solely to restore assumptions changes the analyzed population and risks bias. For small samples, use design-based or robust inference when justified and show how conclusions depend on modeling choices.
+
+## Power, reporting, and a clinical conclusion
+
+For k groups under equal variance, power depends on the noncentrality parameter linked to between-group dispersion and residual variance. A sample-size calculation must specify a clinically meaningful pattern of means, SD, allocation, alpha, and planned contrasts. Planning for an omnibus F test alone may not give adequate power for a key treatment-control contrast after multiplicity adjustment. Include dropout, clustering, and unequal allocation in the design calculation.
+
+A complete report gives group n, descriptive means and SDs (or model-appropriate summaries), the omnibus F statistic with degrees of freedom and p-value if it addresses the question, prespecified contrasts with estimates and confidence intervals, variance/covariance assumptions, and multiplicity method. Include effect sizes such as η² or partial η² only with clear definitions; these are sample- and design-dependent and do not replace raw-scale contrasts. Explain whether a difference reaches clinical importance. If the omnibus test is not significant, do not imply that groups are equivalent; inspect intervals and design precision.
+
+### Worked contrast and R output interpretation
+
+Suppose adjusted mean changes are −1.0, −2.5, and −4.0 units for control, low dose, and high dose, with standard error 0.7 for each adjusted mean under a balanced design. The planned high-dose versus control contrast is −3.0 units. The omnibus ANOVA asks whether any means differ; the contrast answers the primary dose question. A linear trend contrast using scores 0, 1, 2 has expected mean change per dose step of −1.5 units. These are related but distinct estimands. A pairwise Tukey procedure would widen intervals to cover all pairs, whereas a single prespecified contrast can use a more focused interval.
+
+```r
+fit <- lm(change ~ arm + baseline, data = trial)
+anova(fit)                         # model term tests
+summary(fit)                       # reference-coded coefficients
+# emmeans::emmeans(fit, ~ arm)      # adjusted means
+# emmeans::contrast(emmeans(fit, ~ arm),
+#                   list(high_vs_control = c(-1, 0, 1)))
+```
+
+R’s `anova()` on an `lm` object usually reports sequential Type I sums of squares; results can depend on term order when predictors are correlated or the design is unbalanced. For a prespecified adjusted contrast, estimate the linear combination directly and use its covariance. Packages such as `emmeans` help construct marginal means and contrasts, but specify weights, reference levels, and multiplicity adjustments explicitly. Do not report only a coefficient without its coding.
+
+### Effect-size definitions
+
+Eta-squared, η²=SSbetween/SStotal, is the proportion of sample outcome variation associated with group in a one-way fixed-effects decomposition. Partial η² divides the effect sum of squares by that plus its error sum of squares, excluding other modeled effects. They are not interchangeable and can differ across designs. Both are influenced by the particular sample and model; a large value does not tell readers how many mmHg or symptom points separate groups. Raw contrasts and intervals should remain primary. Generalized eta-squared has been proposed for comparing repeated-measures designs where partial eta-squared is inflated by within-subject factors.
+
+### Common interpretive errors
+
+The omnibus F test is not a test that every pair differs. A significant F can be driven by one group, a nonlinear pattern, or a variance issue. A nonsignificant F is not evidence of equivalence. Separate paired pre/post tests within treatment arms do not test whether randomized arms differ; test the treatment contrast directly. Post hoc tests chosen after examining group means can inflate false-positive risk. Finally, a multiple-group comparison is not causal unless treatment assignment or confounding control justifies causal interpretation.
+
+### Unbalanced designs and sum-of-squares choices
+
+In a balanced factorial design, orthogonality makes many sums-of-squares formulations agree. In an unbalanced design, factors may be correlated and sequential Type I sums of squares depend on term order. Type II tests each main effect after other main effects but not interactions; Type III tests each term conditional on all others, including interactions, and can test awkward hypotheses depending on coding. Rather than treating one type as universally correct, state the contrast of scientific interest and estimate it from the fitted model. Empty cells can make some interactions unidentifiable; no sums-of-squares convention repairs a lack of overlap.
+
+If cell sizes are unequal because of attrition, describe that pattern and consider whether missingness changes the target population. Estimated marginal means can weight cells equally or by observed frequency. Equal weighting targets an average over factor levels; proportional weighting targets the observed mix. Choose the population relevant to the decision.
+
+### Reporting a contrast, not only F
+
+If the primary question is treatment versus control, report that contrast even when an omnibus F test is included. A table of pairwise p-values without estimated differences hides scale and precision. State whether confidence intervals are simultaneous or pointwise and which family they cover. For an interaction, display cell estimates and the simple effects that explain it. Readers should be able to understand what changed without reconstructing the model from a p-value.
+
+### Distinguish omnibus and planned questions
+
+The omnibus F test is useful when the question is whether any group mean differs, but it can be inefficient for a specific contrast. A planned control-versus-average-treatment contrast may carry most of the scientific meaning. If it was prespecified, report it regardless of the omnibus result, with an appropriate multiplicity plan. Conversely, an omnibus result alone does not license every unadjusted pairwise comparison.
+
+For very large samples, even tiny mean differences can produce a large F. Always compare contrast estimates and intervals with clinically meaningful units. An effect-size fraction can supplement but not replace that interpretation.
+
+### Practical model review
+
+Before interpreting an ANOVA table, check factor levels and reference coding, sample sizes, missing outcomes, and whether independence follows from the design. Inspect cell-level means and residuals. Confirm that post hoc comparisons match the prespecified family. A report that supplies only “one-way ANOVA, p=.04” leaves readers unable to reconstruct either the contrast or its relevance.
 
 ## References and further reading
 

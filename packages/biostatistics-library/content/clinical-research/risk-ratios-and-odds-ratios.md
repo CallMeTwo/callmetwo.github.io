@@ -3,172 +3,167 @@ title: Risk ratios and odds ratios
 summary: Two ratios that compare an event rate between groups, and when each one answers a different clinical question.
 ---
 
-## Overview and key ideas
+## Overview
 
-The **risk ratio** (relative risk) compares the probability of an event in two groups: RR = risk(exposed) / risk(unexposed). It is computed directly from cohort studies and randomized trials, where follow-up is known for both groups. An RR of 0.60 means the event occurs 40% less often in the exposed group.
+Risk ratios (RRs) and odds ratios (ORs) compare relative occurrence of binary outcomes between groups. An RR divides risks; an OR divides odds. Both are dimensionless, but their numerical values and interpretations differ, especially when outcomes are common. Relative measures should generally be accompanied by group-specific risks and an absolute contrast.
 
-The **odds ratio** compares odds rather than risks: OR = [a/b] / [c/d], where a and c are the numbers of events in each group and b and d the numbers without the event. The OR can be computed from any study design, including case-control studies where risks are not estimable, and it is the natural effect measure from logistic regression, because the model estimates log odds.
+An effect measure is not just a reporting preference. Design, sampling, outcome frequency, adjustment, and target population influence what it estimates. State the comparison direction, time horizon, and whether the effect is marginal or conditional. A ratio below 1 can indicate benefit or harm depending on event and reference-group definitions.
 
-When the outcome is rare (say under 10%), odds closely approximate probabilities, so OR ≈ RR. As the outcome becomes more common the OR increasingly exaggerates the RR: for a harmful exposure the OR is larger than the RR, and for a protective one it is smaller.
+## Risks, odds, and ratios
 
-Both ratios start from the same 2×2 table — in the statin trial used in the worked example:
+Risk is the probability of an event in a defined population over a specified period. For a group with a events among n participants, estimated risk is a/n. Odds are p/(1−p), the event probability divided by the non-event probability. When p is small, odds and risk are close; as p grows, odds increasingly exceed risk.
 
-| | Event | No event |
-| --- | --- | --- |
-| Statin (n=400) | 48 (a) | 352 (b) |
-| Placebo (n=400) | 80 (c) | 320 (d) |
+The risk ratio is RR=p1/p0. If p0=.20 and p1=.15, RR=.75: risk is 25% lower relative to control. The odds ratio is OR=[p1/(1−p1)]/[p0/(1−p0)] = (.15/.85)/(.20/.80)≈.706. Calling this a 29% reduction in risk would be incorrect; it is a reduction in odds. When baseline risk is 50%, RR and OR can differ greatly.
 
-From it: risk = a/(a+b); RR = [a/(a+b)] / [c/(c+d)]; OR = (a/b) / (c/d).
+## Worked 2×2 calculation
 
-## When to use it
+Suppose 30 of 200 intervention participants and 44 of 200 controls have a 30-day event. Risks are .15 and .22. RR=.15/.22=.682, a relative risk reduction of about 31.8%. The odds ratio is (30×156)/(170×44)=.626. The absolute risk difference is .15−.22=−.07, or seven fewer events per 100 over 30 days. NNT is about 1/.07=14.3, conventionally rounded up to 15 over that horizon.
 
-Use the risk ratio when you can estimate risks in both groups, and the odds ratio when you cannot, or when modelling several predictors simultaneously.
+These quantities answer related but different questions. The OR is farther from 1 than the RR because the outcome is common. NNT is unstable if the risk-difference interval crosses zero; report the absolute difference and uncertainty.
 
-| Setting | Example question |
-| --- | --- |
-| Randomized trial | Does adding a statin to standard care reduce 5-year coronary events? |
-| Prospective cohort | Is long-term NSAID use associated with a higher risk of gastrointestinal bleeding? |
-| Case-control study | Are neonatal antibiotics associated with a childhood asthma diagnosis? |
-| Multivariable logistic regression | Which admission variables independently predict 30-day readmission? |
+~~~r
+tab <- matrix(c(30, 170, 44, 156), nrow = 2, byrow = TRUE)
+risk1 <- tab[1, 1] / sum(tab[1, ])
+risk0 <- tab[2, 1] / sum(tab[2, ])
+c(RR = risk1 / risk0,
+  OR = (tab[1, 1] * tab[2, 2]) / (tab[1, 2] * tab[2, 1]),
+  RD = risk1 - risk0)
+~~~
 
-## Assumptions and limitations
+This assumes independent groups and complete fixed-horizon outcomes. If data are paired or clustered, variance must reflect that structure. For survival outcomes with censoring, use time-to-event methods rather than crude proportions.
 
-- **Rare-outcome approximation** — quoting an OR as if it were an RR is only defensible when the outcome is uncommon; at 20% risk the gap is already visible.
-- **Adequate cell counts** — normal-approximation confidence intervals for log OR or log RR misbehave with small cells or zero cells; use exact or penalized (e.g. Firth) logistic regression instead.
-- **Comparable follow-up** — the risk ratio compares cumulative risks; if follow-up differs between groups, an incidence rate ratio on person-time is more honest.
-- **Not a substitute for absolute risk** — the same RR means very different things on different baseline risks; always pair the ratio with absolute risks (see the article on absolute risk differences).
+## Estimation and intervals
 
-## Worked example
+For a log risk ratio, approximate variance is 1/a−1/n1+1/c−1/n0 for event counts a and c. A confidence interval is calculated on log scale then exponentiated. For log odds ratio, approximate variance is 1/a+1/b+1/c+1/d. These Wald formulas can fail with sparse cells or zero counts; score, likelihood, exact, or Bayesian methods may be more suitable.
 
-A trial randomizes 400 patients to a statin and 400 to placebo. Over 5 years, 48 of 400 in the statin arm and 80 of 400 in the placebo arm have a major coronary event.
+Ratios are asymmetric, so intervals should generally be constructed on log scale. A ratio interval from .50 to .90 does not translate to a symmetric percentage-change interval around the point estimate. Report the ratio and bounds, plus risks in both groups. For rare outcomes, small event counts yield wide intervals even if total sample size seems large.
 
-- Risk ratio = 0.12 / 0.20 = **0.60**, a 40% relative reduction.
-- 95% CI on the log scale: SE(log RR) = sqrt(1/48 − 1/400 + 1/80 − 1/400) = 0.168; log RR = −0.511, so CI = exp(−0.511 ± 1.96 × 0.168) = **0.43 to 0.83**, which excludes 1.
-- Odds ratio = (48/352) / (80/320) = 0.136 / 0.25 = **0.55**, close to the RR because the outcome is moderately rare.
+## Design and effect measure choice
 
-Interpretation: statin-treated patients have a 40% lower relative risk of a coronary event over 5 years, and the interval excludes no effect. Because the placebo risk is 20%, the absolute benefit is 8 percentage points — the number that should drive the shared decision (NNT = 12.5).
+In a cohort study with known denominators, RR is often directly estimable. In case-control sampling, the fraction of cases is set by design, so absolute risks and RRs cannot generally be estimated without additional population data; OR is estimable under sampling assumptions and can approximate RR when outcomes are rare. In cross-sectional studies, prevalence ratios may be more interpretable than prevalence odds ratios, but model choice and sampling design matter.
 
-## Interpretation and common pitfalls
+In randomized trials, logistic regression coefficients produce conditional ORs. Log-binomial or modified Poisson models can estimate RRs; standardization from logistic predictions can produce marginal risks and contrasts. Choice should align with estimand, model stability, and reporting. Do not interpret a conditional OR as a marginal RR.
 
-- Reporting an odds ratio of 2.5 as "the risk is 2.5 times higher." With a 20% baseline risk, an OR of 2.5 corresponds to an RR of 2.0 (exposed risk 40%); odds are not risks.
-- Reading a case-control OR as a risk estimate. It estimates the RR in the source population under valid sampling, not the actual probability of the outcome.
-- Confusing direction: RR < 1 favours the exposed group, while the same magnitude above 1 is a relative increase — always state which group has the higher risk.
-- Choosing OR versus RR by habit rather than design: the logistic-regression OR is convenient, but when risks are estimable, risk ratios (or risk differences) are usually easier for clinicians to act on.
-- Back-calculating an exposed-group risk from an OR in a trial: the OR identifies the ratio of odds, and converting it back to a risk requires knowing the baseline risk, which the OR alone does not provide.
+## Confounding and adjustment
 
-Risk ratios compare probabilities over a specified follow-up period; odds ratios compare p/(1−p). In case-control sampling, the exposure odds ratio is identifiable under standard sampling assumptions, but absolute risk and a risk ratio generally are not available without external incidence or sampling information. For common outcomes, consider reporting standardized risks and risk differences alongside odds ratios. Odds ratios are also non-collapsible: an adjusted OR can differ from a crude OR even without confounding, so coefficient change alone is not proof that confounding was controlled. Name the reference group and time horizon.
+For observational comparisons, crude ratios can be confounded by common causes of treatment and outcome. Regression adjustment, standardization, weighting, or matching can address measured confounders under assumptions. The adjusted estimate’s target may differ: conditional OR, marginal RR, and standardized RD are not interchangeable. Identify the target population and adjustment set.
 
-## References and further reading
+Odds ratios are non-collapsible: conditional and marginal ORs can differ even without confounding. A coefficient changing after covariate adjustment does not prove that confounding was removed. Standardized risks can provide marginal contrasts that are easier to interpret. Causal interpretation additionally needs exchangeability, positivity, consistency, and valid measurement.
 
-## Estimands, sampling, and adjustment
+## Sparse data and model choices
 
-## Converting an odds ratio to an absolute risk
+Zero or rare events create separation and unstable estimates in logistic regression. Continuity corrections can affect results, and exact or penalized methods may be needed. Firth logistic regression reduces small-sample bias for ORs but does not directly estimate an RR. Bayesian models can stabilize sparse estimates through priors; assess prior sensitivity.
 
-## Worked 2×2 calculation and interpretation
+For common outcomes, modified Poisson regression with robust variance is often used to estimate RRs, but convergence and boundary predictions should be checked. Log-binomial models directly target RR but can have convergence problems. Standardization from a flexible outcome model is another route, with uncertainty estimated via bootstrap or delta method.
 
-In 500 treated participants, 30 events occur (risk 6%); in 500 controls, 20 occur (4%). RR=0.06/0.04=1.5, RD=2 percentage points, and OR=(30×480)/(470×20)=1.53. Here OR approximates RR because outcome is uncommon, but the approximation worsens as risk increases. The approximate log RR SE is sqrt(1/30−1/500+1/20−1/500)=0.283, giving 95% RR interval about 0.86–2.62. The point estimate suggests increased risk, but interval is wide and includes no association.
+## Conditional versus marginal measures
 
-```r
-a <- 30; n1 <- 500; c <- 20; n0 <- 500
-rr <- (a / n1) / (c / n0)
-se <- sqrt(1/a - 1/n1 + 1/c - 1/n0)
-c(RR = rr, lower = exp(log(rr) - 1.96 * se),
-  upper = exp(log(rr) + 1.96 * se))
-```
+A conditional OR compares odds at fixed covariate values. A marginal OR compares population-average odds after averaging predicted risks. Non-collapsibility means they differ even in randomized data. For a risk ratio, conditional and marginal measures can also differ under effect heterogeneity. Report whether estimates are conditional or marginal and how standardized values were computed.
 
-These intervals assume independent binomial groups and adequate counts. Clustered or matched designs require corresponding variance methods. The p-value does not communicate that effects ranging from modest protection to substantial harm remain compatible with the data.
+When communicating a policy effect, marginal risks and absolute differences usually describe population burden more directly. For etiologic modeling, conditional parameters may be relevant. Choose the measure by question rather than treating adjusted coefficients as universally interpretable.
 
-## Model diagnostics and standardized contrasts
+## Time-to-event ratios
 
-## Effect measure choice by design
+Hazard ratios compare instantaneous event rates among those still at risk, conditional on survival to each time. They are not risk ratios and can be difficult to interpret when proportional hazards fail. A hazard ratio of .70 does not imply 30% fewer people experience the event by a fixed time. Report survival or cumulative-incidence curves and fixed-horizon absolute risks where possible.
 
-## Reporting checklist
-
-Give numerator/denominator or event risks, define exposed and reference groups, identify time horizon and sampling design, state whether the measure is RR, OR, rate ratio, or HR, and provide an interval. For common outcomes, avoid translating OR directly into relative risk. For observational estimates, name adjustment variables and target population; for case-control sampling, do not infer absolute risk from sampled proportions.
+Competing events alter the risk estimand. Cause-specific hazards, subdistribution hazards, and cumulative incidence answer different questions. Crude risk ratios at a fixed horizon may be meaningful if follow-up is complete; otherwise use appropriate survival methods. State censoring and competing-event assumptions.
 
 ## Communicating relative and absolute effects together
 
-## Confounding, modification, and scale
+If control risk is 2%, RR=.75 yields intervention risk 1.5%, an absolute reduction of .5 percentage points. If control risk is 20%, the same RR implies 15%, a 5-point reduction. Relative effects aid comparison across baseline risks, but absolute effects convey expected event counts. Use baseline risks appropriate to the target and show uncertainty.
 
-In observational studies, adjusted measures depend on which covariates and scale are used. Confounding is not assessed by whether an adjusted estimate changes from crude by 10%; use causal structure and design knowledge. Effect modification can make RR constant while RD varies with baseline risk, or vice versa. Report scale-specific interaction and subgroup estimates when clinically important. If using logistic regression, distinguish a conditional OR from standardized marginal odds/risk estimates.
+Avoid statements like “risk was reduced by 25%” without specifying relative scale, comparator, event, and time. Say “risk ratio 0.75 (95% CI...), with estimated risks ... and difference ... over ...”. For ORs, name odds and avoid translating directly into risk changes unless baseline risk is used correctly.
 
-For follow-up with competing events, a cause-specific HR, subdistribution HR, and cumulative risk ratio are different estimands. An HR compares instantaneous rates among those event-free; cumulative incidence contrast describes actual probability by time. Avoid calling them all relative risk. Give event counts and absolute incidence whenever data support it.
+### Odds-ratio conversion to an absolute risk
 
-For a clinical report, give risks by group and denominator, then RD and RR or OR with interval. Example: 30/500 vs 20/500 yields 6% vs 4%, RD +2 percentage points and RR 1.5. This communicates the same data from two perspectives. If only RR is shown, readers cannot judge absolute burden; if only RD is shown, baseline-relative consistency across settings may be less apparent. Name reference group explicitly, and use “times the odds” for OR rather than “times as likely” when outcome is common.
+An odds ratio can be translated to a risk only when a baseline risk is known. If control risk is p0 and OR=θ, corresponding intervention risk under a simple common OR model is p1=θp0/(1−p0+θp0). For p0=.20 and θ=.70, p1=.14/(.80+.14)=.149, so the implied RR is .745 and RD is about −5.1 percentage points. The OR is not a 30% risk reduction.
 
-An OR may approximate RR for rare outcomes, but rarity depends on outcome frequency in the unexposed/source population and study design. The approximation is unreliable for common outcomes or strongly varying baseline risks. Converting a conditional adjusted OR using one overall baseline risk can fail due to non-collapsibility and covariate distributions; obtain standardized predictions instead. In case-control studies, observed case fraction is imposed by sampling and cannot provide the baseline risk for conversion.
+If p0=.50 with the same OR, p1=.7(.5)/[.50+.7(.50)]=.35/.85=.412. The risk ratio is .824 and RD −8.8 percentage points. This illustrates that an OR’s risk interpretation depends on baseline risk. The common OR assumption may not hold across subgroups, and adjusted conditional ORs should not be applied indiscriminately to population risks.
 
-Use risk ratios for cumulative incidence when follow-up is fixed and outcome status observed. Use rate ratios for person-time incidence when a rate model is meaningful, and hazard ratios for instantaneous event rates under survival assumptions. Odds ratios arise naturally from logistic likelihood and case-control sampling. They are not interchangeable. State time horizon and follow-up scheme, then choose measure aligned with question. For common outcomes, reporting only OR can make relative association appear larger than the risk ratio.
+Use baseline risk from a population relevant to the decision. If baseline risk is estimated with uncertainty, propagate it along with uncertainty in OR. For a model-based conversion, standardize predicted risks under each exposure condition rather than applying one coefficient to one baseline value when covariate distributions vary.
 
-For matched case-control designs, OR is conditional on matched sets; an unconditional estimate that ignores matching may be biased or inefficient. For randomized or cohort trials, modified Poisson with robust variance can estimate RR, while logistic regression may be retained for model convenience if absolute risks are standardized. Explain which effect is primary and provide complementary absolute risks.
+### Confidence intervals and sparse cells
 
-For modified Poisson RR models, use robust covariance and inspect fitted means; log-link predictions can exceed one. For logistic regression, assess functional form, separation, calibration, and influential observations. To obtain adjusted absolute risks, predict counterfactual exposure levels for each target person, average each set, then compute RD or RR. Bootstrap the full procedure or use the delta method. State target population and covariate distribution; a conditional coefficient and marginal standardized contrast are not interchangeable.
+For a log RR, estimate log(p1/p0) and use its standard error to construct an interval, then exponentiate. The log scale enforces positive bounds and often yields better coverage. The approximate variance uses event counts in denominators; when counts are small, its normal approximation is unreliable. Score intervals for risk ratios or profile-likelihood methods can improve performance.
 
-In case-control studies, the sampled case proportion is fixed by design, so it cannot serve as baseline risk. An OR remains available under appropriate sampling, but converting to RR requires an external baseline risk and correct sampling assumptions. In risk-set sampling, OR estimates a rate ratio without the rare-disease approximation; specify the sampling mechanism.
+For an OR from a 2×2 table, the Wald interval on log scale may fail when any cell is small or zero. Adding .5 to every cell is a continuity correction, not a neutral fix; different corrections yield different results and can bias sparse meta-analysis. Exact conditional methods condition on margins and answer a particular sampling question. Penalized likelihood or Bayesian estimation can stabilize estimates, but priors or penalties should be stated.
 
-If baseline risk (p_0) is known and the OR is transportable, the corresponding treated risk is \(p_1=OR\,p_0/(1-p_0+OR\,p_0)\). For OR=2 and baseline risk 10%, the treated risk is \(.20/(.90+.20)=18.2\%\), yielding RR=1.82 rather than 2. At baseline risk 50%, OR=2 corresponds to treated risk 66.7% and RR=1.33. Thus OR magnitude is strongly baseline-risk dependent when translated to probability.
+A nonsignificant interval that spans a wide range is inconclusive, not evidence of no effect. Report event counts by arm, not just the total sample. If a rare adverse event is central, plan sufficient follow-up and consider exact or hierarchical methods. Avoid emphasizing a relative ratio without showing the underlying absolute counts.
 
-```r
-or_to_risk <- function(or, p0) or * p0 / (1 - p0 + or * p0)
-p0 <- c(.01, .10, .50)
-p1 <- or_to_risk(2, p0)
-data.frame(p0, p1, RR = p1 / p0, RD = p1 - p0)
-```
+## Sample design and estimability
 
-This conversion is valid only for a compatible conditional or marginal OR and baseline risk. Combining an adjusted conditional OR with a crude baseline risk may not yield a valid adjusted risk. Prefer standardized prediction from the fitted model when covariates and interactions are available, and propagate uncertainty in both the OR and baseline risk.
+Case-control studies sample based on outcome status. The sample odds ratio estimates an exposure-outcome association under appropriate control sampling, but the sample proportion of cases is artificial. Absolute risk and risk ratio require source-population sampling fractions, incidence density methods, or external risk data. In nested case-control sampling, conditional logistic regression can estimate an incidence rate ratio under its design assumptions.
 
-## Conditional and marginal effects
+In cohort studies with censoring, a crude 2×2 table may misclassify people with short follow-up as non-events. Use survival analysis or fixed-horizon cumulative incidence with censoring methods. In cross-sectional samples, the measured quantity is prevalence; prevalence odds ratios may be far from prevalence ratios when conditions are common. Modified Poisson or log-binomial approaches can estimate prevalence ratios, but account for survey design where relevant.
 
-The OR is non-collapsible: marginal and conditional ORs can differ even when exposure is randomized and there is no confounding. Logistic regression coefficients condition on included covariates; a standardized population OR compares averaged risks then converts them to odds. The two targets should not be compared as though one must be confounded. Risk ratios are collapsible under appropriate conditions, but adjusted RR coefficients can still vary with effect modification and target population.
+Cluster sampling and cluster randomization induce correlation. Standard errors based on independent rows are too small. Use cluster-robust or multilevel methods and report number of clusters. A ratio point estimate may remain similar while interval width changes materially.
 
-In randomized trials, report the unadjusted marginal risks and risk difference/RR as interpretable summaries, and a prespecified adjusted analysis for precision if planned. In observational analyses, decide whether the target is conditional or marginal before fitting and choose an adjustment method accordingly. For policy, marginal effects often map better to population burden; for etiologic effect conditional on covariates, conditional models may be relevant but need a clear scientific rationale.
+## Worked adjusted contrast through standardization
 
-## Sparse data and alternative models
+Suppose a logistic model predicts event risk from treatment, age, and baseline severity. To estimate a marginal RR, predict each participant’s risk as if treated and as if control, average predictions in the target sample, and divide the two averages. For a marginal RD, subtract them. This g-computation approach clarifies the target population and avoids interpreting the conditional regression coefficient as a population ratio.
 
-When one cell is zero, log-Wald intervals fail or become infinite. Exact conditional methods, profile likelihood, Firth-penalized logistic regression, or Bayesian models with weakly informative priors can stabilize estimation. Continuity corrections are quick but arbitrary and can materially bias sparse tables. For common outcomes, modified Poisson with robust SE estimates RR directly; log-binomial regression is another option but may fail at the boundary. Always check predicted risks are plausible and less than one.
+~~~r
+fit <- glm(event ~ treatment + age + severity,
+           data = dat, family = binomial())
+d1 <- transform(dat, treatment = 1)
+d0 <- transform(dat, treatment = 0)
+p1 <- mean(predict(fit, d1, type = "response"))
+p0 <- mean(predict(fit, d0, type = "response"))
+c(risk1 = p1, risk0 = p0, RR = p1 / p0, RD = p1 - p0)
+~~~
 
-For matched case-control data, conditional logistic regression estimates a matched OR and should respect matched sets. For stratified randomization or clustered data, account for design in variance. For time-to-event outcomes, distinguish HR from cumulative RR or OR; report absolute survival/risk at specified horizons where possible.
+In observational data, causal interpretation requires adequate confounder measurement, positivity, consistency, and correct model specification or a robust estimator. The standardization population is the analyzed sample unless an external target is supplied. Bootstrap at the patient or cluster level to obtain uncertainty and repeat the model fit in every replicate.
 
-For a binary outcome, the risk ratio compares cumulative probabilities over a defined horizon, whereas an odds ratio compares odds. In a cohort or randomized trial, both risks can be estimated directly. In case-control sampling, the investigator fixes the numbers sampled from outcome groups, so the sample does not identify population risks; the exposure odds ratio remains estimable under appropriate sampling, but absolute risks and risk ratios require external incidence information or a valid model for the sampling design. Always say which population and time period the estimand refers to.
+### Effect modification and scale
 
-For two independent groups, a large-sample standard error for the log risk ratio is
+An effect can be homogeneous on one scale but heterogeneous on another. A constant RR implies larger absolute differences at higher baseline risks. A constant RD implies different RRs as baseline risk changes. Therefore, statements about “no interaction” depend on whether interaction is assessed on additive, multiplicative, or another scale. Select the scale based on clinical or scientific interpretation.
 
-\[
-SE\{\log(RR)\}=\sqrt{1/a-1/n_1+1/c-1/n_0},
-\]
+Subgroup estimates are often noisy. Compare effects directly with an interaction term or contrast, not by whether separate subgroup p-values cross .05. Prespecify subgroups, show absolute risks and intervals, and seek replication. Prediction of baseline risk is not evidence that treatment benefit differs; estimating individualized treatment effects requires causal design and separate validation.
 
-where \(a,c\) are event counts and \(n_1,n_0\) are group totals. For the odds ratio, the corresponding log-scale variance is \(1/a+1/b+1/c+1/d\) for the usual 2×2 table. These approximations become unstable with zero or very small cells; exact, penalized, or carefully justified continuity-corrected methods may be preferable. Do not silently add 0.5 to every cell: that can materially alter sparse-data estimates.
+### Confounding, mediation, and collider bias
 
-```r
-tab <- matrix(c(30, 470, 20, 480), nrow = 2, byrow = TRUE,
-              dimnames = list(group = c("treated", "control"),
-                              outcome = c("event", "no_event")))
-rr <- (tab[1, "event"] / sum(tab[1, ])) /
-      (tab[2, "event"] / sum(tab[2, ]))
-or <- (tab[1, "event"] * tab[2, "no_event"]) /
-      (tab[1, "no_event"] * tab[2, "event"])
-c(RR = rr, OR = or)
-```
+A confounder is a common cause of exposure and outcome. Adjusting for measured confounders can help estimate a causal contrast under assumptions. A mediator lies on the pathway from exposure to outcome; adjusting for it removes part of the total effect and targets a direct effect under additional assumptions. A collider is caused by exposure and outcome or their causes; conditioning on it can create spurious association.
 
-This example has risks of 6% and 4%, so RR=1.5 and OR≈1.53. If risks were 40% and 20%, the same OR would be 2.67 while RR would be 2. The odds ratio increasingly exaggerates the risk ratio as outcomes become common; “rare outcome” is a substantive approximation, not a universal cutoff.
+Automated covariate selection by p-value can include mediators or colliders and exclude important confounders. Choose adjustment variables from a causal model and study design. Report adjusted and unadjusted results when informative, but do not call one causal solely because it includes more variables. Sensitivity analyses for unmeasured confounding can show how strong an omitted factor would need to be to explain an association.
 
-For adjusted analyses, log-binomial regression models log risk but may fail to converge because fitted probabilities must stay below one. Modified Poisson regression with a log link and robust sandwich variance is a practical way to estimate adjusted risk ratios for binary outcomes. Logistic regression estimates conditional odds ratios; because of non-collapsibility, an adjusted OR can differ from the marginal OR even without confounding. To communicate absolute impact, predict risks under each exposure and average across the target covariate distribution.
+## Ratios in meta-analysis and evidence synthesis
 
-## Causal and clinical interpretation
+Pooling log ratios is common because their sampling distributions can be approximately normal. Ensure studies use the same ratio type and event definition. Do not pool OR and RR as if identical, especially for common outcomes. If converting, state baseline risks and assumptions. Zero-event studies and multi-arm trials require methods that respect sparse data and dependence.
 
-Association measures are not causal effects by themselves. In nonrandomized comparisons, control confounding using a defensible design and prespecified covariates, and address selection, measurement error, and positivity. A single adjusted coefficient cannot guarantee exchangeability. In randomized trials, the intention-to-treat risk ratio preserves the randomized assignment contrast; per-protocol effects require additional assumptions and methods for adherence.
+A pooled ratio should be translated into absolute outcomes using relevant baseline risks and uncertainty. Heterogeneity means the average may not apply to every setting. Show study-level estimates and prediction intervals where appropriate. Report whether a ratio is common, conditional, marginal, or random-effects average.
 
-Ratios omit baseline risk. An RR of 0.8 corresponds to 2 fewer events per 100 when control risk is 10%, but only 0.2 fewer per 100 when control risk is 1%. Report absolute risks and a risk difference alongside RR or OR, with confidence intervals and a common follow-up horizon. For time-to-event data, a hazard ratio is neither an RR nor an odds ratio; do not translate it into one without a survival model and assumptions about baseline hazard and competing events.
+### Reporting checklist
 
-Common reporting failures include calling an odds ratio a “risk” ratio, interpreting an OR as a percentage reduction in probability, comparing ratios computed at different time horizons, and reporting only a p-value. State the numerator and reference group explicitly (for example, “risk in intervention divided by risk in control”). If an OR is used in a case-control study, explain the sampling rationale and avoid presenting absolute risk unless its estimation is supported by additional data.
+State the event and time horizon; group risks and denominators; ratio type and direction; interval method; design and sampling; adjustment set; whether estimate is conditional or marginal; handling of zero cells, censoring, clustering, and missingness; and baseline risk used for absolute translation. Report risk difference where useful. Describe causal assumptions if making causal claims.
 
-- Greenland S, Senn SJ, Rothman KJ, et al. Statistical tests, P values, confidence intervals, and power: a guide to misinterpretations. *European Journal of Epidemiology*. 2016;31:337–350. https://doi.org/10.1007/s10654-016-0149-3
-- Zou G. A modified Poisson regression approach to prospective studies with binary data. *American Journal of Epidemiology*. 2004;159:702–706. https://doi.org/10.1093/aje/kwh090
-- Hernán MA, Robins JM. *Causal Inference: What If*. 2020. https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/
+Use language that matches the scale. “Odds were lower” for an OR; “risk was lower” for an RR only with cumulative risk data and defined follow-up. Include units and confidence intervals. A ratio alone can obscure clinical magnitude and leave readers to infer an absolute effect that may not apply.
 
-- Greenland S, Robins JM, Pearl J. Confounding and collapsibility in causal inference. *Statistical Science*. 1999;14:29–46. [doi:10.1214/ss/1009211805](https://doi.org/10.1214/ss/1009211805)
+### Communicating effects without scale confusion
 
-- Greenland S, Rothman KJ, Lachin JM. "Measures of Occurrence and Effect." In Rothman KJ, Greenland S, Lash TL (eds), *Modern Epidemiology*. Lippincott Williams & Wilkins.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Collett D. *Modelling Binary Data*. CRC Press.
-- The [effect sizes article](../inference/effect-sizes.html) develops interpretation of relative versus absolute effects.
+For a treatment study, a clear sentence might report that 15% of intervention participants and 22% of controls experienced an event by 30 days, corresponding to RR .68 and RD −7 percentage points. The interval around each contrast communicates sampling precision. If the outcome is common, avoid describing the OR of .63 as a 37% risk reduction. If a relative effect is the main result, translate it using a baseline risk relevant to the audience.
+
+For observational studies, distinguish adjusted association from causal effect. Explain the source population, exposure definition, confounder strategy, and remaining assumptions. A statistically precise ratio can still be biased by unmeasured confounding or selection. Avoid causal verbs when design and assumptions support only association.
+
+When follow-up differs, do not compare raw cumulative risks without addressing censoring. When competing events occur, state the risk definition and estimator. When participants have repeated events, distinguish risk of any event from event rate. These details determine whether the ratio answers the stated question.
+
+### Reporting the numerical scale
+
+The reference group and event direction should be explicit in tables and prose. For a ratio of .70, state which group is in the numerator and whether the event is desirable. If the event is recovery, a value below 1 can indicate less recovery, whereas for an adverse event it can indicate benefit. Use consistent coding across models and forest plots.
+
+A relative effect can appear stable while baseline risk changes. Whenever possible show event counts, group risks, ratio, and absolute difference together. In subgroup communication, avoid presenting a common ratio as an individualized benefit estimate; individual benefit requires a causal framework and adequate data support. Report intervals and clarify whether they are adjusted, marginal, or conditional.
+
+### Interval interpretation
+
+A confidence interval for a ratio that includes 1 is compatible with no relative association under the model, but may also include clinically important benefit or harm. Do not report only whether it crosses 1. Compare its bounds with meaningful relative and absolute effects, and remember that systematic bias is not represented by the interval.
+
+If the event is common, the odds ratio can differ substantially from the risk ratio; if risk is rare, the numerical approximation may be closer but still depends on design. Report actual risks rather than relying on a rare-outcome label alone.
+
+### Avoiding denominator errors
+
+Use the number at risk in each group as the denominator for cumulative risks. If follow-up differs, a crude event proportion may compare different observation windows and should not be labeled a risk ratio without qualification.
+
+## References and further reading
+
+- Greenland S, Pearl J, Robins JM. Causal diagrams for epidemiologic research. *Epidemiology*. 1999;10:37–48.
+- Zhang J, Yu KF. What's the relative risk? A method of correcting the odds ratio in cohort studies of common outcomes. *JAMA*. 1998;280:1690–1691. [doi:10.1001/jama.280.19.1690](https://doi.org/10.1001/jama.280.19.1690).
+- See [Absolute risk differences](absolute-risk-differences.html) for additive effects.

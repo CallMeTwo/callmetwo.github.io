@@ -1,151 +1,154 @@
 ---
 title: Model validation and overfitting
-summary: How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting.
+summary: Estimate how well a model will perform beyond its development data, control optimism from flexible modeling, and validate calibration, discrimination, and utility.
 ---
 
-## Overview and key ideas
+## Overview
 
-A regression model fitted to a dataset will always fit that dataset well — and increasingly well the more predictors you add. *Overfitting* is the failure mode in which the model captures random noise specific to the sample, so its *apparent* performance (e.g. R², AUC) is much better than its performance on new patients. Validation is the set of techniques that estimate how the model will actually perform in new data, and shrinkage is what overfitting does to a model: its coefficient estimates tend to be too large in magnitude, and its calibration (predicted vs observed probabilities) tends to be worse than it looks internally.
+Overfitting occurs when a model captures random quirks of its development sample along with reproducible signal. Apparent performance measured on the same data used to choose predictors and tune parameters is optimistic. Validation estimates how well the full modeling process will perform in new observations, time periods, or settings.
 
-The standard ladder of validation is: **optimism** (no validation — the model's own fit, always too optimistic), **internal validation** (bootstrap resampling or k-fold cross-validation on the same data), **temporal validation** (apply the model to patients followed later in the same cohort), and **external validation** (apply it to a genuinely independent dataset, ideally from a different site). For a model with k fitted coefficients, the classic shortcut for the expected overfitting of R² is the shrinkage estimate: adjusted R² ≈ 1 − (1 − R²)(n − 1)/(n − k − 1). With n = 150 and k = 15, a development R² of 0.30 shrinks to about 1 − (0.70)(149/134) ≈ 0.20 — one-fifth of the variance, not three-tenths.
+Validation is not one number. For prediction, assess calibration (probabilities are accurate), discrimination (ranking), and clinical utility (decisions improve). The design must match deployment: future patients, new hospitals, or other populations create different transport challenges. A high AUC in a random split does not establish useful absolute risk or external validity.
 
-## When to use it
+## Development data and model complexity
 
-| Setting | Example question |
-| --- | --- |
-| Risk score development | Does this 12-week readmission model still rank patients correctly at the next site? |
-| Biomarker panel | Is the panel's AUC in 200 patients likely to survive replication? |
-| Model comparison | Which of two scoring rules predicts outcome better in *new* patients? |
-| Regulatory / guideline work | Does the published model's calibration hold in our hospital's population? |
+Effective model complexity includes every estimated parameter: categories, spline terms, interactions, transformations, and data-driven selection. Ten variables can imply many more than ten parameters. A large predictor set relative to events invites overfitting, unstable coefficients, and exaggerated predictions. Shrinkage, penalization, and prior regularization can reduce variance but cannot create information absent from data.
 
-Validation is required whenever a model is used for prediction (not just inference) — every clinical risk score, nomogram or ML model — and the more predictive claims are made, the more rigorous the validation must be: development-only performance is a minimum for an honest external test, not a promise of it.
+Avoid univariable screening followed by stepwise selection as default. It leads to biased coefficients, unstable selected predictors, and invalid ordinary confidence intervals. Prespecify clinically relevant predictors, use shrinkage, and validate the entire modeling strategy. If feature selection or tuning is done, repeat it inside each resample or training fold.
 
-## Assumptions and limitations
+Sample size should be planned from desired shrinkage, calibration precision, event fraction, and anticipated model fit rather than a fixed events-per-variable rule. Prediction-model sample-size formulas can estimate required events and total participants. Sparse outcome settings need larger samples because calibration and subgroup performance require enough events and non-events.
 
-- **Sample size relative to complexity**: the events-per-variable (EPV) heuristic (≥ 10 outcome events per predictor, often ≥ 20 for reliable prediction) is a guard against overfitting, not a law; small samples with many predictors guarantee optimistic performance estimates.
-- **Applicability**: external validation tests performance *in a new population*; if the new population differs substantially (different case mix, outcome prevalence, measurement methods), the model may be inapplicable rather than merely imperfect.
-- **Bootstrap assumptions**: the .632+ bootstrap (Efron) and k-fold CV estimate optimism under the assumption that the new data come from the same population; they do not protect against population shift.
-- **Stability of the data-generating process**: a model validated on 2010–2015 data may fail after a care pathway change in 2020; temporal validity can decay.
-- **What is being validated**: discrimination (AUC, calibration slope) and calibration (intercept, slope) are distinct; a model can discriminate well while being miscalibrated, and vice versa.
+## Apparent, internal, and external performance
 
-## Worked example
+Apparent performance is evaluated on development data and is optimistic. Internal validation estimates optimism using the same source population. Bootstrap validation draws samples with replacement, repeats all modeling steps, and compares performance in bootstrap samples with performance in the original data. Average optimism is subtracted from apparent performance.
 
-A team builds a logistic model predicting 30-day readmission from 12 predictors in 900 patients (215 readmissions). The development AUC is 0.79 and R² (Hosmer–Lemeshow-type) looks excellent. A 10-fold cross-validation gives AUC 0.71 — an optimism of 0.08. The calibration slope from the bootstrap is 0.72, indicating coefficients are about 28% too large. The team shrinks the model (ridge penalty) and re-estimates: AUC 0.72, slope 0.85. Two independent hospitals then apply the shrunk model: AUC 0.69 and 0.71, calibration slope 0.90 and 0.94. The honest claim is "AUC about 0.7, reasonably well calibrated, externally validated in two sites" — not "AUC 0.79". Had the unshrunk model been deployed, its predicted probabilities would have been systematically too extreme: patients it labelled 25% risk would have observed risk closer to 19%.
+Cross-validation divides data into folds, fits on training folds, and evaluates held-out predictions. Repeated cross-validation reduces dependence on a single split. A split-sample approach is simple but inefficient: it uses fewer observations for both fitting and validation and can have high variance, especially in small datasets.
 
-## Interpretation and common pitfalls
+External validation applies a locked model to independent data without refitting coefficients. Temporal validation tests performance in later patients at the same site; geographic validation tests other sites; setting validation tests other care systems. If the model is updated using validation data, call it model updating and use new data for unbiased assessment of the updated version.
 
-- Reporting the development AUC or R² as if it were the expected real-world performance is the single most common error; always pair it with a cross-validated or externally validated estimate.
-- A "non-significant" difference between two models' AUCs means the data cannot distinguish them — it does not prove they are equally good, and it is not a license to pick by convenience and report the winner's optimistic number.
-- Good discrimination (AUC) does not mean the model is clinically useful: compare the model's predictions to a baseline using decision-curve analysis or net reclassification, and check calibration in the risk range where decisions are actually made.
-- Adding predictors until the cross-validated metric stops improving is a defensible stopping rule; adding predictors until the *development* metric stops improving is how overfitted models are built.
-- External validation with a small external sample has its own wide CIs; a single external AUC of 0.68 with n = 120 may be compatible with a true AUC of 0.62–0.74 — report the CI.
+## Avoid leakage in resampling
 
-For binary prediction models, report calibration as well as discrimination. The Brier score averages squared prediction errors and reflects both; calibration plots should include uncertainty and avoid overinterpreting sparse risk ranges. Internal validation must repeat every data-driven step inside each resample, including imputation, feature selection, and tuning, or optimism remains. External validation assesses transportability; report calibration slope and intercept and consider recalibration before refitting. AUC alone is insensitive to whether predicted risks are clinically useful, so decision-curve net benefit can complement performance measures when thresholds correspond to real decisions.
+Every data-dependent operation belongs inside the training portion of each fold: imputation, scaling, feature selection, spline knot selection, tuning, and threshold selection. If imputation is done once before splitting, information from held-out outcomes can leak into development. If patient records are repeated, keep each patient in one fold. For transport to new hospitals, split by hospital rather than individual.
 
-## Prediction targets and leakage
+Temporal data require temporal validation. Randomly dividing rows can allow future observations to inform predictions for the past and can distribute seasonal or coding patterns across folds. Use rolling-origin validation or a prespecified temporal holdout. For clustered data, leave-one-cluster-out or grouped folds assess performance in new clusters.
 
-Validation asks whether a model's predictions generalize to the intended future population, time, and setting. Define the prediction time, outcome horizon, eligible population, and clinical use before splitting data. Leakage occurs when information unavailable at prediction time enters predictors, or when related observations from the same patient appear in both training and test data. Leakage produces deceptively strong performance. Split by patient, family, site, or time according to the deployment target.
+Repeated cross-validation uses several random fold partitions, reducing dependence on one split. It does not create independent validation data; fold estimates are correlated and uncertainty calculation needs care. Bootstrap optimism correction can be more efficient for smaller datasets, but relies on the empirical sample approximating the target population. External validation remains the clearest transport assessment.
 
-Overfitting arises when model flexibility is large relative to information. In linear regression, adding predictors increases training R² and decreases residual error even when predictors encode noise. In logistic prediction, many parameters relative to events produce unstable coefficients and extreme risks. Feature selection, transformations, imputation, and tuning all contribute to effective model complexity. Penalization (ridge, lasso, elastic net) shrinks estimates but requires tuning within validation resamples.
+For hyperparameter tuning, use nested cross-validation: inner folds choose penalty or model settings, outer folds estimate performance. If the same folds choose and evaluate tuning parameters, performance is optimistic. After tuning, refit the final model on all development data and lock it before external evaluation.
 
-## Worked example: optimism and internal validation
+Preprocessing must also be nested. Centering, scaling, missing-data imputation, feature filtering, and batch correction should be estimated within training data and applied to held-out data. For unsupervised transformations using no outcomes, leakage can still occur if held-out distribution information would not be available at deployment. Simulate the deployment pipeline faithfully.
 
-Suppose a logistic model is developed on 500 patients with 60 events and 30 candidate predictors, some selected by stepwise search. Apparent AUC=.86 may reflect selection noise. In bootstrap validation, each resample repeats imputation, variable selection, and fitting; test the fitted model back on original data to estimate optimism. If average optimism is .08, optimism-corrected AUC≈.78. A random train/test split would waste data and could be highly variable with only 60 events.
+## Performance measures for binary predictions
+
+Discrimination is often summarized by ROC AUC, the probability an event case receives a higher score than a non-event case. AUC is insensitive to calibration and prevalence, and can appear high for a model that gives inaccurate probabilities. Precision-recall curves emphasize positive predictive value when events are rare, but depend on prevalence.
+
+Calibration compares predicted and observed event probabilities. Calibration-in-the-large detects average over- or underprediction; calibration slope detects predictions that are too extreme or too moderate. Plot smooth observed risk against predicted risk with uncertainty. Grouped deciles can hide local miscalibration and should be interpreted cautiously.
+
+Brier score is mean squared probability error, \(n^{-1}\sum(p_i-y_i)^2\); lower is better. It combines calibration and discrimination and depends on event prevalence. Compare against a reference prediction such as prevalence. Report confidence intervals for performance metrics using resampling at the independent unit.
+
+Calibration-in-the-large can be estimated by fitting a logistic model with the original linear predictor as offset; ideal calibration intercept is zero. The calibration slope is estimated by regressing outcome on the linear predictor; ideal slope is one. A slope below one indicates predictions are too extreme, often due to overfitting. An intercept may be zero while slope is poor, so report both and inspect a curve.
+
+Calibration plots can be built from flexible smooths, but the curve is uncertain in the tails where few patients have extreme predictions. Show confidence bands and rug marks. Grouping into deciles is simple but creates arbitrary bins and can hide local errors. Hosmer–Lemeshow tests depend on binning and sample size and should not replace graphical assessment.
+
+Calibration is horizon-specific. A model predicting 1-year event probability should be assessed for 1-year outcomes, accounting for censoring if not all participants have complete follow-up. Treating censored individuals as non-events biases calibration. For time-to-event prediction, use time-dependent calibration methods and state the horizon.
+
+Discrimination also depends on case mix. AUC can be higher in a heterogeneous validation population than a homogeneous one even if model coefficients are unchanged. Compare populations and report AUC with uncertainty; use calibration and decision performance to judge practical value. AUC alone cannot establish transportability.
+
+## Worked example: optimistic AUC
+
+Suppose a model with 30 candidate parameters is fit to 150 patients and 45 events. Apparent AUC is 0.88, but bootstrap optimism is 0.09, giving optimism-corrected AUC 0.79. Calibration slope is 0.62, suggesting predictions are too extreme. The model has learned sample-specific patterns. A penalized model may yield lower apparent AUC but better corrected calibration and prediction in new patients.
+
+This example does not establish the model's future performance. Bootstrap validation assumes development data represent the target population and repeats the full pipeline. External validation is still needed. With only 45 events, even optimism-corrected performance is uncertain; show intervals and avoid reporting 0.79 as a precise property.
+
+## R workflow for bootstrap validation
+
+The `rms` package can estimate optimism-corrected discrimination and calibration for a logistic model. The example uses a prespecified model; if variable selection or tuning occurs, that entire procedure must be repeated within each bootstrap.
 
 ```r
-set.seed(2026)
-# Basic cross-validation illustration; preprocessing/selection belongs inside folds
-fold <- sample(rep(1:5, length.out = nrow(dat)))
-auc <- numeric(5)
-for (k in 1:5) {
-  train <- dat[fold != k, ]
-  test <- dat[fold == k, ]
-  fit <- glm(event ~ age + biomarker, family = binomial(), data = train)
-  pred <- predict(fit, newdata = test, type = "response")
-  # calculate AUC using a validated package, e.g. pROC::roc
-  auc[k] <- as.numeric(pROC::auc(test$event, pred))
-}
-mean(auc)
+library(rms)
+dd <- datadist(dat); options(datadist = "dd")
+fit <- lrm(event ~ rcs(age, 4) + sex + severity + treatment,
+           data = dat, x = TRUE, y = TRUE)
+validate(fit, method = "boot", B = 1000)
+cal <- calibrate(fit, method = "boot", B = 1000)
+plot(cal)
 ```
 
-This code demonstrates folds for a fixed two-predictor model. If variable selection or tuning occurs, it must be repeated inside each training fold. If multiple rows belong to one patient, assign folds by patient, not row. Repeated cross-validation reduces partition noise but not transportability uncertainty.
+Inspect optimism estimates and calibration curve, and report number of resamples, seed, and failed fits. The model syntax and spline knots should be justified and fixed or reselected inside resamples according to the intended development process. This workflow is internal validation, not external validation.
 
-## Calibration, discrimination, and overall accuracy
+Suppose at a 10% threshold, 60 of 100 events and 720 of 900 non-events are correctly classified. Sensitivity is 60%, specificity 80%, and positive predictive value is 60/(60+180)=25%. The model flags 240 of 1,000 patients, and three quarters of flags are false positives under this outcome definition. Whether this is acceptable depends on intervention burden and missed-event consequences. AUC alone does not expose this tradeoff.
 
-Discrimination measures ranking: AUC is the probability a randomly chosen case receives a higher score than a randomly chosen noncase. It is insensitive to calibration shifts. Calibration compares predicted and observed absolute risk. Calibration-in-the-large assesses systematic over/underprediction; calibration slope detects predictions that are too extreme or too moderate. A Brier score is mean squared error of predicted probabilities and reflects calibration and discrimination, but depends on outcome prevalence.
+## Thresholds and clinical utility
 
-Calibration plots should show uncertainty, especially in sparse risk ranges, and avoid over-smoothed curves. External validation should report calibration intercept and slope, AUC with interval, Brier score, and clinical net benefit if decision use is intended. Recalibration adjusts intercept and possibly slope; refitting all predictors requires new data and should be distinguished from validation.
+Threshold-specific sensitivity, specificity, predictive values, and net benefit address decisions more directly. Select thresholds based on clinical consequences and patient preferences, not by maximizing performance on the validation data. Decision-curve analysis compares model-guided action with treat-all and treat-none across thresholds; it relies on utility assumptions and does not prove improved patient outcomes.
 
-## Resampling designs and external validation
+If a threshold is selected as part of model development, selection must occur within resampling and evaluation on independent data. Report proportion flagged, false-positive burden, and downstream resource implications. A model can improve AUC while worsening decision utility at the clinically relevant threshold.
 
-Bootstrap validation is efficient for modest datasets and estimates optimism when the entire modeling pipeline is repeated. Cross-validation partitions data into folds and evaluates held-out predictions; nested CV is needed when tuning hyperparameters. The unit of resampling must match independent sampling. Clustered data require cluster bootstrap or grouped folds. Temporal validation trains on earlier data and tests later data; geographic validation tests transport across sites. External validation is strongest for generalization but can still be underpowered or unrepresentative.
+Decision-curve net benefit at threshold \(p_t\) is \(TP/n-(FP/n)\times p_t/(1-p_t)\). The threshold encodes the relative consequence of false positives to true positives. Plot model net benefit against treat-all and treat-none over thresholds clinicians consider plausible. A curve above these strategies suggests potential utility under the assumed tradeoff, not proven improvement in patient outcomes.
 
-Do not select the best-performing model on a test set and report its test performance as unbiased; repeated use turns the test set into training information. Keep a final test set untouched or use nested resampling. Preprocessing steps (scaling, imputation, feature filtering) must be estimated in training data only to avoid leakage.
+Threshold performance varies with prevalence. Sensitivity and specificity are conditional on outcome status and can transport differently; positive predictive value and negative predictive value depend directly on event prevalence. Report expected numbers flagged and events captured per 1,000 patients in the target setting. If prevalence shifts, recalibrate and recalculate utility.
 
-## Sample size, shrinkage, and decision utility
+Clinical impact evaluation may require a prospective implementation study or randomized trial. The model could change clinician behavior, induce testing, or create alert fatigue. Statistical validation in retrospective records does not evaluate these workflow effects. Distinguish model performance from impact of using the model.
 
-A prediction model needs enough outcome information for all candidate parameters, including nonlinear terms and interactions. The old fixed events-per-variable rule is not sufficient; plan based on expected R², outcome prevalence, number of parameters, target shrinkage, and precision of overall risk. Shrinkage reduces coefficient extremes; calibration slope below one in validation indicates overfitting. A model can discriminate well but offer no net benefit at clinically relevant thresholds. Decision curves compare net benefit against treat-all and treat-none strategies, with thresholds representing action preferences.
+## Recalibration, updating, and transport
 
-## Reporting and deployment
+When calibration drifts but predictor effects remain stable, updating the intercept can adjust average risk; updating intercept and slope can correct systematic overfitting. More extensive recalibration modifies coefficients or adds predictors. Each update creates a new model version and should be validated separately. Do not describe validation data used for refitting as an untouched test set.
 
-Follow TRIPOD guidance: define intended use, participants, outcome, predictors, missing-data handling, model development, validation, and full coefficients. Provide code and a calculator only when reproducible and safe. Monitor calibration drift after deployment as prevalence, practice, assays, or coding change. Validation is not permanent; recalibration may be needed. A model's performance is population- and time-specific, and external deployment requires governance and impact evaluation, not AUC alone.
+Transport may fail because prevalence, case mix, predictor measurement, or outcome definitions differ. AUC can shift with spectrum; calibration often changes with baseline risk. Assess subgroup performance and data quality, and identify missing predictors. Recalibration cannot fix a changed relationship or severe measurement mismatch.
 
+External validation should compare inclusion criteria, predictor availability and timing, outcome definition, follow-up horizon, and missing-data process with development. Apply the original model without refitting first. Report calibration, discrimination, decision utility, and uncertainty. Differences in coding or laboratory assay should be documented before interpreting performance loss as a statistical problem.
 
-## Optimism correction and calibration recalibration
+If recalibration is needed, an intercept-only update changes average predicted risk while preserving relative coefficients. Updating intercept and slope adjusts both average level and extremity. Full coefficient revision or predictor addition constitutes model updating. Avoid optimizing many parameters in a small validation dataset; shrink updated parameters and validate in a later or separate sample.
 
-Apparent performance evaluates predictions on the same data used for fitting and is optimistic. Bootstrap optimism correction fits the model in each bootstrap sample, evaluates in bootstrap and original data, and subtracts the average performance gap from apparent performance. Every modeling step must be repeated within each bootstrap. If model selection is fixed outside resampling, estimated optimism remains understated.
+Geographic and temporal validation are not interchangeable. A later cohort at one hospital probes changes in practice and prevalence; a different hospital probes organizational and case-mix transport. A model may pass one and fail the other. Multisite validation can quantify heterogeneity and identify where local recalibration is needed.
 
-Calibration-in-the-large can be assessed by fitting an intercept-only logistic recalibration model with the original linear predictor as an offset; ideal intercept is zero. Calibration slope comes from logit(Y)~α+γ logit(p̂); ideal γ=1. A slope below one suggests overfitting and overly extreme predictions. Updating intercept and slope can recalibrate to a new setting, but should be reported separately from full model redevelopment.
+## Overfitting, shrinkage, and model stability
 
-## Validation uncertainty and transport
+Ridge regression shrinks coefficients toward zero and is useful with correlated predictors; lasso can set coefficients to zero but selection can be unstable; elastic net combines penalties. Firth logistic regression addresses small-sample bias and separation. Bayesian priors provide regularization with explicit assumptions. Tune penalties inside resampling and report the chosen method.
 
-A validation estimate has its own uncertainty. AUC confidence intervals can be wide when events or non-events are few; calibration curves are especially uncertain in risk tails. Report denominators and intervals, not only point metrics. Compare case mix, outcome prevalence, measurement procedures, and care pathways between development and validation settings. A performance drop can result from predictor distribution shift, changed baseline risk, coding drift, or genuine effect changes.
+Bootstrap coefficient distributions and selection frequencies can reveal instability. If small data changes produce different selected variables or large coefficient swings, avoid claiming a definitive predictor set. For prediction, stable out-of-sample performance can matter more than stable individual coefficients, but implementation still needs transparent model specification.
 
-Temporal validation is useful for clinical systems likely to drift; geographic validation probes site transport. Random splitting within one hospital mainly estimates performance on similar patients and may not reflect deployment elsewhere. External validation should use the intended-use population and preserve an untouched dataset. Recalibration can help if only baseline risk shifts, but predictor effects may also change.
+Uniform shrinkage multiplies regression coefficients by a factor between zero and one, reducing overextreme predictions. Ridge shrinkage is continuous and handles collinearity; lasso selects a sparse set but may choose arbitrarily among correlated predictors. Elastic net balances both. Tuning must be internal to validation. Report whether predictors were standardized before penalization and how the intercept was treated.
 
-## Decision utility and model impact
+Bootstrap optimism correction estimates apparent minus test performance within resamples. For each bootstrap sample, repeat model development, calculate performance in bootstrap data, then in original data; average difference estimates optimism. Subtract from apparent performance. If the development algorithm includes stepwise selection, that selection must be rerun in every resample. Otherwise correction ignores the main source of overfitting.
 
-A model with better AUC does not necessarily improve decisions. Decision-curve analysis evaluates net benefit across threshold probabilities by weighing true positives against false positives according to the implied harm-benefit tradeoff. The relevant threshold range should be clinically plausible. Prospective impact evaluation assesses whether using the model changes care and outcomes, including workload, inequity, and unintended consequences. A model should not be deployed based only on internal validation metrics.
+With small development samples, performance estimates themselves have wide uncertainty. A single split can yield wildly different results depending on which events land in test data. Prefer bootstrap or repeated/nested cross-validation for internal validation, but report limitations and seek external validation. Do not treat resampling as a replacement for adequate sample size.
 
-Before release, lock model version, define input availability and missingness handling, assess subgroup calibration, and monitor performance over time. Provide a fallback when inputs are unavailable and governance for updates. Validation is an ongoing process, not a one-time certificate.
+## Reporting validation clearly
 
-## Performance measures for continuous outcomes
+State development and validation populations, sample sizes and events, split strategy, all modeling steps, performance measures, uncertainty intervals, calibration, discrimination, threshold utility, and missingness handling. Identify whether validation was internal, temporal, geographic, or external. Report model version and any recalibration.
 
-For continuous prediction, report calibration plot of observed versus predicted values, mean absolute error, root mean squared error, and R² in validation data. RMSE penalizes large errors more heavily than MAE; neither is meaningful without outcome units and a baseline comparison. R² can be negative on a test set if predictions perform worse than predicting the training mean. Prediction intervals should be evaluated for coverage and width, not only point error.
+For clustered or repeated data, explain how dependence was handled in splitting and uncertainty. For prediction in clinical practice, describe prediction time, horizon, available predictors, and deployment workflow. TRIPOD and TRIPOD+AI guidance support transparent reporting but do not replace sound design.
 
-For binary outcomes, compare Brier score with the null score based on prevalence and report calibration. AUC can remain unchanged under any monotonic transformation of predictions, even when absolute probabilities are badly wrong. Threshold-specific sensitivity, specificity, and predictive values depend on the decision threshold and prevalence. Choose metrics based on intended use and harms of errors, not convenience.
+Describe the full development pipeline, including candidate predictors, transformations, missing-data handling, selection, tuning, and threshold choice. State which steps were repeated inside resampling and which were fixed in advance. Give calibration plots and discrimination with intervals, not only a single C-statistic. For external validation, state whether any recalibration occurred before final evaluation.
 
-## Reproducible validation pipeline
+Provide model equations, intercept, coefficients, coding rules, and software so predictions can be reproduced. If intellectual-property or data-access constraints limit release, explain them and provide a route for qualified validation. A model's public paper alone is not a deployable specification.
 
-Use nested resampling for hyperparameter selection: inner folds select tuning parameters; outer folds estimate generalization. All data-dependent transformations—standardization, missing-data imputation, feature screening, spline-knot choices if estimated, and calibration—must be learned within training folds. Keep a final external dataset untouched until model choices are fixed. Document random seeds, fold assignment, software versions, and event distribution per fold. If temporal drift is expected, random CV may overstate future performance; use rolling-origin or temporal validation.
+## Temporal and geographic drift
 
-## Worked example: calibration slope
+Temporal validation should preserve chronology. Train on earlier years and evaluate later years, optionally using rolling windows to assess degradation and retraining. Coding, treatment standards, diagnostic technology, and prevalence may change. A model that performs well in a random split of pooled years can fail when used prospectively because each split contains examples from every era.
 
-Suppose external validation yields calibration slope γ=.72 (95% CI .55 to .89). Predictions are too extreme: high predicted risks are generally too high and low risks too low. A simple recalibration shrinks the original logit predictions by .72 and estimates a new intercept to match average risk. This improves calibration under a transport assumption that predictor ranking and relative effects are broadly stable. If predictors have changed effects or measurement, intercept/slope recalibration may not suffice.
+Geographic validation should hold out whole sites or regions. If site identifiers or local coding patterns appear in both train and test, performance can reflect site recognition rather than portable clinical signal. Compare calibration and error across sites and report heterogeneity. A pooled mean can hide poor performance in a vulnerable subgroup or rural setting.
 
-A calibration slope estimated in the same development data is optimistically near one by construction. Use bootstrap or external data. Report calibration-in-the-large separately, as a model may have a good slope but systematically overpredict across the population.
+When sample size is small, leave-one-site-out estimates can be noisy and the sites may not represent the target deployment population. Interpret them as stress tests, not definitive ranking. Prospective validation in intended-use workflows remains important for high-stakes models.
 
-## Subgroup validation and fairness
+Validation sample size should be planned for precision of calibration and utility, not simply as a percentage of development data. Few outcome events produce wide intervals for calibration slope and threshold sensitivity. Report uncertainty and avoid declaring acceptable performance from a favorable point estimate alone.
 
-Evaluate calibration and discrimination across clinically relevant demographic and care subgroups, with uncertainty and adequate denominators. Similar AUCs do not guarantee similar false-positive burdens or calibration. Small subgroup samples can make estimates unstable; report uncertainty rather than overclaiming parity. Investigate missingness, measurement quality, and prevalence differences. Fairness criteria can conflict, so state the chosen clinical and ethical objective and governance process.
+After deployment, monitor data quality, alert volume, calibration, subgroup errors, and clinician response. Predefine triggers for review, recalibration, or suspension. A model version should be traceable to its development dataset, code, coefficients, and validation evidence.
 
-## Predictor selection and shrinkage
+Drift monitoring should respect privacy and avoid reacting to random short-term variation. Use rolling summaries with uncertainty and document who reviews alerts. Recalibration must not be confused with evidence that clinical outcomes improved.
 
-Univariable screening can discard predictors that matter jointly and inflate selection bias among retained coefficients. Stepwise selection yields unstable models when predictors are correlated and fails to account for search in ordinary intervals. If the aim is prediction, ridge or elastic-net shrinkage can stabilize coefficients; lasso can set some to zero but selection may vary across samples. Tune penalties within nested resampling and report the full pipeline. If the goal is causal estimation, select covariates from the causal estimand, not predictive performance alone.
+Report the exact model version and validation population with any quoted performance statistic.
 
-A useful validation report specifies development and validation dates/sites, participant flow, outcome prevalence, missingness, predictor availability, metrics with intervals, calibration, and any recalibration. Make the intended use explicit: triage, screening, prognosis, or treatment selection each has different acceptable errors. Independent validation should reproduce the original predictor definitions exactly before any adaptation is considered.
+An apparent performance estimate should always be labeled as apparent when reported; readers should not confuse it with validation evidence.
 
-Missing predictors at deployment create a practical validation issue: evaluate the same imputation or fallback strategy intended for use. A model validated only on complete records may perform worse in routine practice where missingness is common. Track missing input rates, subgroup performance, and consequences of fallback decisions after implementation.
+When reporting an updated model, retain the original validation result and present new performance estimates only from data not used to update. This avoids reusing the same validation evidence as both development and evaluation.
 
-Validation results should be reported with the exact model version and predictor definitions. If recalibration or coefficient updating is performed, that updated model needs another evaluation on data not used for the update. Distinguish “external validation of the original model” from “model updating followed by evaluation,” since they support different conclusions about transport.
+The deployment threshold should be evaluated in the same population and care pathway in which alerts will operate. A threshold selected to achieve a sensitivity target in a retrospective cohort may produce a very different alert burden when prevalence changes or clinicians order tests selectively. Estimate sensitivity, specificity, positive predictive value, and alerts per 1,000 people with uncertainty at the proposed threshold; describe the action triggered by a positive result. If clinicians can override or ignore alerts, evaluation should include uptake and downstream consequences, not only the frozen model's score. This moves assessment from an abstract discrimination exercise toward the actual decision system while preserving the distinction between prediction and evidence that using the model improves health.
 
 ## References and further reading
 
-- Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). *Annals of Internal Medicine*. 2015;162:55–63. [doi:10.7326/M14-0697](https://doi.org/10.7326/M14-0697)
-
-- Vickers AJ, Elkin EB. "Decision curve analysis: a novel method for evaluating prediction models." *Med Decis Making* 2006.
-- Fox J. *Applied Regression Analysis and Generalized Linear Models*. SAGE.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- The companion [model assumptions and diagnostics article](model-assumptions-and-diagnostics.html) covers checks that should precede validation.
-
-If the validation setting differs from development, distinguish a genuine transport failure from a changed outcome definition or predictor measurement. Reproduce the original definitions first, quantify missing or shifted predictors, and then report any adaptation as model updating. This preserves a clear record of what was externally tested and what was newly fitted.
+- Steyerberg EW. *Clinical Prediction Models*. 2nd ed. Springer; 2019.
+- Riley RD, Ensor J, Snell KIE, et al. Calculating the sample size required for developing a clinical prediction model. *BMJ*. 2020;368:m441. [doi:10.1136/bmj.m441](https://doi.org/10.1136/bmj.m441)
+- Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). *Ann Intern Med*. 2015;162:55–63. [doi:10.7326/M14-0697](https://doi.org/10.7326/M14-0697)
+- Harrell FE. *Regression Modeling Strategies*. 2nd ed. Springer; 2015.
+- Van Calster B, McLernon DJ, van Smeden M, Wynants L, Steyerberg EW. Calibration: the Achilles heel of predictive analytics. *BMC Medicine*. 2019;17:230. [doi:10.1186/s12916-019-1466-7](https://doi.org/10.1186/s12916-019-1466-7)

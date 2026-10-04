@@ -111,318 +111,111 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Comparing groups <span class="sep">/</span> Numerical outcomes <span class="sep">/</span> <strong style="color:#273e3b">Independent and paired t-tests</strong></div>
         <h1 class="article-title">Independent and paired t-tests</h1>
         <p class="article-summary">Comparing the means of two groups, using separate samples or matched before-and-after measurements from the same subjects.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#derivation-and-choice-of-standard-error">Derivation and choice of standard error</a></li><li class="h2"><a href="#worked-example-with-unequal-variability">Worked example with unequal variability</a></li><li class="h2"><a href="#diagnostics-robustness-and-design">Diagnostics, robustness, and design</a></li><li class="h2"><a href="#confidence-intervals-effect-size-and-planning">Confidence intervals, effect size, and planning</a></li><li class="h2"><a href="#reporting">Reporting</a></li><li class="h2"><a href="#paired-example-how-correlation-changes-uncertainty">Paired example: how correlation changes uncertainty</a></li><li class="h2"><a href="#sensitivity-and-robust-summaries">Sensitivity and robust summaries</a></li><li class="h2"><a href="#a-note-on-baseline-adjustment-in-randomized-trials">A note on baseline adjustment in randomized trials</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#independent-samples-welch-as-the-default">Independent samples: Welch as the default</a></li><li class="h2"><a href="#paired-measurements-analyze-change-directly">Paired measurements: analyze change directly</a></li><li class="h2"><a href="#assumptions-robustness-and-alternatives">Assumptions, robustness, and alternatives</a></li><li class="h2"><a href="#communicating-the-result">Communicating the result</a></li><li class="h2"><a href="#deriving-the-standard-errors">Deriving the standard errors</a></li><li class="h2"><a href="#confidence-intervals-and-clinical-thresholds">Confidence intervals and clinical thresholds</a></li><li class="h3"><a href="#robustness-skew-and-outliers">Robustness, skew, and outliers</a></li><li class="h2"><a href="#baseline-adjustment-in-a-randomized-trial">Baseline adjustment in a randomized trial</a></li><li class="h3"><a href="#reporting">Reporting</a></li><li class="h3"><a href="#choosing-a-comparison-from-the-design">Choosing a comparison from the design</a></li><li class="h3"><a href="#welch-versus-pooled-student-inference">Welch versus pooled Student inference</a></li><li class="h3"><a href="#causal-interpretation-and-baseline-values">Causal interpretation and baseline values</a></li><li class="h3"><a href="#the-estimand-determines-the-summary">The estimand determines the summary</a></li><li class="h2"><a href="#sample-size-implications">Sample-size implications</a></li><li class="h3"><a href="#missing-data-and-the-analysis-population">Missing data and the analysis population</a></li><li class="h3"><a href="#welch-calculation-in-a-clinical-example">Welch calculation in a clinical example</a></li><li class="h3"><a href="#unequal-variances-and-allocation">Unequal variances and allocation</a></li><li class="h3"><a href="#diagnostics-with-scientific-judgment">Diagnostics with scientific judgment</a></li><li class="h3"><a href="#reporting-direction-and-uncertainty">Reporting direction and uncertainty</a></li><li class="h3"><a href="#the-role-of-randomization-and-confounding">The role of randomization and confounding</a></li><li class="h3"><a href="#distribution-summaries-for-interpretation">Distribution summaries for interpretation</a></li><li class="h3"><a href="#multiplicity-across-repeated-tests">Multiplicity across repeated tests</a></li><li class="h3"><a href="#final-interpretation">Final interpretation</a></li><li class="h3"><a href="#effect-size-beyond-significance">Effect size beyond significance</a></li><li class="h3"><a href="#final-interpretation-2">Final interpretation</a></li><li class="h3"><a href="#what-the-two-tests-do-not-cover">What the two tests do not cover</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>The t-test asks whether the difference between two group means is larger than
-would be expected from sampling variability alone. The test statistic
-t = (difference in means) / (standard error of that difference) follows
-Student&#39;s t distribution with a suitable number of degrees of freedom under
-the null hypothesis of no true difference.</p>
-<p>Two situations call for two versions:</p>
-<ul>
-<li><strong>Independent (two-sample) t-test</strong> — the two groups come from separate
-subjects, e.g. a drug arm versus a placebo arm. The variability of each
-group is estimated from its own data, and the difference is compared
-against a combined standard error (classical Student) or an
-uncombined one (Welch&#39;s t-test).</li>
-<li><strong>Paired (matched) t-test</strong> — each subject contributes two measurements,
-e.g. systolic blood pressure before and after treatment, or the two eyes of
-the same patient. The analysis is a one-sample t-test on the n
-within-subject differences, which removes between-subject variability and
-usually gives much more power.</li>
-</ul>
-<p>The choice between the two is a design question: does a pairing exist in the
-data or not? A paired test on unrelated groups, or an independent test on
-clearly paired data, wastes information or misstates the uncertainty.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Randomised trial, two arms</td>
-<td>Does drug A lower systolic BP more than standard care after 12 weeks?</td>
-</tr>
-<tr>
-<td>Before-and-after study</td>
-<td>Does a 4-week exercise programme reduce fasting glucose within the same patients?</td>
-</tr>
-<tr>
-<td>Matched controls</td>
-<td>Does a biomarker differ between cases and age-, sex- and site-matched controls?</td>
-</tr>
-<tr>
-<td>Contralateral comparison</td>
-<td>Is function better in the treated limb than in the untreated limb of the same patient?</td>
-</tr>
-</tbody></table>
-<p>Use the independent version when the groups contain different people, and the
-paired version when each subject or matched set produces both measurements.
-If treatment was assigned by cluster or several observations come from each
-cluster, account for that dependence with a cluster-level analysis or an
-appropriate model; a plain t-test on individuals is not enough. If you have
-more than two groups, use one-way ANOVA instead of a series of t-tests.</p>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li><strong>Independence</strong> — observations within and between groups are independent;
-this is violated by clustered sampling (several patients from the same
-clinic, family members) or by analysing repeated measurements as if they
-were independent.</li>
-<li><strong>Normality and influential observations</strong> — with small samples, strong
-skewness or influential outliers can make t-based inference unreliable;
-sample size alone does not determine a safe cutoff. For the paired test it
-is the <em>within-pair differences</em> that should be plausibly normal. Inspect
-plots and the study design; for larger samples, the sampling distribution
-of the mean is often less sensitive to moderate non-normality, but extreme
-tails and dependence still matter.</li>
-<li><strong>Equal variances</strong> — the classical Student two-sample t-test assumes equal
-group variances. Welch&#39;s t-test, which does not, is the safer default in
-most software and is preferred unless you have a good reason otherwise.</li>
-<li><strong>Small-sample fragility</strong> — with very small n the p-value can be carried
-by a single outlier; always report the data (means, SDs, ideally a plot)
-alongside the test.</li>
-</ul>
-<p>Neither test estimates more than a difference in mean locations: if the two
-distributions differ in shape rather than level, the mean difference may not
-summarise what you care about.</p>
-<h2 id="worked-example">Worked example</h2>
-<p><strong>Paired example.</strong> In 8 patients with hypertension, diastolic BP (mmHg) was
-measured before and after 8 weeks of a new beta-blocker. The within-patient
-differences (before − after) were: 4, 6, 5, 8, 7, 6, 9, 3.</p>
-<ul>
-<li>Mean difference d-bar = 6.0 mmHg; SD of the differences s_d = 2.0</li>
-<li>SE = s_d / sqrt(n) = 2.0 / sqrt(8) = 0.71</li>
-<li>t = 6.0 / 0.71 = 8.5 on 7 degrees of freedom, two-sided p &lt; 0.001</li>
-<li>95% CI for the mean difference: 6.0 ± 2.365 × 0.71 = (4.3, 7.7) mmHg</li>
-</ul>
-<p>The treatment lowered diastolic BP by about 6 mmHg on average (95% CI 4.3 to
-7.7), a highly significant reduction. Note that the analysis uses only the 8
-differences — the before and after values are never compared as two separate
-groups, which would have been wrong.</p>
-<p><strong>Independent example.</strong> In a separate parallel-group trial, 8 patients per
-arm have individual BP reductions with mean 6.0 mmHg (SD 2.0) on the new drug
-and 1.5 mmHg (SD 2.2) on placebo. These are SDs of individual changes within
-each independent arm; the SD 2.0 above was calculated from paired changes in
-the separate before-and-after example and is not automatically transferable.
-Welch&#39;s standard error is sqrt(2.0²/8 + 2.2²/8) = 1.05 mmHg, so
-t = (6.0 − 1.5)/1.05 = 4.28 with approximately 13.8 degrees of freedom
-(two-sided p ≈ 0.0008). Using the corresponding t critical value (about 2.15),
-the 95% CI for the difference in mean reductions is about 2.24 to 6.76 mmHg.
-This comparison supports a larger average reduction on the drug in this
-illustrative sample; it is a different estimand and design from the paired
-within-arm test above.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Pairing is a design feature, not an analysis choice.</strong> If you measured
-the same people twice, use the paired test; choosing the independent test
-because it &quot;gave a cleaner result&quot; is wrong and usually underpowered.</li>
-<li><strong>Significance is not equivalence.</strong> A non-significant t-test means you
-could not detect a difference, not that the true difference is zero —
-report the confidence interval and consider the study&#39;s power.</li>
-<li><strong>Do not run several t-tests for 3+ groups.</strong> Comparing three arms
-pairwise inflates the family-wise type I error; use one-way ANOVA (or
-pre-planned contrasts) instead.</li>
-<li><strong>Check the assumptions before trusting small-sample p-values.</strong> A single
-extreme outlier can carry the whole result; look at the data, not just the
-test output.</li>
-</ul>
-<h2 id="derivation-and-choice-of-standard-error">Derivation and choice of standard error</h2>
-<p>For two independent means, the observed difference is
-(\bar Y_1-\bar Y_0). Under independent sampling,
-(Var(\bar Y_1-\bar Y_0)=\sigma_1^2/n_1+\sigma_0^2/n_0); replacing
-unknown variances by sample variances gives the Welch standard error
-(\sqrt{s_1^2/n_1+s_0^2/n_0}). Welch–Satterthwaite degrees of freedom
-approximate the distribution of that studentized difference:</p>
-<p>[
-\nu=\frac{(s_1^2/n_1+s_0^2/n_0)^2}
-{(s_1^2/n_1)^2/(n_1-1)+(s_0^2/n_0)^2/(n_0-1)}.
-]</p>
-<p>The pooled Student t test instead assumes a common population variance and
-uses a pooled variance estimate with (n_1+n_0-2) degrees of freedom.
-When that equal-variance assumption holds, pooling can be slightly more
-efficient. When it fails and sample sizes differ, the pooled test can have
-poor type-I error control; the Welch test is therefore a sensible default.
-It does not require equal variances and loses little when variances are
-equal. It still assumes independent observations and an approximately
-normal sampling distribution of the mean difference (or enough data for a
-useful approximation).</p>
-<p>For paired measurements, first calculate each within-person difference
-(D_i=Y_{i,post}-Y_{i,pre}). The paired t statistic is
-(\bar D/(s_D/\sqrt n)). Pairing can improve precision because stable
-between-person differences cancel. If pre and post SDs are both 10 and
-their correlation is 0.8, the SD of the difference is
-(\sqrt{10^2+10^2-2(0.8)(10)(10)}=6.32), not 14.14 as it would be for
-independent measurements. But pairing helps only when pairs are correctly
-matched and the analysis retains the randomized or sampled unit. An
-unpaired analysis of paired measurements wastes information; treating
-paired observations as independent underestimates or mischaracterizes
-uncertainty.</p>
-<h2 id="worked-example-with-unequal-variability">Worked example with unequal variability</h2>
-<p>Suppose an intervention arm has n=24, mean change −5.2, SD 8.0, and a
-control arm has n=18, mean change −1.0, SD 4.0 (negative change is
-improvement). The estimated treatment-minus-control contrast is −4.2.
-Welch SE is (\sqrt{64/24+16/18}=1.89). The Welch degrees of freedom are
-approximately 35.5, so the 95% interval is roughly
-(-4.2\pm2.03(1.89)=[-8.03,-0.37]). This estimates a larger average
-reduction in the treatment arm, while remaining compatible with an effect
-as small as about half a unit. The clinical meaning depends on the outcome
-scale and its minimally important difference; p&lt;0.05 alone does not answer
-that question.</p>
-<pre><code class="language-r">treated &lt;- c(-8, -6, -4, -7, 1, -9, -3, -5, -4, -2,
-             -6, -8, 0, -5, -7, -4, -10, -1, -6, -3,
-             -5, 2, -9, -4)
-control &lt;- c(-3, 1, -2, 0, -5, 2, -1, -4, 3,
-             -2, 1, -3, 0, -6, 2, -1, -2, 1)
-t.test(treated, control, var.equal = FALSE)
+          <h2 id="overview">Overview</h2>
+<p>A t-test compares a mean with a reference value or another mean while scaling the observed difference by its estimated standard error. The essential first decision is whether observations are independent or naturally paired. Independent groups consist of different participants; paired data contain two linked measurements per person or matched unit. The paired analysis works on within-pair differences and can remove stable between-person variability.</p>
+<h2 id="independent-samples-welch-as-the-default">Independent samples: Welch as the default</h2>
+<p>For group means x̄₁ and x̄₀, Welch’s statistic is (x̄₁−x̄₀)/√(s₁²/n₁+s₀²/n₀), with approximate degrees of freedom reflecting the separate variance estimates. Unlike the pooled Student test, Welch does not assume equal population variances and performs well when they are equal too. The estimand remains a difference in means; the test does not require equal group sizes.</p>
+<p>Suppose systolic pressure at follow-up averages 132 (SD 15, n=40) in usual care and 125 (SD 13, n=38) in a new-care arm. The estimated arm difference is −7 mmHg. The Welch SE is √(15²/40+13²/38)≈3.15, so a rough interval is −7±2(3.15), about −13.3 to −0.7. This suggests a reduction but leaves uncertainty about whether the effect exceeds a prespecified clinically important threshold.</p>
+<h2 id="paired-measurements-analyze-change-directly">Paired measurements: analyze change directly</h2>
+<p>For paired values Xpre and Xpost, define D=Xpost−Xpre (or state the opposite convention). The paired t-test is a one-sample t-test on D; SE=SD(D)/√n. It relies on the differences being independent across subjects and reasonably modeled by a normal distribution for small samples. The marginal pre and post distributions need not each be normal. Pairing improves precision when within-person measurements are positively correlated because SD(D)²=SD(pre)²+SD(post)²−2r SD(pre)SD(post).</p>
+<pre><code class="language-r"># Independent groups: Welch&#39;s two-sample test
+t.test(bp ~ arm, data = trial, var.equal = FALSE)
+
+# Paired rows must refer to the same participants
+t.test(trial$bp_after, trial$bp_before, paired = TRUE)
 </code></pre>
-<p>For paired data, use <code>t.test(post, pre, paired = TRUE)</code> only when vectors
-are in matched order and have no unmatched observations. A safer workflow
-keeps an explicit participant identifier and checks one record per person
-per occasion before reshaping. Missing one of a pair removes that person&#39;s
-contribution from a paired test; if missingness relates to outcome or
-treatment, the complete-pair estimate may be biased. A longitudinal model
-can use partial records under a stated missing-data assumption, but does
-not make informative dropout ignorable automatically.</p>
-<h2 id="diagnostics-robustness-and-design">Diagnostics, robustness, and design</h2>
-<h2 id="confidence-intervals-effect-size-and-planning">Confidence intervals, effect size, and planning</h2>
-<p>The mean difference and its confidence interval are usually more useful
-than the t statistic alone. A 95% interval for independent means is
-((\bar x_1-\bar x_0)\pm t_{.975,\nu},SE), using Welch degrees of
-freedom when variances are not assumed equal. Its units match the outcome.
-Standardized mean difference can facilitate meta-analysis across different
-scales, but depends on which SD is used and should not replace a raw-unit
-effect when that scale is clinically meaningful. Cohen&#39;s d is the mean
-difference divided by a pooled SD; Hedges&#39; g applies a small-sample
-correction. Conventional small/medium/large labels are not clinical
-thresholds.</p>
-<p>For paired data, report the mean within-person change and its CI, plus the
-SD of individual changes. A CI for the mean change describes uncertainty
-about the average, not the range of individual responses. If the clinical
-question is how many patients improve by a minimally important amount,
-report a responder proportion and compare that endpoint separately with
-appropriate multiplicity handling. Dichotomizing a continuous outcome
-usually loses information, so retain the continuous analysis as primary
-unless the responder definition is clinically established.</p>
-<p>For equal-size groups with common SD, sample size for a two-sided test is
-approximately
-(n_{arm}=2(z_{1-\alpha/2}+z_{1-\beta})^2\sigma^2/\delta^2). At alpha .05,
-80% power, SD 15, and target difference 5, this yields about 142 per arm.
-If the target difference is 3 instead, required n is multiplied by
-((5/3)^2), to about 393 per arm. Small studies should not be planned
-around overly optimistic effects; show sensitivity to plausible SDs,
-attrition, allocation ratio, clustering, and multiple primary contrasts.</p>
-<pre><code class="language-r">sigma &lt;- 15; delta &lt;- 5; alpha &lt;- .05; power &lt;- .80
-n &lt;- 2 * (qnorm(1 - alpha / 2) + qnorm(power))^2 *
-  sigma^2 / delta^2
-ceiling(n) # approximate number per arm
+<p>Validate the match identifier and one record per time point before using the paired option. Treating paired values as independent wastes information and misstates uncertainty; pairing unrelated patients invents dependence. If treatment assignment was randomized, compare arms using a prespecified follow-up outcome model or baseline-adjusted analysis rather than relying only on within-arm change tests.</p>
+<h2 id="assumptions-robustness-and-alternatives">Assumptions, robustness, and alternatives</h2>
+<p>The t procedures assume a meaningful continuous outcome, independent sampling units, and an appropriate mean/variance model. Outliers can dominate the mean and standard error, particularly in small samples. Inspect raw data and group distributions; normality tests alone are poor decision rules. The t-test can be robust to moderate skew in balanced, sufficiently large samples, but highly skewed costs or count outcomes may call for a different estimand/model. A rank test does not automatically test a difference in medians; choose it only if its distributional estimand answers the question.</p>
+<p>For clustered or repeated follow-up, use mixed models, generalized estimating equations, or cluster-level analyses as appropriate. For heteroscedastic outcomes, Welch is preferable to a preliminary variance test followed by a data-dependent t-test choice. Missing paired follow-up can create selection bias; the complete-pair analysis estimates change among those observed unless stronger assumptions support generalization.</p>
+<h2 id="communicating-the-result">Communicating the result</h2>
+<p>Report group means and SDs as descriptive spread, mean difference with confidence interval as inferential uncertainty, test and degrees of freedom, and the direction of subtraction. For paired data, report the distribution of changes and number of complete pairs. Distinguish statistical evidence from clinical relevance by relating the interval to a meaningful difference. Do not infer a treatment effect from a pre/post change in one arm alone; time trends, regression to the mean, and co-interventions offer alternative explanations.</p>
+<h2 id="deriving-the-standard-errors">Deriving the standard errors</h2>
+<p>For independent arms, the variance of the mean difference is approximately sT²/nT+sC²/nC. Welch’s t statistic divides the observed contrast by the square root of this estimate. Its degrees of freedom use the Welch–Satterthwaite approximation, which accounts for unequal variance and sample size. The pooled Student test instead estimates one common variance and uses nT+nC−2 degrees of freedom. When variances are genuinely similar, estimates are close; when not, pooled inference can be miscalibrated, particularly when the smaller arm has the larger variance.</p>
+<p>For paired data, calculate Dᵢ=afterᵢ−beforeᵢ, then t=D̄/(sD/√n) with n−1 degrees of freedom. The standard error depends on the within-person covariance. Pairing is most efficient when repeated measures are positively correlated, but a poor or artificial match can reduce precision. The pair itself is the independent unit for inference.</p>
+<pre><code class="language-r">x &lt;- c(132, 128, 141, 136, 127, 130, 139, 125)
+y &lt;- c(126, 129, 135, 132, 124, 128, 133, 123)
+d &lt;- x - y
+c(mean_difference = mean(x) - mean(y),
+  welch_se = sqrt(var(x)/length(x) + var(y)/length(y)),
+  paired_se = sd(d)/sqrt(length(d)))
+t.test(x, y, var.equal = FALSE)
+t.test(x, y, paired = TRUE)
 </code></pre>
-<p>This normal approximation is for simple independent groups. Use exact
-noncentral-t calculations or design software for protocol sample size,
-especially with small samples, unequal allocation, cluster randomization,
-or covariate adjustment. ANCOVA can reduce residual variance when baseline
-outcome predicts follow-up, but the sample-size calculation should reflect
-that anticipated correlation and the actual primary estimand.</p>
-<p>Inspect distributions and the raw data, not only a normality-test p-value.
-For independent groups, examine group-specific histograms or Q–Q plots and
-the distribution of residuals. The t procedure is often robust to moderate
-skew with balanced groups, but small samples with extreme outliers can be
-highly sensitive. Variance inequality combined with severe imbalance is a
-particular concern for the pooled test. Welch addresses unequal variance
-but not dependence, outliers, or a poor estimand. If an outcome is strongly
-skewed, a log-scale analysis estimates a contrast in mean log outcome
-(often a ratio of geometric means), not a raw-unit mean difference. A
-permutation procedure can be useful when randomization supports exchangeable
-labels, but it tests a sharp null of no individual treatment effect under
-the randomization scheme; it is not automatically a test of equality of
-population means under every alternative.</p>
-<p>The unit of analysis must match the design. For cluster-randomized studies,
-patients within a clinic are correlated; a simple t test treating all
-patients as independent yields an artificially small standard error. Use
-cluster-level summaries or a model with cluster-robust inference and enough
-clusters. In crossover trials, period and carryover effects may matter;
-the paired t test of raw outcomes is valid only under an appropriate
-design and estimand. For matched case-control pairs, analyze within-pair
-differences or use a conditional model appropriate to the endpoint.</p>
-<h2 id="reporting">Reporting</h2>
-<h2 id="paired-example-how-correlation-changes-uncertainty">Paired example: how correlation changes uncertainty</h2>
-<p>Suppose 20 patients have systolic pressure measured before and after
-treatment. Let mean within-person reduction be 6 mmHg and SD of paired
-differences be 10. The SE is (10/\sqrt{20}=2.24); with 19 degrees of
-freedom, a 95% interval is about (6\pm2.09(2.24)=[1.3,10.7]) mmHg.
-This paired interval uses the variability of change, not separate baseline
-and follow-up SDs. In a separate scenario with marginal SDs both 12 and
-pre-post correlation 0.75, the SD of the difference is
-(\sqrt{12^2+12^2-2(0.75)(12)(12)}=8.49), giving SE≈1.90 for n=20.
-The SD of paired differences is the sufficient variance summary for the
-paired t calculation; reconstruct it from marginal SDs only when the
-within-person correlation is also known.</p>
-<p>The following synthetic vectors illustrate the paired call; their output
-is not intended to reproduce the preceding summary calculation.</p>
-<pre><code class="language-r">before &lt;- c(148, 162, 155, 171, 139, 158, 166, 151, 144, 160,
-            173, 149, 156, 168, 142, 164, 153, 159, 147, 170)
-after &lt;- c(141, 155, 147, 165, 134, 151, 160, 145, 139, 152,
-           166, 144, 150, 160, 138, 157, 147, 151, 142, 163)
-t.test(before, after, paired = TRUE)
+<p>These values illustrate that the paired and independent analyses answer different questions, even on the same arrays. In real data, verify that x and y are matched measurements before using the paired call.</p>
+<h2 id="confidence-intervals-and-clinical-thresholds">Confidence intervals and clinical thresholds</h2>
+<p>For the independent contrast, report mean difference and a Welch confidence interval. For paired data, report mean within-person change and its t interval. A p-value says whether a zero difference is excluded under the model; the interval indicates whether the data exclude clinically important effects. If a minimal important difference is 5 mmHg and a treatment contrast is −3 with interval −7 to 1, the study is compatible with a meaningful reduction as well as little effect. This is not equivalence.</p>
+<p>Standardized effects such as Cohen’s d can support synthesis across scales but rely on an SD denominator and obscure original units. Give the raw-unit contrast as primary. For paired data, specify whether the standardizer is baseline SD, pooled SD, or SD of change; these yield different d values.</p>
+<h3 id="robustness-skew-and-outliers">Robustness, skew, and outliers</h3>
+<p>The t-test concerns means. With finite variance, the sample mean’s asymptotic distribution becomes normal, but small samples with strong skew or influential observations can have poor coverage. Plot group distributions and individual values; a histogram may conceal a single point. Welch addresses unequal variances, not severe skew, dependence, or outliers. Bootstrap intervals or permutation tests may be considered, but their validity depends on exchangeability and design. Trimmed-mean methods target a robust location quantity rather than the arithmetic mean.</p>
+<p>Do not run Shapiro–Wilk separately in each arm and automatically switch methods based on p-value. Normality tests have low power in small samples and detect irrelevant deviations in large samples. Choose the estimand and analysis in advance, then use plots and sensitivity analyses to understand robustness.</p>
+<h2 id="baseline-adjustment-in-a-randomized-trial">Baseline adjustment in a randomized trial</h2>
+<p>For a follow-up endpoint, ANCOVA regresses follow-up on treatment and baseline outcome, generally yielding a more precise treatment contrast when baseline predicts follow-up. Testing change from baseline with a t-test can be valid in some settings, but separate within-arm pre/post tests do not test the randomized treatment effect. State whether the estimate is adjusted, and include prespecified covariates only. For nonrandomized groups, baseline adjustment alone may not remove confounding.</p>
+<p>Missing paired outcomes deserve special care. The paired t-test uses complete pairs and therefore targets observed completers unless missingness assumptions permit broader interpretation. Compare baseline features of completers and noncompleters, model missingness if needed, and perform sensitivity analyses when missingness may depend on unobserved outcomes.</p>
+<h3 id="reporting">Reporting</h3>
+<p>Report group n, mean and SD, mean contrast, confidence interval, test variant and degrees of freedom. For paired data, report number of pairs, mean difference, SD of differences, and sign convention. Include the primary endpoint time, missingness, and covariate adjustment. Translate the interval into clinically meaningful units and avoid choosing t versus rank testing after seeing which p-value is smaller.</p>
+<h3 id="choosing-a-comparison-from-the-design">Choosing a comparison from the design</h3>
+<p>The independent t-test compares means from unrelated experimental units. The paired test compares within-unit differences or carefully matched pairs. The distinction is not based on whether the data are stored in two columns; it follows from randomization and measurement structure. A crossover trial uses within-person comparisons but may need to model period and carryover effects. Matched observational pairs may require conditional methods if the matching design is central.</p>
+<p>If participants are measured repeatedly at three or more visits, conducting many paired t-tests inflates multiplicity and ignores the trajectory structure. Use a repeated-measures model or prespecified contrast. If there are missing visits, a mixed model may use incomplete records under a missing-at-random assumption, while complete-pair analyses can select a subset. Report the assumption and sensitivity.</p>
+<h3 id="welch-versus-pooled-student-inference">Welch versus pooled Student inference</h3>
+<p>The pooled Student test estimates one common variance: s_p²=[(n1−1)s1²+(n0−1)s0²]/(n1+n0−2), and SE=s_p√(1/n1+1/n0). Welch uses separate variances and degrees of freedom. When sample sizes differ and the group variances differ, pooling can distort Type I error. Welch is a sensible default because it remains close to Student performance under equal variance and avoids a preliminary variance test that changes method based on noisy data.</p>
+<pre><code class="language-r"># Welch is R&#39;s default two-sample t-test
+res &lt;- t.test(outcome ~ group, data = dat)
+res$estimate
+res$conf.int
+res$statistic
+res$parameter
 </code></pre>
-<p>Here the contrast is before minus after, so positive values indicate a
-reduction. The R output estimates the mean paired difference and its t
-interval. Report the pairing unit and number of complete pairs; do not
-call the standard deviation of differences an SE.</p>
-<h2 id="sensitivity-and-robust-summaries">Sensitivity and robust summaries</h2>
-<h2 id="a-note-on-baseline-adjustment-in-randomized-trials">A note on baseline adjustment in randomized trials</h2>
-<p>Report the measurement unit and clinically important difference beside
-the estimate; standardized statistics alone make practical interpretation
-difficult for clinicians and patients.</p>
-<p>For an independent-groups t test, the nominal sample size is the number
-of independent participants, not the number of repeated measurements or
-laboratory replicates. Averaging technical replicates before analysis
-avoids treating assay repeats as new patients. If outcomes are measured
-within clinics or families, use an analysis that reflects that clustering.
-Always show n by arm and explain exclusions; unequal missingness can
-change both the precision and the population represented by the complete
-case comparison.</p>
-<p>For a continuous endpoint measured at baseline and follow-up, comparing
-follow-up means with a Welch t test is unbiased under randomization but
-may be less precise than analysis of covariance. ANCOVA models follow-up
-as a function of treatment and baseline value; when baseline predicts
-follow-up, residual variance falls and the treatment contrast gains
-precision. Comparing change scores instead imposes a coefficient of one
-on baseline in the outcome-change relationship, which may not be optimal.
-The analysis plan should specify the primary method before outcomes are
-seen and report adjusted mean difference with interval. Baseline-adjusted
-analysis is not a license to adjust for post-randomization variables that
-may mediate treatment effects.</p>
-<p>When a few values are extreme, show a plot and consider whether they are
-valid observations. A trimmed-mean or robust regression sensitivity
-analysis can indicate whether the mean result depends on tail values, but
-these target a different or modified estimand and should be labeled.
-Winsorizing or deleting outliers after inspecting the outcome can bias
-inference. A rank test may be useful for ordinal outcomes, but it does not
-estimate the same raw mean difference. For log-normal outcomes, analyze
-logs only if a multiplicative contrast is meaningful and present a
-back-transformed ratio with a clear interpretation.</p>
-<p>The t test is also not suitable for comparing multiple time points within
-the same participants by repeatedly testing each visit. That approach
-ignores correlation and multiplies type-I error. A repeated-measures or
-mixed model can estimate the trajectory and planned contrasts jointly;
-define time as categorical or continuous according to the expected pattern.
-If only a single follow-up is primary, baseline-adjusted ANCOVA is often
-more efficient than comparing change scores, especially when baseline
-measurement predicts follow-up. The choice should follow the estimand and
-protocol, not which test yields the smallest p-value.</p>
-<p>Report group sample sizes, means and SDs (not just SEs), mean difference
-with units and confidence interval, test statistic, degrees of freedom,
-and exact p-value. State whether the comparison was paired and whether a
-Welch or pooled variance method was used. Give the direction of subtraction
-so a positive contrast is unambiguous. For clinical interpretation, compare
-the interval with a clinically meaningful threshold and show baseline
-values or changes as appropriate. Do not choose between t, Mann–Whitney,
-or transformations by whichever produces a significant p-value; choose
-based on the estimand and design, and explain the analysis plan.</p>
+<p>The formula method subtracts group means according to factor level order. Confirm which group is first so the estimate’s sign has the intended meaning. Report degrees of freedom, which may be non-integer under Welch.</p>
+<h3 id="causal-interpretation-and-baseline-values">Causal interpretation and baseline values</h3>
+<p>In a randomized trial, the unadjusted between-arm comparison estimates an intention-to-treat effect under randomization, subject to missing outcome concerns. In observational groups, a t-test only compares observed means and does not control confounding. Matching or regression may adjust measured covariates but still relies on assumptions about unmeasured confounding and overlap.</p>
+<p>For baseline and follow-up measures in a randomized study, ANCOVA often improves precision. A test that compares within-arm change to zero does not test the treatment effect; the estimand is the contrast between randomized groups. Distinguish effect estimation from pre/post description.</p>
+<h3 id="the-estimand-determines-the-summary">The estimand determines the summary</h3>
+<p>A t-test is specifically about means. If the clinical question concerns median waiting time, probability of superiority, or proportion exceeding a threshold, a mean comparison may not be the desired estimand. Conversely, skewness does not automatically make the mean meaningless; resource planning may care about arithmetic mean cost even when the distribution is right-skewed. Robust or bootstrap inference can retain the mean target. Make the target explicit before selecting a rank test.</p>
+<p>For a paired design, the mean of within-person differences is often the natural target. If patients contribute two eyes or paired organs, within-person dependence must be respected and the clinical unit of inference clarified. A simple paired t-test handles one pair per person; multiple paired organs may require a mixed model or cluster-robust SE.</p>
+<h2 id="sample-size-implications">Sample-size implications</h2>
+<p>For independent equal-size groups with common SD σ and target mean difference δ, a rough normal approximation is n per arm ≈2(z1−α/2+z1−β)²σ²/δ². For paired designs, replace σ with the SD of within-pair differences; strong correlation can substantially lower that SD and required n. Planning should use realistic variance estimates, account for dropout, and define the clinically worthwhile δ. Post hoc power based on observed δ is not a useful interpretation.</p>
+<h3 id="missing-data-and-the-analysis-population">Missing data and the analysis population</h3>
+<p>For paired analyses, participants missing either measurement are often omitted. If missingness is related to response or adverse events, the complete-pair mean change may not represent all enrolled participants. Mixed models can include incomplete longitudinal records under a missing-at-random assumption, and multiple imputation can incorporate auxiliary predictors. Neither method removes the need for sensitivity analysis when unobserved outcomes plausibly influence missingness.</p>
+<p>Report numbers assessed at each time and reasons for missingness by arm. In a randomized comparison, avoid changing from intention-to-treat to completers without explaining the estimand and potential bias.</p>
+<h3 id="welch-calculation-in-a-clinical-example">Welch calculation in a clinical example</h3>
+<p>Using usual-care SD 15, n=40 and new-care SD 13, n=38, the difference (new minus usual) is −7 mmHg. The Welch SE is √(13²/38+15²/40)=√(4.45+5.625)=3.17 mmHg. Welch degrees of freedom are approximately (4.45+5.625)² / [4.45²/37+5.625²/39] ≈75. A t critical value near 1.99 gives a 95% interval about −13.3 to −0.7. This interval excludes zero but still includes reductions below a 5-mmHg clinical target.</p>
+<pre><code class="language-r">n1 &lt;- 38; m1 &lt;- 125; s1 &lt;- 13
+n0 &lt;- 40; m0 &lt;- 132; s0 &lt;- 15
+se &lt;- sqrt(s1^2/n1 + s0^2/n0)
+df &lt;- (s1^2/n1 + s0^2/n0)^2 /
+  ((s1^2/n1)^2/(n1-1) + (s0^2/n0)^2/(n0-1))
+diff &lt;- m1 - m0
+ci &lt;- diff + qt(c(.025, .975), df) * se
+c(diff = diff, SE = se, df = df, lower = ci[1], upper = ci[2])
+</code></pre>
+<p>The example assumes independent participants and uses summary data. A real trial may prespecify baseline adjustment, and the adjusted contrast can differ. Report the analysis plan rather than substituting a test based on descriptive group summaries.</p>
+<h3 id="unequal-variances-and-allocation">Unequal variances and allocation</h3>
+<p>If one arm has much larger variability and smaller size, pooled variance can overweight the wrong group and distort nominal error. Welch’s method adapts degrees of freedom. A preliminary Levene test followed by pooled or Welch testing is not recommended: the two-stage procedure has its own error behavior and adds little benefit. Use Welch by default unless the pooled model is justified by design and scientific knowledge.</p>
+<h3 id="diagnostics-with-scientific-judgment">Diagnostics with scientific judgment</h3>
+<p>Plot individual measurements and residuals. A Q-Q plot can flag heavy tails, but small-sample deviations do not automatically invalidate inference. Check data entry and instrument range before labeling observations as outliers. Sensitivity analyses can compare Welch means, trimmed means, or rank effects, but each targets a different summary. Do not remove a valid extreme observation solely because it changes significance.</p>
+<h3 id="reporting-direction-and-uncertainty">Reporting direction and uncertainty</h3>
+<p>Write the contrast order explicitly, e.g. “new treatment minus control.” Give sample size, mean and SD per arm, mean difference, interval, test and degrees of freedom. For paired designs, give complete-pair count and SD of differences. Discuss the interval relative to a minimal important difference; do not report only p-value or standardized effect.</p>
+<h3 id="the-role-of-randomization-and-confounding">The role of randomization and confounding</h3>
+<p>An independent t-test compares observed means; randomization supports interpreting that contrast as an average treatment effect. In nonrandomized studies, age, severity, site, and treatment selection can confound the crude mean comparison. Covariate adjustment, matching, or weighting may address measured confounding under assumptions, but the plain t-test does not. A small p-value cannot distinguish treatment effect from baseline differences.</p>
+<p>In a randomized study with a continuous baseline measure strongly predictive of outcome, ANCOVA can improve precision and reduce chance imbalance. The analysis should be prespecified. For multiple sites or repeated outcomes, use models that incorporate dependence rather than applying ordinary t tests to correlated observations.</p>
+<h3 id="distribution-summaries-for-interpretation">Distribution summaries for interpretation</h3>
+<p>A mean and SD summarize symmetric distributions but can conceal skew, floor effects, and subgroups. Display a histogram, dot plot, or quantiles when the sample allows. In a paired study, plot within-person differences; pre/post marginal plots alone do not reveal whether changes are consistent or driven by a few individuals. Diagnostics inform interpretation, not automatic method switching.</p>
+<h3 id="multiplicity-across-repeated-tests">Multiplicity across repeated tests</h3>
+<p>Testing each follow-up visit separately creates multiple opportunities for a false-positive result. Choose a primary time point or model the trajectory with a prespecified contrast. If multiple pairwise comparisons are reported, adjust or clearly label them exploratory. A t-test at one time point is not a complete longitudinal analysis.</p>
+<h3 id="final-interpretation">Final interpretation</h3>
+<p>The t-test is simple because its target is clear: a mean or mean difference. Its validity depends on the independent unit, variance estimate, pairing, and a meaningful outcome scale. Report the contrast and interval, not just a test label, and relate uncertainty to clinical thresholds. A correct design choice matters more than a generic normality checklist.</p>
+<h3 id="effect-size-beyond-significance">Effect size beyond significance</h3>
+<p>A standardized mean difference is sometimes used when studies measure the same construct on different scales. It depends on the denominator SD and can vary across populations even when the raw difference is stable. Give the raw-unit difference first and identify the standardization convention if reporting d or Hedges’ g. A confidence interval around the raw contrast is usually the clearest guide to clinical relevance.</p>
+<h3 id="final-interpretation-2">Final interpretation</h3>
+<p>Use the independent t-test for unrelated units and the paired test for genuine matched measurements. Welch inference avoids an unnecessary equal-variance assumption; paired inference uses the within-unit differences. Report mean contrasts and intervals in clinical units, and let the design, missingness, and target estimand guide the method.</p>
+<p>When a mean contrast is nonsignificant, interpret the interval against the clinically important range instead of concluding that groups are equal. For paired studies, the interval applies to mean within-pair change, not agreement of the two measurements.</p>
+<p>For repeated outcomes at several visits, define the primary time point or longitudinal contrast before fitting the model. A collection of t-tests increases multiplicity and can confuse transient fluctuation with a sustained treatment effect. Use a model that matches the repeated design and report the covariance assumptions.</p>
+<p>When means have a strong floor or ceiling effect, describe the bounded scale and consider whether a mean contrast remains clinically meaningful.</p>
+<h3 id="what-the-two-tests-do-not-cover">What the two tests do not cover</h3>
+<p>The basic t procedures do not handle time-to-event censoring, ordinal response structures, or count outcomes. For censored recovery time, a survival estimand may be needed; for repeated binary outcomes, use a generalized model. Applying a t-test to a transformed or coded outcome changes the quantity being estimated and needs justification.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Welch BL. <a href="https://doi.org/10.1093/biomet/34.1-2.28" target="_blank" rel="noopener noreferrer" class="ext-link">The generalization of Student&#39;s problem when several different population variances are involved</a>. <em>Biometrika</em>. 1947;34(1–2):28–35.</li>

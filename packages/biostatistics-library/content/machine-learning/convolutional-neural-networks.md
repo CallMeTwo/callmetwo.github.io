@@ -3,166 +3,153 @@ title: Convolutional neural networks
 summary: How CNNs use local filters and shared weights to analyze biomedical images and other spatial signals.
 ---
 
-## Overview and key ideas
+## Overview
 
-A convolutional neural network (CNN) applies learned filters across an image or spatial signal. Reusing the same filter weights at different locations reduces parameters and encodes the idea that a local pattern may matter wherever it occurs. Stacked convolutions and nonlinearities build features from edges and textures toward more complex structures; pooling or strided convolutions reduce spatial resolution. CNNs can classify an image, locate objects, or produce a pixel-level segmentation.
+A convolutional neural network (CNN) is designed for data with local spatial structure, especially images. Convolutional filters apply the same learned pattern detector across locations; pooling or strided operations reduce spatial resolution; deeper layers combine local features into broader representations. The final layer predicts an image-level class, a pixel-level segmentation, or another target.
 
-For medical imaging, the unit of analysis and split matter. Images, slices, lesions, and patches from one patient are correlated; they must not be split independently across training and test sets when the intended use is a new patient.
+In clinical imaging, CNNs can detect patterns but also exploit acquisition artifacts, labels, and workflow shortcuts. Performance depends on patients and sites represented, image preprocessing, reference labels, and intended action. A heat map or high AUC does not prove that the network uses the expected anatomy or improves care. Validation must operate at patient level and across relevant devices and institutions.
 
-## When to use it
+## Convolutions and receptive fields
 
-CNNs fit image-like data such as radiographs, pathology tiles, retinal photographs, ultrasound, or spatially arranged sensor measurements. They are most compelling when there are enough representative labeled examples or a suitable pretrained model and when the output task is clearly defined. For small datasets, transfer learning can help, but it does not remove the need for independent validation.
+A convolutional layer computes weighted sums over local patches. For an image input, a small kernel slides across spatial positions, sharing weights; this reduces the parameter count compared with a fully connected layer on every pixel and encodes translation-equivariant structure. Stacking layers expands the receptive field, so later units can combine local edges, textures, and shapes. Stride and pooling reduce spatial dimensions, trading detail for computation.
 
-## Assumptions and limitations
+For binary image classification, a network may output a logit z and probability p=sigmoid(z). A segmentation model outputs a probability per pixel or voxel. The target definition must match the clinical task: image-level abnormality, patient-level diagnosis, lesion detection, severity score, or future event. Multiple images per patient require aggregation and patient-level splitting.
 
-- Convolutions encode local spatial structure and approximate translation equivariance; anatomy, orientation, scale, and acquisition differences may violate simplistic assumptions.
-- Labels may be noisy or reflect reports, billing, or clinician decisions rather than verified disease. Label provenance should be described.
-- Dataset shift is common across scanners, protocols, institutions, and populations. Internal random splits can conceal it.
-- Image-level artifacts, laterality markers, burned-in text, or acquisition settings can act as shortcuts. Saliency visualizations do not reliably rule out such shortcuts.
-- For segmentation, pixel-level overlap metrics can obscure errors in small but clinically important lesions. Report task-relevant measures and uncertainty.
+CNN assumptions are not universally appropriate. Images may have orientation, laterality, or anatomical location where translation invariance is harmful. Augmentations such as rotations and flips should preserve clinical meaning. A flipped radiograph may invert laterality or device placement; aggressive color transformations may erase pathology cues. Domain experts should review augmentations.
 
-## Worked example
+### Worked screening example
 
-A CNN detects a condition on chest radiographs. The external test set has 500 patients, 100 with the condition. At a chosen threshold it identifies 85 affected patients (sensitivity 85/100 = 85%) and incorrectly flags 80 of 400 unaffected patients (specificity 320/400 = 80%). Positive predictive value is 85/(85+80) ≈ 51.5%. If prevalence in routine screening is 2% rather than 20%, the same sensitivity and specificity would yield an approximate PPV of (0.85×0.02)/[(0.85×0.02)+(0.20×0.98)] ≈ 8.0%. Thus the study cohort’s PPV cannot be carried directly to a lower-prevalence setting.
+Suppose a development dataset contains 4,000 radiographs from 2,500 patients, with 400 positive examinations. The target is patient-level detection of a validated abnormality within an examination. All images for each patient must remain in one partition. If multiple views make one examination, define how their scores combine before validation. Reserve a later hospital cohort for external testing.
 
-## Interpretation and common pitfalls
+On an independent cohort of 500 examinations with 50 positive cases, a threshold flags 80 examinations, including 35 true positives. PPV is 35/80=43.75%, sensitivity is 35/50=70%, and false positives are 45. These values depend on prevalence and label quality. A high image-level AUC would not show whether the model identifies the right patients or whether clinicians can act on the output.
 
-- Split at patient level and, where relevant, by site or time. Keep preprocessing and augmentation within training data.
-- Describe image acquisition, labeling, exclusions, and class prevalence. Evaluate at external sites with confidence intervals.
-- Report calibration as well as discrimination and sensitivity/specificity at prespecified operating points.
-- Test subgroup performance and shortcut susceptibility; explain how the model would fit the clinical workflow.
-- A heat map is a diagnostic aid, not evidence that the model reasons like a radiologist or that highlighted pixels cause disease.
+~~~r
+# Illustration only: image tensors and labels are prepared separately.
+# A real CNN is typically defined in torch, keras, or another deep-learning framework.
+library(pROC)
+roc_obj <- roc(response = test_label, predictor = test_probability)
+auc(roc_obj)
+~~~
 
+This code computes ranking discrimination and does not assess calibration, threshold utility, or patient-level grouping. The model development must split by patient before extracting crops or augmentations. If the final intended decision is per patient, calculate all metrics at the patient unit.
 
-## Convolution, receptive fields, and image-level targets
+## Data curation and labels
 
-For an input image I and filter K, a 2-D convolution produces a feature map (I*K)(u,v)=sum_a sum_b K(a,b)I(u-a,v-b). The same K is applied at every spatial location, sharing weights and reducing parameter count compared with a dense layer. Stride controls movement; padding controls boundary dimensions. Nonlinear activations permit composition, and pooling or strided layers enlarge the effective receptive field while reducing resolution. Deeper layers can represent larger patterns, but their apparent hierarchy is not necessarily a human-interpretable sequence of clinical concepts.
+Imaging cohorts are shaped by referral, scanning, and labeling. A radiology report is not always a reliable gold standard; it can be delayed, uncertain, or influenced by the image interpretation process. Define how labels were assigned, whether annotators were blinded, how disagreements were resolved, and whether follow-up confirmed the target. Label noise can cap achievable performance and affect subgroups differently.
 
-Image labels have a unit and provenance: image, study, lesion, slide, or patient. If the label is patient-level but multiple slices are used, aggregation must be specified and splitting must occur before slice extraction or augmentation. Data augmentation should preserve label meaning; flips can reverse laterality, and intensity changes may alter pathology cues. For segmentation, Dice=2|A∩B|/(|A|+|B|) can be high for large structures while a small lesion is missed; also report lesion-level sensitivity, surface distance, and clinically relevant error.
+Images require consistent preprocessing: orientation, pixel spacing, windowing, normalization, and resolution. Preserve clinically meaningful acquisition information and document exclusions for poor quality. A model trained on a particular scanner or protocol may exploit site signatures. Compare performance by device, site, and calendar period. External validation should include realistic variations in acquisition and patient mix.
 
-```r
-# A simple binomial calculation: PPV from prevalence, sensitivity, specificity
-ppv <- function(prev, sens, spec) sens * prev /
-  (sens * prev + (1 - spec) * (1 - prev))
-ppv(.02, .85, .80) # about 0.080
-```
+Prevent duplicate leakage. Near-identical images, repeated scans, and derived crops must not cross train and test partitions. Image augmentation is applied only to training data after partitioning. If patches are sampled, keep all patches from a patient in one fold. For longitudinal imaging, define whether prior scans are available at the time of prediction and prevent future information from entering.
 
-The calculation shows why the test-cohort positive predictive value may not transport when prevalence changes. It assumes sensitivity and specificity remain constant, which may fail under spectrum or workflow shift. Validation should include later data and distinct sites, scanner vendors, and relevant subgroups. Check for shortcut cues such as labels, borders, burned-in text, portable-device markers, or post-outcome images. Saliency maps can help locate suspicious dependence but cannot prove its absence. For deployment, describe acquisition, image quality rejection, inference latency, human review, and how uncertain or out-of-distribution cases are handled.
+## Training, imbalance, and uncertainty
 
+Image tasks are often imbalanced. Class weights or sampling can help optimization, but probabilities may need calibration to deployment prevalence. Report event counts and PPV, sensitivity, specificity, and alert burden at thresholds. For segmentation, evaluate overlap measures such as Dice alongside lesion-level sensitivity and false-positive burden; aggregate pixel metrics can obscure clinically important small lesions.
 
-## Development workflow: from question to a defensible model
+Transfer learning initializes a CNN using a model trained on other images. It can help when target data are limited, but source images, label tasks, and acquisition domains differ. Report the pretrained source, layers frozen or fine-tuned, and augmentation. Fine-tuning decisions should be made within development resampling. External testing remains necessary.
 
-A model is meaningful only after the prediction problem has been made precise. State the eligible population, prediction index time, outcome definition, prediction horizon, and intended action. For example, “predict deterioration” is incomplete: a usable specification says which patients, what counts as deterioration, when prediction occurs, and how far ahead it should signal. Predictors must be available at that index time. Variables entered later may encode the outcome or the clinical response to it. This is temporal leakage even if the data table contains no obvious duplicate column.
+Uncertainty can reflect sampling variation, model instability, ambiguous labels, and distribution shift. Bootstrap patients or sites, not image crops. Repeat training with different seeds and inspect confidence intervals. Ensembles and test-time augmentation may stabilize predictions, but computational uncertainty methods are not automatically calibrated. Define a low-confidence or out-of-distribution pathway and evaluate how often it applies.
 
-Choose the independent unit to match deployment. If the system will predict for new patients, every record from a patient belongs to one partition. If it will predict future cases at an existing hospital, a chronological split is often more informative than a random split. If use at a new hospital is intended, retain site-level external validation. Confidence intervals and effective sample size should reflect clustering by patient or site; thousands of rows do not imply thousands of independent people.
+## Evaluation beyond AUC
 
-Keep every data-adaptive step inside resampling: imputation, scaling, feature filtering, encoding, dimension reduction, class rebalancing, and hyperparameter selection. A typical nested workflow uses inner folds to choose settings and outer folds to estimate the performance of that entire selection process. A separate temporal or external test cohort, if available, should be used once after choices are frozen. Repeatedly checking its results turns it into development data. Report the number of patients and outcomes in each split, not only the row count.
+Discrimination measures ranking. Calibration checks whether predicted probabilities correspond to observed frequencies. Use calibration plots, intercept and slope, Brier score, and threshold metrics on independent data. For low-prevalence screening, precision-recall summaries and predictive values are important. Case-control evaluation can distort prevalence-dependent metrics; adjust or validate in representative samples.
 
-Use metrics tied to the intended decision. Discrimination measures ranking; for a binary outcome, ROC AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case. It does not assess absolute risk. Calibration compares predicted and observed risks, using calibration-in-the-large, slope, and plots with uncertainty. At a chosen operating point, show sensitivity, specificity, positive predictive value, negative predictive value, and the proportion flagged. Precision-recall summaries can be informative when events are uncommon. For time-to-event outcomes, account for censoring rather than labeling patients event-free before adequate follow-up. Decision-curve analysis or a prospective impact study is needed to connect predictions to clinical net benefit.
+Threshold selection depends on the consequences of false negatives and false positives. For screening, missed disease may be harmful; false positives create follow-up tests, anxiety, and cost. Decision curves can summarize potential net benefit across thresholds but require a meaningful clinical action. Prospective impact studies test whether using the model improves decisions and outcomes.
 
-A compact R pattern for a binary outcome illustrates the separation between fitting, discrimination, and calibration. It presumes `dat` has one row per patient, a 0/1 `event`, and predictors fixed before the prediction time. The split is only illustrative; repeated patients, sites, or calendar time require grouped or temporal partitions. The final test set must not be used to tune the model.
+Subgroup evaluation should consider age, sex, ethnicity, skin tone where relevant, device, site, and clinically important conditions. Small subgroup samples create wide uncertainty; report denominators. A model can perform differently because of image quality, disease prevalence, access to confirmatory testing, or labels. Engage domain experts and affected groups in defining acceptability.
 
-```r
-set.seed(41)
-i <- sample(seq_len(nrow(dat)), floor(.8 * nrow(dat)))
-train <- dat[i, ]; test <- dat[-i, ]
-fit <- glm(event ~ age + prior_admissions + severity,
-           data = train, family = binomial())
-p <- predict(fit, newdata = test, type = "response")
-# Calibration-in-the-large: intercept ideally 0 when slope fixed at 1
-cal0 <- glm(test$event ~ 1, offset = qlogis(p), family = binomial())
-# Calibration slope: ideally 1; assess uncertainty, not only point estimate
-cals <- glm(test$event ~ qlogis(p), family = binomial())
-coef(cal0); coef(cals)
-```
+## Explanation maps and shortcut detection
 
-The code does not replace internal validation or uncertainty intervals. A small event count can make both performance and calibration estimates unstable. Bootstrap at the patient level or repeat appropriately grouped resampling, and report intervals. When transporting a model, compare outcome prevalence, predictor distributions, measurement practice, and label ascertainment; recalibration of the intercept can address a prevalence shift under restrictive conditions, but cannot repair changed predictor effects or systematic measurement errors.
+Saliency maps and class activation maps visualize regions associated with a prediction. They can help find reliance on image borders, markers, text, or devices, but a plausible-looking map does not establish faithful reasoning. Maps can be insensitive to model parameters or vary with method. Compare explanations across methods, perturb inputs, and perform targeted artifact tests.
 
-For a clinical prediction report, document the cohort flow, missingness, feature timing, model specification, tuning procedure, split unit, and evaluation population. TRIPOD+AI provides a reporting framework. PROBAST+AI can help assess risk of bias and applicability. Neither checklist certifies clinical usefulness. A retrospective prediction model still requires prospective evaluation of workflow, alert burden, clinician response, and patient outcomes before claims of benefit.
+Test for shortcuts by evaluating on external sites, removing markers, masking non-anatomical regions, and stratifying by acquisition features. These interventions are diagnostic and can themselves distort images, so interpret cautiously. If performance collapses when a site marker is removed, investigate leakage rather than claiming anatomical reasoning.
 
+## From validation to implementation
 
-## Full worked analysis: screening image classifier
+Define the intended workflow: when images arrive, how quickly a score is available, who reviews it, and how discordance is handled. A CNN used for triage can reorder a worklist; it should not silently exclude unflagged patients unless evidence supports that policy. Run a silent prospective phase to test image ingestion, latency, calibration, and failure handling before clinical influence.
 
-Suppose a model screens radiographs for a condition with 2% prevalence. At sensitivity .85 and specificity .80, among 10,000 screened people one expects 200 cases: 170 true positives and 30 false negatives. Among 9,800 without disease, 1,960 are false positives and 7,840 true negatives. PPV=170/(170+1960)=8.0%, so roughly 12.5 positive alerts occur per true detected case. This arithmetic makes downstream capacity visible. It assumes performance is constant across the deployment spectrum; mild/asymptomatic cases, image quality, and disease severity can change sensitivity and specificity.
+Monitor scanner and protocol changes, image quality, prevalence, calibration, subgroup errors, and downstream actions. Model updates, new image preprocessing, and threshold changes create a new system version. Maintain rollback and human review. A deployment decision should include benefit, harms, workload, equity, and cost, not just retrospective AUC.
 
-Before training, define whether the unit is a patient, radiograph, or study. If multiple projections or studies per patient are inputs, aggregate them according to a prespecified rule and split patients before augmentation. Keep a final set from another site or later period. For a segmentation model, patient-level Dice can mask a small lesion miss; report lesion sensitivity and false positives per scan. For classification, threshold selection should consider referral capacity and confirmatory testing, and calibration should be assessed at deployment prevalence. A classifier trained on enriched case-control data requires recalibration or appropriate sampling weights for absolute-risk interpretation.
+## Reporting a reproducible imaging model
 
-```r
-prev <- .02; sens <- .85; spec <- .80; N <- 10000
-expected <- c(TP=N*prev*sens, FN=N*prev*(1-sens),
-              FP=N*(1-prev)*(1-spec), TN=N*(1-prev)*spec)
-expected
-expected["TP"]/(expected["TP"]+expected["FP"])
-```
+Report patient and image counts, label source, inclusion/exclusion, patient-level split design, preprocessing, architecture, initialization, augmentation, loss, optimization, tuning, and software version. State whether metrics are image-level, examination-level, or patient-level. Include external sites, uncertainty, calibration, subgroup performance, threshold consequences, and failure analysis.
 
-Audit performance by scanner, institution, age, sex, and relevant clinical subgroups with uncertainty intervals. Investigate differences in image acquisition and label practices before interpreting disparities as model defects or biology. A heatmap can expose dependence on an image border or device marker, but apparent localization does not prove the model uses the lesion. Use controlled counterfactual perturbations, external cohorts, and error review to identify shortcuts; no one visualization establishes faithful reasoning. Document how images are rejected or routed when low quality or outside the training distribution.
+Provide code, model weights, and preprocessing details where permitted. Use TRIPOD+AI and relevant imaging reporting guidance; describe intended use and limits. Separate technical validation from a prospective study of clinical impact.
 
+### Image labels and imperfect reference standards
 
-## Uncertainty, external testing, and segmentation endpoints
+A target label can be derived from pathology, follow-up, expert annotation, billing codes, or radiology reports; each has limitations. A report may be a noisy label for the image, and a model trained to reproduce the report may learn reporting behavior rather than disease truth. Pathology is more specific but available only for selected patients, creating verification bias. Describe ascertainment and selection into the labeled cohort.
 
-Image-level confidence is not the same as epistemic uncertainty. A model can be confidently wrong on an unfamiliar scanner or rare pathology. Ensembles, test-time augmentation, or predictive entropy can flag some uncertainty, but each needs validation and none reliably detects every out-of-distribution image. Define an abstention pathway for low-quality or unfamiliar studies and measure coverage alongside accuracy: performance among the cases the system accepts may improve while many patients are deferred.
+For localization tasks, define the annotation unit and adjudication procedure. Pixel masks can differ across annotators at lesion boundaries. Use multiple readers or consensus rules and quantify inter-rater variation. A segmentation model’s apparent error may reflect annotation ambiguity; evaluation should acknowledge this and consider tolerance-based measures. For detection, count lesions and patients separately, since many false-positive boxes in one patient have different implications from isolated false alarms across many patients.
 
-For segmentation, define how pixel masks are produced and adjudicated, whether annotators are blinded, and how disagreement is handled. Dice and intersection-over-union are size-sensitive; surface distance and lesion-level detection reveal different errors. Report per-patient distributions, not only pooled pixels, because large images otherwise dominate. For small lesions, a one-pixel boundary discrepancy can sharply change overlap; conversely, a high overlap on a large organ can conceal a dangerous missed focus. Agree on a clinically meaningful tolerance before analysis.
+If the same radiologist labels training and test images, systematic reader tendencies may be shared. Blinding and independent adjudication reduce some bias. Keep model developers separate from reference labeling when feasible. If reports created labels after model exposure or with access to other tests, the target may include post-index information and become unavailable at deployment.
 
-External testing should hold out institutions or time periods, not only random images. Analyze acquisition and prevalence differences, and establish whether recalibration or fine-tuning is allowed before evaluation. A newly fine-tuned model requires another independent test. Report intended scanner/protocol range, image quality exclusions, and workflow for a human reader. A retrospective image classifier may answer “what label is associated with this image?” rather than “what should the clinician do now?” That distinction belongs in the intended-use statement.
+## Image-level, exam-level, and patient-level targets
 
+A radiograph examination may include several views; a patient can have multiple examinations. Define the prediction target at the level of intended action. If the system prioritizes examinations, evaluate examination-level performance. If it supports patient triage, combine views and repeated exams into a patient-level score and prevent repeated cases crossing partitions.
 
-## Pretraining and augmentation decisions
+Aggregation rules matter. Taking the maximum view score may increase sensitivity but also false alarms as the number of views grows. Averaging can dilute a focal abnormality. Learn aggregation within training data and validate it with the whole pipeline. Report number of images per examination and how missing views are handled.
 
-Transfer learning starts with filters learned on a source dataset and adapts some or all weights to the target task. It can reduce optimization burden when target labels are scarce, but source images may differ in anatomy, acquisition, color scale, or label definition. Compare frozen feature extraction, partial fine-tuning, and full fine-tuning within development resampling. A pretrained model can carry source-population artifacts, and external validation remains necessary. Document source weights and licensing, because reproducibility and clinical use depend on them.
+Longitudinal imaging can use prior scans, but availability and timing must match intended deployment. A model that uses post-diagnosis images to classify earlier disease leaks outcome information. For prognosis, define the landmark and horizon, and account for patients with incomplete follow-up. A “baseline” scan should be defined by the scan acquisition time available to the clinical team.
 
-Augmentation can encode plausible invariances: small rotations, intensity shifts, or crops may represent acquisition variability. But an augmentation is unsafe if it changes laterality, removes a lesion, alters clinically meaningful density, or produces images outside realistic acquisition. Apply augmentations only to training data and never to evaluation images. Validate robustness to clinically plausible perturbations separately from routine test performance. Synthetic data require independent assessment for privacy leakage and fidelity.
+### Metrics for screening and segmentation
 
-Class imbalance in patch or pixel segmentation can lead the loss to favor background. Dice or focal losses can increase attention to small structures, but their probability outputs may not be calibrated and optimization behavior differs from cross-entropy. Select loss based on the clinical endpoint and report both overlap and detection errors. A thresholded mask can be postprocessed; postprocessing parameters are part of the model and must be tuned only within development data.
+For screening, ROC AUC may appear high in a case-control sample even when the target prevalence is much lower. Positive predictive value depends strongly on prevalence. Report sensitivity and specificity with confidence intervals and representative prevalence, and estimate the number of follow-up tests per detected case. A decision threshold selected in an enriched cohort may not be appropriate in routine screening.
 
+For lesion segmentation, Dice similarity coefficient measures overlap: 2|A∩B|/(|A|+|B|). It can be insensitive to clinically important boundary errors in large structures and unstable for tiny lesions. Report complementary measures such as lesion-wise sensitivity, false positives per scan, volume error, and boundary distance as appropriate. Define how empty masks and multiple lesions are treated.
 
-## Architecture and evaluation choices for clinical images
+Model selection should not rely on one summary. A small improvement in mean Dice may hide a subgroup of missed lesions. Show case-level distributions, representative failures, and subgroup results. Confidence intervals should resample patients, not slices. For paired model comparisons, evaluate predictions on the same patient set.
 
-A classification head usually pools spatial feature maps and maps them to one or more labels. Global average pooling reduces parameters but discards some localization information. Detection models predict boxes or regions, while segmentation models return pixel labels; their annotation burden and clinical failure modes differ. If a model is trained with image-level labels but deployed to mark a lesion, a heatmap is not equivalent to a segmentation model and should not be presented as one. Align target granularity with the clinical question.
+### Shortcut auditing and data leakage tests
 
-Dataset size must be counted at the patient level, and annotation quality must be described. Multiple readers may disagree on subtle findings; consensus labels can conceal uncertainty. Consider inter-reader agreement and adjudication, and evaluate against an independent reference standard when possible. If labels come from reports, models can learn reporting behavior rather than pathology. For case-control samples with enriched disease prevalence, ranking may be estimable but absolute risk and PPV do not represent screening populations without adjustment.
+Common shortcuts include laterality markers, embedded text, image borders, portable-device labels, hospital-specific compression, and repeated patients. Construct diagnostic evaluations that test sensitivity to these features: compare performance by scanner or site, mask non-anatomical regions, evaluate on a new acquisition source, and inspect examples with unexpected predictions. Each test can alter image content, so use it as evidence about reliance rather than a definitive proof.
 
-A robust evaluation protocol freezes the patient-level split before creating image patches. Patch extraction, augmentation, normalization, and any feature selection are fit only from training images. Ensure no images from the same study, patient, or near-duplicate acquisition cross partitions. Report both image-level and patient-level performance if each patient contributes multiple exams, and cluster uncertainty intervals by patient. External testing should include independent institutions and acquisition systems; random splitting across a pooled multi-site sample can leak site signatures into every partition.
+Dataset-level leakage can occur when near duplicates or serial studies cross splits. Hashing and image similarity tools can flag duplicates, but manual review may be needed. Ensure preprocessing statistics are computed from training data, not all images. Tuning thresholds, selecting architectures, or choosing checkpoints using the external test set invalidates its independence.
 
-For reader-assistance tools, evaluate human-AI performance as a separate estimand. A standalone sensitivity gain does not imply that radiologists improve with the model; automation bias can reduce detection of model-missed disease. A reader study should randomize or counterbalance case order, account for reader and case clustering, and include reading time and confidence. Deployment outcomes such as downstream tests, false referrals, and delayed diagnosis may require a prospective impact study.
+If performance is much higher for images from a particular site, check whether site and outcome prevalence are associated. A random split will preserve this correlation and make a shortcut appear useful. Site-held-out testing can reveal failure. If the intended deployment includes those sites, determine whether recalibration suffices or whether acquisition and labeling mechanisms have changed.
 
+## Model uncertainty and quality control
 
-## Data curation, reproducibility, and image shift
+A CNN will produce a score for corrupted, out-of-focus, or unsupported images unless a quality gate prevents it. Develop image-quality checks for missing views, severe artifacts, orientation errors, and unsupported modalities. Test quality control by site and subgroup; poor image quality may correlate with access or clinical urgency. Define when the system rejects an image and how staff proceed.
 
-Image preprocessing can introduce subtle leakage. If normalization statistics are calculated across the full dataset, test information has entered development. Learn normalization on training images or use a prespecified acquisition protocol. Crop coordinates, resizing, windowing, color normalization, and compression affect predictions; save these settings and apply them consistently. For pathology, patch sampling must be patient- and slide-aware. Random patches from one slide in both partitions can make a model recognize tissue or stain signatures.
+Prediction uncertainty can be estimated through ensembles, stochastic augmentations, or other methods, but uncertainty scores need calibration. Evaluate whether high uncertainty corresponds to errors or distribution shift in independent data. A confidence score should not be used as a safety guarantee. Review false negatives and high-uncertainty cases with clinicians and determine escalation pathways.
 
-Annotation protocols should define inclusion criteria and reference labels. Radiology reports, pathology consensus, registries, and expert annotations have different errors and temporal relationships to use. Report inter-reader variability and disagreements. If weak labels are used, describe how noise was handled and evaluate errors against higher-quality reference data. A model trained on diagnosis codes may learn care pathways rather than imaging findings.
+Monitoring must include input quality and acquisition variables, not only outcome metrics. Outcomes may arrive months later, so combine early operational signals with delayed calibration monitoring. Changes to image compression, scanner software, or preprocessing should trigger reassessment.
 
-Image distribution shift can arise from new scanners, reconstruction kernels, staining, compression, patient positioning, or screening prevalence. External validation should test the complete processing chain and include image-quality failures. Recalibration may fix a shifted prior probability but not changed pixel meaning. Track device mix and input quality; define a trigger for review and a safe fallback. Include uncertainty or abstention pathways only after measuring coverage and accepted-case performance. A high-performing model that silently returns scores for out-of-domain images is not necessarily safe.
+## Fairness and accessibility in imaging
 
+Image quality and disease appearance can vary with age, sex, skin pigmentation, comorbidities, positioning, and access to imaging. Evaluate performance for relevant populations and acquisition conditions, while acknowledging limited subgroup sizes. A model trained on tertiary-care images may fail in primary care or mobile settings. Diverse enrollment must be paired with trustworthy outcome labels and external evaluation.
 
-## Reporting uncertainty and errors
+If the model prioritizes worklists, examine wait times and missed cases by group. The threshold can affect access to follow-up differently where resources differ. Stakeholders should decide acceptable trade-offs and mechanisms for human review. Do not use demographic subgroup results as a simple ranking of fairness without considering prevalence, label quality, and clinical consequences.
 
-Use patient-level bootstrap intervals for sensitivity, specificity, PPV, and segmentation summaries; image-level resampling understates uncertainty when people contribute multiple images. Report the number of positive patients, not merely image count. For a screening threshold, show the confusion matrix and alert fraction with intervals. In segmentation, summarize per-patient distributions and include failure examples. Compare model-reader performance under a prespecified protocol, and distinguish standalone evaluation from assisted-reader evaluation.
+## Prospective workflow and cost
 
+A useful CNN must fit the imaging workflow. Measure inference latency, image routing, failure rate, and workload. Determine whether users see a probability, heat map, or prioritization marker and how each affects decisions. Human factors testing can identify automation bias or alert fatigue. Silent deployment can verify data pipelines before predictions influence care.
 
-## Calibration and decision thresholds
+A prospective impact study should evaluate patient outcomes, diagnostic delay, downstream testing, false-positive workups, workload, and costs. A randomized or phased implementation may be appropriate depending on risk and workflow. Include a comparison with existing radiologist or clinician performance and specify how disagreements are resolved. Retrospective image accuracy alone cannot establish clinical benefit.
 
-A classifier’s threshold should be prespecified or selected on development data against a stated consequence. On the external cohort, report sensitivity, specificity, predictive values, and the proportion sent for review at that threshold. A model can preserve AUC but have poor calibration after prevalence shift. Recalibration requires representative data and should be evaluated on a separate sample. In enriched datasets, report that predictive values are not transportable without correcting the sampling design and testing the correction.
+### Reporting details readers need
 
+Report data sources, patient and image counts, sites, time period, label criteria, reader agreement, preprocessing, input resolution, architecture, pretraining source, augmentation, loss, optimization, tuning, and threshold selection. State split unit and how duplicates were prevented. Give metrics at the deployment unit, confidence intervals, calibration, subgroup results, and failures.
 
-Report confidence intervals with the number of independent patients as the resampling unit and include examples of clinically consequential misses. This makes the uncertainty and likely failure modes visible alongside summary accuracy.
+Describe intended use, prohibited uses, image quality constraints, and fallback procedures. Version the model and preprocessing pipeline. Provide examples only when privacy and permissions allow. A reproducible report should distinguish diagnostic classification, triage, segmentation, and prognosis because each requires different evidence.
 
+## When CNN use is unjustified
 
-Include device and site counts so readers can judge whether external validation represents genuine acquisition diversity.
+A CNN may be unnecessary for small tabular datasets, low-resolution inputs without meaningful spatial structure, or a setting where a short validated score already supports the decision. It may also be inappropriate when acquisition variability cannot be monitored or reference labels are too weak to support the desired claim. Simpler image features or established workflows can be compared as baselines.
 
+Model choice should be driven by task, evidence, and maintainability. If a CNN offers a measurable gain, explain whether it improves sensitivity, calibration, or clinical workload and how uncertainty was assessed. Do not infer superiority from architectural complexity.
 
-If the sample includes multiple studies per person, give both patient and image denominators when reporting evaluation results.
+### Calibration and operating points
 
+CNN probability scores can be miscalibrated even when ranking is strong. Check reliability over the clinically relevant range and recalibrate only on representative data separate from final testing. Threshold selection should account for prevalence and follow-up capacity. A threshold appropriate for prioritizing radiologist review may be unsafe as an autonomous rule-out cutoff. Report sensitivity, specificity, PPV, and the number of studies referred at the chosen operating point.
 
-Stratify errors by scanner.
-
-
-Report test patient counts.
+Image-level metrics should not substitute for patient-level action metrics. If several views contribute to one decision, aggregate them before calculating patient sensitivity and false-positive burden. Provide both levels when each is relevant to workflow.
 
 ## References and further reading
 
-- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505)
-- LeCun Y, Bengio Y, Hinton G. Deep learning. *Nature*. 2015;521:436–444. [doi:10.1038/nature14539](https://doi.org/10.1038/nature14539)
-- Litjens G, Kooi T, Bejnordi BE, et al. A survey on deep learning in medical image analysis. *Medical Image Analysis*. 2017;42:60–88. [doi:10.1016/j.media.2017.07.005](https://doi.org/10.1016/j.media.2017.07.005)
-- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
+- Roberts M, Driggs D, Thorpe M, et al. Common pitfalls and recommendations for using machine learning to detect and prognosticate for COVID-19 using chest radiographs and CT scans. *Nature Machine Intelligence*. 2021;3:199–217. [doi:10.1038/s42256-021-00307-0](https://doi.org/10.1038/s42256-021-00307-0).
+- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378).
+- See [Random forests](random-forests.html) for general prediction calibration and [Decision-curve analysis](../clinical-research/decision-curve-analysis.html) for threshold utility.
+- LeCun Y, Bengio Y, Hinton G. Deep learning. *Nature*. 2015;521:436–444. [doi:10.1038/nature14539](https://doi.org/10.1038/nature14539).
+- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505).
+- See [Neural networks for health data](neural-networks-for-health-data.html) for broader validation and lifecycle guidance.

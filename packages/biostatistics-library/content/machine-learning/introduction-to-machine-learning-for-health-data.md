@@ -3,139 +3,124 @@ title: Introduction to machine learning for health data
 summary: A practical introduction to supervised and unsupervised learning, evaluation, leakage, and responsible use in biomedical research.
 ---
 
-## Overview and key ideas
+## Overview
 
-Machine learning (ML) describes algorithms that use data to estimate patterns or make predictions. In **supervised learning**, examples have a known outcome: a model may estimate 30-day readmission from information available at discharge. In **unsupervised learning**, outcomes are not supplied; methods summarize structure, such as grouping patients by measured profiles. These goals differ from causal inference. A model that predicts who receives a treatment or has an outcome does not, by itself, estimate what would happen if treatment were changed.
+Machine learning (ML) refers to computational methods that estimate patterns from data and use them to predict, classify, rank, or summarize observations. In health research, supervised models learn from examples with known outcomes; unsupervised methods describe structure without an outcome label; and reinforcement learning studies sequential actions and rewards. These are different goals with different validation needs. None automatically answers a causal question about what would happen under an intervention.
 
-A useful workflow is: define the intended population, time point, outcome, and action; assemble a cohort that represents that use; split data at the correct unit; fit and tune within development data; evaluate once on held-out or external data; then assess calibration, subgroup performance, and consequences of use. The model is only one part of a prediction system, which also includes data collection, workflow, thresholds, and monitoring.
+A health prediction model is a statistical object embedded in a larger system. Its usefulness depends on the population, time of prediction, data collection, target definition, output, threshold, and action that follows. A high AUC does not establish accurate probabilities, clinical benefit, fairness, or transportability. Model development therefore begins with the intended decision and ends with evidence about what happens when the model is used.
 
-For a binary outcome, a model may output a probability (e.g., 0.18 risk of deterioration). A threshold turns that probability into a decision, but the right threshold depends on the costs of false alarms and missed cases. Ranking metrics such as area under the ROC curve (AUC) do not tell us whether probabilities are accurate or whether acting on them helps patients.
+## Prediction, classification, clustering, and causal questions
 
-## When to use it
+Supervised learning estimates a mapping from predictors X to an outcome Y. For a binary outcome, the model may estimate the probability of readmission within 30 days. Classification assigns categories using a threshold; regression predicts a continuous quantity; survival analysis predicts time-to-event or event probability while accounting for censoring. The same input can support multiple estimands, so define the outcome event, competing events, time horizon, and eligible population precisely.
 
-ML can be useful when the goal is prediction or pattern discovery, the data contain information relevant to that goal, and the proposed use can be evaluated. Examples include predicting deterioration from vital-sign histories, classifying pathology images, or exploring whether laboratory profiles contain reproducible subgroups. Begin with a clinical question and a simple baseline (such as a prevalence estimate or regression model); use a more complex method only if it adds reliable value.
+Unsupervised learning includes clustering, dimension reduction, and representation learning. It can reveal patterns or reduce complexity, but groups discovered by an algorithm are not necessarily natural disease subtypes. Cluster stability, external replication, and clinical coherence matter. Reinforcement learning considers choices over time, but clinical use requires a well-defined state, action, reward, safety constraints, and careful evaluation; retrospective treatment records alone do not show that a learned policy improves outcomes.
 
-## Assumptions and limitations
+Causal inference asks how outcomes would differ under alternative interventions. A model that predicts mortality well may use variables that are consequences of impending death or care decisions. Prediction permits such features if they are available at prediction time; causal estimation may require different variable selection and assumptions. Do not interpret feature importance as treatment effect or biological mechanism.
 
-- **Representative data:** the development sample and deployment population must have sufficiently similar relationships between predictors and outcome. Changes in coding, referral, prevalence, or care can degrade performance.
-- **No information leakage:** every predictor must be available at the stated prediction time. Data cleaning, imputation, scaling, feature selection, and tuning must be learned using training folds only. Repeated admissions from one patient should generally remain in one partition; random row splitting can place nearly identical records on both sides.
-- **Adequate outcome information:** effective sample size depends on outcome events, predictor complexity, clustering, and missingness, not just total rows. High-dimensional data need stronger regularization and broader validation.
-- **Measurement and selection:** labels may be noisy or reflect unequal access to care. A model can reproduce historical disparities even when sensitive attributes are removed.
-- **Prediction is not intervention evidence:** predictive associations can be confounded, and treatment decisions can change the outcome being predicted.
+## Define a prediction problem before selecting algorithms
 
-## Worked example
+Specify the intended population, index time, prediction horizon, outcome, predictors available at that time, and action. “Predict deterioration” could mean alerting for a specific event within six hours among ward patients at each hourly update, or predicting ICU transfer within 24 hours at admission. These tasks require different cohorts and predictors. Define repeated predictions carefully: a patient can contribute many time points, but the evaluation must not treat those rows as independent people.
 
-Suppose 2,000 adult admissions are used to predict unplanned ICU transfer within 24 hours after ward arrival. The target time is arrival; predictors include age, initial vital signs, and laboratory results available by then. There are 160 transfers (8%). A useful baseline that predicts 8% for everyone has no discrimination but gives a reference Brier score of 0.08 × 0.92² + 0.92 × 0.08² = 0.0737. The team compares regularized logistic regression and a tree ensemble using patient-level, temporal cross-validation. If a model has AUC 0.78, that means a randomly selected case tends to receive a higher score than a randomly selected non-case; it does not mean 78% of patients are correctly classified. The team also checks calibration, sensitivity and positive predictive value at a clinically selected alert threshold, subgroup errors, and alert burden. A later hospital cohort is reserved for external evaluation.
+Choose an outcome that corresponds to the decision. A code-based diagnosis may be delayed; treatment initiation may reflect clinician behavior rather than disease; a composite outcome can combine events of different importance. Define how death, discharge, transfer, and loss to follow-up affect the target. For prediction at a fixed horizon, clarify how participants without complete follow-up are handled. For survival outcomes, use methods and metrics that account for censoring and competing risks.
 
-## Interpretation and common pitfalls
+Clarify intended deployment. A model used to identify high-risk patients in the same hospital next month needs temporal validation; a model for other hospitals needs site-level external validation. A model intended for a screening program may be evaluated at population prevalence and at an operational threshold. A case-control sample can estimate some discrimination measures, but raw predicted probabilities and predictive values generally do not transport without appropriate sampling adjustment and recalibration.
 
-- Specify the prediction horizon and information cutoff. “Predict mortality” is incomplete without when predictions are made and over what period.
-- Keep a final test set untouched until choices are finished. Repeatedly inspecting its performance makes it part of model development.
-- Compare with a meaningful baseline, report uncertainty, and evaluate calibration as well as discrimination. See [model validation and overfitting](../regression/model-validation-and-overfitting.html).
-- Audit errors and performance across clinically relevant groups. Aggregate performance can hide poor performance in a smaller subgroup.
-- A feature-importance score describes how a fitted model uses data under a particular procedure; it is not a causal effect or proof of biological mechanism.
-- Monitor performance after implementation, with governance for updates, human oversight, and a route to investigate harms.
+## Build an analysis cohort that matches future use
 
+Represent the data-generating process: who enters the dataset, how predictors are measured, when the outcome is observed, and what care actions affect it. Routine records are not neutral windows into health. Testing frequency, coding practices, access to care, and clinician decisions shape the predictors and labels. Missingness can itself be informative, but may change when workflow changes.
 
-## Prediction targets, estimands, and data-generating process
+Use an index date and enforce predictor availability. A lab result obtained after an alert or diagnosis leaks future information. So can a billing code entered retrospectively, a discharge destination, or an intervention triggered by early symptoms. Define time stamps by when information was available operationally, not merely when it appears in a final database extract. For each predictor, ask whether it would exist at the proposed decision time.
 
-Prediction estimates an outcome distribution conditional on information available at a defined time, such as P(Y within 30 days | X at discharge). Causal inference instead targets a contrast between potential outcomes under interventions, for example E[Y(1)-Y(0)]. A highly predictive variable can be a consequence of disease, clinician response, or access to care; that does not make it a valid treatment target. State whether the aim is risk prediction, classification, ranking, clustering, causal effect estimation, or resource allocation before selecting an algorithm.
+Specify the independent unit for splitting and uncertainty. If deployment targets new patients, group all records from a patient into one partition. If it targets future patients in the same organization, use a chronological split. If it targets new sites, reserve sites. Random row splitting can put the same patient, clinician, or site in both train and test data, inflating performance through information sharing.
 
-A prediction dataset is a sample from a data-generating process shaped by eligibility, measurement, coding, follow-up, and selection. Outcome labels can be proxies: readmission depends on care access, and “sepsis” labels may inherit clinician documentation practices. Missingness can encode clinical attention. Label validation and cohort construction may matter more than algorithm choice. Define the target population and distinguish predictors from outcomes and downstream consequences. For time-to-event outcomes, censoring means absence of observed event is not equivalent to a known negative label.
+## A worked example: a deterioration alert
 
-## A worked risk and threshold calculation
+Suppose a hospital wants to predict whether a ward patient will require emergency respiratory support in the next 12 hours, using information available at each hourly assessment. The event should be defined from validated procedure and clinical records, with transfers and deaths addressed. Each eligible hourly assessment is a prediction occasion, but all occasions from one patient must remain in the same resampling partition. If the intended use is a future period, reserve the most recent months as a temporal validation set.
 
-Suppose a cohort has 1,000 patients, 100 events, and a model flags 200 people at a threshold. If it captures 70 events, sensitivity is 70/100=70%. There are 130 false positives, so PPV is 70/(70+130)=35%; 800 are unflagged, of whom 30 have the event, giving NPV 770/800=96.25%. High NPV partly reflects the 10% event prevalence. If an intervention has limited capacity, threshold selection should compare expected benefit and harm, not maximize accuracy. A threshold of 0.20 may be defensible only if relative consequences support it and predicted risks are calibrated.
+Assume 8% of prediction occasions have an event. A model assigns a risk of 0.20 to a patient-hour. That is a probability claim and should be checked against observed event frequency in comparable risk groups. A threshold of 0.15 might trigger review. If 100 patient-hours exceed the threshold and 20 have the event, positive predictive value is 20%; sensitivity cannot be calculated without the number of all event patient-hours. The alert burden is 100 alerts, not “80% accuracy.”
+
+At threshold t, decision-curve net benefit for a binary outcome can be written as TP/n − FP/n × t/(1−t), where false positives are weighted by the relative harm implied by the threshold. With 50 true positives and 150 false positives among 1,000 occasions at t=0.20, NB=.05−.15(.20/.80)=.0125. The model should be compared with treat-none, treat-all, and current practice across clinically plausible thresholds. This calculation does not establish benefit if clinicians do not respond as assumed or if alerts cause harmful downstream work.
+
+AUC describes ranking: the probability that a randomly chosen event case receives a higher score than a randomly chosen noncase, with ties handled conventionally. AUC 0.78 is not 78% accuracy or 78% probability calibration. Calibration compares predicted with observed risk. At the decision threshold, report sensitivity, positive predictive value, alerts per patient-day, missed events, subgroup performance, and uncertainty. If outcomes are clustered within patients, uncertainty intervals should resample patients rather than hourly records.
+
+## Start with a baseline and match model complexity to information
+
+A useful baseline is a simple model with transparent predictors, such as logistic regression or a clinical score. Compare candidate algorithms against it using identical cohorts, predictors, validation splits, and outcome definitions. Complexity should be justified by improved performance or a practical advantage, not novelty. Small event counts limit the effective information available even if millions of repeated rows appear in the dataset.
+
+Regularized regression can shrink unstable coefficients and handle many correlated predictors. Trees capture thresholds and interactions; random forests and boosting average or combine trees; nearest-neighbor methods rely on meaningful distance; neural networks learn flexible representations from structured or high-dimensional data. Each algorithm carries assumptions about data representation and failure modes. No model family compensates for unclear targets, leakage, or inadequate external data.
+
+For tabular health data, nonlinearities and interactions may be modeled with splines or prespecified terms before reaching for deep networks. For images and waveforms, convolutional or sequence models can use local structure, but need patient-level splits and external acquisition testing. For text, transformer models require careful de-identification, provenance, temporal context, and evaluation of generated as well as predicted outputs. Model choice follows input structure and evidence, not a universal ranking.
+
+## Leakage-safe training and model selection
+
+Partition data before any data-adaptive preprocessing. Imputation, scaling, feature selection, category encoding, oversampling, and dimensionality reduction must be learned within each training fold and then applied to the held-out fold. If hyperparameters are selected, nested cross-validation or a separate validation set is needed to avoid optimistic performance from repeated tuning. Keep a final test cohort untouched until all choices are locked.
+
+Resampling should mimic deployment. Use patient-grouped folds for new-patient prediction, chronological folds for future use, and site-held-out validation for new-site transport. If multiple targets or repeated horizons are evaluated, preserve appropriate groups across all of them. Confidence intervals should reflect the independent sampling unit; bootstrap patients or sites as appropriate.
+
+Class imbalance does not make accuracy useful. A model that predicts no events when prevalence is 2% has 98% accuracy but no sensitivity. Consider the purpose and report several complementary metrics: discrimination, calibration, threshold-specific errors, and decision consequences. Rebalancing or class weights may change score calibration; recalibration on representative data may be needed. Never rebalance the final test set when estimating real-world predictive values.
+
+## Evaluate beyond a single performance number
+
+Discrimination assesses ranking. AUC is common, while precision-recall summaries may be more informative for rare outcomes. Calibration assesses probability accuracy using calibration plots, calibration intercept and slope, and scores such as Brier score or log loss. A Brier score is the mean squared difference between predicted probabilities and observed binary outcomes; it depends on prevalence and should be compared with suitable reference models.
+
+Threshold metrics depend on the action. Sensitivity and specificity characterize error trade-offs, while positive and negative predictive values depend on prevalence. Report confusion counts as well as percentages. If the model ranks well but is miscalibrated, a treatment threshold applied to predicted probability can lead to poor decisions. Recalibration may correct average risk or slope under distribution shift, but cannot repair rank failure or missing predictors.
+
+Assess clinical utility using decision analysis or an impact study. Decision curves estimate net benefit under threshold preferences; randomized or carefully designed prospective impact evaluations test whether model-supported care improves outcomes and avoids harms. A model can have better AUC and no clinical benefit if it changes few decisions, creates excessive alerts, or prompts ineffective interventions.
+
+## Fairness, ethics, and implementation
+
+Evaluate performance across clinically and socially relevant groups, with uncertainty and sample sizes. Differences may arise from prevalence, measurement quality, access, label construction, or model behavior. Equalizing one metric across groups can conflict with another and does not alone establish fairness. Involve affected communities and clinicians in deciding which errors matter, what actions follow, and how harms will be monitored.
+
+Protected attributes may be needed for auditing even if excluded from prediction. Proxy variables can encode geography, access, or historical inequity. Removing a sensitive field does not guarantee unbiased predictions. Inspect feature use and error patterns, but do not treat explanations as causal accounts. Assess downstream consequences such as who receives follow-up, who is denied care, and whether the model shifts resources.
+
+Deployment requires workflow integration, clear responsibility, human oversight, data quality checks, and a way to override or investigate predictions. Monitor input distributions, missingness, calibration, alerts, outcomes, and subgroup impacts. A change in assay, coding, population, or clinical pathway can degrade a model. Define triggers for recalibration, reevaluation, suspension, or redevelopment before release.
+
+## Communicate a reproducible evidence claim
+
+Report the target population, eligibility, index time, horizon, outcome, predictors, missing-data handling, algorithm, tuning, and validation design. Provide event counts and patient/site counts in each partition. Describe all preprocessing and candidate models, not only the winner. Report confidence intervals, calibration, threshold consequences, subgroup results, and external testing. Distinguish development estimates from independent validation and prospective impact.
+
+Use reporting guidance such as TRIPOD+AI and risk-of-bias tools such as PROBAST+AI. Provide model version, code or implementation details where permitted, data provenance, and limitations. State whether the tool is for research, silent evaluation, decision support, or autonomous action. A clear statement separates what the model predicts from what evidence supports doing with that prediction.
+
+## Sample size, missingness, and uncertainty
+
+Model complexity must be considered relative to the number of independent outcome events, not just the number of rows or predictors. Repeated hourly records from one patient share physiology and care decisions. Ten thousand records from 200 patients with 30 events do not provide the same information as 10,000 independent patients. Effective information is also reduced by clustering, strong predictor correlation, missing outcomes, and rare subgroups. Report patients, events, sites, and prediction occasions separately.
+
+There is no single events-per-variable threshold that guarantees a stable model. Required information depends on outcome frequency, candidate parameters, anticipated signal, shrinkage, and desired precision. Internal resampling can estimate optimism but cannot create information absent from the data. Prespecify a feasible candidate set, use regularization when appropriate, and seek external data. For high-dimensional images or text, pretrained representations may reduce optimization burden but do not remove the need for representative validation and calibrated claims.
+
+Missing predictors require a deployment-aware strategy. A model trained only on complete laboratory panels may fail for patients without testing, and excluding them can select a healthier or more connected population. Imputation can be performed within development pipelines, but test-time missingness handling must match the intended system. Missingness indicators may exploit workflow patterns that shift across sites. Evaluate performance among groups with different data availability and define when the model should abstain or request more information.
+
+Performance estimates have sampling uncertainty. A point estimate of sensitivity based on 10 events is unstable; report an interval and the event denominator. Bootstrap at the patient, site, or temporal-block level to respect dependence. When comparing models on the same cases, account for paired predictions. Repeatedly selecting the best result among many algorithms creates winner’s curse; report model selection as part of the development process and preserve an untouched evaluation set.
+
+## Probability calibration and threshold use in R
+
+For binary predictions, calibration can be inspected by comparing observed frequencies with mean predictions over risk groups or with a smooth calibration curve. The calibration intercept ideally equals zero and slope one; an intercept shift suggests systematic over- or underprediction, while a slope below one often indicates overly extreme predictions. These summaries need uncertainty and adequate sample size. Grouped plots depend on binning and should not replace flexible curves or decision-relevant evaluation.
 
 ```r
-# Decision-curve net benefit at threshold pt:
-# NB = TP/n - FP/n * pt/(1-pt)
-tp <- 70; fp <- 130; n <- 1000; pt <- .20
-nb_model <- tp/n - fp/n * pt/(1-pt)
-nb_all <- (tp + 30)/n - (800/n) * pt/(1-pt)
-c(model = nb_model, treat_all = nb_all, treat_none = 0)
+# y is 0/1 and p is held-out predicted risk
+brier <- mean((p - y)^2)
+calibration <- glm(y ~ qlogis(p), family = binomial())
+coef(calibration)   # intercept near 0; slope near 1 is ideal
+
+threshold <- 0.15
+flag <- p >= threshold
+table(flag, y)
 ```
 
-This illustrative calculation treats all flagged people at threshold 0.20 and assumes threshold odds encode the harm-benefit trade-off. It does not prove treatment efficacy or account for limited capacity, competing harms, or intervention uptake. Decision curves summarize a range of thresholds; prospective impact evaluation tests the whole pathway.
+In practice, avoid predicted probabilities exactly 0 or 1 before taking the logit, and calculate sensitivity, specificity, predictive values, and alert burden with explicit denominators. This code evaluates one held-out sample; selecting the threshold on that same set makes estimates optimistic. Choose thresholds from clinical consequences or development data, then evaluate them independently. If the evaluation sample prevalence differs from use, predictive values and calibration may not transport.
 
-## Choosing a baseline and governing complexity
+A decision threshold is a policy parameter, not a property of the fitted algorithm. At a threshold of 0.15, acting is justified only if the relative consequences of false positives and false negatives support that trade-off and an effective action exists. A resource-limited service may need a capacity-based ranking rule, but then evaluate what happens at the available alert volume and whether high-risk patients are systematically missed. Document threshold ownership and review when prevalence, staffing, or treatment effectiveness changes.
 
-Begin with a prevalence-only benchmark, then a clinically plausible regression model, then algorithms suited to data structure. Compare under identical resampling, preprocessing, and tuning effort. Effective complexity depends on events, predictor correlation, label noise, missingness, and clustering, not just parameter count. Regularization shrinks unstable estimates; trees model interactions but may be unstable; neural nets can learn representations given sufficient data. Calibration, transport, subgroup performance, and net benefit are separate properties. Document model updates and monitor shifts in prevalence, input distributions, and outcomes after deployment.
+## From retrospective accuracy to clinical impact
 
+Retrospective validation asks how a fixed model performs on data that were not used in its development. It cannot by itself establish that clinicians will see or trust predictions, that alerts arrive in time, or that subsequent care improves outcomes. Silent prospective evaluation can assess data pipelines and calibration without influencing care; an impact study evaluates the intervention consisting of model, interface, workflow, and response protocol.
 
-## Development workflow: from question to a defensible model
+A randomized implementation study can compare model-guided care with usual practice when equipoise and logistics permit. Cluster randomization may be needed to limit contamination if clinicians change practice for all patients. Outcomes should include patient benefit, harms, resource use, and unintended consequences such as alert fatigue or unequal access. If a model is continuously updated, define versioning and evaluation so that post-deployment learning does not obscure which system was assessed.
 
-A model is meaningful only after the prediction problem has been made precise. State the eligible population, prediction index time, outcome definition, prediction horizon, and intended action. For example, “predict deterioration” is incomplete: a usable specification says which patients, what counts as deterioration, when prediction occurs, and how far ahead it should signal. Predictors must be available at that index time. Variables entered later may encode the outcome or the clinical response to it. This is temporal leakage even if the data table contains no obvious duplicate column.
-
-Choose the independent unit to match deployment. If the system will predict for new patients, every record from a patient belongs to one partition. If it will predict future cases at an existing hospital, a chronological split is often more informative than a random split. If use at a new hospital is intended, retain site-level external validation. Confidence intervals and effective sample size should reflect clustering by patient or site; thousands of rows do not imply thousands of independent people.
-
-Keep every data-adaptive step inside resampling: imputation, scaling, feature filtering, encoding, dimension reduction, class rebalancing, and hyperparameter selection. A typical nested workflow uses inner folds to choose settings and outer folds to estimate the performance of that entire selection process. A separate temporal or external test cohort, if available, should be used once after choices are frozen. Repeatedly checking its results turns it into development data. Report the number of patients and outcomes in each split, not only the row count.
-
-Use metrics tied to the intended decision. Discrimination measures ranking; for a binary outcome, ROC AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case. It does not assess absolute risk. Calibration compares predicted and observed risks, using calibration-in-the-large, slope, and plots with uncertainty. At a chosen operating point, show sensitivity, specificity, positive predictive value, negative predictive value, and the proportion flagged. Precision-recall summaries can be informative when events are uncommon. For time-to-event outcomes, account for censoring rather than labeling patients event-free before adequate follow-up. Decision-curve analysis or a prospective impact study is needed to connect predictions to clinical net benefit.
-
-A compact R pattern for a binary outcome illustrates the separation between fitting, discrimination, and calibration. It presumes `dat` has one row per patient, a 0/1 `event`, and predictors fixed before the prediction time. The split is only illustrative; repeated patients, sites, or calendar time require grouped or temporal partitions. The final test set must not be used to tune the model.
-
-```r
-set.seed(41)
-i <- sample(seq_len(nrow(dat)), floor(.8 * nrow(dat)))
-train <- dat[i, ]; test <- dat[-i, ]
-fit <- glm(event ~ age + prior_admissions + severity,
-           data = train, family = binomial())
-p <- predict(fit, newdata = test, type = "response")
-# Calibration-in-the-large: intercept ideally 0 when slope fixed at 1
-cal0 <- glm(test$event ~ 1, offset = qlogis(p), family = binomial())
-# Calibration slope: ideally 1; assess uncertainty, not only point estimate
-cals <- glm(test$event ~ qlogis(p), family = binomial())
-coef(cal0); coef(cals)
-```
-
-The code does not replace internal validation or uncertainty intervals. A small event count can make both performance and calibration estimates unstable. Bootstrap at the patient level or repeat appropriately grouped resampling, and report intervals. When transporting a model, compare outcome prevalence, predictor distributions, measurement practice, and label ascertainment; recalibration of the intercept can address a prevalence shift under restrictive conditions, but cannot repair changed predictor effects or systematic measurement errors.
-
-For a clinical prediction report, document the cohort flow, missingness, feature timing, model specification, tuning procedure, split unit, and evaluation population. TRIPOD+AI provides a reporting framework. PROBAST+AI can help assess risk of bias and applicability. Neither checklist certifies clinical usefulness. A retrospective prediction model still requires prospective evaluation of workflow, alert burden, clinician response, and patient outcomes before claims of benefit.
-
-
-## Complete evaluation plan and interpretation
-
-A protocol should specify the cohort, index date, horizon, outcome, predictors, and intended action before model comparison. State whether estimates target current patients, future patients at the same sites, or patients at new sites. Define missing-data handling and eligibility for each predictor. Construct a data dictionary with timestamp semantics; common EHR fields have entry, specimen, and result times that differ. Define whether death competes with readmission, whether follow-up ends at transfer, and how repeated admissions are handled.
-
-A defensible development plan has a locked external or temporal test set and a resampling scheme within the remaining development data. Within every fold, fit imputation, scaling, one-hot encoding, feature selection, dimensionality reduction, and any oversampling. Use nested resampling when comparing tuned models. Report optimism-corrected or test performance with uncertainty. For binary risk models, include calibration plot, intercept, slope, Brier score, discrimination, and operating characteristics at clinically justified thresholds. For prediction over time, use censoring-aware metrics and define the time horizon. For unsupervised learning, assess stability and external replication rather than conventional prediction AUC.
-
-Performance differences are often uncertain. If model A has AUC .78 and B .79, paired bootstrap intervals for the difference are more informative than comparing separate confidence intervals. Even a statistically distinguishable gain may not matter if calibration, net benefit, or workload is unchanged. Conversely, a modest AUC can support useful triage if high-risk identification is reliable and intervention consequences are favorable. Model comparison should be prespecified and tied to intended use, not a leaderboard across dozens of metrics.
-
-After evaluation, make an implementation plan: specify who receives the output, threshold or queueing rule, action, override, data refresh, and monitoring. Monitor calibration and alert rate, not merely input drift. A change in coding can create distribution shift without a change in patient biology. Reassess performance after software or workflow changes. If a prediction changes treatment, observed outcome patterns will change too, so passive monitoring can become biased; prospective evaluation or causal methods may be needed to estimate impact. Prediction quality and clinical utility are distinct claims.
-
-
-## Ethical and implementation considerations
-
-Prediction systems distribute resources and attention. A threshold may determine who receives follow-up, imaging, or intensive monitoring, so assess whether each group has comparable access to the downstream intervention. Equal AUC does not imply equal calibration or equal consequences. Quantify false-positive and false-negative burden by relevant groups, but interpret disparities in light of data quality, clinical context, and uncertainty. Fairness criteria can conflict when outcome prevalence differs; state the normative goal rather than implying one metric resolves it.
-
-Data governance covers consent or lawful basis, privacy, security, retention, and secondary use. De-identification may not prevent linkage in rare-disease or small-community datasets. Minimize inputs and restrict use to the stated purpose. Avoid feeding predictions into care before prospective evaluation if doing so would alter labels and make the evidence uninterpretable. For deployed systems, assign responsibility for versioning, incident response, drift detection, override, and retirement. A model without accountable maintenance is not a finished product.
-
-The evaluation ladder moves from internal validation to external validation, prospective silent evaluation, and impact evaluation. Internal validation estimates optimism within source data; external validation tests transport; a silent study tests real-time feasibility; an impact study tests whether use improves outcomes or decisions. Success at one stage does not guarantee success at the next. Report negative findings and workflow failures. Transparent limitations help readers decide whether evidence applies to their population and use case.
-
-
-## Sample size, missingness, and uncertainty in evidence
-
-The number of rows is not the effective sample size when observations are clustered or repeated. Event count, site count, follow-up, and predictor availability constrain what can be learned. A million notes from a few hundred people do not validate new-patient performance. Rare outcomes make threshold metrics and subgroup estimates imprecise; report denominators and intervals. A model with narrow bootstrap intervals can still be biased if the bootstrap sample mirrors a flawed cohort design.
-
-Missingness mechanisms matter. Missing completely at random is uncommon in clinical data; a test may be absent because the clinician saw no indication, because the patient lacked access, or because a value was not captured. Imputation under a missing-at-random assumption cannot fix missing-not-at-random bias without additional information. Include missingness indicators only when clinically and operationally appropriate, and conduct sensitivity analyses. Avoid treating “not measured” as normal. For longitudinal predictors, distinguish no event from no observation and account for censoring.
-
-Report model uncertainty and data uncertainty separately. Confidence intervals quantify sampling variation under assumptions; they do not capture changes in coding, care, prevalence, or clinical policy. External data help assess transport but may still be unrepresentative of later deployment. State which uncertainties remain and define monitoring triggers for recalibration or redevelopment. A carefully stated limitation is more informative than an unsupported claim that a model is generalizable.
-
-
-## A practical analysis checklist
-
-Before modeling, write a one-sentence target specification: population, prediction time, outcome, horizon, and intended action. Verify each variable’s measurement and availability time. Inspect cohort inclusion, outcome prevalence, follow-up, missingness, and repeated observations. Draw a simple data-flow or causal diagram to distinguish baseline predictors, treatment decisions, outcomes, and selection mechanisms. Pre-register the primary performance measures and important subgroups where feasible.
-
-During development, preserve a locked test cohort, use patient/site/time grouping that matches intended use, and fit every preprocessing step inside resampling. Compare simple clinical baselines with candidate algorithms using nested tuning. Record all attempted model families and metrics to avoid selective reporting. For survival or competing-risk targets, use methods that respect censoring and state which event probability is estimated. For clustering, validate stability and independent replication rather than classification measures.
-
-At evaluation, report confidence intervals, calibration, discrimination, threshold consequences, subgroup denominators, and external validity. Explain limitations of the label and the likely direction of bias where possible. AUC does not measure calibration or benefit; an explanation plot does not establish mechanism; a high-quality test score does not establish implementation impact. The final report should say what decisions evidence supports and what remains unknown.
-
-After evaluation, define monitoring and governance before deployment: expected data ranges, alert thresholds, outcome-label delay, review owner, update approval, rollback, and end-of-life criteria. Monitor clinical burden and access as well as model metrics. If performance shifts, determine whether the cause is prevalence, coding, measurement, or population change before recalibrating or retraining. Changes should be versioned and independently re-evaluated. This lifecycle is part of responsible statistical practice.
+When external validation fails, diagnose rather than simply tune until metrics recover. Check outcome prevalence and definition, predictor units, missingness, case mix, treatment pathways, and time shifts. Recalibration may address a changed baseline risk when ranking remains useful, but new data and prospective review are needed. If the target or measurement process changed, redevelopment or withdrawal may be safer than cosmetic adjustment.
 
 ## References and further reading
 
-- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505)
-- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement: updated guidance for reporting clinical prediction models that use regression or machine learning methods. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
-- Van Calster B, McLernon DJ, van Smeden M, Wynants L, Steyerberg EW. Calibration: the Achilles heel of predictive analytics. *BMC Medicine*. 2019;17:230. [doi:10.1186/s12916-019-1466-7](https://doi.org/10.1186/s12916-019-1466-7)
-- Obermeyer Z, Powers B, Vogeli C, Mullainathan S. Dissecting racial bias in an algorithm used to manage the health of populations. *Science*. 2019;366:447–453. [doi:10.1126/science.aax2342](https://doi.org/10.1126/science.aax2342)
+- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378).
+- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505).
+- Van Calster B, McLernon DJ, van Smeden M, Wynants L, Steyerberg EW. Calibration: the Achilles heel of predictive analytics. *BMC Medicine*. 2019;17:230. [doi:10.1186/s12916-019-1466-7](https://doi.org/10.1186/s12916-019-1466-7).
+- Obermeyer Z, Powers B, Vogeli C, Mullainathan S. Dissecting racial bias in an algorithm used to manage the health of populations. *Science*. 2019;366:447–453. [doi:10.1126/science.aax2342](https://doi.org/10.1126/science.aax2342).

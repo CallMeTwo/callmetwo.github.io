@@ -111,195 +111,123 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Common distributions <span class="sep">/</span> <strong style="color:#273e3b">Sampling distributions and the central limit theorem</strong></div>
         <h1 class="article-title">Sampling distributions and the central limit theorem</h1>
         <p class="article-summary">Why sample means are approximately normal, how the standard error shrinks with sample size, and what this means for confidence intervals.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#when-the-clt-approximation-is-and-is-not-enough">When the CLT approximation is and is not enough</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#sampling-distributions-and-the-logic-of-standard-error">Sampling distributions and the logic of standard error</a></li><li class="h3"><a href="#worked-example-precision-and-probability-of-a-sample-mean">Worked example: precision and probability of a sample mean</a></li><li class="h3"><a href="#simulation-as-a-diagnostic-aid">Simulation as a diagnostic aid</a></li><li class="h3"><a href="#bootstrap-and-design-based-alternatives">Bootstrap and design-based alternatives</a></li><li class="h2"><a href="#proportions-differences-and-design-effects">Proportions, differences, and design effects</a></li><li class="h3"><a href="#worked-example-standard-error-and-detectable-precision">Worked example: standard error and detectable precision</a></li><li class="h2"><a href="#unequal-sampling-and-finite-populations">Unequal sampling and finite populations</a></li><li class="h2"><a href="#clt-limitations-under-dependence-and-heavy-tails">CLT limitations under dependence and heavy tails</a></li><li class="h2"><a href="#simulation-of-coverage">Simulation of coverage</a></li><li class="h2"><a href="#standard-error-versus-prediction-uncertainty">Standard error versus prediction uncertainty</a></li><li class="h3"><a href="#worked-calculation-confidence-versus-prediction-interval">Worked calculation: confidence versus prediction interval</a></li><li class="h2"><a href="#sample-size-planning-as-precision-design">Sample-size planning as precision design</a></li><li class="h2"><a href="#reproducibility-of-simulation-studies">Reproducibility of simulation studies</a></li><li class="h2"><a href="#paired-designs-and-covariance">Paired designs and covariance</a></li><li class="h2"><a href="#multiple-comparisons-and-selection">Multiple comparisons and selection</a></li><li class="h2"><a href="#when-asymptotics-should-be-supplemented">When asymptotics should be supplemented</a></li><li class="h2"><a href="#do-not-use-the-clt-to-excuse-biased-sampling">Do not use the CLT to excuse biased sampling</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#mean-and-standard-error">Mean and standard error</a></li><li class="h2"><a href="#central-limit-theorem">Central limit theorem</a></li><li class="h2"><a href="#designs-and-dependence">Designs and dependence</a></li><li class="h3"><a href="#practical-use">Practical use</a></li><li class="h2"><a href="#difference-between-outcome-and-estimator-distributions">Difference between outcome and estimator distributions</a></li><li class="h3"><a href="#dependence-and-design-effects">Dependence and design effects</a></li><li class="h3"><a href="#bootstrap-and-simulation">Bootstrap and simulation</a></li><li class="h2"><a href="#sample-size-and-precision-planning">Sample-size and precision planning</a></li><li class="h3"><a href="#repeated-sampling-intuition">Repeated sampling intuition</a></li><li class="h2"><a href="#worked-simulation-of-a-sampling-distribution">Worked simulation of a sampling distribution</a></li><li class="h3"><a href="#student-t-distribution">Student t distribution</a></li><li class="h3"><a href="#bootstrap-and-resampling">Bootstrap and resampling</a></li><li class="h2"><a href="#standard-error-versus-prediction">Standard error versus prediction</a></li><li class="h2"><a href="#why-convergence-can-be-slow">Why convergence can be slow</a></li><li class="h3"><a href="#stratified-and-finite-population-sampling">Stratified and finite-population sampling</a></li><li class="h3"><a href="#bootstrap-validity">Bootstrap validity</a></li><li class="h3"><a href="#standard-error-under-clustering">Standard error under clustering</a></li><li class="h3"><a href="#paired-and-stratified-statistics">Paired and stratified statistics</a></li><li class="h3"><a href="#report-the-target-of-uncertainty">Report the target of uncertainty</a></li><li class="h3"><a href="#a-numerical-precision-example">A numerical precision example</a></li><li class="h3"><a href="#clt-conditions-and-caveats">CLT conditions and caveats</a></li><li class="h3"><a href="#finite-population-correction">Finite population correction</a></li><li class="h3"><a href="#confidence-intervals-and-repeated-coverage">Confidence intervals and repeated coverage</a></li><li class="h3"><a href="#simulation-as-a-diagnostic">Simulation as a diagnostic</a></li><li class="h3"><a href="#central-limit-theorem-for-proportions">Central limit theorem for proportions</a></li><li class="h3"><a href="#sampling-distribution-versus-data-distribution">Sampling distribution versus data distribution</a></li><li class="h3"><a href="#confidence-interval-coverage-and-selection">Confidence interval coverage and selection</a></li><li class="h3"><a href="#simulation-of-coverage">Simulation of coverage</a></li><li class="h3"><a href="#planning-with-desired-precision">Planning with desired precision</a></li><li class="h3"><a href="#standard-error-and-prediction-interval">Standard error and prediction interval</a></li><li class="h3"><a href="#what-the-clt-does-not-guarantee">What the CLT does not guarantee</a></li><li class="h3"><a href="#use-the-right-variance-estimator">Use the right variance estimator</a></li><li class="h3"><a href="#final-interpretation">Final interpretation</a></li><li class="h3"><a href="#a-useful-mental-separation">A useful mental separation</a></li><li class="h3"><a href="#sample-size-and-precision-example">Sample size and precision example</a></li><li class="h3"><a href="#why-standard-errors-shrink-slowly">Why standard errors shrink slowly</a></li><li class="h3"><a href="#summary-for-practice">Summary for practice</a></li><li class="h3"><a href="#summary-of-sampling-behavior">Summary of sampling behavior</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>A <strong>sampling distribution</strong> is the distribution of a statistic (mean, proportion,
-difference) you would observe if you repeated your study many times, drawing a
-fresh sample each time. For the sample mean X̄ of n independent observations from a
-population with mean μ and standard deviation σ:</p>
-<ul>
-<li>The mean of the sampling distribution is μ.</li>
-<li>Its standard deviation is the <strong>standard error</strong>, SE = σ / √n.</li>
-<li>By the <strong>central limit theorem (CLT)</strong>, the shape of this sampling distribution
-is approximately normal, <em>regardless of the population&#39;s own shape</em>, provided
-n is sufficiently large.</li>
-</ul>
-<p>This is the engine behind virtually all inferential statistics: confidence
-intervals for the mean (X̄ ± 1.96 × SE when the CLT applies), hypothesis tests,
-and the fact that a single sample mean is an <em>estimate with a known precision</em>,
-not a fixed truth.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Confidence intervals</td>
-<td>How precisely does our sample mean estimate the population mean HbA1c?</td>
-</tr>
-<tr>
-<td>Study design</td>
-<td>How large a sample is needed so the estimate is within a clinically meaningful margin of error?</td>
-</tr>
-<tr>
-<td>Meta-analysis</td>
-<td>Each study&#39;s effect estimate is a sample statistic with a known SE; the CLT justifies pooling them.</td>
-</tr>
-<tr>
-<td>Quality control</td>
-<td>Monitoring a clinic&#39;s mean waiting time across successive months&#39; samples.</td>
-</tr>
-</tbody></table>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li><strong>Independence of observations</strong> — repeated measures on the same patient, or
-clustered data (patients within the same clinic), violate it; the effective n
-is smaller than the raw count.</li>
-<li><strong>&quot;Sufficiently large&quot; n is context-dependent.</strong> A rough rule is n ≥ 30 for
-mildly skewed data; strongly skewed populations (waiting times, some
-biomarkers) may need n in the hundreds for the normal approximation to be safe.</li>
-<li>The CLT applies to the <strong>mean</strong> (and, with care, to proportions when n·p and
-n·(1−p) are both adequate), not to every statistic — medians and maximums need
-different arguments.</li>
-<li>The CLT describes the <em>sampling</em> distribution, not the raw data. The data may
-be skewed, bimodal, or count-like; the distribution of the mean is what
-becomes normal.</li>
-</ul>
-<h3 id="when-the-clt-approximation-is-and-is-not-enough">When the CLT approximation is and is not enough</h3>
-<p>For independent observations with finite variance, the CLT gives an
-asymptotic approximation, not a universal sample-size cutoff. Strong skew,
-heavy tails, rare binary outcomes and influential observations can require
-much larger samples. For a sample proportion, the normal approximation needs
-both expected successes np and failures n(1−p) to be adequate; exact or score
-intervals behave better near 0 or 1. With clustered observations, the relevant
-uncertainty includes the design effect; with serial correlation, the nominal n
-overstates independent information. A bootstrap can estimate sampling
-uncertainty for some statistics, but it still requires a resampling scheme
-that respects the study design and cannot fix biased sampling.</p>
-<h2 id="worked-example">Worked example</h2>
-<p>In a diabetes clinic, HbA1c values are somewhat right-skewed, with population
-mean μ = 7.5% and standard deviation σ = 2.0%. A sample of n = 49 patients gives
-a sample mean X̄.</p>
-<ul>
-<li>SE = 2.0 / √49 = 2.0 / 7 ≈ 0.286.</li>
-<li>By the CLT, X̄ is approximately N(7.5, 0.286²).</li>
-<li>The chance the sample mean reaches 7.8% or more is P(Z ≥ (7.8 − 7.5)/0.286) =
-P(Z ≥ 1.05) ≈ 0.147.</li>
-</ul>
-<p>Interpretation: even if the true clinic mean is exactly 7.5%, about 15% of
-samples of 49 patients would have a mean of 7.8% or higher purely by sampling
-variation. A single sample mean of 7.8% therefore does not by itself prove the
-clinic&#39;s mean is that high — the SE (and hence a confidence interval) is what
-separates a real difference from noise. Doubling the sample size to 196 would
-halve the SE to 0.143, showing the √n law: precision grows with the square root
-of n, so quadrupling n is needed to halve the uncertainty again.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Confusing SD with SE</strong> — the SD (2.0%) describes individual patients; the
-SE (0.286) describes the sample mean. Quoting the wrong one changes the
-confidence interval by a factor of √n.</li>
-<li><strong>&quot;CLT means the data are normal&quot;</strong> — it does not. The CLT is a statement
-about the distribution of a <em>statistic across repeated samples</em>, not about the
-raw measurements in one sample.</li>
-<li><strong>Small n with strong skew</strong> — with n = 10 and a heavily skewed outcome, the
-sampling distribution of the mean can still be far from normal, and t-tests or
-normal-based intervals can mislead; exact or resampling methods are safer.</li>
-<li><strong>Ignoring dependence</strong> — treating correlated observations (repeat measures,
-clustered sampling) as independent inflates the effective n and makes
-confidence intervals too narrow.</li>
-</ul>
-<h2 id="sampling-distributions-and-the-logic-of-standard-error">Sampling distributions and the logic of standard error</h2>
-<p>A statistic varies from sample to sample even when the population and data-generating process stay fixed. Its sampling distribution is the probability distribution induced by the sampling design. This is distinct from the empirical distribution of the observed participants. Repeated-sampling thought experiments explain why an estimator has a standard error and how interval procedures achieve coverage. The standard error is generally estimated from the data; it is not known simply because a formula exists.</p>
-<p>For independent identically distributed observations with finite variance σ², the sample mean has expectation μ and variance σ²/n exactly. The standardized mean, √n(X̄−μ)/σ, converges in distribution to N(0,1) as n grows under the classical CLT. “Converges” is asymptotic: approximation quality depends on skew, tail behavior, and sample size. If the population has infinite variance, the classical result may fail. Dependence changes the variance: Var(X̄) includes covariance terms, so positive intraclass or serial correlation reduces effective information.</p>
-<p>For a sample proportion p̂ from n Bernoulli observations, variance is p(1−p)/n. The normal approximation is unreliable near boundaries or with few expected events; Wilson score intervals generally behave better than Wald intervals. For a difference in independent means, variances add; for paired measurements, the variance is that of within-person differences, often much smaller because stable person-level variation cancels. The design determines the sampling distribution and therefore the right standard error.</p>
-<h3 id="worked-example-precision-and-probability-of-a-sample-mean">Worked example: precision and probability of a sample mean</h3>
-<p>Assume the population HbA1c has mean 7.5% and SD 2.0%. For n=49 independent observations, SE=2/7=0.2857. The probability that a sample mean is at least 7.8% is approximately 1−Φ((7.8−7.5)/0.2857)=1−Φ(1.05)≈0.147. A 95% normal-approximation interval around an observed mean of 7.8 is 7.8±1.96(0.2857), approximately 7.24 to 8.36%; for small samples with estimated SD use a t critical value. Quadrupling n to 196 halves the SE, a consequence of square-root scaling.</p>
-<pre><code class="language-r">mu &lt;- 7.5; sigma &lt;- 2; n &lt;- 49
-se &lt;- sigma / sqrt(n)
-p_ge_7_8 &lt;- pnorm(7.8, mean = mu, sd = se, lower.tail = FALSE)
-ci_if_xbar_7_8 &lt;- 7.8 + c(-1, 1) * qnorm(0.975) * se
-c(SE = se, P_mean_ge_7_8 = p_ge_7_8, ci_if_xbar_7_8)
-</code></pre>
-<p>This probability is conditional on the assumed μ and σ and an approximate normal sampling distribution. It is not the posterior probability that the population mean exceeds 7.8. Those are different inferential statements.</p>
-<h3 id="simulation-as-a-diagnostic-aid">Simulation as a diagnostic aid</h3>
-<p>Simulation can show sampling variability under a specified model and reveal when asymptotic approximations are poor. For example, repeatedly drawing skewed exponential observations and averaging them illustrates convergence of the mean&#39;s distribution toward normality. Simulation does not establish that the model matches real data; it answers “what follows if this data-generating assumption were true?” Use a fixed seed for reproducibility and enough replications to stabilize simulation summaries.</p>
+          <h2 id="overview">Overview</h2>
+<p>A sampling distribution describes how a statistic would vary across repeated samples generated by a specified design. The sample mean is random because each sample differs. Its expected value and standard error connect observed data to population quantities and underpin confidence intervals and tests. The central limit theorem (CLT) often makes a standardized sum approximately normal, but it does not guarantee that every small-sample statistic or biased design is valid.</p>
+<h2 id="mean-and-standard-error">Mean and standard error</h2>
+<p>For independent observations with mean μ and variance σ², sample mean X̄ has expectation μ and variance σ²/n, so SE=σ/√n. Since σ is usually unknown, estimate with s/√n. If n quadruples, SE halves under the same design and variance. This precision gain differs from reducing individual-level variability.</p>
+<h2 id="central-limit-theorem">Central limit theorem</h2>
+<p>For independent identically distributed variables with finite variance, the standardized sample mean converges toward standard normal as n grows. The required n depends on skewness, tail heaviness, and the statistic. A highly skewed length-of-stay distribution may need more observations for a good normal approximation than a symmetric lab measure. The CLT concerns sampling distributions, not the distribution of raw observations.</p>
+<h2 id="designs-and-dependence">Designs and dependence</h2>
+<p>Clustering changes variance through covariance; unequal sampling, weights, finite populations, stratification, and repeated measurements change standard errors. The independent-observation formula s/√n is not universal. Bootstrap and simulation must reproduce the sampling unit and design. A CLT cannot fix selection bias or confounding.</p>
+<h3 id="practical-use">Practical use</h3>
+<p>Use sampling-distribution reasoning to understand confidence intervals, tests, and precision planning. Check small-sample and boundary cases with exact, t, permutation, or bootstrap methods as appropriate. Report the estimand, design-aware SE, and assumptions. A standard error quantifies sampling variation under a model, not total scientific uncertainty.</p>
+<h2 id="difference-between-outcome-and-estimator-distributions">Difference between outcome and estimator distributions</h2>
+<p>Individual outcomes may be highly skewed while a sample mean has an approximately normal sampling distribution. The CLT concerns the repeated-sample distribution of a suitably standardized sum. This does not mean raw data become normal as n grows. Nor does it fix a biased estimator: if sampling excludes high-risk patients, a precise normal distribution can center on the wrong target.</p>
+<p>For a sample proportion, the binomial distribution is exact under independent Bernoulli sampling; a normal approximation uses SE≈√[p(1−p)/n]. Near 0 or 1, normal intervals can leave [0,1] and have poor coverage. Wilson or exact intervals respect the boundary better. For medians and quantiles, asymptotic distributions depend on density near the quantile, not the same simple CLT formula.</p>
+<h3 id="dependence-and-design-effects">Dependence and design effects</h3>
+<p>If observations are clustered with average size m and intraclass correlation ρ, variance inflation is roughly 1+(m−1)ρ. Repeated measurements also introduce covariance. Stratification can improve precision; unequal weights can reduce effective sample size. Use design-based or model-based variance estimation that reflects the sampling scheme. The iid CLT is not an excuse to treat correlated records as independent.</p>
+<h3 id="bootstrap-and-simulation">Bootstrap and simulation</h3>
+<p>Bootstrap approximates a sampling distribution by resampling observed units with replacement. It is useful for nonlinear statistics, but the resampling unit and scheme must match the design. Resample whole clusters for cluster sampling and paired records together for paired designs. Parametric simulation can explore small-sample behavior under an explicit model. Neither method solves selection bias or unobserved population tails.</p>
+<h2 id="sample-size-and-precision-planning">Sample-size and precision planning</h2>
+<p>If SD σ is known or anticipated, mean SE is σ/√n; desired half-width h gives approximate n=(zσ/h)². For σ=12 and h=3 at 95%, n≈62. This excludes attrition and design effects. Power calculations instead target a difference and test boundary. Precision planning directly asks how narrow the estimate should be. Consider uncertainty in σ and report sensitivity analyses.</p>
+<h3 id="repeated-sampling-intuition">Repeated sampling intuition</h3>
+<p>Imagine drawing 1,000 samples of n=40 from a population and calculating each mean. Their histogram approximates the sampling distribution. The spread of those means is the SE; the population SD describes individual values and is larger by about √n under iid sampling. Simulation can illustrate this distinction and reveal slow convergence under heavy tails. Repetitions are a conceptual device; one study observes one sample statistic.</p>
+<h2 id="worked-simulation-of-a-sampling-distribution">Worked simulation of a sampling distribution</h2>
+<p>The following simulation draws repeated samples from a skewed exponential population. Individual values remain skewed, while the sample means become more symmetric as n increases. The empirical SD of the means estimates the standard error and should be near population SD/√n (for exponential mean 1, SD 1).</p>
 <pre><code class="language-r">set.seed(2026)
-B &lt;- 5000; n &lt;- 10
+B &lt;- 5000
+n &lt;- 40
 means &lt;- replicate(B, mean(rexp(n, rate = 1)))
-mean(means)       # near population mean 1
-sd(means)         # near theoretical SE 1/sqrt(n)
-quantile(means, c(.025, .5, .975))
-hist(means, breaks = 40, main = &quot;Sampling distribution of mean&quot;,
-     xlab = &quot;Mean of 10 exponential observations&quot;)
+c(empirical_SE = sd(means), theoretical_SE = 1 / sqrt(n))
+hist(means, breaks = 30, main = &quot;Sampling distribution of mean&quot;)
 </code></pre>
-<p>For n=10 the distribution remains right-skewed to some extent; increasing n improves the approximation. <code>replicate</code> samples independent observations here. For clustered or repeated data, resampling individuals independently would destroy the dependence structure; resample whole clusters or use design-respecting methods.</p>
-<h3 id="bootstrap-and-design-based-alternatives">Bootstrap and design-based alternatives</h3>
-<p>The nonparametric bootstrap approximates a sampling distribution by resampling observed units with replacement. It can help for nonlinear statistics but relies on the sample representing the population and may fail for extreme tails, small samples, or boundary parameters. A cluster bootstrap resamples clusters; a stratified bootstrap resamples within strata. Randomization inference instead uses the known treatment assignment mechanism to form a reference distribution for a sharp null. These methods answer different questions and are not interchangeable generic fixes.</p>
-<p>Always report the estimator and its uncertainty, state whether intervals use normal, t, bootstrap, survey, or model-based methods, and account for design effects. A small standard error means precision under the assumed sampling model; it does not imply absence of selection bias, measurement error, or confounding.</p>
-<h2 id="proportions-differences-and-design-effects">Proportions, differences, and design effects</h2>
-<p>For a sample proportion, the CLT yields an approximately normal distribution when both n p and n(1−p) are sufficiently large. If there are few events, the distribution is skewed and boundary-aware intervals are preferable. For independent groups with proportions p1 and p2, the variance of the difference is p1(1−p1)/n1+p2(1−p2)/n2. Paired binary data require discordant-pair information; two marginal proportions alone do not supply the variance of a paired difference.</p>
-<h3 id="worked-example-standard-error-and-detectable-precision">Worked example: standard error and detectable precision</h3>
-<p>If p=.20 and n=400, SE(p̂)=sqrt(.2×.8/400)=.02. A rough 95% margin is 1.96(.02)=.039, so the estimate has about ±4 percentage point sampling error. To target a margin of 0.03 under this approximate formula, solve n≈1.96² p(1−p)/.03²≈683. If p is unknown, using .5 gives the most conservative variance and n≈1,068. This calculation ignores design effects, nonresponse, and finite population corrections.</p>
-<pre><code class="language-r">p &lt;- .20; margin &lt;- .03
-n_needed &lt;- qnorm(.975)^2 * p * (1-p) / margin^2
-n_conservative &lt;- qnorm(.975)^2 * .25 / margin^2
-c(n_needed = ceiling(n_needed),
-  conservative_n = ceiling(n_conservative))
+<p>This illustration assumes independent draws and a finite variance. It does not establish that a real study’s sample is representative or independent. Heavy-tailed populations can converge slowly; dependence changes the theoretical SE.</p>
+<h3 id="student-t-distribution">Student t distribution</h3>
+<p>When estimating a normal population mean with unknown variance, standardize by s/√n; the statistic follows Student’s t with n−1 df, not standard normal. The t distribution has heavier tails, reflecting uncertainty from estimating σ. As df grows it approaches normal. Paired and two-sample t procedures use corresponding degrees of freedom and design-specific variance estimates.</p>
+<h3 id="bootstrap-and-resampling">Bootstrap and resampling</h3>
+<p>The nonparametric bootstrap samples observed units with replacement and recalculates the statistic. Its validity depends on the empirical sample approximating the target and resampling respecting independent units. For clustered data, resample clusters; for stratified samples, preserve strata; for paired data, resample pairs. Bootstrap cannot correct selection bias or unobserved extremes.</p>
+<h2 id="standard-error-versus-prediction">Standard error versus prediction</h2>
+<p>A confidence interval for the population mean captures uncertainty in the estimated mean. A prediction interval for a new observation adds individual residual variation and is much wider. In a normal sample, a prediction interval uses a term approximately s√(1+1/n), while the mean interval uses s/√n. Do not use SE to describe the range of future patients.</p>
+<h2 id="why-convergence-can-be-slow">Why convergence can be slow</h2>
+<p>The CLT is asymptotic. Strong skewness, heavy tails, and rare influential observations can make the sample-mean distribution far from normal at moderate n. In a Cauchy population, variance does not exist and the usual CLT does not apply. Biomedical variables generally have finite bounds or moments, but heavy-tailed costs can still require large samples. Simulation from plausible distributions can assess finite-sample coverage.</p>
+<h3 id="stratified-and-finite-population-sampling">Stratified and finite-population sampling</h3>
+<p>Stratification can lower variance when strata are internally homogeneous and sampled deliberately. Sampling without replacement from a finite population can use a finite-population correction √[(N−n)/(N−1)] when sampling fraction is appreciable. Unequal weights may reduce effective sample size. The variance formula should match the sample design; an iid CLT does not automatically justify simple standard errors.</p>
+<h3 id="bootstrap-validity">Bootstrap validity</h3>
+<p>The ordinary nonparametric bootstrap approximates repeated sampling from the empirical distribution. It may fail for extremes, very small samples, boundary parameters, or non-smooth statistics such as maxima. Specialized bootstrap or analytic methods may be needed. More replicates reduce Monte Carlo noise, not the structural limits of the empirical sample.</p>
+<h3 id="standard-error-under-clustering">Standard error under clustering</h3>
+<p>For m participants per cluster and ICC ρ, design effect D≈1+(m−1)ρ under equal cluster size. Effective sample size is approximately n/D, so a nominal sample of 400 with m=20 and ρ=.05 has effective size about 205 for a simple mean. This approximation is not a substitute for cluster-level degrees of freedom or unequal cluster-size adjustments. It shows why row count alone exaggerates precision.</p>
+<h3 id="paired-and-stratified-statistics">Paired and stratified statistics</h3>
+<p>For a paired difference D=X−Y, Var(D)=Var(X)+Var(Y)−2Cov(X,Y). Positive within-person correlation reduces SE of the mean difference. Stratification can reduce sampling variance when design and analysis incorporate strata. Standard errors must use the covariance structure induced by design rather than independent-observation formulas.</p>
+<h3 id="report-the-target-of-uncertainty">Report the target of uncertainty</h3>
+<p>An SE can describe a mean, proportion, regression coefficient, or other estimator. Name the statistic, its target population, design, and variance method. Do not imply that sampling uncertainty includes model misspecification, missing-data bias, or measurement error unless explicitly modeled.</p>
+<h3 id="a-numerical-precision-example">A numerical precision example</h3>
+<p>Suppose individual HbA1c SD is 1.2 percentage points and n=64 independent participants. SE of the mean is 1.2/8=.15. A normal-approximation 95% interval has half-width .294; a t interval uses 63 df and is slightly wider. If n quadruples to 256 with same variance, SE falls to .075. Individual SD remains about 1.2. This demonstrates why a large sample estimates the mean precisely without making individuals more similar.</p>
+<pre><code class="language-r">sd &lt;- 1.2
+for (n in c(64, 256)) {
+  se &lt;- sd / sqrt(n)
+  print(c(n = n, se = se,
+          half_width = qt(.975, df = n - 1) * se))
+}
 </code></pre>
-<p>These are approximate planning values; use an exact or score-based method for final design, adjust for expected response, and inflate for clustering. If subgroup precision is required, plan each subgroup rather than only the overall sample.</p>
-<h2 id="unequal-sampling-and-finite-populations">Unequal sampling and finite populations</h2>
-<p>When sampling without replacement from a finite population of size N, the variance of a sample mean includes finite population correction sqrt((N−n)/(N−1)). It matters when the sampled fraction is substantial. In large populations with small sampling fractions it is nearly one and can be ignored. Complex survey samples add stratification, clustering, and unequal selection weights; their standard errors should be estimated with design information, commonly using Taylor linearization or replicate weights.</p>
-<p>The ordinary bootstrap assumes independent sampling from an empirical distribution. For a stratified sample resample within strata; for clusters resample primary units; for unequal probability designs use replicate-weight methods supplied with the survey design. Standard errors from software that ignores these features can be dramatically underestimated. The sample design is part of the sampling distribution, not a nuisance added after analysis.</p>
-<h2 id="clt-limitations-under-dependence-and-heavy-tails">CLT limitations under dependence and heavy tails</h2>
-<p>Serial dependence creates covariance contributions: Var(X̄)=σ²/n + (2/n²)Σ_(i&lt;j) Cov(Xi,Xj). Positive correlation makes the standard error larger than σ/√n. For an autoregressive process with correlation ρ^k, a rough effective sample size for large n is n(1−ρ)/(1+ρ). If ρ=.5, only about one-third of the nominal observations contribute independent information. This approximation assumes stationary AR(1) correlation and should not replace time-series methods.</p>
-<p>Heavy-tailed distributions can converge slowly; one or two extremes can dominate a finite-sample mean. Robust estimators, transformations, or bootstrap intervals may help but change assumptions or estimands. If observations are spatially correlated, neighboring measurements share information; spatial covariance modeling or cluster-robust methods may be needed. The phrase “n is large” is not a universal permission to ignore dependence.</p>
-<h2 id="simulation-of-coverage">Simulation of coverage</h2>
-<p>A confidence interval can be evaluated by repeated simulation under a known data-generating model. For example, generate many samples from a skewed distribution and calculate t intervals; the fraction containing the true mean estimates coverage in that scenario. Vary sample size and distribution to understand limitations. This evaluates operating characteristics conditional on simulated assumptions; it does not validate those assumptions for the actual study.</p>
-<pre><code class="language-r">set.seed(42)
-B &lt;- 2000; n &lt;- 15; mu &lt;- 1
+<p>The calculation assumes independent random sampling and stable variance. Clustering, nonresponse, and design weights alter uncertainty.</p>
+<h3 id="clt-conditions-and-caveats">CLT conditions and caveats</h3>
+<p>The classical iid CLT requires finite variance and independent, identically distributed observations. Variants permit nonidentical distributions or dependence under additional regularity conditions, but convergence rates vary. Infinite-variance heavy tails violate the standard result. In practice, biomedical measurements are often bounded, but highly skewed costs and rare-event counts can still have poor normal approximations at moderate sample size.</p>
+<p>The CLT applies to sums/means and many smooth estimators, not every statistic. Sample maxima converge to extreme-value distributions, not normal. Ratios can be unstable when denominators approach zero. Quantiles have asymptotic normality only when density at the quantile is positive and regularity holds. Choose methods for the estimator, not by invoking the CLT generically.</p>
+<h3 id="finite-population-correction">Finite population correction</h3>
+<p>When sampling without replacement from a finite population of size N, the variance of a sample mean includes factor (N−n)/(N−1). If 20% of a small registry is sampled, the correction can meaningfully reduce SE; if population is very large relative to n, it is negligible. This correction applies to probability sampling and does not fix nonresponse bias.</p>
+<h3 id="confidence-intervals-and-repeated-coverage">Confidence intervals and repeated coverage</h3>
+<p>A 95% confidence interval procedure covers a fixed parameter in 95% of repeated samples under its assumptions. The CLT often justifies a normal critical value for a mean, but small samples may require t or exact methods. Repeatedly checking intervals and stopping when they exclude zero can invalidate fixed-sample coverage; sequential methods or confidence sequences are needed for continuous monitoring.</p>
+<h3 id="simulation-as-a-diagnostic">Simulation as a diagnostic</h3>
+<p>Simulating the sampling distribution can assess bias, coverage, and finite-sample behavior under plausible data mechanisms. Each simulated replicate should reproduce clustering, missingness, and allocation. Monte Carlo error shrinks with simulation count, but simulation only evaluates the assumed model; it does not verify that the model matches reality. Report scenario inputs and code for reproducibility.</p>
+<h3 id="central-limit-theorem-for-proportions">Central limit theorem for proportions</h3>
+<p>For independent Bernoulli outcomes with probability p, sample proportion p̂ has mean p and variance p(1−p)/n. Its standardized distribution is approximately normal when both np and n(1−p) are sufficiently large. Near the boundary, normal approximation can yield impossible intervals below zero or above one. Wilson score intervals and exact binomial intervals are common alternatives. If participants are clustered, effective information is lower and the iid approximation is optimistic.</p>
+<h3 id="sampling-distribution-versus-data-distribution">Sampling distribution versus data distribution</h3>
+<p>A skewed dataset can yield an approximately normal sample mean, while normally distributed observations can yield a nonnormal statistic after selection or nonlinear transformation. Keep the object clear: histogram of outcomes, distribution of estimator over hypothetical samples, or posterior distribution are not the same. The CLT offers a limiting approximation for certain estimators under assumptions.</p>
+<h3 id="confidence-interval-coverage-and-selection">Confidence interval coverage and selection</h3>
+<p>A nominal interval’s coverage applies to a prespecified procedure under its model. Selecting the largest observed effect among many outcomes and reporting its usual interval ignores selection and undercovers. Repeated interim inspection similarly changes coverage. Simultaneous intervals, selective-inference methods, or independent validation are needed for selected claims.</p>
+<h3 id="simulation-of-coverage">Simulation of coverage</h3>
+<p>A simulation study can estimate how often a proposed interval covers the truth under plausible designs. For each replicate, generate data, apply the full analysis, and record coverage and width. Include missingness, clustering, and stopping if they occur in practice. Report number of replicates and Monte Carlo error; simulation results are conditional on the scenarios and code.</p>
+<pre><code class="language-r">set.seed(7)
+B &lt;- 2000; n &lt;- 30; mu &lt;- 0; sigma &lt;- 1
 covered &lt;- replicate(B, {
-  x &lt;- rexp(n, rate = 1)
+  x &lt;- rexp(n, rate = 1) - 1 # skewed population, mean zero
   ci &lt;- t.test(x)$conf.int
   ci[1] &lt;= mu &amp;&amp; mu &lt;= ci[2]
 })
 mean(covered)
 </code></pre>
-<p>A single Monte Carlo estimate has simulation error approximately sqrt(c(1−c)/B); with coverage near .95 and B=2,000 this is about .005. Increase replications for stable comparisons. Preserve a seed and report the model, interval method, and number of simulations if simulation informs design decisions.</p>
-<h2 id="standard-error-versus-prediction-uncertainty">Standard error versus prediction uncertainty</h2>
-<p>The standard error of a sample mean describes uncertainty in the estimated population mean. A prediction interval for a new individual includes both uncertainty in the mean and individual-level variation. Under normal sampling, a prediction interval for a future observation is approximately X̄±t s√(1+1/n), wider than the confidence interval X̄±t s/√n. Confusing these leads to claims that a mean estimate predicts individual outcomes precisely.</p>
-<h3 id="worked-calculation-confidence-versus-prediction-interval">Worked calculation: confidence versus prediction interval</h3>
-<p>For n=25 measurements with mean 100 and SD 15, df=24 gives t critical about 2.064. The mean&#39;s 95% interval is 100±2.064(15/5), or 93.8 to 106.2. A prediction interval is 100±2.064(15√1.04), or approximately 68.4 to 131.6. The first interval concerns the population mean; the second concerns one future individual under the normal model.</p>
-<pre><code class="language-r">n &lt;- 25; xbar &lt;- 100; s &lt;- 15
-tcrit &lt;- qt(.975, n-1)
-ci_mean &lt;- xbar + c(-1,1)*tcrit*s/sqrt(n)
-pi_individual &lt;- xbar + c(-1,1)*tcrit*s*sqrt(1+1/n)
-rbind(mean_CI = ci_mean, individual_PI = pi_individual)
-</code></pre>
-<p>The prediction interval assumes a future observation from the same stable population and normal model. It does not account for future changes in clinical practice or population mix.</p>
-<h2 id="sample-size-planning-as-precision-design">Sample-size planning as precision design</h2>
-<p>For estimating a normal mean with known or anticipated SD σ and desired half-width d, approximate n=(z_(.975)σ/d)². If σ=2 and desired half-width .3, n≈(1.96×2/.3)²≈171. The calculation targets precision, not power for a hypothesis test. For comparing groups, include allocation ratio and anticipated loss to follow-up; for clustered trials, inflate by the design effect. If the SD estimate is uncertain, use conservative plausible values or pilot data with caution.</p>
-<p>Sample size cannot remedy poor measurement or selection. For rare proportions, normal formulas may underestimate needed n; use exact planning or simulation. For multiple primary outcomes or subgroup precision, adjust the design objectives accordingly. State whether the target is a confidence interval width, power for a clinically important difference, or both.</p>
-<h2 id="reproducibility-of-simulation-studies">Reproducibility of simulation studies</h2>
-<p>Simulation code should state the data-generating model, parameter values, number of repetitions, random seed, and performance metric. Monte Carlo error can be reduced by more repetitions; it cannot be reduced by rounding. Use vectorized or carefully checked code and validate a small run by hand. Keep simulated scenarios separate from empirical validation: simulations explore consequences of assumptions, while data assess how well those assumptions describe a real setting.</p>
-<h2 id="paired-designs-and-covariance">Paired designs and covariance</h2>
-<p>For paired measurements X and Y on the same person, Var(X−Y)=Var(X)+Var(Y)−2Cov(X,Y). Positive correlation can make the difference much more precise than an unpaired comparison. If pre- and post-treatment SDs are each 10 and correlation is .7, SD of differences is sqrt(100+100−140)=7.75, not sqrt(200)=14.14 as an independence assumption would imply. The paired design gains precision by controlling stable between-person variability; it does not remove time trends or regression to the mean.</p>
-<pre><code class="language-r">sd_pre &lt;- 10; sd_post &lt;- 10; rho &lt;- .70
-sd_change &lt;- sqrt(sd_pre^2 + sd_post^2 -
-                  2*rho*sd_pre*sd_post)
-sd_change
-</code></pre>
-<p>Use the actual within-person covariance or calculate differences from raw paired records. Marginal summaries alone cannot reconstruct the standard error of change without correlation information.</p>
-<h2 id="multiple-comparisons-and-selection">Multiple comparisons and selection</h2>
-<p>A 95% interval for each of 20 independent null effects will miss zero for at least one about 1−.95^20=.642 of the time. The independence assumption is illustrative; correlated tests change the exact probability, but selective attention to the smallest p-value still inflates false discoveries. Distinguish a prespecified primary estimate from exploratory analyses, and use multiplicity procedures or replication when making families of claims. The CLT does not protect against selection bias induced by reporting only favorable analyses.</p>
-<h2 id="when-asymptotics-should-be-supplemented">When asymptotics should be supplemented</h2>
-<p>For small samples, sparse events, high leverage, or complex dependence, use exact randomization distributions, small-sample t methods, bootstrap schemes matching the design, or simulation-based calibration. Report limitations and avoid implying that a standard error formula is universally reliable. The relevant question is whether the estimator&#39;s sampling distribution under the actual design is adequately approximated by the chosen reference distribution.</p>
-<p>A standard error is meaningful only with its estimator and design attached. “SE=2” could refer to a mean, regression coefficient, cluster-adjusted contrast, or bootstrap estimate. State the independent unit, variance method, and whether degrees-of-freedom corrections were applied. This makes the uncertainty calculation reproducible and lets readers judge whether the assumed sampling distribution is credible.</p>
-<h2 id="do-not-use-the-clt-to-excuse-biased-sampling">Do not use the CLT to excuse biased sampling</h2>
-<p>The CLT describes random variation of a statistic under a sampling process; it does not guarantee that the process targets the desired population. A precisely estimated clinic mean can differ systematically from a community mean because of referral patterns. Increasing n narrows sampling error but leaves selection, measurement, and confounding biases intact. Discuss these sources separately from the standard error and use design, weighting, validation, or sensitivity analysis where possible.</p>
+<p>The t interval’s coverage here can be compared across n or distributions. This code is illustrative and does not prove the CLT applies to any particular study.</p>
+<h3 id="planning-with-desired-precision">Planning with desired precision</h3>
+<p>For a mean, approximate 95% half-width is 1.96σ/√n; solving gives n≈(1.96σ/h)². If σ=12 and desired half-width is 3, n≈62. This planning targets precision, unlike power planning for a specified contrast. Add attrition and design effects, and use t quantiles iteratively for small n. If σ is uncertain, evaluate scenarios and consider blinded internal variance reassessment.</p>
+<h3 id="standard-error-and-prediction-interval">Standard error and prediction interval</h3>
+<p>For a future observation, uncertainty includes individual variability and estimated-mean uncertainty. Under normal iid assumptions, a prediction interval for one new value uses s√(1+1/n), while a confidence interval for μ uses s/√n. The prediction interval remains wide as n grows because person-to-person variation persists; the mean interval shrinks. Do not present an SE as expected range for individual patients.</p>
+<h3 id="what-the-clt-does-not-guarantee">What the CLT does not guarantee</h3>
+<p>The CLT does not ensure unbiasedness, representative sampling, independence, or correct model specification. A precisely estimated mean from a convenience sample can target the wrong population. It does not guarantee normality of raw observations or validity of an interval after outcome selection. It is a statement about limiting behavior of an estimator under assumptions; practical inference also needs a good design and suitable variance calculation.</p>
+<h3 id="use-the-right-variance-estimator">Use the right variance estimator</h3>
+<p>The iid standard error s/√n applies to a simple independent sample. Cluster-robust, survey-linearization, replicate-weight, or model-based SEs may be needed in other designs. The CLT can support asymptotic normality of those estimators when the number of independent units is adequate, but small numbers of clusters require special care. State the number of independent units, not only total records.</p>
+<h3 id="final-interpretation">Final interpretation</h3>
+<p>Sampling distributions explain why estimates vary and how intervals are calibrated. The CLT often justifies normal approximations for means, but its assumptions and finite-sample behavior matter. Report the estimator, design-aware SE, interval method, and limitations. Do not use the theorem as a blanket defense of any large-sample analysis.</p>
+<h3 id="a-useful-mental-separation">A useful mental separation</h3>
+<p>Individual variability is summarized by SD; estimator variability by SE; uncertainty limits by confidence or credible intervals; future individual variability by prediction intervals. These concepts may all use a normal curve but refer to different random quantities. Label the target every time and use the design to calculate its uncertainty.</p>
+<h3 id="sample-size-and-precision-example">Sample size and precision example</h3>
+<p>If SD is 12 units and desired 95% half-width is 3, n≈(1.96×12/3)²≈62 under iid assumptions. If cluster design effect is 1.8, a rough target becomes 112 individuals, with adequate numbers of clusters required. If attrition is 15%, recruit about 132. Exact planning should account for t critical values and design specifics. A precision target asks how well the mean is estimated; a power target asks about detection of a specified contrast.</p>
+<h3 id="why-standard-errors-shrink-slowly">Why standard errors shrink slowly</h3>
+<p>SE decreases as 1/√n. Doubling sample size reduces SE only by factor 1/√2≈.71; halving SE requires quadrupling n. Improving measurement reliability or reducing unnecessary heterogeneity can sometimes add information more efficiently than enrollment alone, provided the target estimand remains unchanged.</p>
+<h3 id="summary-for-practice">Summary for practice</h3>
+<p>Sampling distributions describe estimator variability under repeated data generation. The CLT often supports normal approximations for means, but dependence, heavy tails, selection, and small samples matter. Use a design-aware SE and distinguish it from SD and prediction uncertainty. Precision reflects sampling variability under assumptions, not total validity.</p>
+<p>The reported confidence level belongs to the interval procedure; after data are observed, describe its limits as compatible values under that procedure rather than as a probability assigned to the fixed parameter.</p>
+<p>The number of rows is not the effective sample size when observations share clusters, people, or sampling weights.</p>
+<p>For a sample mean, report both the observed SD and design-aware SE when readers need to distinguish individual spread from estimator precision.</p>
+<p>The CLT justifies an approximation only under its assumptions; it does not convert a biased sample into a valid population estimate.</p>
+<p>Simulation can assess coverage under a specified data-generating process, but conclusions remain conditional on that process.</p>
+<p>For small samples, use t, exact, permutation, or bootstrap methods only when their own design assumptions are appropriate.</p>
+<p>Name the estimator whose sampling distribution is discussed.</p>
+<p>The interval’s coverage statement is conditional on the full procedure and model assumptions.</p>
+<h3 id="summary-of-sampling-behavior">Summary of sampling behavior</h3>
+<p>The standard error describes repeated-sample variability of an estimator under a design. The CLT supports useful approximations, but finite-sample convergence and dependence matter. A valid sampling distribution cannot compensate for biased recruitment or an incorrect estimand.</p>
+<p>The sample size alone does not determine precision if observations are clustered or weighted.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda3661.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Normal distribution and central limit theorem</a>.</p>

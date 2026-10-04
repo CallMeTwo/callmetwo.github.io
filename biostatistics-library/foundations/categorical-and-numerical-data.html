@@ -111,180 +111,82 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Understanding variables <span class="sep">/</span> <strong style="color:#273e3b">Categorical and numerical data</strong></div>
         <h1 class="article-title">Categorical and numerical data</h1>
         <p class="article-summary">Categorical data take a finite set of values; numerical data take numbers with meaning, and the choice decides which statistics apply.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#choosing-a-model-not-just-a-summary">Choosing a model, not just a summary</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#measurement-structure-and-analytic-consequences">Measurement structure and analytic consequences</a></li><li class="h3"><a href="#worked-example-common-outcome-and-odds-ratio">Worked example: common outcome and odds ratio</a></li><li class="h3"><a href="#selecting-summaries-and-models">Selecting summaries and models</a></li><li class="h2"><a href="#repeated-paired-and-clustered-measurements">Repeated, paired, and clustered measurements</a></li><li class="h3"><a href="#worked-example-paired-versus-independent-uncertainty">Worked example: paired versus independent uncertainty</a></li><li class="h3"><a href="#outcome-type-does-not-dictate-design-interpretation">Outcome type does not dictate design interpretation</a></li><li class="h3"><a href="#coding-categories-in-r-without-losing-meaning">Coding categories in R without losing meaning</a></li><li class="h2"><a href="#information-loss-from-categorization">Information loss from categorization</a></li><li class="h2"><a href="#distribution-summaries-that-retain-context">Distribution summaries that retain context</a></li><li class="h2"><a href="#measurement-error-and-misclassification">Measurement error and misclassification</a></li><li class="h2"><a href="#denominator-discipline">Denominator discipline</a></li><li class="h2"><a href="#type-specific-questions-for-analysts">Type-specific questions for analysts</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#categories-without-and-with-order">Categories without and with order</a></li><li class="h2"><a href="#numerical-measurements-counts-and-time">Numerical measurements, counts, and time</a></li><li class="h2"><a href="#summaries-should-preserve-distributional-information">Summaries should preserve distributional information</a></li><li class="h2"><a href="#repeated-and-clustered-observations-change-summaries">Repeated and clustered observations change summaries</a></li><li class="h2"><a href="#categorization-of-continuous-measurements">Categorization of continuous measurements</a></li><li class="h2"><a href="#worked-example-binary-outcome-and-absolute-contrast">Worked example: binary outcome and absolute contrast</a></li><li class="h2"><a href="#coding-missingness-and-error">Coding, missingness, and error</a></li><li class="h2"><a href="#selecting-an-analysis-from-the-variable-structure">Selecting an analysis from the variable structure</a></li><li class="h2"><a href="#reporting-variable-definitions-clearly">Reporting variable definitions clearly</a></li><li class="h2"><a href="#denominators-define-the-descriptive-statistic">Denominators define the descriptive statistic</a></li><li class="h2"><a href="#distribution-shape-and-robust-description">Distribution shape and robust description</a></li><li class="h2"><a href="#transformations-preserve-or-change-interpretation">Transformations preserve or change interpretation</a></li><li class="h2"><a href="#a-comparison-of-ordinal-and-numeric-summaries">A comparison of ordinal and numeric summaries</a></li><li class="h2"><a href="#variable-structure-as-a-quality-control-lens">Variable structure as a quality-control lens</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>Every variable in a dataset is either <strong>categorical</strong> or <strong>numerical</strong>, and
-this is the first fork in the analysis path because it determines which
-summaries and tests are meaningful.</p>
-<p><strong>Categorical variables</strong> take values that are labels or categories: blood
-group, yes/no for a complication, NYHA class. <em>Nominal</em> categories have no
-natural order (blood group A, B, AB, O); <em>ordinal</em> categories do (mild,
-moderate, severe). <strong>Numerical variables</strong> take values on a numeric scale,
-split into <em>discrete</em> (number of admissions) and <em>continuous</em> (blood
-pressure, time to event). The distinction drives the summary: categorical data
-are summarised by counts and proportions; numerical data by a centre (mean or
-median) and a spread (standard deviation or IQR). It also constrains the
-test — proportions with chi-square or Fisher&#39;s exact test, two means with a
-t-test, counts with Poisson or binomial models.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<p>The classification is made at variable-definition time and governs everything
-downstream. Typical scenarios:</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Stroke registry</td>
-<td>Is the proportion receiving thrombolysis higher this year than last? (categorical, compared as proportions)</td>
-</tr>
-<tr>
-<td>Metabolic study</td>
-<td>Do patients with metabolic syndrome have a higher mean triglyceride level? (continuous, compared as means)</td>
-</tr>
-<tr>
-<td>Adverse events</td>
-<td>How many treatment-related serious adverse events per 100 patient-months? (count, rate)</td>
-</tr>
-<tr>
-<td>Case series</td>
-<td>What is the typical time from symptom onset to presentation? (continuous, usually skewed, median)</td>
-</tr>
-</tbody></table>
-<p>In a stroke registry, &quot;received thrombolysis: yes/no&quot; is a binary categorical
-outcome while &quot;onset-to-presentation (hours)&quot; is continuous and right-skewed.
-The first is summarised by the proportion of yes&#39;s; the second by the median
-and IQR, because a few very late presenters would pull the mean upward.
-Getting the variable type right is what keeps summary and test consistent.</p>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<ul>
-<li><strong>Ordinal categories pretend to a numeric scale.</strong> Ordering NYHA classes
-I–IV and computing their &quot;mean&quot; is defensible in some contexts but
-arbitrary in others; the spacing between classes is not measured.</li>
-<li><strong>Binning continuous data loses information.</strong> Converting age to
-&quot;&lt;65 / 65+&quot; changes the analysis from a regression into a comparison of
-group means, at a cost in power and precision.</li>
-<li><strong>Discrete vs continuous is a continuum.</strong> A count of 0–2 is discrete; a
-count routinely reaching 20 is well approximated as continuous. The label
-should follow the actual data, not the questionnaire&#39;s intent.</li>
-</ul>
-<p>The classification breaks down for mixed variables (&quot;number of comorbidities,
-0–5+&quot;) and when coding errors turn what should be a continuous measurement
-into a few binned values — at which point the original numeric variable must
-be recovered if still available.</p>
-<h3 id="choosing-a-model-not-just-a-summary">Choosing a model, not just a summary</h3>
-<p>Data type narrows the options, but design and estimand finish the choice. For
-a binary outcome, logistic regression models log odds; with a common outcome,
-the odds ratio can be appreciably farther from 1 than the risk ratio. A
-binomial model can target risks directly. Count outcomes may use Poisson
-regression with log person-time as an offset; if counts vary more than the
-Poisson model allows because of clustering or patient heterogeneity, a
-negative-binomial model may be preferable. Repeated outcomes from one patient
-need methods that account for within-person dependence. Preserve the original
-measurement and state the target effect before selecting a model.</p>
-<h2 id="worked-example">Worked example</h2>
-<p>A stroke registry records, for 500 patients, thrombolysis (yes/no) and time
-from onset to presentation (hours). Thrombolysis was given in 180 of 500
-(36.0%); using the normal approximation, 95% CI ≈ 31.7% to 40.4%. The
-onset-to-presentation times have a mean of 6.9 hours but a median of 4.2,
-IQR 2.8–7.5 — the right skew visible as the mean exceeding the median.</p>
-<p>The correct summaries therefore differ by variable type: report thrombolysis
-as a proportion with its 95% confidence interval, and time-to-presentation as
-median and IQR (4.2 h, IQR 2.8–7.5). A reader who saw only &quot;mean 6.9 hours&quot;
-would overstate the typical patient; one who saw only the proportion would
-lose the temporal information. The variable type is what tells you which
-number to report.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Averaging ordinal categories as if numeric.</strong> &quot;Mean severity 2.3 on a
-1–5 scale&quot; implies equal spacing the scale may not support; medians or
-proportions by category are safer.</li>
-<li><strong>Over-binning continuous data</strong> to fit a chi-square table sacrifices power
-and precision for no gain in simplicity.</li>
-<li><strong>Treating a count as a proportion (or vice versa).</strong> &quot;12 complications in
-200 patients&quot; is a count with a denominator; reporting it as 6% without the
-denominator, or pooling counts across different denominators, is an error.</li>
-<li><strong>Letting the data entry form dictate the type.</strong> A field stored as text
-(&quot;high&quot;, &quot;med&quot;, &quot;low&quot;) for what is really a numeric measurement forces the
-analysis down the categorical path; capture the raw number at entry.</li>
-</ul>
-<h2 id="measurement-structure-and-analytic-consequences">Measurement structure and analytic consequences</h2>
-<p>Variable type describes the information a recorded value carries, not merely the storage format. A numeric code 1, 2, 3 for blood group remains nominal; arithmetic on those codes has no scientific interpretation. Conversely, an ordinal response such as pain category contains rank information but not necessarily equal spacing. Continuous measurements may be rounded to integers in a database without becoming counts. Record the original scale, units, allowable values, and derivation in a data dictionary.</p>
-<p>A binary outcome observed in independent participants is commonly modeled as Bernoulli data, with likelihood p^x(1−p)^(1−x). Across n people, the count is binomial when the probability is common and observations are independent. A count such as exacerbations per patient may instead reflect differing observation time and heterogeneity; Poisson regression uses a log rate and person-time offset, while negative-binomial models allow overdispersion. A continuous outcome may be modeled with a Gaussian likelihood when residual behavior is acceptable; bounded scores, positive skew, and detection limits often call for another distribution or a scientifically justified transformation.</p>
-<p>The mean of an ordinal scale is not automatically invalid, but its interpretation relies on treating category steps as approximately equal. For a five-item symptom score with a validated total, common practice may justify a mean contrast; for a single mild/moderate/severe item, category probabilities or an ordinal regression preserve more of the measurement structure. The proportional-odds model assumes a common log-odds shift across cut points, an assumption to check and report. Dichotomizing an ordinal outcome discards ordering and distinctions within each collapsed category.</p>
-<h3 id="worked-example-common-outcome-and-odds-ratio">Worked example: common outcome and odds ratio</h3>
-<p>Suppose outcome risks are 30% under exposure and 20% without exposure. The risk ratio is 0.30/0.20 = 1.50. The odds are 0.30/0.70 = 0.429 and 0.20/0.80 = 0.25, so the odds ratio is 1.71. Thus, interpreting the odds ratio as a risk ratio would overstate the relative contrast. For a rare outcome, odds and risks are numerically closer; for common outcomes they diverge.</p>
-<pre><code class="language-r">events &lt;- c(30, 20)
-total  &lt;- c(100, 100)
-risk &lt;- events / total
-odds &lt;- risk / (1 - risk)
-c(risk_difference = diff(risk), risk_ratio = risk[1] / risk[2],
-  odds_ratio = odds[1] / odds[2])
-# 0.10, 1.50, 1.71
+          <h2 id="overview">Overview</h2>
+<p>A dataset contains categories, measurements, counts, and often mixtures of these. The distinction matters because a variable’s values carry different information. A category label identifies group membership; an ordered category also carries rank; a numerical measurement may represent distance on a scale; and a count represents how often an event occurred. The choice of summary and model should reflect the meaning and collection process of the variable, not merely whether software stores it as text or a number.</p>
+<p>Begin by defining the observational unit and the variable’s role. A “number of visits” may be a count per person over a fixed year or a repeated row-level encounter count. “Positive test” may be a result, an assay threshold, or a clinical diagnosis. A meaningful data dictionary records the construct, units, categories, timing, and missing-value codes before analyses begin.</p>
+<h2 id="categories-without-and-with-order">Categories without and with order</h2>
+<p>Nominal categories have no natural ranking: blood type, treatment arm, or hospital. Their basic summaries are frequencies and proportions. Categories should generally be mutually exclusive and collectively adequate for the research purpose, though “other” and “unknown” can be retained where needed. If participants can have multiple diagnoses, the data are not a single categorical variable unless the coding rule selects one; use separate indicators or a multi-response structure.</p>
+<p>Ordinal categories have a meaningful order but not necessarily equal gaps. Cancer stage, pain severity, and Likert responses are common examples. Report category counts and cumulative proportions. The median category can summarize the center, but the arithmetic mean assumes score distances that may not be justified. An ordinal regression models ordered thresholds without requiring equal spacing, though its own assumptions must be evaluated.</p>
+<p>When a nominal predictor enters regression, software typically creates indicator variables. If four hospitals are labeled A through D, a single numeric code 1–4 would incorrectly impose a linear trend unless that structure is intended. Treatment contrasts estimate differences against a reference hospital; other contrasts can compare planned combinations, such as two intervention sites versus two control sites. Report the reference and contrast definition.</p>
+<h2 id="numerical-measurements-counts-and-time">Numerical measurements, counts, and time</h2>
+<p>Continuous measurements can take values across a range, subject to instrument precision and limits. Examples include body temperature, concentration, and elapsed time. Discrete counts take nonnegative integer values, such as number of admissions. Counts may have many zeros, skewness, or overdispersion; a mean and standard deviation can obscure those features. Summarize the distribution and decide whether a count model should represent exposure time or repeated events.</p>
+<p>A numerical value’s scale determines interpretations. Ratio-scale measures have meaningful zero, while interval-scale measurements have equal units but arbitrary zero. A 20-minute delay is twice 10 minutes; 20°C is not twice 10°C. A standard deviation describes spread in units of the measure; an interquartile range is robust to extreme tails. For skewed biomarkers, report median and quantiles alongside any mean if both are scientifically useful.</p>
+<p>Time variables need an origin and unit. Date of diagnosis, age at diagnosis, and duration from enrollment are not interchangeable. For rates, person-time denominators matter. A count of 10 events over 500 person-years is an incidence rate of 20 per 1,000 person-years, not automatically a 2% risk. Survival time may be censored, so ordinary means of observed times can be biased; survival estimators use partial follow-up information under assumptions about censoring.</p>
+<h2 id="summaries-should-preserve-distributional-information">Summaries should preserve distributional information</h2>
+<p>For a categorical variable, show count and proportion with denominator and missingness. For binary outcomes, give both group-specific risks and a contrast if the question is comparative. The same relative effect can correspond to very different absolute risks. For numerical data, inspect plots: histograms show shape; boxplots show quantiles and potential extremes; scatterplots reveal relationships and nonlinearities. A mean alone hides multimodality and floor or ceiling effects.</p>
+<p>Consider 100 patients reporting a symptom on a 0–10 scale. If half score 0 and half score 8, the mean is 4 and standard deviation is large, but no patient scored near the mean. The distribution communicates a two-group pattern that a single mean does not. If scores are ordinal, category proportions may be even more informative. Summaries should answer the clinical question, not satisfy a default table format.</p>
+<p>For small samples, percentages can look more stable than the underlying counts. “50% improved” could mean 1 of 2 or 500 of 1,000. Always show numerator and denominator. Confidence intervals for proportions should use methods with suitable coverage, especially near 0 or 1; the simple Wald formula can perform poorly. When comparing groups, uncertainty for differences should respect the design and any matching or clustering.</p>
+<h2 id="repeated-and-clustered-observations-change-summaries">Repeated and clustered observations change summaries</h2>
+<p>Observations from the same patient are correlated. If each patient contributes monthly measurements, the number of rows is not the number of independent people. A per-patient summary may be appropriate for a descriptive objective; a longitudinal model is useful for trajectories but should account for within-person correlation. Likewise, patients within a clinic share care context, so standard errors may require cluster-aware methods.</p>
+<p>Define whether a summary gives equal weight to each person or each observation. A mean over all visits gives more weight to people with more visits; a mean of patient-specific means weights patients equally. These answer different questions. If sicker patients are seen more often, the visit-level average can describe care encounters rather than the average patient’s health. State the unit and weighting explicitly.</p>
+<p>Paired data also need a paired summary. For pre/post measurements, calculate within-person changes or fit a model that accounts for pairing. Treating before and after values as unrelated discards their covariance and can waste precision or produce incorrect uncertainty. A paired binary outcome has transition categories; marginal proportions alone do not describe who changed in which direction.</p>
+<h2 id="categorization-of-continuous-measurements">Categorization of continuous measurements</h2>
+<p>Cutting a continuous measure into categories can simplify communication or reflect a real decision threshold, but it discards information and creates artificial boundaries. Dichotomizing age at 65 treats 64 and 65 as categorically different, while treating 40 and 64 as equivalent. It reduces power and may leave residual confounding when used to adjust for a continuous confounder. A threshold chosen to maximize observed group separation is especially prone to optimism.</p>
+<p>If a guideline threshold is clinically established, show results on both sides when decision relevance requires it, but preserve the continuous measure in modeling where possible. Restricted cubic splines or fractional polynomials can represent smooth nonlinear associations. Display predicted outcomes across the observed range and check whether the shape is supported by adequate data. Do not extrapolate beyond the range or interpret a curve as causal without a causal design.</p>
+<p>Ordinal categories are also sometimes collapsed to avoid sparse cells. Combining levels can be reasonable when prespecified and clinically coherent, but changes the estimand and may obscure severity distinctions. Report the original distribution and rationale. If small cells threaten confidentiality, disclosure control should be applied transparently and separately from the analysis definition.</p>
+<h2 id="worked-example-binary-outcome-and-absolute-contrast">Worked example: binary outcome and absolute contrast</h2>
+<p>Suppose 18 of 120 patients receiving a new care pathway are readmitted within 30 days, compared with 27 of 120 under usual care. Risks are 15% and 22.5%. The risk difference is 15%−22.5%=−7.5 percentage points, while the risk ratio is 0.15/0.225=0.67. The odds ratio is (18×93)/(102×27)=0.61. The three measures are related but not interchangeable; because the outcome is not very rare, the odds ratio is farther from 1 than the risk ratio.</p>
+<p>An approximate standard error for the risk difference is sqrt[0.15(0.85)/120 + 0.225(0.775)/120] ≈ 0.049. A rough 95% interval is −0.075 ± 1.96(0.049), approximately −0.171 to 0.021. The interval includes no difference and a potentially meaningful reduction. A score-based interval is preferable for formal reporting, and if allocation was clustered, the variance must account for clusters.</p>
+<pre><code class="language-r"># event: 1 = readmitted; group: pathway or usual
+with(dat, prop.table(table(group, event), 1))
+fit &lt;- glm(event ~ group, data = dat, family = binomial())
+# Obtain standardized risks rather than interpreting the odds ratio as a risk ratio.
+newdat &lt;- transform(dat, group = &quot;pathway&quot;)
+risk_pathway &lt;- mean(predict(fit, newdat, type = &quot;response&quot;))
+newdat$group &lt;- &quot;usual&quot;
+risk_usual &lt;- mean(predict(fit, newdat, type = &quot;response&quot;))
+risk_pathway - risk_usual
 </code></pre>
-<p>The order here is exposed then unexposed; reverse the vector order and the ratio reciprocates. For clustered data, this table&#39;s nominal independent-binomial uncertainty is too optimistic unless clustering is accounted for.</p>
-<h3 id="selecting-summaries-and-models">Selecting summaries and models</h3>
-<p>For nominal categories report counts and denominators, not percentages alone. For ordinal categories show the full distribution or a prespecified clinically meaningful contrast. For symmetric continuous data report mean and SD; for skewed data report median and quantiles, while still showing the distribution. For counts report the observation window and distinguish a total count from a rate. If data are paired, identify the within-person contrast. If multiple records belong to one patient or site, account for dependence. If measurements are censored below a laboratory limit, replacing all values with zero or half the limit changes the measurement model and can bias estimates.</p>
-<p>A model choice should follow the outcome&#39;s support and the scientific question. Linear regression predicts a conditional mean; logistic regression models log odds; Poisson regression models a log rate when an exposure offset is specified. A convenient family is not proof of validity: inspect residuals, calibration, influential observations, and whether fitted values are possible. Avoid automatic categorization of age, biomarkers, or follow-up time. If a nonlinear relationship is plausible, splines often retain information better than arbitrary cut points. See the categorical-analysis reference by Agresti and the library&#39;s descriptive-data pages for compatible summaries.</p>
-<h2 id="repeated-paired-and-clustered-measurements">Repeated, paired, and clustered measurements</h2>
-<p>Observation structure is separate from variable type. A continuous outcome measured before and after treatment in the same person is paired; the analysis should use within-person differences or a repeated-measures model. A binary endpoint recorded at several visits has correlated Bernoulli outcomes, and treating every visit as an independent row inflates precision. Generalized estimating equations target population-average effects under a working correlation structure, while mixed-effects models describe conditional effects given random effects. The choice affects interpretation, particularly for nonlinear models such as logistic regression.</p>
-<p>For categorical predictors with many rare levels, estimates can be unstable. Combine levels only when clinically and scientifically defensible and preferably before outcome inspection. For a continuous predictor, model the relationship flexibly rather than defaulting to categories. Restricted cubic splines can capture smooth nonlinearity while preserving the underlying scale. Report predicted values or contrasts at clinically meaningful values, since spline coefficients themselves are not simple slopes.</p>
-<h3 id="worked-example-paired-versus-independent-uncertainty">Worked example: paired versus independent uncertainty</h3>
-<p>Suppose 40 patients have a biomarker measured before and after treatment. The mean change is −4 units with SD of paired changes 10. The SE is 10/√40=1.58, and a t interval using 39 df is roughly −4±2.02(1.58), or −7.19 to −0.81. If one instead treated pre and post values as 80 independent observations, the covariance within person would be ignored and the estimand itself could be misrepresented. The correct variation is the distribution of differences, not the separate marginal SDs.</p>
-<pre><code class="language-r">change &lt;- post - pre
-mean(change)
-sd(change) / sqrt(length(change))
-t.test(post, pre, paired = TRUE)
-</code></pre>
-<p>The paired t method assumes independent patients and an approximately normal distribution of differences, especially for small samples. It does not require each marginal measurement to be normal. With strong outliers or a highly discrete outcome, examine robust or appropriate nonparametric alternatives, recognizing that a signed-rank test targets a different parameter under general conditions.</p>
-<h3 id="outcome-type-does-not-dictate-design-interpretation">Outcome type does not dictate design interpretation</h3>
-<p>A binary endpoint can be summarized as a risk, odds, or rate depending on follow-up. If all participants have fixed follow-up, risk is often natural; if follow-up varies and event timing matters, survival analysis may be preferable. Repeated-event counts can be analyzed as rates if recurrent events are part of the estimand, but a first-event analysis answers a different question. A continuous laboratory value can be measured with error, censored at assay limits, or sampled at informative times. Type determines support; measurement process and design determine the likelihood and estimand.</p>
-<h3 id="coding-categories-in-r-without-losing-meaning">Coding categories in R without losing meaning</h3>
-<p>Use factors with explicit labels and reference levels. Avoid representing nominal categories as integers and then fitting a linear model, because this imposes a false one-unit trend. For an ordered factor, set the order deliberately, then decide whether a linear trend, proportional-odds model, or category-specific effects are scientifically justified. Validate levels and missing codes before model fitting.</p>
-<pre><code class="language-r">dat$severity &lt;- factor(dat$severity,
-  levels = c(&quot;mild&quot;, &quot;moderate&quot;, &quot;severe&quot;), ordered = TRUE)
-dat$blood_group &lt;- factor(dat$blood_group,
-  levels = c(&quot;O&quot;, &quot;A&quot;, &quot;B&quot;, &quot;AB&quot;))
-</code></pre>
-<p>R&#39;s default contrasts depend on factor type and options; inspect <code>model.matrix()</code> when coefficient meanings matter. Define contrasts so that reference groups correspond to the clinical comparison, and report the coding. Statistical software cannot determine whether a category is nominal or ordinal; that is a measurement decision.</p>
-<h2 id="information-loss-from-categorization">Information loss from categorization</h2>
-<p>Suppose age has a linear relationship with outcome risk. Dividing age at 65 assigns the same fitted value to a 40-year-old and 64-year-old and another common fitted value to 65- and 90-year-olds. The result depends on a cutoff chosen by convention, and a person just above the threshold is treated as fundamentally different from one just below. Categorization usually reduces power because it discards order and spacing, and residual confounding persists within categories. When a clinical threshold exists, report it for decision-making but model the continuous measurement flexibly for association estimation.</p>
-<p>Restricted cubic splines allow a smooth nonlinear relationship. Knots should be prespecified or placed at outcome-blind quantiles, and the number should be limited to avoid overfitting. Plot adjusted predicted outcomes across the observed range and show uncertainty; do not interpret each spline basis coefficient in isolation. Extrapolation beyond the observed data range is especially unreliable.</p>
-<pre><code class="language-r"># Illustration with rms package; dat must contain outcome and age
-# fit &lt;- rms::lrm(outcome ~ rms::rcs(age, 4) + sex, data = dat)
-# plot(Predict(fit, age, fun = plogis), ylab = &quot;Predicted risk&quot;)
-</code></pre>
-<p>The example requires a correctly specified outcome and adequate events across the age range. It is not a license to fit flexible curves to tiny datasets; model complexity must be supported by information and validated.</p>
-<h2 id="distribution-summaries-that-retain-context">Distribution summaries that retain context</h2>
-<p>For a binary variable, report numerator and denominator plus a confidence interval. For a nominal multi-category variable, percentages should sum to 100% only if categories are mutually exclusive and missingness is separately displayed. For ordinal measures, give category-specific counts and perhaps a cumulative proportion. For continuous data, use a histogram or density plot to expose multimodality and outliers; a mean and SD can coexist with median and IQR when both center and tail behavior matter. For counts, report zero frequency, range, and exposure duration if relevant.</p>
-<p>The sample size for each summary may differ because of missing values. State the denominator for each row instead of letting readers assume complete data. In repeated measurements, a table of independent visit counts can obscure within-person changes; pair summaries with trajectory plots or model-based estimates. Stratify descriptively by design groups when useful, but avoid treating baseline p-values as proof of randomization success. Good descriptive practice clarifies the data before inferential modeling.</p>
-<h2 id="measurement-error-and-misclassification">Measurement error and misclassification</h2>
-<p>Categorical variables can be misclassified (a diagnosis code may not match chart adjudication); numerical values can contain random or systematic error (a poorly calibrated pressure cuff). Nondifferential misclassification of a binary exposure often attenuates associations in simple settings, but this is not universal, especially with multiple categories or confounding. Differential error can bias in either direction. Validate a subsample against a stronger reference measurement and preserve information on source and measurement method.</p>
-<p>For continuous error, repeated measurements can separate within-person variability from between-person differences, although biological variation may itself be meaningful. Averaging replicate values reduces independent random measurement error but not systematic calibration bias. If errors are large relative to true variation, regression calibration or measurement-error models may be needed. Sensitivity analyses over plausible reliability values can show how robust a slope is.</p>
-<h2 id="denominator-discipline">Denominator discipline</h2>
-<p>Every proportion requires a defined denominator. “Six percent had complications” could mean six of all randomized participants, of those completing follow-up, of procedures, or of person-time. A count can be numerically identical while representing different risks. For a rate, state the exposure time and whether recurrent events contribute. For missing categorical data, show the missing category or state that percentages are calculated among nonmissing responses. This denominator discipline is as important as correctly labeling the variable type.</p>
-<p>A practical decision sequence is: establish the scientific construct and unit; classify its support (categories, ordered categories, counts, continuous values, or censored values); identify whether observations are independent or repeated/clustered; specify the estimand; then choose a summary and model. This sequence prevents a common mistake: selecting a test solely from a variable&#39;s data type. Two categorical variables in a paired design call for different methods than two categorical variables in independent groups, and a continuous outcome with censoring differs from an ordinary Gaussian measurement.</p>
-<p>When presenting plots, use scales that reflect the data. A histogram of a continuous variable reveals distribution shape; a bar chart of categories should show counts or proportions with clear denominators; a box plot compresses shape into quantiles and can hide multimodality. For paired data, connect observations or plot within-person changes rather than presenting unrelated group summaries. Label units, category order, missing values, and time windows. Visual summaries often reveal data-type or coding errors before a model is fitted.</p>
-<h2 id="type-specific-questions-for-analysts">Type-specific questions for analysts</h2>
-<p>Before summarizing, ask whether the categories are mutually exclusive, whether the numerical scale has a true zero, whether zeros are meaningful or coded missingness, whether repeated values indicate rounding or true discreteness, and whether a measurement is censored. “Not detected” is not a zero concentration; “none” may be a valid count; a score of zero may mean absence of symptoms or missing assessment depending on the instrument. These distinctions affect both descriptive statistics and likelihood construction. Consult the data dictionary and source form instead of inferring meaning from numeric appearance.</p>
+<p>This example treats each record as independent and assumes the model and observed covariate distribution are suitable. A causal interpretation requires design or identification assumptions beyond this code. The risk difference is often easier to connect to decisions, while the odds ratio may be convenient for logistic modeling; report the scale explicitly.</p>
+<h2 id="coding-missingness-and-error">Coding, missingness, and error</h2>
+<p>Coding errors can turn valid observations into misleading categories. Check capitalization, trailing spaces, retired codes, impossible combinations, and whether zero is a true value or sentinel for missing. For categorical variables, report an explicit missing category only when “unknown” is meaningful; otherwise distinguish item nonresponse from a substantive group. For measurements, document units, instrument precision, detection limits, and transformations.</p>
+<p>Measurement error may be random or differential. Random error in a predictor often weakens associations, while systematic site-specific calibration can create apparent group differences. If a test result is below detection, substituting zero or half the limit can distort analyses. Use methods suited to censoring or present sensitivity analyses. Confirm data provenance and units before pooling sites or calendar periods.</p>
+<p>Missingness affects both denominator and interpretation. A complete-case summary describes participants with observed values. If those differ systematically, it may not estimate the target group. Report missing counts and patterns by treatment, site, and time; use imputation only under a stated model and evaluate sensitivity to departures. A table that hides missingness in an “N” column can imply more complete information than the study contains.</p>
+<h2 id="selecting-an-analysis-from-the-variable-structure">Selecting an analysis from the variable structure</h2>
+<p>For nominal outcomes with more than two categories, multinomial models can estimate category probabilities; for ordered outcomes, cumulative models may use ordering. Binary outcomes can be summarized by risks, risk differences, ratios, or odds ratios depending on design and question. Continuous outcomes often support mean contrasts or regression, but skewness, censoring, repeated measures, and nonlinear relationships may require other methods. Counts may require Poisson or negative-binomial models with an exposure offset.</p>
+<p>These mappings are starting points, not mechanical rules. A small ordinal sample may be best presented descriptively; a randomized trial’s primary estimator can be prespecified even if the outcome distribution is imperfect; a complex survey needs design-based inference regardless of outcome type. Choose an analysis that targets the scientific quantity and respects sampling and measurement.</p>
+<h2 id="reporting-variable-definitions-clearly">Reporting variable definitions clearly</h2>
+<p>State the unit of analysis, category labels and reference levels, scale ranges and directions, units, time windows, and any transformations or cutpoints. Give denominators, missingness, and summary statistics appropriate to the distribution. For models, state link function, coding, contrasts, clustering, and how adjusted predictions were obtained. Provide plots that show the data structure without implying unsupported precision.</p>
+<p>When categories or scales differ across sites, demonstrate harmonization and assess comparability rather than merely merging columns with similar names. For patient-reported scales, cite validation and scoring rules. For counts and rates, state the exposure denominator. The reader should be able to tell what one unit of change means and which population each summary describes.</p>
+<h2 id="denominators-define-the-descriptive-statistic">Denominators define the descriptive statistic</h2>
+<p>A proportion is a count divided by a clearly defined set at risk or eligible to experience the event. The denominator may be all randomized participants, all treated participants, all participants with a valid test, or all person-time. These are not interchangeable. Excluding participants after randomization based on adherence can compromise the randomized comparison; reporting positivity among only those who received a test estimates a different quantity than positivity among everyone invited for testing.</p>
+<p>For repeated events, distinguish people with at least one event from the number of events. If 12 patients have 20 admissions, the patient-level risk uses 12 people in the numerator, while an admission rate uses 20 events over person-time. Counting each admission as an independent binary observation underestimates uncertainty because events cluster within people. Specify whether recurrent events are included and how follow-up stops.</p>
+<p>Small denominators make percentages volatile. In a subgroup of 8 patients, one event changes a percentage by 12.5 points. Show counts and intervals, and avoid overinterpreting subgroup differences. When disclosure risk is present, follow governance rules for suppressing small cells while preserving enough information to understand the analysis.</p>
+<h2 id="distribution-shape-and-robust-description">Distribution shape and robust description</h2>
+<p>The mean and standard deviation are useful when a numerical variable is reasonably symmetric or when the mean itself is the target, but outliers can dominate both. The median and interquartile range resist extreme observations, though they do not estimate a mean difference. If a study compares highly skewed costs, a log-scale model estimates a multiplicative contrast under assumptions; retransformation requires care because exponentiating a log mean does not generally recover the arithmetic mean.</p>
+<p>A data summary should be paired with a plot. A histogram can reveal skewness, heaping, or multiple modes. A scatterplot can show nonlinear association or distinct clusters. For longitudinal outcomes, spaghetti plots for a sample plus group summaries can show heterogeneity hidden by a mean curve. Boxplots can make outliers visible but do not identify errors; validate extreme observations against source data before deciding how to analyze them.</p>
+<p>Robust methods can reduce sensitivity to extreme values without discarding records. Quantile regression estimates conditional quantiles; trimmed means target a central portion of the distribution; rank-based methods compare distributions under specific conditions. These methods answer different questions. Do not label them “nonparametric” and assume assumption-free; explain the target and use uncertainty methods that match the design.</p>
+<h2 id="transformations-preserve-or-change-interpretation">Transformations preserve or change interpretation</h2>
+<p>A logarithmic transformation can make a right-skewed positive biomarker more symmetric and turn multiplicative relationships into additive ones on the log scale. If a model coefficient is β per unit increase in x with log outcome, exp(β) is a ratio of geometric means under the model, not automatically a ratio of arithmetic means. Back-transform predictions with appropriate bias correction when arithmetic-scale expectations are needed.</p>
+<p>Standardization to a z-score subtracts the sample mean and divides by the sample standard deviation. It can aid numerical optimization and compare relative predictor changes, but coefficients then refer to a one-standard-deviation increase in that particular sample. Across studies with different variability, the same standardized effect can correspond to different clinical-unit changes. Present an original-unit estimate whenever it is interpretable.</p>
+<p>Ranks preserve ordering but discard spacing. A rank correlation can describe monotonic association when a linear relationship is not appropriate, yet it does not quantify a clinically meaningful unit change. A transformation or rank operation should be selected from the question and diagnostics, not solely because it yields a preferred significance result.</p>
+<h2 id="a-comparison-of-ordinal-and-numeric-summaries">A comparison of ordinal and numeric summaries</h2>
+<p>Suppose symptom ratings in two groups are 0–4. Group A has counts (10, 12, 18, 15, 5) and group B has (20, 15, 12, 8, 5). Both groups have 60 participants. The arithmetic means are (0×10+1×12+2×18+3×15+4×5)/60 = 1.72 and (0×20+1×15+2×12+3×8+4×5)/60 = 1.38. The mean difference is 0.34 categories, but category spacing may not be equal. The cumulative proportions show a clearer pattern: 50% of group A versus 67% of group B report category 0 or 1. A cumulative odds model can summarize the ordered shift if proportional odds is reasonable.</p>
+<p>Neither summary alone captures all information. A group may have improvement in mild ratings but not severe symptoms; inspect the full distribution and communicate which contrast was primary. If a validated questionnaire defines a total score from multiple items, its scoring manual may support approximate interval interpretation, but that evidence should be cited. Do not confuse an instrument’s convenient numeric coding with proof of equal intervals.</p>
+<h2 id="variable-structure-as-a-quality-control-lens">Variable structure as a quality-control lens</h2>
+<p>The expected structure of a variable can catch errors. A nominal site identifier should have a stable set of labels; a date should parse and lie in an expected period; a count should be integer and nonnegative; a laboratory measure should have known units; an ordinal score should be within its documented range. Checks should identify suspicious records for review, not automatically discard them. Unusual observations can be clinically important.</p>
+<p>For a derived variable, verify the calculation on hand-worked records and test boundary cases. For example, an event within 30 days includes events on which dates if the index day is day zero? A percentage denominator excludes which missing outcomes? Precise decisions prevent silent off-by-one and denominator errors. Store derivation code with comments and write a small audit table showing counts for each level and missing value.</p>
+<p>The strongest analysis makes these structures visible: a clear table for categories, distribution plots for numerical measures, explicit denominators for proportions, and models whose parameters correspond to stated contrasts. This gives clinical readers enough context to judge whether a summary captures the phenomenon they care about.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>Agresti A. <a href="https://doi.org/10.1002/0470114754" target="_blank" rel="noopener noreferrer" class="ext-link">An Introduction to Categorical Data Analysis</a>. Wiley.</p>
-</li>
-<li><p>UCLA Institute for Digital Research and Education. <a href="https://stats.oarc.ucla.edu/other/mult-pkg/whatstat/" target="_blank" rel="noopener noreferrer" class="ext-link">Choosing a statistical test</a>.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
-</li>
-<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
-</li>
-<li><p>The <em>Describing data</em> articles in this library cover summaries and plots
-matched to variable type.</p>
-</li>
+<li>Agresti A. <a href="https://doi.org/10.1002/0470114754" target="_blank" rel="noopener noreferrer" class="ext-link">An Introduction to Categorical Data Analysis</a>. Wiley.</li>
+<li>UCLA Institute for Digital Research and Education. <a href="https://stats.oarc.ucla.edu/other/mult-pkg/whatstat/" target="_blank" rel="noopener noreferrer" class="ext-link">Choosing a statistical test</a>.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
+<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
+<li>See the <a href="../describing-data/">Describing data</a> articles for summaries and plots matched to variable type.</li>
 </ul>
 
         </article>

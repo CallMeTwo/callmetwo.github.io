@@ -3,175 +3,142 @@ title: K-nearest neighbors
 summary: A distance-based prediction method, including scaling and neighborhood choices that matter for biomedical data.
 ---
 
-## Overview and key ideas
+## Overview
 
-K-nearest neighbors (k-NN) predicts an outcome for a new patient by finding the k most similar patients in the training data. For classification, it uses a majority vote or the proportion of neighbors in each class; for regression, it averages their outcomes, sometimes with closer neighbors weighted more heavily. It is a **lazy** method: it stores training records rather than fitting a compact equation.
+K-nearest neighbors (KNN) predicts an observation from the outcomes of similar observations in the training data. For a new patient, the algorithm calculates distances to training patients, selects the k closest, and summarizes their outcomes. Classification uses a vote or averaged class probability; regression uses an average or distance-weighted average. KNN is conceptually simple and can represent nonlinear boundaries, but its meaning depends directly on how similarity is defined.
 
-The distance metric defines similarity. Euclidean distance is common for continuous variables; mixed clinical data may require carefully designed scaling and categorical distance. The value of k controls smoothness: small k is sensitive to noise, while large k averages over broader neighborhoods and can blur local patterns.
+KNN has little conventional model fitting: it stores training observations and performs most computation at prediction time. This can make it useful as a local comparison method, but also creates memory, privacy, and latency concerns. It does not learn a global clinical rule. A patient’s “neighbors” are determined by chosen variables, scaling, missing-data handling, and distance metric.
 
-## When to use it
+## Geometry defines what counts as similar
 
-k-NN can serve as a transparent conceptual baseline when similar patients are expected to have similar outcomes, for example estimating length of stay from a small, consistently measured set of admission features. It can also support exploratory similarity searches, provided similarity is not presented as a clinical match without validation.
+For numeric variables, Euclidean distance between patients i and j is sqrt(Σ_l (x_il−x_jl)²). A variable with a large numeric range can dominate the distance. Age measured in years may contribute less than a biomarker measured in thousands of units, even if the biomarker is not more clinically relevant. Standardize or otherwise scale features using training data only, and apply the same transformation to new patients.
 
-## Assumptions and limitations
+Scaling is not a neutral step. Standardizing by standard deviation gives noisy and clinically unimportant variables potential influence comparable to stable measures. Robust scaling can reduce outlier impact, while clinically justified weights can emphasize meaningful dimensions. Every choice changes the neighborhood and should be justified and validated.
 
-- Features must be on comparable scales or the largest numeric units dominate distance. Standardization parameters must be learned in each training fold.
-- The method suffers in high dimensions: observations become far apart and “nearest” may not mean clinically similar. Irrelevant variables and correlated measurements distort neighborhoods.
-- Missing data and mixed variable types require explicit handling. Imputation and transformations must not use held-out outcomes or population information unavailable at prediction time.
-- Class imbalance affects majority votes; class weighting and probability interpretation require evaluation. Neighbor fractions are not automatically calibrated risks.
-- k-NN does not naturally extrapolate beyond the observed data and can be slow at prediction time for large datasets.
+Distance concentration is a central problem in high dimensions: the nearest and farthest observations can become similarly distant, making “nearest” less informative. Redundant, irrelevant, or highly correlated features distort geometry. Feature selection or dimension reduction may help, but must be performed inside resampling. With sparse clinical tables, a simpler model may outperform local averaging.
 
-## Worked example
+Mixed data need a distance suitable for their types. One-hot encoding nominal variables can make category mismatches contribute multiple dimensions; ordinal encoding imposes ordering and spacing; Gower distance combines scaled numeric and categorical differences but needs thoughtful missingness rules. Do not use an arbitrary distance formula simply because a package accepts the data.
 
-To classify a new patient as likely or unlikely to have a 30-day readmission, suppose the five nearest training patients (after scaling age, comorbidity score, and prior admissions) include three readmissions and two non-readmissions. Unweighted 5-NN predicts the readmission class and gives a simple neighbor proportion of 3/5 = 0.60. With inverse-distance weights of 0.40, 0.25, 0.15, 0.12, and 0.08, where the first three neighbors had readmission, the weighted score is 0.40 + 0.25 + 0.15 = 0.80. That change illustrates how weighting affects output; neither score is a calibrated 60% or 80% risk without evaluation. Select k and metric within cross-validation, then assess calibration and external performance.
+## Worked neighborhood probability
 
-## Interpretation and common pitfalls
+Suppose k=5 nearest training patients have outcomes 1, 1, 0, 0, 1. The unweighted estimated probability is 3/5=0.60 and majority voting assigns the positive class. If distances are 0.2, 0.3, 0.7, 0.8, and 1.0, inverse-distance weights make closer patients contribute more, but may produce a different score. This 0.60 is a local empirical proportion, not necessarily a calibrated 60% risk. Its uncertainty depends on neighborhood size and the local density of observations.
 
-- “Nearest” is determined by chosen variables, scales, and metric. It is not an intrinsic statement that two patients are clinically equivalent.
-- Tune k, distance, and weighting only inside development data. Report a simple baseline and uncertainty.
-- Preserve patient-level separation in repeated-measure data and time-aware separation for future prediction.
-- Inspect whether one feature or missingness pattern dominates distances. Conduct sensitivity analyses with clinically defensible feature sets.
-- Do not infer treatment effects from neighboring patients’ outcomes; treatment selection may differ for important reasons.
-
-
-## Geometry, distance, and probability behavior
-
-For standardized continuous variables, Euclidean distance between patients x and z is sqrt(sum_j (x_j-z_j)^2). A single unscaled laboratory measure can dominate this sum, so centers and scales must be estimated from each training fold and then applied unchanged to validation patients. Standardization gives each variable equal variance, not equal clinical importance. A weighted distance, Mahalanobis distance, or clinically constructed metric may be more appropriate, but it introduces further choices and assumptions.
-
-The curse of dimensionality is practical: as irrelevant dimensions accumulate, distances become similar and nearest neighbors cease to be meaningfully near. Feature selection therefore must be nested inside validation. For binary prediction, the raw neighborhood fraction is a stepwise estimate with resolution 1/k. At k=5 it can only take six values and is highly variable; increasing k smooths variance but can mix unlike patients. Distance weighting emphasizes close matches, but can create unstable scores when distances are nearly tied or one point is exceptionally close. These scores need calibration assessment.
-
-```r
+~~~r
 library(class)
-vars <- c("age", "eGFR", "prior_admissions")
-mu <- vapply(train[vars], mean, numeric(1), na.rm = TRUE)
-sd0 <- vapply(train[vars], sd, numeric(1), na.rm = TRUE)
-# Imputation must be learned using training data; shown scaling assumes complete inputs.
-Xtr <- scale(as.matrix(train[vars]), center = mu, scale = sd0)
-Xte <- scale(as.matrix(test[vars]), center = mu, scale = sd0)
-y <- factor(train$event, levels = c(0, 1))
-knn_class <- knn(train = Xtr, test = Xte, cl = y, k = 15,
-                 prob = TRUE, use.all = TRUE)
-attr(knn_class, "prob")
-```
+# Scale using training-set parameters; apply them unchanged to test data.
+mu <- sapply(train[predictors], mean, na.rm = TRUE)
+sdev <- sapply(train[predictors], sd, na.rm = TRUE)
+x_train <- scale(train[predictors], center = mu, scale = sdev)
+x_test <- scale(test[predictors], center = mu, scale = sdev)
+pred <- knn(train = x_train, test = x_test,
+            cl = train$event, k = 15, prob = TRUE)
+~~~
 
-`class::knn` returns a winning-class vote proportion, whose direction depends on the predicted class; it is not automatically the event probability. For probability estimation, compute both class vote fractions explicitly or use a method that exposes them, then validate calibration. Choose k, distance, and weighting within grouped cross-validation. Because the algorithm stores training records, consider privacy and prediction latency as well as discrimination. A neighbor display can aid review only if similarity features, distance, and the reference cohort are clinically justified; it should not imply that another patient’s treatment or outcome is transferable.
+This basic example assumes complete numeric predictors and uses a class vote. The returned probability is for the winning class, not automatically the event class; inspect the prediction attribute and factor levels. Imputation, feature selection, and scaling must be estimated inside each resampling fold. For missing values or mixed predictors, use a justified distance and an implementation whose behavior is documented.
 
+## Choosing k and the weighting rule
 
-## Development workflow: from question to a defensible model
+Small k creates highly local, variable predictions; large k smooths across broader regions and may obscure real subgroups. At k=1, training classification can appear perfect while test error is high. Choose k and any distance weights using training resampling only. The relevant metric may be log loss, Brier score, discrimination, or threshold utility, depending on the task. Use nested resampling if many values and preprocessing choices are compared.
 
-A model is meaningful only after the prediction problem has been made precise. State the eligible population, prediction index time, outcome definition, prediction horizon, and intended action. For example, “predict deterioration” is incomplete: a usable specification says which patients, what counts as deterioration, when prediction occurs, and how far ahead it should signal. Predictors must be available at that index time. Variables entered later may encode the outcome or the clinical response to it. This is temporal leakage even if the data table contains no obvious duplicate column.
+Distance weighting gives more influence to close neighbors, but can magnify measurement noise when a distance is nearly zero. Specify the function, such as inverse distance or a kernel weight with a bandwidth. Ensure duplicate records do not create trivial matches between train and test; split by patient and remove cross-partition duplicates. A patient may appear multiple times in a longitudinal dataset, which can cause leakage if not grouped.
 
-Choose the independent unit to match deployment. If the system will predict for new patients, every record from a patient belongs to one partition. If it will predict future cases at an existing hospital, a chronological split is often more informative than a random split. If use at a new hospital is intended, retain site-level external validation. Confidence intervals and effective sample size should reflect clustering by patient or site; thousands of rows do not imply thousands of independent people.
+The effective local sample size differs from k when weights vary. Report neighborhood size and distance distribution for representative predictions. If the nearest neighbor is far away, the model is extrapolating locally from poor support even though it always returns an answer. Define an abstention or “insufficiently similar examples” rule rather than trusting every output.
 
-Keep every data-adaptive step inside resampling: imputation, scaling, feature filtering, encoding, dimension reduction, class rebalancing, and hyperparameter selection. A typical nested workflow uses inner folds to choose settings and outer folds to estimate the performance of that entire selection process. A separate temporal or external test cohort, if available, should be used once after choices are frozen. Repeatedly checking its results turns it into development data. Report the number of patients and outcomes in each split, not only the row count.
+## Missing data, noise, and class imbalance
 
-Use metrics tied to the intended decision. Discrimination measures ranking; for a binary outcome, ROC AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case. It does not assess absolute risk. Calibration compares predicted and observed risks, using calibration-in-the-large, slope, and plots with uncertainty. At a chosen operating point, show sensitivity, specificity, positive predictive value, negative predictive value, and the proportion flagged. Precision-recall summaries can be informative when events are uncommon. For time-to-event outcomes, account for censoring rather than labeling patients event-free before adequate follow-up. Decision-curve analysis or a prospective impact study is needed to connect predictions to clinical net benefit.
+KNN requires a distance for each candidate pair. Pairwise deletion can make distances incomparable when different patients are compared on different subsets of variables. Mean imputation can compress distances and create artificial neighborhoods; missingness indicators may encode workflow differences. Impute within training partitions and assess whether the procedure is available and appropriate at prediction time. If key inputs are missing, abstention may be safer.
 
-A compact R pattern for a binary outcome illustrates the separation between fitting, discrimination, and calibration. It presumes `dat` has one row per patient, a 0/1 `event`, and predictors fixed before the prediction time. The split is only illustrative; repeated patients, sites, or calendar time require grouped or temporal partitions. The final test set must not be used to tune the model.
+Noisy predictors can dominate or scramble nearest-neighbor relations, especially when many features are included. Feature selection should reflect domain knowledge and be validated, not optimized to one held-out set. Correlated features can repeatedly count the same construct. Use sensitivity analyses with plausible scaling, distance, and feature sets, and see whether predictions and neighbors remain stable.
 
-```r
-set.seed(41)
-i <- sample(seq_len(nrow(dat)), floor(.8 * nrow(dat)))
-train <- dat[i, ]; test <- dat[-i, ]
-fit <- glm(event ~ age + prior_admissions + severity,
-           data = train, family = binomial())
-p <- predict(fit, newdata = test, type = "response")
-# Calibration-in-the-large: intercept ideally 0 when slope fixed at 1
-cal0 <- glm(test$event ~ 1, offset = qlogis(p), family = binomial())
-# Calibration slope: ideally 1; assess uncertainty, not only point estimate
-cals <- glm(test$event ~ qlogis(p), family = binomial())
-coef(cal0); coef(cals)
-```
+With imbalanced outcomes, a local majority vote may almost always choose the common class. Class weighting, targeted sampling, or distance-weighted voting may improve sensitivity but alter probability interpretation. Evaluate on representative prevalence and report sensitivity, PPV, and alert burden. Calibration should be checked; local proportions can be unstable in regions with few events.
 
-The code does not replace internal validation or uncertainty intervals. A small event count can make both performance and calibration estimates unstable. Bootstrap at the patient level or repeat appropriately grouped resampling, and report intervals. When transporting a model, compare outcome prevalence, predictor distributions, measurement practice, and label ascertainment; recalibration of the intercept can address a prevalence shift under restrictive conditions, but cannot repair changed predictor effects or systematic measurement errors.
+## Validation and interpretation
 
-For a clinical prediction report, document the cohort flow, missingness, feature timing, model specification, tuning procedure, split unit, and evaluation population. TRIPOD+AI provides a reporting framework. PROBAST+AI can help assess risk of bias and applicability. Neither checklist certifies clinical usefulness. A retrospective prediction model still requires prospective evaluation of workflow, alert burden, clinician response, and patient outcomes before claims of benefit.
+Validation must match intended use. Group all records from a patient when testing new-patient performance; use time splits for future cases; hold out sites for transport. Tune k, scaling, feature subset, and metric within development resampling. Use an untouched cohort for final evaluation. Compare with logistic regression, a simple clinical score, and relevant flexible baselines using the same partitions.
 
+Report discrimination, calibration, threshold metrics, and uncertainty. AUC assesses ranking and does not show probability accuracy. Bootstrap independent patients or sites for intervals. If neighbors are reused across many predictions, account for dependence in uncertainty estimation. Check performance across clinically relevant groups and regions of feature space; KNN can perform poorly where training density is low even when aggregate metrics look adequate.
 
-## Full worked analysis: defining a meaningful neighborhood
+Neighbor examples can aid local explanation: show which training cases influenced a prediction, their outcomes, and distances. Protect privacy and avoid revealing identifiable records. Similarity is defined by the algorithm, not guaranteed clinical equivalence. A nearby patient may differ on an unmeasured contraindication or care context. Local explanations should not be treated as causal analogies.
 
-Consider predicting 30-day readmission from age, eGFR, prior admissions, and a comorbidity score. Before distance calculations, determine whether a one-standard-deviation difference in each variable should count equally. Standard scaling is an algorithmic convenience, not clinical validation of equal weights. Strongly correlated variables (e.g., creatinine and eGFR) can count kidney function twice. A rare binary comorbidity contributes a distance jump that may dominate common continuous variation. Sensitivity analysis across prespecified feature sets and metrics is therefore part of the method, not an optional cosmetic check.
+## Clinical and computational trade-offs
 
-For a new patient, suppose the 7 nearest training patients have outcomes (1,1,0,0,0,0,0). The unweighted vote is 2/7=.286. If the first two distances are .2 and .3 and the remaining five each .8, inverse-distance weights give event score (5+3.33)/(5+3.33+5*1.25)=.571. The large change comes from the weighting rule; it does not mean the patient’s probability is known to be 57%. In small neighborhoods, vote fractions are coarse and can be overconfident. Repeated cross-validation can evaluate log loss and calibration, and isotonic or logistic recalibration may help only if a separate representative dataset is available.
+KNN can be attractive as a teaching baseline, a local analog retrieval tool, or a model for moderate-sized datasets with meaningful distance. It can struggle with high-dimensional sparse data, large training sets, heterogeneous variables, and latency-sensitive deployment. Prediction cost grows with the number of stored observations and dimensions unless approximate-neighbor indexing is used. Approximate search changes results and needs evaluation.
 
-```r
-library(FNN)
-cols <- c("age", "egfr", "prior_admissions")
-center <- vapply(train[cols], mean, 0.0)
-scale0 <- vapply(train[cols], sd, 0.0)
-Xtr <- scale(as.matrix(train[cols]), center, scale0)
-Xte <- scale(as.matrix(test[cols]), center, scale0)
-# Query k neighbors; then form event fractions explicitly.
-ix <- get.knnx(Xtr, Xte, k = 15)$nn.index
-p.vote <- rowMeans(matrix(train$event[ix], nrow=nrow(ix)))
-```
+Storing patient-level data for future comparison raises privacy and governance issues. De-identification may not prevent membership or linkage risks, and nearest records could reveal sensitive patterns. Secure storage, access controls, data minimization, and deletion policies are part of model design. A model that cannot safely retain the data it needs may be operationally unsuitable.
 
-This example assumes complete numeric inputs and independent rows; fit imputation on training folds and group all repeated patient records. In evaluation, compare several k values, Euclidean versus defensible alternatives, and weighted/unweighted votes using the same nested folds. Measure prediction-time memory and latency because the reference cohort is retained. A patient-similarity interface needs privacy safeguards, clear explanation of the selected reference sample, and safeguards against treating historical care choices as recommendations. Neighbor outcomes are not counterfactual outcomes.
+## Reporting a KNN analysis
 
+Specify preprocessing, distance metric, scaling, feature weighting, missing-data strategy, k, vote weighting, tie handling, and any approximate search. Describe how tuning was nested in validation and how partitions respected patients, time, and sites. Report neighborhood support, calibration, discrimination, threshold consequences, and uncertainty. Provide enough detail to reproduce distance calculations and factor encoding.
 
-## Full worked analysis: defining a meaningful neighborhood
+Monitor whether new patients fall within the development support, whether input distributions change, and whether neighborhood outcomes remain calibrated. Define conditions for abstaining, retraining, or decommissioning. Compare updated versions on a prospective or held-out cohort rather than assuming that adding new records improves performance.
 
-Consider predicting 30-day readmission from age, eGFR, prior admissions, and a comorbidity score. Before distance calculations, determine whether a one-standard-deviation difference in each variable should count equally. Standard scaling is an algorithmic convenience, not clinical validation of equal weights. Strongly correlated variables (e.g., creatinine and eGFR) can count kidney function twice. A rare binary comorbidity contributes a distance jump that may dominate common continuous variation. Sensitivity analysis across prespecified feature sets and metrics is therefore part of the method, not an optional cosmetic check.
+### Distances, scaling, and an explicit calculation
 
-For a new patient, suppose the 7 nearest training patients have outcomes (1,1,0,0,0,0,0). The unweighted vote is 2/7=.286. If the first two distances are .2 and .3 and the remaining five each .8, inverse-distance weights give event score (5+3.33)/(5+3.33+5*1.25)=.571. The large change comes from the weighting rule; it does not mean the patient’s probability is known to be 57%. In small neighborhoods, vote fractions are coarse and can be overconfident. Repeated cross-validation can evaluate log loss and calibration, and isotonic or logistic recalibration may help only if a separate representative dataset is available.
+For two numeric predictors, age and a standardized biomarker, suppose patient A is (50, 1.0) and B is (60, 0.5). Euclidean distance is sqrt[(50−60)²+(1.0−0.5)²] ≈ 10.01, because age dominates. After standardizing age by 10 years, their coordinates differ by 1 and 0.5, giving distance sqrt(1²+.5²)=1.12. This changes who counts as a neighbor. Scaling should be chosen based on meaningful variation and fit only in training data.
 
-```r
-library(FNN)
-cols <- c("age", "egfr", "prior_admissions")
-center <- vapply(train[cols], mean, 0.0)
-scale0 <- vapply(train[cols], sd, 0.0)
-Xtr <- scale(as.matrix(train[cols]), center, scale0)
-Xte <- scale(as.matrix(test[cols]), center, scale0)
-# Query k neighbors; then form event fractions explicitly.
-ix <- get.knnx(Xtr, Xte, k = 15)$nn.index
-p.vote <- rowMeans(matrix(train$event[ix], nrow=nrow(ix)))
-```
+Standardization by sample mean and standard deviation is not always ideal. If a lab measure has a long tail, robust center and scale can reduce the influence of outliers. If clinical experts regard a 5-year age difference as equivalent to a specified biomarker change, metric weights can encode that judgment, but the choice should be prespecified and tested. A feature with very small variance may be clinically critical even if standardization gives it a similar contribution; conversely, standardization can amplify measurement noise in nearly constant features.
 
-This example assumes complete numeric inputs and independent rows; fit imputation on training folds and group all repeated patient records. In evaluation, compare several k values, Euclidean versus defensible alternatives, and weighted/unweighted votes using the same nested folds. Measure prediction-time memory and latency because the reference cohort is retained. A patient-similarity interface needs privacy safeguards, clear explanation of the selected reference sample, and safeguards against treating historical care choices as recommendations. Neighbor outcomes are not counterfactual outcomes.
+For binary predictors, simple matching distance treats equal mismatches alike; for nominal categories, mismatch contributes a fixed amount. Ordinal variables may be represented by scaled ranks only if the imposed spacing is defensible. Gower distance combines variable-specific dissimilarities and can accommodate mixed data, but its range adjustments and missing-value denominator affect comparisons. Describe the formula and how each variable contributes, rather than just naming a package default.
 
+## High dimensions and local support
 
-## Efficient prediction and clinical governance
+As dimensionality rises, volume concentrates in the corners of the feature space. Typical distances between observations become more similar, so the identity of the nearest patient can be sensitive to small measurement changes. Irrelevant predictors add noise to every distance. A model may have thousands of laboratory and code features yet very few patients that are genuinely close across all of them.
 
-Exact nearest-neighbor search compares a new observation with much of the reference sample, so computational cost and memory rise with cohort size and feature dimension. Approximate-neighbor indexing can reduce latency but may alter retrieved neighbors; quantify recall of exact neighbors and evaluate downstream prediction impact. A refreshed reference cohort changes outputs even if code is unchanged. Freeze and version the reference data, preprocessing, distance function, and tie-breaking rules.
+Dimension reduction can help, but principal components preserve variance, not necessarily outcome-relevant similarity. Supervised feature selection can use outcome information, but must be performed within each training fold. Feature screening on the full dataset leaks information even if the final neighbor search is done separately. Compare reduced representations with simple clinical feature sets and assess whether the same neighbors recur across resamples.
 
-A nearest-patient interface also raises privacy concerns: highly similar records can expose rare combinations, and membership inference may reveal whether a person was in a reference cohort. Limit displayed details and apply governance for access, retention, and de-identification. More fundamentally, clinical similarity requires a purpose: patients can be similar for one endpoint and dissimilar for treatment response or contraindications. Displaying a neighbor’s outcome or treatment can invite inappropriate analogical reasoning.
+A support check can use the distance to the k-th neighbor. If a new patient’s k-th distance is much larger than distances observed during development, the local prediction is extrapolative. Threshold this support diagnostic using training or validation data and define a fallback such as a global baseline, specialist review, or no score. The support cutoff itself should be evaluated and reported.
 
-Report performance by k, metric, feature set, and prevalence; show the distribution of nearest-neighbor distances. If distances are uniformly large, the new patient may lie outside the support of the training data, and returning a score without an abstention warning is hazardous. Establish an out-of-support rule before deployment and evaluate how often it triggers. Validate such abstention across sites rather than treating distance as a calibrated uncertainty estimate.
+## Probability uncertainty and local estimates
 
+An unweighted binary KNN probability is the event fraction among the selected neighbors. If k=10 and 2 neighbors have events, the score is .20. The binomial standard error approximation sqrt(.2*.8/10)=.126 is large, showing how little information a small neighborhood contains. A formal interval based on a binomial sample is only approximate because neighbors are selected based on predictors and are not a random sample from a fixed group. Selection and dependence add uncertainty.
 
-## Validation targets and reliability of a patient match
+Increasing k reduces local variance but can introduce bias by averaging patients who are less similar. Distance weighting can lower effective sample size further. Report local support, such as k, event counts, distance range, and optionally an effective weighted sample size. Avoid a false impression of precision from printing probabilities to three decimal places.
 
-A neighbor fraction estimates local prevalence only if the training cohort samples the target population and the neighborhood is locally homogeneous. Case-control sampling, referral enrichment, or changes in outcome ascertainment break that interpretation. For instance, if training data deliberately include equal numbers of readmitted and non-readmitted patients, a 0.6 vote is not a 60% deployment risk. Reweighting or recalibration may help if sampling probabilities are known and conditional relationships remain stable, but external evaluation is necessary.
+Probability calibration can be checked on held-out patients by plotting observed event rates against predicted scores and computing Brier score or log loss. With small datasets, smooth calibration curves may be unstable; show confidence bands or grouped counts. Recalibration can adjust local scores, but if the neighbor relation itself fails across populations, a global correction is unlikely to restore validity.
 
-The choice of k creates a bias-variance trade-off. Small k follows local fluctuations and is highly sensitive to one mislabeled record; large k smooths across potentially dissimilar subgroups. Assess the curve of validation log loss or Brier score against k, not only accuracy. Because selected k varies with feature scaling and cohort size, repeat the full choice across resamples and report stability. In multiclass tasks, class-specific neighborhood prevalence can be reported, but confidence intervals need account for training-sample and validation uncertainty.
+### Tie handling, duplicate cases, and repeated records
 
-When communicating “similar patients,” describe the variables and distance contribution so clinicians can challenge poor matches. Do not show identifiable records or imply treatment comparability. A safe interface may show aggregate characteristics of the reference neighborhood and suppress results if too few close analogues exist. Test abstention thresholds on external populations and report both coverage (fraction receiving a prediction) and accuracy among covered patients. Otherwise, a similarity tool can appear excellent simply by declining difficult cases without disclosing it.
+When the k-th distance is tied, implementations may include more than k observations or break ties by row order. This can affect reproducibility, especially with rounded or categorical features. Document tie behavior and set deterministic seeds where randomness is used. Duplicate records may be valid repeated measures, duplicate exports, or copies across partitions. Investigate the source and deduplicate according to the unit of analysis rather than automatically removing identical feature rows.
 
+If repeated visits are used as training examples, a high-utilization patient may appear many times and dominate local neighborhoods. Weighting each patient equally, selecting a single index observation, or modeling trajectories changes the target. Keep patient groups intact during validation and report whether the prediction unit is a patient, visit, or hourly observation.
 
-## Mixed features, missing values, and uncertainty
+## Choosing k under resampling
 
-For mixed clinical predictors, there is no universally correct distance. One-hot encoding an unordered category gives equal distance to every distinct level, while ordinal coding imposes a rank and spacing. Binary indicators can be weighted differently from continuous variables; missing-value patterns may need their own distance contribution. A clinically curated dissimilarity can be useful but must be specified transparently and tested. If two patients have disjoint observed features, distance is not comparable unless the rule accounts for the number of dimensions contributing.
+Tune k together with distance, scaling, weighting, and feature selection. A typical workflow evaluates a prespecified grid of k values in inner folds and estimates generalization in outer folds. Select a metric aligned with use. Accuracy is inadequate under imbalance; log loss or Brier score assesses probabilities, while sensitivity at a fixed alert burden may be operationally relevant. Do not choose k by examining final test outcomes.
 
-Imputation can distort neighborhoods by pulling many records toward a common mean. Multiple imputation in a prediction setting requires care: each imputation model must be learned from training data and available predictors, and predictions may be averaged across imputed datasets. Simple imputation with missingness flags is operationally simpler but can encode local workflow. Report how distance is computed when values are absent and conduct sensitivity analyses to plausible missingness.
+Repeated cross-validation can estimate variability, but folds must be grouped appropriately. Bootstrap patients to quantify uncertainty and record how often neighbor sets and predictions change. Compare KNN with a regularized regression, tree-based model, and prevalence baseline. If performance depends strongly on a narrow feature scaling choice, the proposed similarity may not be robust.
 
-The uncertainty of a k-NN prediction reflects both finite local outcomes and uncertainty in which training patients are nearest. A simple binomial interval for the vote fraction ignores neighbor selection and training-sample variability. Patient bootstrap refitting, repeated outer folds, and external test data provide more complete assessment. If neighborhood composition changes drastically with small perturbations, do not present a confident individual score. A local explanation should list influential distances and features carefully, not imply that the closest historical patient is a valid counterfactual.
+A distance metric can be tuned through metric learning, but this adds parameters and overfitting risk. Any learned projection or feature weighting must be fit only on training data. If the sample is small, domain-defined distances may be more defensible than a flexible learned metric, but their consequences should still be evaluated.
 
+## Interpreting a local analogue responsibly
 
-## Reproducible implementation checklist
+KNN can present influential training records as analogues, which may help clinicians understand the score. Show the variables and distances that define similarity, the training outcome and follow-up, and how the examples were selected. Avoid implying that those patients are clinically identical or that their outcomes forecast the new patient with certainty. Key differences in unmeasured context may dominate the apparent match.
 
-Save the reference records or approved de-identified representation, training-fold transformation parameters, feature weights, metric, neighbor count, weighting function, tie policy, and software version. Check that all deployed predictors have the same units and category coding. Test exact and approximate search behavior if approximation is used. Monitor nearest-distance distributions and abstention rates after deployment. A changed patient mix or updated reference database can alter the closest matches even when the algorithm is unchanged; version the data as well as the code.
+Privacy review is essential. Displaying nearest records can expose rare combinations or sensitive diagnoses. Use aggregate summaries, synthetic examples, or secure access controls. Model governance should specify whether raw training records are retained, who can inspect them, and how deletion requests or data-retention limits are handled.
 
+Local analogues can also perpetuate historical care patterns. If prior patients from a marginalized group had less access to diagnosis, their outcomes and labels may misrepresent underlying need. Evaluate errors and neighbor composition across groups, and consider whether the algorithm finds similar people only because care and documentation were similar. Similarity in observed data is not necessarily similarity in clinical need.
 
-## Interpreting score changes
+### Computational options and production behavior
 
-A change in k, feature scaling, or distance definition can change neighbors discontinuously. Present sensitivity analyses and avoid implying that one setting identifies objectively similar people. If estimates shift materially under modest choices, treat the result as method-dependent and avoid individual decision use until independent validation supports a stable configuration.
+Exact KNN calculates distances from a new record to all training records, which costs roughly proportional to the number of records times the number of features. For large data, tree-based or approximate-neighbor indexes can accelerate queries. Approximate methods may not return the exact closest cases; compare resulting predictions and recall of true neighbors against exact search on a representative subset.
 
+Production must apply the same feature schema, unit conversion, missingness rules, and scaling as development. Store preprocessing parameters with the model. Validate edge cases, such as unseen factor levels and extreme values. Monitor latency and memory as the reference set grows; continual addition of records can alter neighborhoods and model behavior even without explicit refitting.
 
-If the selected neighbors are not close in absolute terms, label the prediction low-support and avoid confident clinical use.
+## Reporting a reproducible analysis
+
+State the unit of observation, feature set, distance function, scaling, weights, missing-data procedure, k, vote rule, tie handling, and any support threshold. Explain all tuning and validation, including how repeated patients, sites, and time were partitioned. Report event prevalence, local support, calibration, discrimination, threshold performance, and uncertainty. Provide enough detail to reconstruct a distance between two observations.
+
+For deployment, specify when a prediction is withheld, when a human review is required, and how new training records are incorporated. A model update can change every neighborhood; evaluate each version on held-out or prospective data. KNN is transparent only to the extent that similarity, support, privacy, and data provenance are made explicit.
+
+KNN can be a helpful comparator in methodological work because its local assumptions are explicit. A poor score can indicate that the chosen feature representation does not encode clinically useful similarity; a good score still requires calibration, transport, and impact evidence before care decisions rely on it.
+
+### Neighborhood review
+
+Inspect representative neighborhoods for clinical coherence, not only distance values. If nearest cases differ on key unmeasured context, describe that limitation and avoid presenting analogues as matched clinical histories.
 
 ## References and further reading
 
-- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505)
-- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
-- Cover TM, Hart PE. Nearest neighbor pattern classification. *IEEE Transactions on Information Theory*. 1967;13:21–27. [doi:10.1109/TIT.1967.1053964](https://doi.org/10.1109/TIT.1967.1053964)
-- Hastie T, Tibshirani R, Friedman J. *The Elements of Statistical Learning*. 2nd ed. Springer; 2009. [doi:10.1007/978-0-387-84858-7](https://doi.org/10.1007/978-0-387-84858-7)
+- Cover TM, Hart PE. Nearest neighbor pattern classification. *IEEE Transactions on Information Theory*. 1967;13:21–27. [doi:10.1109/TIT.1967.1053964](https://doi.org/10.1109/TIT.1967.1053964).
+- Altman NS. An introduction to kernel and nearest-neighbor nonparametric regression. *The American Statistician*. 1992;46:175–185. [doi:10.1080/00031305.1992.10475879](https://doi.org/10.1080/00031305.1992.10475879).
+- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378).
+- See [Clustering in health data](clustering-in-health-data.html) for unsupervised distance-based methods.

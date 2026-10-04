@@ -3,164 +3,176 @@ title: Decision-curve analysis
 summary: Evaluate whether a prediction model improves clinical decisions using net benefit across clinically meaningful risk thresholds.
 ---
 
-## Overview and key ideas
+## Overview
 
-**Decision-curve analysis (DCA)** evaluates whether using a prediction model to guide action produces more benefit than strategies such as acting on everyone or no one. It is especially useful when a model estimates an individual's probability of an outcome and a clinical action has unequal consequences for missed cases and unnecessary interventions.
+Decision-curve analysis (DCA) evaluates whether using a prediction model to guide an action could provide more benefit than harm across a range of risk thresholds. It reports net benefit, which combines true positives and false positives using a threshold probability as the relative weight of their consequences. DCA complements discrimination and calibration: it asks about potential decision value, not simply ranking or probability accuracy.
 
-For a chosen threshold probability `p_t`, act on people whose predicted risk is at least `p_t`. The threshold encodes a trade-off: the odds `p_t / (1 − p_t)` represent how many false-positive interventions are considered acceptable relative to one true-positive intervention, under the decision assumptions. Net benefit is commonly calculated as:
+DCA is meaningful when the outcome, action, target population, and threshold range have clinical meaning. A curve cannot establish that clinicians will follow recommendations or that the action improves health. It is a model-based decision analysis whose assumptions should be checked, followed by prospective impact evaluation when adoption is contemplated.
 
-`Net benefit = (true positives / n) − (false positives / n) × [p_t / (1 − p_t)]`.
+## Deriving net benefit
 
-Thus, false positives are weighted by the threshold odds. DCA plots net benefit over a clinically reasonable range of thresholds. A model is potentially useful where its curve is above “treat none” and “treat all” and above relevant alternative models. The method evaluates consequences implied by a specified decision threshold; it is not a universal measure of model quality.
+For N patients, let TP be true positives and FP false positives at threshold p_t. Net benefit is NB = TP/N − FP/N × p_t/(1−p_t). The threshold encodes the relative harm of a false positive compared with the benefit of a true positive. For example, p_t=.20 implies weighting each false positive by .20/.80=.25 true-positive equivalents.
 
-## When to use it
+The treat-none strategy has net benefit zero. Treat-all has NB=prevalence−(1−prevalence)×p_t/(1−p_t). A model is potentially useful where its curve exceeds these alternatives over thresholds that clinicians and patients consider plausible. Select the threshold range from the decision context, not after seeing which portion makes the model look favorable.
 
-Use DCA when the decision is threshold-based, the predicted probabilities can be used at the intended decision point, and clinicians or patients can identify a defensible range of action thresholds. Examples include whether to refer for imaging, offer preventive therapy, or intensify follow-up. Compare the model against realistic alternatives, including current practice when possible.
+## Worked calculation
 
-DCA complements discrimination and calibration evaluation. A model with useful net benefit needs sufficiently accurate probabilities in the relevant population; DCA does not excuse poor calibration or validation. Evaluate it on external or appropriately held-out data, and quantify uncertainty (often with bootstrap methods).
+Suppose 1,000 patients are evaluated, with 100 events. At threshold .10, a model identifies 70 true positives and 180 false positives. NB=.07−.18(.10/.90)=.05. This is equivalent to 50 net true-positive decisions per 1,000 under the threshold’s weighting. Treat-all NB=.10−.90(.10/.90)=0; treat-none NB=0. At this threshold the model has greater calculated net benefit than either reference strategy.
 
-## Assumptions and limitations
+At threshold .30, suppose the model identifies 40 true positives and 60 false positives. NB=.04−.06(.30/.70)=.0143. Treat-all NB=.10−.90(.30/.70)=−.2857, while treat-none remains zero. The model is above both references, but utility interpretation depends on whether .30 is a plausible threshold and whether intervention benefits and harms are represented by that preference.
 
-- **Threshold meaning:** A threshold should reflect the relative consequences of action and inaction, not be selected solely because it makes a model curve look favorable. The implied trade-off may vary across patients and settings.
-- **Valid probabilities:** The model should be calibrated in the target population, especially near the thresholds being evaluated. Miscalibration can misclassify who crosses the threshold.
-- **Well-defined action and outcome:** “Treat” should correspond to a clear intervention, and the outcome should be measured over a decision-relevant time horizon. Treatment benefit and harm may vary between patients, while standard DCA treats them through a common threshold weight.
-- **No causal effect from prediction alone:** DCA estimates decision value under the assumed threshold weighting; it does not prove that implementing the model improves outcomes. An impact study may be needed.
-- **Data leakage and optimism:** Evaluating a model on its development data exaggerates performance. Use external validation or nested resampling that repeats the full model-development process.
-- **Competing options and capacity:** Treat-all and treat-none are useful references but may not represent actual practice, resource constraints, or several available actions. Decision-analytic extensions may be needed.
-- **Uncertainty:** A visually higher curve may reflect sampling noise. Show confidence intervals or uncertainty bands and avoid overinterpreting tiny differences.
+~~~r
+dca_nb <- function(y, p, threshold) {
+  flag <- p >= threshold
+  tp <- sum(flag & y == 1)
+  fp <- sum(flag & y == 0)
+  n <- length(y)
+  tp / n - fp / n * threshold / (1 - threshold)
+}
+~~~
 
-## Worked example
-
-In a validation cohort of 1,000 people, 100 experience the outcome. At a threshold of 10%, a model flags 80 people: 50 are true positives and 30 are false positives. Its net benefit is:
-
-`50/1,000 − (30/1,000) × (0.10/0.90) = 0.050 − 0.00333 = 0.0467`.
-
-Treat-none has net benefit 0. Treat-all has `100/1,000 − (900/1,000) × (0.10/0.90) = 0`, also zero at this threshold. In this sample and at this threshold, the model has net benefit 0.0467, or about 47 net true-positive equivalents per 1,000 people under the threshold's weighting.
-
-This calculation does not mean the model prevents 47 events. It is a weighted decision metric. To claim clinical benefit, the threshold must be appropriate, predictions must be usable and calibrated, and implementation effects—including treatment efficacy, harms, and workflow—must be assessed.
-
-## Interpretation and common pitfalls
-
-- Explain the threshold range clinically; do not report a favorable interval of thresholds without explaining whose decisions it represents.
-- Do not interpret net benefit as accuracy, events prevented, or the number needed to treat.
-- Compare model-guided care to all relevant strategies and usual care, not just to a convenient null strategy.
-- A high AUC alone does not imply net benefit: ranking can improve while probabilities remain miscalibrated or recommendations fail to cross useful thresholds.
-- Report the target population, outcome prevalence, prediction time point, action, threshold range, validation approach, and uncertainty.
-- If a model is evaluated only retrospectively, describe DCA as estimated potential utility, not evidence that deployment improves patient outcomes.
-
-## Decision theory behind net benefit
-
-A binary threshold decision has two possible actions: intervene or do not intervene. For a person with predicted event probability `p`, suppose intervention yields benefit `B` if the event would occur and harm/cost `H` if it would not; for a simplified derivation, treat `B` and `H` as commensurate utility units. The expected utility difference between intervening and not intervening is `pB − (1−p)H`. Intervention is preferred when this exceeds zero, equivalently `p > H/(B+H)`. Thus the threshold probability is not an arbitrary classifier cutoff: it represents a relative consequence tradeoff under the assumed utility structure. Rearranging gives `H/B = p_t/(1−p_t)`, the false-positive weight used in conventional net benefit.
-
-For threshold `p_t`, model-guided net benefit per patient is `TP/n − FP/n × p_t/(1−p_t)`. One true positive is counted as one unit, and a false positive incurs a weight corresponding to the threshold odds. This normalization makes net benefit interpretable in “true-positive equivalents,” but those equivalents are a decision metric, not events prevented. For treat-all, `NB_all = prevalence − (1−prevalence)×p_t/(1−p_t)`; treat-none has net benefit zero under the convention that no action creates neither benefit nor harm. At thresholds below prevalence, treat-all may have positive net benefit; above prevalence, its net benefit is negative.
-
-DCA compares strategies at a series of thresholds. It does not optimize a threshold by inspecting the same data, and it does not prove that the assumed threshold is acceptable to patients or clinicians. Threshold ranges should be elicited from the decision context in advance. If multiple actions exist (e.g., surveillance, biopsy, or treatment), a binary treat/not-treat curve may oversimplify; use multi-action decision analysis or compare concrete policies.
-
-## Example with manual calculation
-
-In 1,000 validation patients, 100 experience the outcome. At a 10% threshold the model refers 80 people: 50 are true positives and 30 false positives. Then `NB_model = 50/1000 − (30/1000)(0.1/0.9) = 0.04667`. Treat-none gives 0. Treat-all gives `0.10 − 0.90(0.1/0.9)=0`. The model therefore has an estimated advantage of 0.04667 over either strategy. Multiplying by 1,000 gives about 46.7 weighted true-positive equivalents per 1,000 decisions. This does not mean 47 cases will be prevented; actual benefit depends on whether acting changes outcomes, intervention efficacy, harms, and uptake.
-
-The threshold odds at 10% are `0.1/0.9=1/9`: in this simplified utility framing, one false-positive action carries one ninth the weight of a true-positive benefit. At 20%, the odds are 0.25, so false positives are penalized more heavily. Consequently, a model can be useful at one threshold range and not another. A high sensitivity or AUC alone does not determine clinical value.
+The code assumes a binary outcome coded 0 and 1, complete predictions, and one independent record per decision. For repeated decisions per patient, define the estimand and uncertainty method to account for clustering. Calculate treat-all and treat-none at every threshold, and bootstrap at the patient or cluster level.
 
 ## Probability quality and validation
 
-Conventional DCA treats a prediction at or above threshold as action-eligible. Calibration is therefore central. If predicted risks are systematically too high near the threshold, too many people cross it; if too low, people who could benefit may be missed. Calibration-in-the-large, calibration slope, and smooth calibration curves should be reported alongside discrimination. Calibration must be assessed in the target population and at the intended prediction time. Recalibration may be needed when baseline risk changes, but should be based on appropriate data and evaluated without leakage.
+DCA uses thresholds on predicted probability. If predictions are poorly calibrated, a nominal threshold may not represent the intended risk trade-off. Assess calibration in independent representative data. DCA does not replace calibration; it evaluates a decision rule based on scores and threshold interpretation.
 
-For a model developed from data, evaluate the entire development procedure. A random train-test split can waste data or create unstable estimates, especially for small datasets. Bootstrap optimism correction or cross-validation can estimate internal performance; external validation tests transport to new settings or time periods. If variable selection, imputation, feature engineering, and hyperparameter tuning occurred, they must be repeated inside resampling folds. Applying DCA to apparent predictions or cross-validated predictions that inadvertently used validation outcomes in preprocessing creates optimistic curves.
+Validation splits should match use: patient-level for new patients, temporal for future deployment, and site-level for new institutions. Model tuning and threshold selection must not use the final test data. Compare models on the same held-out individuals and report uncertainty. Bootstrap net benefit using a resampling unit that respects dependence.
 
-For censored outcomes, binary DCA at a fixed horizon must handle censoring appropriately. Simply labeling people without observed events as non-events biases the confusion counts. Use estimators that account for censoring, such as inverse-probability-of-censoring weighting or appropriate survival decision-curve methods, and state assumptions about censoring and competing risks. For competing events, clarify whether the predicted probability is a cause-specific cumulative incidence and how the action affects competing outcomes.
+For case-control data, event prevalence is set by sampling and does not represent deployment. Net benefit and treat-all curves depend on prevalence. Use a representative cohort or correct estimates using known sampling fractions and explicit assumptions. Censoring, competing risks, and time-dependent outcomes require a risk definition at a specified horizon.
 
-## R implementation and uncertainty
+## Choosing thresholds and actions
 
-The following base R function computes net benefit from predicted probabilities and binary outcomes at one horizon:
+A threshold should represent a real decision trade-off. At p_t=.10, the implied relative cost of a false positive is one-ninth that of a false negative in the simple framework. Actual decisions include multiple harms, treatment burden, costs, and patient preferences. The intervention must be effective for those identified, and service capacity matters.
 
-```r
-net_benefit <- function(y, risk, thresholds) {
-  stopifnot(length(y) == length(risk), all(y %in% c(0, 1)))
-  n <- length(y)
-  vapply(thresholds, function(pt) {
-    act <- risk >= pt
-    tp <- sum(act & y == 1)
-    fp <- sum(act & y == 0)
-    tp / n - fp / n * pt / (1 - pt)
-  }, numeric(1))
-}
+Elicit thresholds before inspecting curves. Ask clinicians and patients what risk justifies action, what false-positive burden is acceptable, and whether action changes across the range. A model that improves net benefit only at implausible thresholds is not useful for that purpose. If capacity is fixed, a top-k policy may be more relevant than a probability threshold; evaluate that policy directly.
 
-thresholds <- seq(0.05, 0.30, by = 0.01)
-nb_model <- net_benefit(validation$event, validation$risk, thresholds)
-prev <- mean(validation$event)
-nb_all <- prev - (1 - prev) * thresholds / (1 - thresholds)
-nb_none <- rep(0, length(thresholds))
-```
-
-This assumes complete binary outcome ascertainment, independent rows for the simple calculation, and calibrated predictions from a valid validation set. It computes point estimates only. Use patient-level bootstrap resampling to create uncertainty bands; if there is site clustering, resample sites or use a cluster-aware method. Curves across thresholds are highly correlated, so pointwise intervals are not simultaneous confidence bands. Avoid declaring superiority because one curve is microscopically higher at a single threshold.
+DCA generally considers a binary action and outcome. Multistage pathways, resource constraints, competing outcomes, and heterogeneous treatment effects can require richer decision models. Net benefit supports deliberation under stated assumptions; it is not an automatic model selection rule.
 
 ## From potential utility to clinical impact
 
-DCA is model-based evaluation of a strategy's potential decision value under stipulated weights. It does not incorporate every operational effect of deployment: clinician override, test availability, adherence, treatment response, capacity constraints, unequal access, or workflow displacement. If model-guided care appears promising, a prospective impact evaluation can compare outcomes under the model strategy and usual practice, often through a randomized or stepped implementation design. Monitor calibration drift and subgroup net benefit after deployment.
+A favorable decision curve does not demonstrate patient benefit. The calculation assumes that predicted risk is available, the threshold is used, the intervention has expected effects, and consequences are represented adequately. It does not automatically account for workflow failures, clinician override, adherence, or behavior changes.
 
-Where treatment efficacy varies with patient characteristics, a risk model for outcome is not necessarily a treatment-benefit model. Predicting who will have an event under current care may identify high-risk people, but those people may not benefit most from the intervention. Decision analysis should use counterfactual treatment benefit or explicitly assume a common relative treatment effect. Likewise, a predictor may be associated with outcome but not actionable. DCA does not establish causal treatment-effect heterogeneity.
+Prospective evaluation can first run silently to verify data timing and calibration, then test implementation. Randomized or cluster-randomized impact studies can compare model-guided care with usual practice. Measure outcomes, adverse effects, workload, costs, and equity. The intervention is the complete system: model, interface, threshold, response, and monitoring.
 
-Report the intended action, population, prediction horizon, threshold range and rationale, prevalence, comparator strategies, validation design, calibration, uncertainty, missing/censored outcome handling, and whether results represent retrospective potential utility or prospective impact. Include enough information to reproduce predicted action counts and net-benefit curves. Link the statistical curve back to actual clinical consequences and resource constraints.
+## Uncertainty and subgroup considerations
 
+Net-benefit estimates are uncertain, especially with few events or small subgroups. Bootstrap intervals should preserve patient or cluster units and repeat model development if estimating a selection procedure. Curves can cross; do not claim universal superiority based on one selected threshold. Report prevalence, event counts, and uncertainty over the prespecified range.
 
-## Thresholds, competing risks, and heterogeneous consequences
+Subgroup DCA may reveal that a policy benefits one group and harms another, but small samples yield noisy curves. Assess calibration, threshold errors, and action consequences by group. Differences may result from access, measurement, or prevalence. Engage affected groups in defining relevant thresholds and acceptable trade-offs. Aggregate net benefit can conceal unequal burden.
 
-The threshold-to-odds translation assumes a stable exchange rate between the benefit of correctly intervening and harm of unnecessary intervention. In practice, harms may vary: a test may be more burdensome for frail patients, treatment may be contraindicated in some groups, or capacity constraints may make false-positive referrals costly. A single threshold can then conceal individual utility differences. Consider subgroup-specific thresholds or a richer decision model, but ensure these are clinically justified and do not encode inequitable access as a lower expected benefit.
+## R workflow for a decision curve
 
-Thresholds also depend on what happens after the model acts. A 10% risk threshold for a low-harm screening test is not comparable to a 10% threshold for major surgery. When the action is diagnostic testing followed by treatment only if positive, the policy has multiple stages; test harms, test accuracy, downstream actions, and patient preferences all matter. Conventional DCA may be applied to the first decision, but its utility weights should represent the full pathway or be supplemented with decision analysis.
+Packages such as rmda or dcurves can compute and plot net benefit, but inspect how they define thresholds, prevalence, missingness, and uncertainty. If using custom code, verify calculations against a hand-worked example and a known implementation. Use held-out predicted probabilities rather than apparent training predictions.
 
-For time-to-event outcomes, risk depends on horizon. A 5-year absolute risk prediction is not an instantaneous hazard and should be compared with an action threshold relevant to a 5-year decision. If competing death prevents the event, cumulative incidence should reflect that competing event rather than censor it as though independent. Model recalibration for a different horizon or competing-risk distribution may materially alter net benefit.
+~~~r
+thresholds <- seq(0.05, 0.30, by = 0.01)
+nb_model <- sapply(thresholds, function(t) dca_nb(y_test, p_test, t))
+prev <- mean(y_test == 1)
+nb_all <- prev - (1 - prev) * thresholds / (1 - thresholds)
+nb_none <- rep(0, length(thresholds))
+plot(thresholds, nb_model, type = "l",
+     ylim = range(nb_model, nb_all, nb_none),
+     xlab = "Threshold probability", ylab = "Net benefit")
+lines(thresholds, nb_all, lty = 2)
+lines(thresholds, nb_none, lty = 3)
+~~~
 
-DCA can be used to compare a model with another model, but the difference curve needs interpretation. A more complex model may have small incremental net benefit over a simpler model while adding cost, workflow burden, or implementation risk. Clinical usefulness should consider whether the gain changes enough decisions to justify complexity. Report counts of people assigned to action at key thresholds, true and false positives, and expected workload to make the abstract curve operationally meaningful.
+This code shows point estimates only. Add bootstrap confidence bands and annotate the clinically justified threshold interval. Recompute predictions inside resampling if model-development uncertainty is part of the target. The final evaluation set should not be used to choose the threshold.
 
-## Bootstrap uncertainty example
+## Reporting a complete analysis
 
-For independent validation participants, a simple percentile bootstrap can estimate pointwise uncertainty:
+Report decision context, outcome horizon, target population, prediction model, validation cohort, prevalence, threshold range and rationale, comparison strategies, and net-benefit uncertainty. State whether predictions were calibrated and whether thresholds were prespecified. Explain what a unit of net benefit means for the study denominator and clinical action.
 
-```r
-set.seed(2026)
+Show curves with an interpretable vertical scale and avoid exaggerating small differences. Include net benefit and action counts at key thresholds. Distinguish retrospective potential utility from prospective impact. Report subgroup results with uncertainty and note case-control sampling, censoring, or intervention-effect assumptions.
+
+### Interpreting the threshold as a preference
+
+Threshold probability p_t can be understood as the risk at which a decision maker is indifferent between acting and not acting under simplified assumptions. The ratio p_t/(1−p_t) represents the relative weight assigned to false positives. At p_t=.20, one false positive is weighted one quarter of a true positive; at p_t=.50, they are weighted equally. This interpretation assumes a binary action, consistent consequences across people, and a well-defined outcome horizon.
+
+Clinical consequences are often more complex. A positive prediction may trigger a low-burden test or a high-risk intervention; false negatives may be rescued by routine care. Patient preferences and resource availability vary. Thresholds should therefore be elicited for a defined decision and population. If action effects differ by patient, a single threshold may not represent all individuals. Consider individualized utility or cost-effectiveness analysis rather than forcing a universal threshold.
+
+Thresholds chosen from guidelines or clinician interviews should be documented before plotting. If researchers show only the interval where their model exceeds treat-all or treat-none, readers cannot judge whether that interval was selected post hoc. Display a prespecified clinically credible range, explain its basis, and report results outside it only as exploratory context.
+
+## Action counts and worked policy comparison
+
+Net benefit is easier to interpret when paired with numbers treated and events. At a given threshold, report how many would receive the intervention, how many events would be identified, and how many false-positive actions would occur. Two models can have similar net benefit but very different alert burdens or sensitivity, which may matter to a clinic with limited staff.
+
+Suppose a risk model and a new model are evaluated in the same 2,000-person cohort. At threshold .15, the first has 90 true positives and 210 false positives; the second has 100 true positives and 300 false positives. For the first, NB=.045−.105(.15/.85)=.0265. For the second, NB=.05−.15(.15/.85)=.0235. Although the second detects 10 more events, the added false positives yield lower net benefit under this threshold weighting. A different threshold can change the comparison. Report both action counts and the assumptions that weight them.
+
+Decision curves are descriptive summaries under modeled utility. They do not account automatically for downstream costs, treatment efficacy, adherence, adverse events, or the ability to deliver intervention. If a model’s positive predictions would trigger a test rather than treatment, the true-positive and false-positive consequences must reflect that test pathway.
+
+### Bootstrap uncertainty calculation
+
+A nonparametric bootstrap can estimate uncertainty in net benefit by resampling independent units, recalculating threshold decisions, and computing the formula in each replicate. For patient-level independent data, sample patients with replacement. For clustered care, sample clinics or use a cluster bootstrap. If the model itself was developed from the same dataset, repeat model fitting and tuning within each replicate to estimate uncertainty for the development procedure; otherwise the interval is conditional on a fixed model.
+
+~~~r
+set.seed(99)
 B <- 1000
+t <- 0.15
 boot_nb <- replicate(B, {
-  i <- sample.int(nrow(validation), replace = TRUE)
-  net_benefit(validation$event[i], validation$risk[i], thresholds)
+  ii <- sample(seq_along(y_test), replace = TRUE)
+  dca_nb(y_test[ii], p_test[ii], t)
 })
-lo <- apply(boot_nb, 1, quantile, 0.025)
-hi <- apply(boot_nb, 1, quantile, 0.975)
-```
+quantile(boot_nb, c(.025, .5, .975))
+~~~
 
-These are pointwise intervals and treat the fitted model as fixed. They capture sampling variation in the validation cohort, not uncertainty from developing the model. To estimate development-process optimism, resample development data and repeat imputation, feature selection, tuning, and model fitting within each bootstrap sample, then evaluate on out-of-bootstrap observations. For clustered validation data, resample the independent clusters. With few events, percentile bands can be unstable; report event counts and avoid overclaiming smoothness.
+This estimates sampling uncertainty for a fixed model at one threshold under independent observations. It does not account for model-selection uncertainty, clustering, threshold choice, or uncertainty in the relative harm encoded by t. For a full development evaluation, resample the development data, repeat preprocessing and tuning, predict on a bootstrap test or out-of-bag set, and document the procedure. For clustered data, resample clusters.
 
-A decision curve is calculated across thresholds using the same participants, so adjacent points are correlated. A collection of pointwise intervals does not guarantee that the entire curve lies within the displayed band with 95% probability. Simultaneous bands or a prespecified threshold contrast may be more appropriate when making a formal superiority claim. In most applications, uncertainty should communicate the range of plausible decision value rather than produce a binary significance test for the curve.
+Pointwise confidence intervals across a curve do not form a simultaneous confidence band. Avoid interpreting isolated crossings that may result from sampling variation. If a threshold range is primary, consider summarizing area under the decision curve over that range or net benefit at prespecified thresholds, with uncertainty and a clear interpretation.
 
+### Calibration and prevalence dependence
 
-## Policy evaluation and fairness considerations
+Although net benefit is calculated from classifications at thresholds, threshold values are probability preferences. Poor calibration means a threshold such as .20 may select patients whose actual risks are far from 20%. Discrimination can remain good while calibration fails. Assess calibration in the same target population and time period; if recalibration is required, evaluate DCA after recalibration on independent observations.
 
-A model can show positive average net benefit while performing poorly for a subgroup. Compare calibration and net benefit across clinically important populations, and examine whether access to the downstream intervention differs. A threshold that is nominally common may not represent equal utility if treatment benefit, harm, or patient preferences differ. Subgroup analyses are often imprecise, so show uncertainty and avoid ranking populations by unstable point estimates. Fairness cannot be inferred from one parity metric; the relevant concern depends on the intervention and the consequences of errors.
+Prevalence affects treat-all net benefit and predictive values. Case-control sampling changes prevalence and can distort curves if raw sample proportions are used. One may reweight to target prevalence when case-control design and sampling fractions are known, but this does not solve spectrum differences or miscalibration. DCA using a convenience sample should be interpreted cautiously and not presented as direct clinical utility in a population it does not represent.
 
-External validation should reproduce the actual care setting. If a prediction is made before clinician assessment in deployment, evaluating predictions after clinicians have already selected tests can create spectrum and selection differences. If care following prediction changes the outcome, retrospective outcome labels may not represent untreated risk. Treatment paradox can occur: high-risk patients receive effective preventive treatment and therefore appear to have lower observed event rates. Prediction targets and labels must be defined relative to the care pathway.
+If an event is rare, a small number of false positives can outweigh true positives at thresholds reflecting substantial intervention burden. Report prevalence and absolute counts. For time-to-event targets, cumulative incidence at a fixed horizon may be needed; censoring requires inverse-probability weighting or other appropriate estimation. Competing events change who could experience the target outcome and should be handled explicitly.
 
-A health system may have limited capacity, so a threshold policy could refer more patients than resources permit. Capacity-constrained decision rules rank patients or allocate slots and cannot always be represented by one fixed risk threshold. Evaluate expected health outcomes, waiting times, and displaced care under the actual policy. DCA can inform but not fully model capacity allocation or dynamic queues.
+### Comparators and current practice
 
+Treat-all and treat-none are useful reference policies, but are not always realistic. A decision curve should include current clinical practice where it can be defined and evaluated. If clinicians use an existing score or multifactorial assessment, compare the candidate model with that strategy. The action should be the same across models; otherwise differences may reflect different interventions rather than predictions.
 
-## Reporting a complete decision-curve result
+A model can dominate simple references and still add little beyond current practice. Conversely, modest net-benefit improvement may matter when applied to a large population, but implementation costs and capacity must be considered. Report how many additional true-positive actions and false-positive actions occur compared with the current strategy. Evaluate whether clinical teams can provide the intervention to those identified.
 
-A useful report shows more than a curve. At a few clinically chosen thresholds, tabulate the percentage assigned to intervention, true-positive and false-positive counts per 1,000, net benefit, and difference in net benefit versus usual care. This makes the trade-off visible and allows clinicians to judge workload. State how thresholds were selected and whether they came from patient preferences, guidelines, or an explicit harm-benefit calculation. If the threshold range is wide, explain why decisions across that range are plausible in the target setting.
+## Heterogeneous consequences and equity
 
-Separate model performance from strategy performance. AUC and calibration characterize predictions; net benefit characterizes a threshold policy under utility assumptions; an impact trial estimates what happens after implementation. These are complementary stages. A model can be well calibrated but have no advantage over current practice if it does not change decisions. Conversely, a model with an apparently favorable retrospective curve may fail operationally if predictions arrive too late or action capacity is unavailable.
+The simple net-benefit formula assigns the same false-positive and false-negative trade-off to all people. In practice, intervention benefits, harms, access, and patient preferences can vary. A uniform threshold can distribute burdens unequally. Subgroup curves can explore differences, but require enough data and should be interpreted alongside calibration and decision consequences.
 
-Before deployment, define monitoring for calibration drift, changes in event prevalence, subgroup performance, and intervention harms. A recalibration plan should specify who can update the model, what validation is required, and how version changes are tracked. DCA on post-deployment data can identify changing potential utility but should not replace monitoring actual patient outcomes and unintended consequences.
+Equal net benefit across groups does not necessarily mean equitable care. One group may have less access to follow-up after a positive flag, or face greater burden from false alarms. Include downstream pathway access and treatment uptake. Engage affected groups in identifying outcomes and acceptable trade-offs. Aggregate curves can mask these differences.
 
+For individualized treatment effects, risk prediction alone may not identify who benefits. A person with high untreated risk may also have high risk under treatment. DCA built on prognostic risk supports decisions only under assumptions about intervention effects represented by threshold weighting. For treatment allocation, causal effect estimates or a randomized policy evaluation may be necessary.
 
-## A threshold sensitivity illustration
+## Common implementation mistakes
 
-At thresholds `p_t = 0.05`, `0.10`, and `0.20`, the false-positive weights are respectively `0.0526`, `0.1111`, and `0.25`. A false-positive action is therefore penalized nearly five times as heavily at 20% as at 5%. For each threshold, recompute who is classified for action and the resulting TP and FP counts; do not keep one confusion matrix while changing the threshold weight. A model may have higher net benefit at 5% but lower net benefit at 20%, reflecting different acceptable balances of missed cases and unnecessary intervention. This is why threshold selection should be justified clinically before looking at the validation curve.
+Do not calculate DCA from fitted probabilities on the training data and call the result validation. Do not choose a threshold range after inspecting the curve. Do not compare curves calculated from different samples without accounting for case mix. Do not assume a high AUC implies positive net benefit. Do not omit calibration or the action consequences. Do not interpret positive net benefit as observed patient benefit.
 
+Check the formula and denominator. Some software reports standardized net benefit, net reduction in interventions, or scaled values; label the quantity and confirm against a hand calculation. Verify whether event coding and threshold inclusivity match expectations. If predictions are missing, report how those patients were handled and whether missingness differs by risk.
+
+### A decision-focused interpretation
+
+A useful conclusion states: in this population and at the prespecified threshold range, the model had higher estimated net benefit than the named alternatives; this corresponded to a stated number of additional true-positive decisions and false-positive actions; uncertainty was quantified using a specified resampling unit; and the estimate assumes a defined action and outcome horizon. It then clarifies that prospective impact and implementation costs remain to be assessed.
+
+This phrasing keeps the inference proportional to evidence. DCA can help determine whether a model warrants a prospective evaluation or which threshold deserves testing. It cannot alone establish effectiveness, cost-effectiveness, or fairness.
+
+## Choosing DCA versus economic evaluation
+
+DCA expresses utility in true-positive equivalents using a risk threshold, which can be intuitive when a single action is considered. It does not usually account for monetary costs, quality-adjusted survival, budget impact, or competing program choices. Health-economic evaluation may be needed when comparing interventions with different costs and health outcomes. The methods can complement each other: DCA can assess classification policy value, while economic analysis examines resource allocation and cost-effectiveness.
+
+Do not translate net benefit directly into money without an explicit utility or cost model. Similarly, a cost-effectiveness result does not guarantee that a prediction threshold is calibrated or useful at the point of care. Keep the decision question and scale of consequences clear.
+
+When presenting a curve, mark the prespecified range, state whether values are pointwise estimates, and label the comparator lines. Avoid a truncated vertical axis that makes a small absolute difference appear decisive. Include a table of representative thresholds and counts so readers can assess both statistical and practical size.
+
+Report implementation feasibility, follow-up completeness, and any recalibration performed before drawing conclusions about potential utility.
+
+State whether prediction thresholds are applied once or repeatedly, since repeated decisions change both action counts and dependencies.
+
+### Interpreting curve crossings
+
+When curves cross within the plausible threshold range, there may be no single best policy. Report which strategy is favored at each decision region and discuss whether thresholds differ among patients or services.
 
 ## References and further reading
 
-- Vickers AJ, Elkin EB. [Decision curve analysis: a novel method for evaluating prediction models](https://doi.org/10.1177/0272989X06295361). *Medical Decision Making*. 2006;26(6):565–574.
-- Vickers AJ, Van Calster B, Steyerberg EW. [Net benefit approaches to the evaluation of prediction models, molecular markers, and diagnostic tests](https://doi.org/10.1136/bmj.i6). *BMJ*. 2016;352:i6.
-- Van Calster B, McLernon DJ, van Smeden M, Wynants L, Steyerberg EW. [Calibration: the Achilles heel of predictive analytics](https://doi.org/10.1186/s12916-019-1466-7). *BMC Medicine*. 2019;17:230.
-- Kerr KF, Brown MD, Zhu K, Janes H. Assessing the clinical impact of risk prediction models with decision curves: guidance for correct interpretation and appropriate use. *Journal of Clinical Oncology*. 2016;34(21):2534–2540. [https://doi.org/10.1200/JCO.2015.65.565](https://doi.org/10.1200/JCO.2015.65.565)
-- The library's [ROC curves and AUC article](roc-curves-and-auc.html) covers discrimination; [sensitivity, specificity and predictive values](sensitivity-specificity-and-predictive-values.html) explains threshold-specific test performance.
+- Vickers AJ, Elkin EB. Decision curve analysis: a novel method for evaluating prediction models. *Medical Decision Making*. 2006;26:565–574. [doi:10.1177/0272989X06295361](https://doi.org/10.1177/0272989X06295361).
+- Vickers AJ, Van Calster B, Steyerberg EW. Net benefit approaches to the evaluation of prediction models, molecular markers, and diagnostic tests. *BMJ*. 2016;352:i6. [doi:10.1136/bmj.i6](https://doi.org/10.1136/bmj.i6).
+- See [ROC curves and AUC](roc-curves-and-auc.html) for discrimination and [Health economic evaluation](health-economic-evaluation.html) for cost and outcome trade-offs.

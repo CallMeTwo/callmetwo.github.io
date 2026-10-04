@@ -1,157 +1,136 @@
 ---
 title: Statistical analysis plans
-summary: A pre-specified contract between the statistician and the data — fixing estimands, analysis populations, methods, and decision rules before results are seen.
+summary: Specify estimands, outcomes, models, missing-data handling, multiplicity, and sensitivity analyses before unblinded results are examined.
 ---
 
-## Overview and key ideas
+## Overview
 
-A **statistical analysis plan (SAP)** is a written document, finalized and locked *before* the primary data are unblinded, that specifies exactly how a study will be analysed. It is the difference between a study and a fishing expedition: once the data can be looked at, every subsequent analytic choice — which endpoint, which covariates, which model, which multiplicity adjustment — is either "as planned" or an exploratory detour.
+A statistical analysis plan (SAP) translates a study protocol and scientific question into reproducible analyses. It specifies what will be estimated, which participants and outcomes contribute, how data problems will be handled, and how uncertainty will be summarized. A good SAP reduces outcome-driven analytic choices while leaving room to document genuine changes in understanding or data quality.
 
-A SAP protects the **integrity of the inference**. Without it, the analyst (consciously or not) can try variations until something turns out significant — the multiple-comparisons problem in disguise. With a locked SAP, the primary analysis carries a pre-committed error rate, and anything else is honestly labelled.
+The plan is not a substitute for sound design. It cannot repair poor randomization, inadequate follow-up, confounding, or an endpoint that does not represent the clinical question. Its value is that investigators and readers can distinguish planned decisions from choices made after seeing results. The level of detail should match the design, risk, and complexity of the study.
 
-The SAP also serves the people who did not run the analysis: reviewers, regulators, and the next team member who inherits the dataset. It is the single place where the question "which of the many defensible analyses is *the* analysis?" has an answer that was chosen before the outcome was known.
+## Define the estimand before the model
 
-The core components of a trial SAP:
+An estimand describes the treatment effect or association the study aims to quantify. In a trial, specify the population, treatment conditions, outcome variable, time point, and strategy for intercurrent events such as discontinuation, rescue therapy, or death. “Difference in 12-week symptom score” is incomplete if the protocol permits rescue medication and participants stop assigned treatment. A treatment-policy estimand may use outcomes regardless of discontinuation; a hypothetical estimand asks what would have happened without the intercurrent event and needs additional assumptions.
 
-- **Estimands** — for each endpoint, precisely what is being measured: the population, the variable, how intercurrent events (discontinuation, rescue medication, death) are handled, and the summary measure (primary, key secondary, other).
-- **Analysis populations** — the randomised (intention-to-treat) population for the primary analysis, and any per-protocol or as-treated populations with their justification.
-- **Methods for each analysis** — the exact model (e.g. Cox regression with covariables), the covariate set, how missing data will be handled, and the multiplicity strategy that controls the overall type I error across all hypothesis tests.
-- **Decision rules and stopping** — interim analysis schedules, the boundary for efficacy or futility, and what triggers a protocol deviation in analysis.
-- **Secondary and exploratory analyses** — pre-specified, but explicitly not driving the primary claim.
+For an observational analysis, specify target population, exposure contrast, outcome, follow-up period, and whether the aim is descriptive, predictive, or causal. State the causal identification assumptions if a causal interpretation is intended. The model is a tool for estimating the estimand; it does not define it by itself.
 
-The document is **versioned and frozen** at a named lock date, with a sign-off process. Amendments after the lock require a documented rationale and are flagged in the report.
+## Build a map from question to analysis
 
-## When to use it
+A SAP should identify the primary endpoint and primary contrast, analysis population, covariates, model family, link function, effect scale, and confidence interval method. Explain variable coding, reference categories, transformations, and how continuous predictors are handled. For a multicenter trial, specify site and randomization strata. For clustered assignment or repeated measurements, define the correlation structure and small-sample correction if needed.
 
-| Setting | Example question |
-| --- | --- |
-| Phase III randomized trial | What is the primary analysis, the covariate model, and the type I error allocation across the three co-primary endpoints? |
-| Non-inferiority trial | What non-inferiority margin was chosen, on which scale, and is the primary estimand an ITT or a modified ITT? |
-| Adaptive trial | What are the interim rules, how does the design adapt (sample size re-estimation, dose selection), and how is the overall error preserved? |
-| Real-world / registry study | Which confounders enter the model, how is missingness handled, and which analyses are confirmatory vs exploratory? |
+For a continuous endpoint measured at baseline and follow-up, an ANCOVA model can estimate the adjusted group difference:
 
-A SAP is expected in essentially every registered clinical trial and is a core requirement of most regulatory submissions. For observational work the same logic applies, even if the document is less formal.
+```r
+fit <- lm(score_12w ~ arm + score_baseline + site, data = trial)
+confint(fit, "armactive")
+```
 
-## Assumptions and limitations
+This example assumes a continuous outcome, a prespecified linear covariate effect, and independent residuals conditional on the model. The SAP should name the exact contrast and units, whether site is fixed or random, how missing outcomes are treated, and what diagnostics or sensitivity analyses are planned. Listing only “ANCOVA will be used” is not enough for independent reproduction.
 
-- **The SAP fixes the method, not the truth** — a well-specified analysis can still be wrong if the study design, endpoint, or assumptions are flawed. The SAP controls analytical freedom; it does not guarantee a correct conclusion.
-- **Locking too early is as bad as not locking** — if the SAP is written before the feasibility of an endpoint is known, it may prescribe an analysis that cannot be run. The right time is after design and feasibility are settled, before the primary unblinding.
-- **A SAP cannot anticipate every data surprise** — a large dropout rate or a data-quality issue discovered at analysis will require a deviation. The discipline is to document the deviation and its reason, not to silently improvise.
-- **Multiplicity must be addressed, not ignored** — a SAP that runs ten tests and reports the smallest p-value has no valid error rate; the plan must state how the overall alpha is allocated.
+## Specify the analysis population and data rules
 
-## Worked example
+Define intention-to-treat, per-protocol, safety, and other populations precisely. In a randomized trial, the primary analysis usually preserves randomized assignment and includes all randomized participants with usable outcomes, but the exact approach to missing outcome data must be stated. Per-protocol analyses are vulnerable to post-randomization selection and should not replace the randomized comparison without justification. For observational studies, specify eligibility dates, index date, washout, duplicate handling, and exclusions before modeling.
 
-A phase III trial of a new antihypertensive has a co-primary: systolic BP change at 12 weeks, analysed in the ITT population. The SAP, locked four weeks before unblinding, specifies: mixed-effects model for repeated measures with baseline systolic, age, sex, and site as covariates; multiple imputation (m = 50) for missing visits with MAR assumed; a closed-testing multiplicity strategy that allocates alpha = 0.025 to each co-primary before any secondary looks.
+Set data conventions for values outside range, implausible dates, duplicate records, treatment switching, and endpoint adjudication. Distinguish data cleaning rules from outcome-driven exclusions. Specify whether blinded review of unusual observations is permitted and who performs it. Avoid deleting outliers solely because they weaken the treatment effect; use prespecified robust methods or sensitivity analyses where appropriate.
 
-At unblinding, 14% of 12-week values are missing. Because the SAP already mandated imputation, the team runs exactly that — no ad-hoc "let's try complete cases and see." The co-primary p-value is 0.008, within the pre-allocated 0.025, so it is declared significant. The second co-primary, tested next in the closed-testing sequence, inherits the unused alpha and also passes. The report states: "Primary analyses as per SAP v3.2, locked 12 March; no deviations from the statistical methods occurred."
+## Missing outcomes and intercurrent events
 
-## Interpretation and common pitfalls
+The SAP should state expected missingness patterns, primary assumptions, and methods. For repeated continuous outcomes, a likelihood-based mixed model under MAR may use all available visits, conditional on observed history and model covariates. Multiple imputation may be appropriate when the estimand or analysis requires a completed dataset. A single imputation such as last observation carried forward generally understates uncertainty and relies on implausible stability assumptions.
 
-- **The SAP is not a data-collection protocol** — it does not say who gets enrolled or how the drug is given; it says how the collected data will be turned into conclusions.
-- **"As planned" must be verifiable** — if the report does not cite the SAP version and the lock date, a reviewer cannot confirm the primary analysis was the one committed to.
-- **Pre-specifying everything is not the goal** — the SAP locks the primary and confirmatory analyses; it should leave honest room for genuinely new exploratory questions, clearly labelled as such.
-- **The SAP should be written with the data in hand, not before it** — the covariate list, the handling of missing data, and the multiplicity design should reflect what is actually feasible, which is why the lock comes late in the timeline, not at protocol start.
+Plan sensitivity analysis for departures from MAR, such as delta-adjusted pattern-mixture models or tipping-point analyses. Choose a clinically meaningful range before unblinding. Explain which participants and values receive the shift. The missing-data-and-imputation article discusses the mechanism assumptions and diagnostics in depth.
 
-An estimand makes the treatment question explicit through population, treatment conditions, outcome, handling of intercurrent events, and population-level summary. The analysis method should estimate that quantity; ITT is an important analysis principle but does not by itself specify how treatment discontinuation, rescue therapy, or death enters the estimand. Lock the SAP before unblinding to comparative outcomes, retain version history, and describe deviations with timing and rationale. A SAP should specify sensitivity analyses for key assumptions (especially missing data), multiplicity strategy, and analysis populations rather than naming a method only at a high level.
+Intercurrent events must be connected to the estimand. If treatment is discontinued but outcomes continue to be collected, a treatment-policy strategy uses those outcomes. If rescue treatment is part of routine care, treatment-policy analysis may represent the real-world effect of assignment; a hypothetical no-rescue effect needs modeling assumptions. A composite strategy may count rescue as treatment failure. State how death is handled for outcomes where it makes measurement undefined.
+
+## Multiplicity and hierarchy of claims
+
+List confirmatory hypotheses and their testing order. If there are co-primary outcomes, specify whether all must succeed or how family-wise error is controlled. For multiple doses, endpoints, or interim looks, identify the adjustment method and alpha allocation. A gatekeeping procedure can preserve type I error while allowing ordered claims. Exploratory outcomes may be reported with unadjusted intervals if clearly labeled as exploratory; they should not be promoted to confirmatory claims after results are known.
+
+Subgroup analyses should be limited to a few clinically justified modifiers with interaction tests, not separate within-group significance testing. State whether modifiers are baseline variables, how continuous variables are modeled, and whether analysis is confirmatory or exploratory. A subgroup table with no interaction estimate is insufficient evidence of effect modification.
+
+## Sample size, power, and precision assumptions
+
+Document the target effect, outcome variance or event rate, allocation ratio, type I error, power, attrition allowance, and method. For cluster trials include intraclass correlation, cluster-size variation, and number of clusters. For time-to-event studies, events rather than enrollment often determine information. A sensitivity table across plausible nuisance parameters is more transparent than one supposedly exact sample-size calculation.
+
+Power is conditional on assumed effect and model. It is not the probability that the study will be positive, and it does not guarantee adequate precision for secondary outcomes. If the design targets a clinically important effect, report that threshold and the expected interval width. For prediction model development, plan sample size to control overfitting and precision of calibration rather than relying on a fixed events-per-variable rule.
+
+## Interim analyses and adaptive features
+
+If interim efficacy or futility analyses are planned, specify timing or information fraction, boundaries, alpha-spending function, and who can access unblinded data. Define whether interim looks can change sample size, allocation, or study conduct. A data monitoring committee charter and SAP should align but need not disclose confidential operational details to blinded study staff. Unplanned looks can inflate type I error and encourage selective stopping.
+
+For adaptive designs, state adaptation rules, simulation-based operating characteristics, and analysis methods that account for adaptation. If sample size may be increased based on nuisance parameters, clarify whether treatment effects remain blinded. Document how modifications are logged and which version of the plan governs each decision.
+
+## Sensitivity analyses tied to threats
+
+Sensitivity analyses should target assumptions that could materially change conclusions: missing-not-at-random outcomes, alternative covariance structures, influential observations, different confounder sets, competing event definitions, or departures from proportional hazards. State the reason for each scenario, method, and interpretation before results are examined. A long list of arbitrary models can confuse rather than strengthen inference.
+
+For nonrandomized treatment effects, consider negative controls, quantitative bias analysis, alternative propensity-score specifications, and restriction to regions of covariate overlap. For a continuous primary endpoint, compare the planned model with a robust or rank-based sensitivity analysis if heavy tails are a concern. For survival outcomes, report restricted mean survival time if nonproportional hazards are plausible. These analyses probe different assumptions and do not make them disappear.
+
+The primary model should be defended in relation to design and target. In a randomized trial, covariate adjustment can improve precision when baseline predictors are prognostic; covariates and form should be selected before outcomes are examined. Avoid stepwise variable selection based on p-values. In observational studies, confounder selection should use subject-matter knowledge and a causal structure, not automated significance screening. The adjustment set should avoid mediators and colliders when estimating total effects.
+
+Specify what happens if the model fails to converge, a category is empty, or a continuous predictor has a nonlinear relationship. A fallback should be chosen before outcome unblinding where feasible: for example, a prespecified penalized logistic regression if separation occurs. Do not choose among fallback models by which produces a favorable treatment p-value. If the primary model is unusable, explain the failure, use the predefined alternative, and report both the issue and its impact.
+
+For outcomes with different data types, the effect scale and model must align. Binary outcomes may use risk differences, risk ratios, or odds ratios; logistic regression estimates conditional odds ratios, which are noncollapsible and may differ from marginal effects even without confounding. Count outcomes may need Poisson or negative-binomial models with person-time offsets. Ordinal scales may require cumulative-link models, while continuous scales invite ANCOVA or repeated-measures models. Describe how estimates will be transformed or standardized for reporting.
+
+### Example: align contrast, coding, and interval
+
+Suppose treatment is coded 0 for control and 1 for active and the fitted ANCOVA coefficient is −2.4 points with standard error 0.85. With approximately 294 residual degrees of freedom, a 95% interval uses (t_{.975,294}\approx1.97): −2.4 ± 1.97(0.85) = −4.07 to −0.73. The SAP should make clear that negative values favor active treatment, the unit is points, and the contrast is baseline-adjusted. It should also say whether a minimally important difference is 3 points, so the result can be interpreted against clinical relevance rather than statistical threshold alone.
+
+If there are two co-primary outcomes and both must be positive to claim success, the decision rule differs from testing either outcome at 0.05. If success on either is sufficient, family-wise error control is needed. The SAP should encode the actual scientific claim and multiplicity strategy, not use generic language such as “adjust for multiple comparisons as appropriate.”
+
+## Observational studies need explicit causal structure
+
+An observational SAP should identify the time zero, eligibility, treatment strategies, follow-up, outcome, and causal contrast, ideally using a target-trial framework. Define baseline confounders before analysis and explain their measurement timing. Specify propensity-score estimation, overlap diagnostics, weighting or matching, and balance criteria. If treatment is time-varying, identify time-varying confounding and whether g-methods are required. Standard regression with baseline adjustment may not handle confounders affected by prior treatment.
+
+Positivity means each treatment strategy is possible for individuals with relevant covariate patterns. If some patients almost always receive one treatment, weighting can produce extreme weights and poor precision. The SAP should specify diagnostics and what action follows poor overlap, such as restricting the target population or changing the estimand. Truncation thresholds should be justified and sensitivity results reported. An adjusted estimate should not be labeled causal merely because many covariates were included.
+
+## Database lock and analysis traceability
+
+Before primary analysis, define a data-cleaning log, derivation specifications, analysis datasets, and quality checks. Variables in the dataset should map to protocol definitions. Keep treatment coding blinded until data cleaning, endpoint derivation, and model code are finalized when feasible. A reproducible pipeline should regenerate tables and figures from locked data and version-controlled code.
+
+The SAP should include table shells or mock outputs for the primary endpoint, participant flow, baseline characteristics, harms, and sensitivity analyses. Shells make clear the planned denominator and display scale without revealing results. Store code review records and validation outputs. Independent programming or double derivation may be appropriate for high-stakes primary endpoints.
+
+An analysis deviation log should record the original specification, change, date, reason, decision-maker, and knowledge of treatment results at the time. Classify changes as blinded operational refinements, data-driven amendments made before unblinding, or post hoc changes. All can be scientifically reasonable, but the distinction matters for confirmatory interpretation.
+
+## How to review a plan before approval
+
+Reviewers should trace the primary claim from protocol objective to estimand, data derivation, model, contrast, interval, and display. Ask whether an independent statistician could reproduce the analysis without making undocumented choices. Check that the sample-size assumptions correspond to the planned estimand and that the endpoint timing is consistent across protocol, case-report forms, and code. Confirm that every intercurrent event has a strategy and that missingness assumptions have a sensitivity analysis.
+
+For adaptive trials, verify that the adaptation rules and interim boundaries have operating-characteristic simulations over realistic null, alternative, and nuisance-parameter scenarios. For observational analyses, review time zero, confounding strategy, overlap, and whether covariates precede exposure. For prediction work, separate model development from validation and ensure all tuning is nested within resampling. For economic evaluations, specify perspective, time horizon, discounting, currency year, and uncertainty analysis.
+
+The approval record should identify protocol and SAP versions, statistical reviewer, date, and any unresolved limitations. A SAP is most useful when it is readable by clinicians as well as analysts: define technical terms, explain why a method serves the question, and avoid unexplained package-specific jargon. Detailed implementation appendices can accompany a concise main plan, provided they are versioned and consistent.
+
+Do not measure SAP quality by length alone. A short plan can be sufficient for a simple descriptive study if it makes its target and analysis reproducible. A complex adaptive trial or longitudinal comparative study needs greater detail. The aim is to predefine decisions that could influence the result and leave an audit trail for those that cannot reasonably be anticipated.
+
+Prespecification also supports honest uncertainty. If investigators later discover a data feature the plan did not anticipate, a transparent amendment can be more defensible than forcing the analysis into an unsuitable model. The key is to identify when the feature became known, whether comparative results were visible, and why the change was needed. Report the original and revised analyses when the change could affect the primary conclusion.
+
+An estimand can imply different data collection needs. A treatment-policy question requires outcome follow-up after treatment discontinuation; a hypothetical question may need information about reasons for discontinuation and post-event prognosis. If the protocol collects only on-treatment outcomes, the intended treatment-policy contrast may be impossible to estimate without strong assumptions. The SAP review is therefore also a check that the study design actually supports the planned scientific question.
+
+Prespecified plans improve credibility when they are accessible to readers, not only archived. Cite the final SAP and explain substantial amendments in the manuscript or report.
+
+Link the plan to the protocol and estimand framework so the analysis remains anchored to the clinical objective.
+
+If tables are generated by separate programmers, reconcile derivations and denominators before locking the report.
+
+Resolve discrepancies while treatment coding remains blinded whenever possible.
+
+Document all prespecified alternatives and the reason each exists.
+
+## Governance, blinding, and amendments
+
+The SAP should be finalized before unblinded comparative data are available to analysts responsible for primary decisions. In blinded studies, describe treatment coding and procedures for emergency unblinding. Date and version the plan; preserve prior versions. Amendments should state the reason, date, impact, and whether the decision was made before or after access to relevant data.
+
+Prespecification does not make every decision immutable. Data errors, protocol changes, and unforeseen model failures can require revision. The appropriate response is to document changes transparently, distinguish prespecified from post hoc analyses, and report how conclusions depend on them. Do not backdate or silently overwrite the approved plan.
+
+## A worked specification for a trial endpoint
+
+Consider a two-arm trial of 300 patients with baseline and 12-week symptom scores, lower scores better. A concise primary specification could state: treatment-policy estimand in all randomized participants; endpoint is 12-week score; primary contrast is adjusted mean difference active minus control; ANCOVA includes treatment, baseline score, and randomization strata; two-sided type I error 0.05; report estimate and 95% CI. Missing 12-week outcomes are handled by multiple imputation under MAR including treatment, baseline score, earlier repeated scores, site, and predictors of missingness; a delta-adjusted sensitivity analysis shifts missing active-arm outcomes toward worse scores. The analysis population, coding, software, and diagnostics are then detailed so another analyst can reproduce it.
+
+This specification clarifies the target and key methods but still needs implementation choices: imputation method by variable, number of imputations, pooling, model diagnostics, treatment of death or rescue medication, and multiplicity if there are co-primary outcomes. A SAP is complete when it removes consequential ambiguity, not when it reaches a particular page count.
 
 ## References and further reading
 
-## SAP structure and estimand specification
-
-## Worked SAP excerpt: continuous primary endpoint
-
-## Sensitivity analysis matrix
-
-## SAP for observational analyses
-
-## Final alignment check
-
-Record the approvers, date, protocol version, and whether treatment allocation was still masked when the SAP was finalized. Preserve superseded versions and change history for audit.
-
-Keep the signed SAP accessible to the analysis team and publication reviewers, and maintain an immutable copy alongside output metadata.
-
-For each prespecified sensitivity analysis, state the assumption varied, expected interpretation, and whether the result is confirmatory or supportive. Avoid adding analyses after unblinding without documenting rationale and timing. The final report should reconcile the signed SAP with executed code and explain deviations that could affect estimates, intervals, or decisions.
-
-Maintain a table linking each protocol objective to endpoint, estimand, analysis population, model, contrast, missingness strategy, multiplicity treatment, and output shell. This crosswalk exposes inconsistencies early and supports review by clinicians, statisticians, programmers, and regulators. Any unresolved decisions should be settled before unblinding.
-
-The SAP should also define coding of treatment, reference levels, units, rounding, software, and primary table denominators. When assumptions fail, a prespecified fallback hierarchy preserves transparency and reduces outcome-informed analytic choices. Review and sign off before unblinding.
-
-Keep final analysis outputs traceable to SAP version, code commit, and locked dataset. The report should identify deviations, timing, rationale, and impact; an SAP is useful only when its decisions can be audited against analysis execution.
-
-Confirm SAP language matches protocol endpoints, registration, sample-size assumptions, and reporting tables. Resolve inconsistent definitions before unblinding. For each analysis, identify data fields, population, estimand, model, contrast, interval, missingness, and multiplicity. Record the finalized signed version and ensure programming teams use it. Deviations after outcome access should be visible in the manuscript and supplement.
-
-For an observational study, specify target-trial elements and estimand; define time zero, eligibility, exposure strategies, follow-up, outcome, censoring, and competing events. Predefine confounder selection from subject-matter causal structure, not significance screening. Specify propensity/outcome models, overlap diagnostics, balance metrics, weight stabilization/truncation, standardization target, and variance estimation. Define handling of time-varying confounding, informative censoring, and missingness. Include quantitative sensitivity analysis for unmeasured confounding and alternative exposure windows.
-
-SAP should distinguish primary causal estimate from predictive/associational analyses and state assumptions. A propensity-score procedure does not guarantee causal inference; document positivity and target population changes due to restriction. Include falsification or negative-control analyses when scientifically justified and specify interpretation limits.
-
-## Version control and deviation table
-
-Use a versioned, signed SAP, cross-reference protocol/registry version, and log all changes. A final report should include a table of deviations: original plan, actual analysis, timing, reason, and potential impact. Even seemingly technical choices (covariate transformation, visit window, variance estimator) can change results and deserve documentation. Keep analysis code synchronized with the SAP and identify outputs generated before versus after unblinding.
-
-Define a compact matrix of sensitivity analyses and their assumptions: alternative population (e.g. per-protocol), alternate covariance structure, different missing-data delta, censoring/competing-risk method, and influence of protocol deviations. Each analysis should answer a specified robustness question. Avoid a large unstructured collection of models whose only purpose is to see whether p crosses .05. Identify which results support the primary conclusion and which are exploratory.
-
-For observational studies, an SAP should additionally describe causal diagram/adjustment rationale, target trial elements, confounder handling, positivity diagnostics, weight truncation, and unmeasured-confounding sensitivity. For prediction studies, specify model development, internal/external validation, calibration, discrimination, missing predictors, and decision-curve analyses. For diagnostic studies, prespecify reference standard, thresholds, indeterminate handling, paired comparisons, and subgroup spectrum.
-
-## Reproducibility artifacts
-
-## SAP review checklist
-
-The final report should cite the SAP version used and identify any deviations that affected implementation.
-
-## Primary analysis audit before database lock
-
-Before lock, verify endpoint derivations against source records, confirm randomization strata and reference levels, reconcile subject counts, and test table shells on dummy data. Ensure missing-data flags and intercurrent-event variables are populated and treatment codes remain masked. The SAP should specify who signs off on queries, code review, and unblinding. After lock, record dataset snapshot, checksum, software versions, and any deviations.
-
-If the primary model fails to converge, specify a prespecified fallback hierarchy (simpler covariance, alternative optimizer, or robust estimator) and criteria for use. A fallback should preserve estimand as much as possible and be documented, not chosen by favorable significance. Independent review of endpoint programming and treatment assignment checks can prevent avoidable errors.
-
-Before approval, verify every primary objective maps to one estimand, endpoint definition, model, contrast, missing-data strategy, and table shell. Check that primary analysis matches protocol and registration, sample-size assumptions align with endpoint and model, and multiplicity is handled. Confirm that intercurrent events and censoring are operationalized. Ensure subgroup, sensitivity, safety, and interim sections distinguish confirmatory from supportive work. Independent statistical review can identify ambiguity before unblinding.
-
-## Example output shells and data conventions
-
-For a binary primary endpoint, shell should show N randomized/analyzed, event count, risk by arm, RD/RR or OR with CI, and missing count. For time-to-event, include events, censoring, median follow-up, KM probability at planned horizons, HR with PH diagnostics, and competing events. For continuous repeated data, show visit-specific N, means/SDs, adjusted contrasts, and covariance model. Footnotes should define populations, windows, imputation, and interval method. Consistent shells reduce later selective emphasis.
-
-Define programming conventions: factor reference levels, units, date derivations, rounding, and handling of missing/out-of-range values. Store reusable derivations in version-controlled functions and validate against independently programmed results for primary endpoints. The SAP should not dictate every line of code, but must define decisions that affect the estimand or inference.
-
-Create a shell for each planned table/figure, define denominators and derivation rules, and link each output to analysis code. Use a mock dataset to test output generation before lock. The SAP should specify data cut, database lock, unblinding, and analysis sequence. Maintain version history, reviewer comments, and approvals. A SAP that exists but is not followed should be accompanied by transparent deviations and impact assessment.
-
-For an endpoint measured at baseline and week 12, an SAP might specify ANCOVA of week-12 score on randomized treatment, baseline score, and randomization strata; treatment contrast is adjusted mean difference with two-sided 95% CI. The analysis population is all randomized participants under treatment-policy strategy. Baseline is the last valid pre-randomization value; week-12 visit window is days 70–98 and selection among duplicates follows a prespecified rule. If missing week-12 outcomes occur, primary analysis uses likelihood-based repeated-measures model under MAR with treatment, visit, treatment-by-visit, baseline score, and stratification factors; MNAR sensitivity uses delta-adjusted imputation.
-
-The SAP should also state model diagnostics, covariance structure, degrees-of-freedom approximation, intercurrent events, multiplicity status, and exact table shells. A vague clause that “appropriate methods will be used for missing data” is not operational enough for independent implementation.
-
-## Blinding and analysis implementation
-
-When possible, finalize the SAP while treatment is coded as A/B and before unblinding. Blinded review can verify data derivations and resolve data anomalies without revealing treatment contrasts. Record who accessed unblinded summaries and when. If post-unblinding changes occur, retain prior versions and clearly distinguish amendments informed by data from administrative clarifications.
-
-Specify software and procedures for validated derivations, but avoid locking the SAP to a single package if equivalent implementations are acceptable. Independent programming review or double programming of key endpoints can detect errors. Resolve discrepancies against source definitions, not by choosing the output that supports a preferred conclusion.
-
-An SAP translates protocol objectives into operational analyses before treatment codes are unblinded or outcome patterns inspected. It should identify trial phase/design, analysis populations, estimands, endpoint derivation, covariates, model, contrasts, multiplicity, missing-data assumptions, interim analyses, safety summaries, and software. Define each endpoint precisely, including instrument, scale, time point/window, baseline, event adjudication, composite components, and direction of benefit. State hierarchy of primary/secondary/exploratory objectives.
-
-For each estimand, describe population, treatment conditions, variable, intercurrent-event strategy, and population-level summary. For a treatment-policy estimand, analyze outcomes regardless of discontinuation; for hypothetical strategies, specify modeling and assumptions. Do not hide these decisions under “ITT analysis.” Define analysis set membership and handling of protocol deviations before outcome comparisons.
-
-## Model and data specifications
-
-Name the model link, covariates, stratification factors, baseline adjustment, repeated-measures covariance, and effect scale. For time-to-event endpoints, define origin, event, censoring, competing events, and PH diagnostics or alternative estimands. For binary endpoints, specify denominator and missing outcome treatment. For continuous endpoints, define score algorithms and transformations. State how continuous covariates are modeled and avoid data-driven categorization.
-
-Define data derivations with source variables, visit windows, duplicate handling, outlier policy, and treatment-emergent safety period. Specify coding of intercurrent events, rescue medication, death, and treatment discontinuation. Predefine rules for partial dates and inconsistent records. Include mock tables/listings/figures so analysis outputs and denominators are unambiguous.
-
-## Multiplicity, missing data, and sensitivity analysis
-
-Describe alpha allocation or testing hierarchy for multiple primary outcomes, doses, or interim looks. State whether subgroup analyses are confirmatory and how interactions are tested. For missing data, state primary assumption (e.g. MAR), model variables, imputation method/number, pooling, and MNAR sensitivity scenarios. For estimand sensitivity, identify alternative assumptions and analyses that probe robustness rather than create a menu for significance hunting.
-
-Interim monitoring section should reference the charter, data monitoring committee, information fractions, boundaries/spending function, and firewalls preventing operational teams from seeing unblinded results. Safety analyses may be descriptive but should define denominators and exposure windows. Specify database lock, unblinding timing, and whether any analysis occurred before SAP finalization.
-
-## Governance and amendment log
-
-Version-control the SAP with author, reviewer, approval date, protocol version, and changes from prior versions. Any amendment after unblinding should be explicitly marked and justified; distinguish blinded pooled-data refinements from changes informed by treatment differences. Preserve analysis code and the exact dataset snapshot. An SAP is not a substitute for the protocol, monitoring charter, or clinical data standards, but it should cross-reference them consistently.
-
-- ICH E9. Statistical Principles for Clinical Trials. 1998. https://database.ich.org/sites/default/files/E9_Guideline.pdf
-- ICH E9(R1). Addendum on estimands and sensitivity analysis in clinical trials. 2019. https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf
-- Gamble C, Krishan A, Stocken D, et al. Guidelines for the content of statistical analysis plans in clinical trials. *JAMA*. 2017;318:2337–2343. https://doi.org/10.1001/jama.2017.18556
-
-- ICH E9(R1). Addendum on estimands and sensitivity analysis in clinical trials. [Official guideline](https://www.ema.europa.eu/en/documents/scientific-guideline/ich-e9-r1-addendum-estimands-sensitivity-analysis-clinical-trials-guideline-statistical-principles-clinical-trials-step-5_en.pdf)
-
-- Chow SC, Shao J, Wang H, Lokhnygina Y. *Sample Size Calculations in Clinical Research*. Chapman and Hall/CRC.
-- ICH E9(R1). *Statistical Principles for Clinical Trials* (estimators and estimands).
-- Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
-
-The [randomized controlled trials article](../study-design/randomized-controlled-trials.html) covers the trial protocol that a SAP complements.
+- International Council for Harmonisation. ICH E9(R1): Addendum on Estimands and Sensitivity Analysis in Clinical Trials; 2019. [ich.org](https://www.ich.org/page/efficacy-guidelines)
+- Gamble C, Krishan A, Stocken D, et al. Guidelines for the content of statistical analysis plans in clinical trials. *JAMA*. 2017;318:2337–2343. [doi:10.1001/jama.2017.18556](https://doi.org/10.1001/jama.2017.18556)
+- Chan A-W, Tetzlaff JM, Altman DG, et al. SPIRIT 2013 statement: defining standard protocol items for clinical trials. *Ann Intern Med*. 2013;158:200–207. [doi:10.7326/0003-4819-158-3-201302050-00583](https://doi.org/10.7326/0003-4819-158-3-201302050-00583)
+- Little RJA, Rubin DB. *Statistical Analysis with Missing Data*. 3rd ed. Wiley; 2019.

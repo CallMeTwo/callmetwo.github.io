@@ -3,359 +3,165 @@ title: Chi-square test
 summary: A test of association between two categorical variables, built from the difference between observed and expected cell counts.
 ---
 
-## Overview and key ideas
+## Overview
 
-The chi-square test of independence asks whether two categorical variables are
-associated in a single population. It compares the counts you actually observed
-in each cell of a contingency table with the counts you would expect if the two
-variables were independent. Large discrepancies between observed and expected
-counts push the test statistic up and lower the p-value.
+Pearson’s chi-square test evaluates whether categorical variables are associated by comparing observed cell counts with counts expected under independence. It is a test of a table-level null hypothesis, not a measure of association size and not a causal analysis. The test is most familiar for a two-way contingency table, but its logic extends to goodness-of-fit and homogeneity questions.
 
-The test statistic is
+## Expected counts and the statistic
 
-    chi-square = sum over cells of (observed - expected)^2 / expected
+For cell (i,j), expected count under independence is Eᵢⱼ=(row totalᵢ×column totalⱼ)/N. Pearson’s statistic is X²=Σ(Oᵢⱼ−Eᵢⱼ)²/Eᵢⱼ, approximately chi-square with (r−1)(c−1) degrees of freedom if observations are independent and expected counts support the large-sample approximation. The statistic accumulates discrepancies across cells, so it can identify evidence against independence without saying which pattern drives it.
 
-and is compared with a chi-square distribution whose degrees of freedom are
-(rows - 1)(columns - 1). For a 2×2 table there is 1 degree of freedom, and the
-chi-square statistic equals the square of a two-sided z-test for two
-proportions.
+### Calculation with a 2×2 table
 
-## When to use it
-
-The natural settings are cross-tabulations in which both variables are
-categorical and the sample is a single group:
-
-| Setting | Example question |
-| --- | --- |
-| Case-control study | Is smoking status associated with lung cancer among hospital patients? |
-| Quality monitoring | Does the rate of a complication differ across three surgical teams? |
-| Survey research | Is a self-reported health behaviour associated with income group? |
-| Screening | Does test result (positive/negative) relate to true disease status? |
-
-Use it when every expected cell count is reasonably large (commonly at least 5).
-
-## Assumptions and limitations
-
-- **Independence of observations** — each subject contributes to exactly one
-  cell; clustered or repeated data violate this and inflate significance.
-- **Expected counts** — the approximation is poor when any expected count is
-  below 5, or when more than 20% of expected counts are below 5; prefer Fisher's
-  exact test (for 2×2) or a simulation-based test.
-- **Categorical, exhaustive categories** — overlapping or "other" buckets
-  dilute the association.
-- **It tests association, not direction or strength** — a significant result
-  says the variables are related, not how strongly or in which direction; report
-  a measure of effect such as the odds ratio or risk ratio alongside.
-
-## Worked example
-
-In a case-control study of 300 patients, 200 had lung cancer and 100 did not.
-Among cases, 160 were smokers; among controls, 40 were smokers. The table is:
-
-|  | Smoker | Non-smoker | Total |
-| --- | --- | --- | --- |
-| Cancer | 160 | 40 | 200 |
-| No cancer | 40 | 60 | 100 |
-
-If smoking and cancer were independent, the expected number of smokers among
-cases would be (200 × 200) / 300 ≈ 133. The observed 160 is well above that. The
-Pearson chi-square statistic is 48 on 1 degree of freedom, giving a p-value far
-below 0.001 — strong evidence of an association. The odds ratio
-(160×60)/(40×40) = 6.0 quantifies it: cases had about six times the odds of
-having smoked compared with controls.
-
-## Interpretation and common pitfalls
-
-- A significant chi-square in an observational study shows association, not
-  cause — confounding (age, occupational exposure) can drive the relationship.
-- Do not use the test when expected counts are small; the p-value becomes
-  unreliable and anti-conservative.
-- For 2×2 tables the test is equivalent to comparing two proportions — reporting
-  the difference in proportions or an odds ratio is more informative than the
-  chi-square value alone.
-- Larger samples make trivial associations "significant"; pair the test with an
-  effect size and a confidence interval.
-
-## Calculation from a contingency table
-
-For each cell in a table, independence implies expected count
-\(E_{ij}=n_{i+}n_{+j}/N\). In the smoking example, 200 of 300 patients
-are cases and 200 of 300 are smokers, so expected smoker cases are
-\(200\times200/300=133.33\). Expected non-smoker cases are
-\(200\times100/300=66.67\); the two expected control counts are 66.67 and
-33.33. The Pearson statistic sums \((O-E)^2/E\) over all four cells,
-giving approximately 48.0. With one degree of freedom, this is far into
-the tail of the chi-square distribution (p<0.001). Because the case-control
-sample fixes the numbers of cases and controls, the estimated odds ratio
-can be interpreted as a case-control association; the table does not
-identify population disease risk or a risk ratio.
+Suppose treatment A has 18 recoveries and 42 non-recoveries; treatment B has 30 recoveries and 30 non-recoveries. Recovery risks are 30% and 50%. Under independence, each group’s expected recovery count is 24. Contributions across the four cells give X²=5.00 (df=1), approximately p=.025. The risk difference is 20 percentage points, risk ratio 1.67, and odds ratio 2.33. These effects answer different questions and should accompany the test.
 
 ```r
-tab <- matrix(c(160, 40, 40, 60), nrow = 2, byrow = TRUE,
-              dimnames = list(c("Cancer", "No cancer"),
-                              c("Smoker", "Non-smoker")))
+tab <- matrix(c(18, 42, 30, 30), nrow = 2, byrow = TRUE,
+              dimnames = list(arm = c("A", "B"),
+                              outcome = c("recovered", "not")))
 chisq.test(tab, correct = FALSE)
-chisq.test(tab, correct = FALSE)$expected
+rowSums(tab); prop.table(tab, margin = 1)
 ```
 
-For a 2×2 table, R's default applies Yates' continuity correction; setting
-`correct = FALSE` reproduces the uncorrected Pearson statistic above.
-Yates correction attempts to improve approximation for discrete counts but
-can be conservative. State whether it was applied. In larger tables, the
-usual Pearson test has no such correction by default.
+The code uses a Pearson approximation without Yates’ continuity correction to expose the standard statistic. R defaults to correction in a 2×2 table; report which version was used. Row percentages here are recovery distributions within arm; column percentages would answer a different question.
 
-## Degrees of freedom and model perspective
+### Sparse cells and table structure
 
-The independence model estimates row and column marginal probabilities but
-no association parameters. The unrestricted table has one fewer free
-parameter per cell after the total is fixed. Their difference in parameter
-count gives \((r-1)(c-1)\) degrees of freedom. Equivalently, for a 2×2
-table the null is an odds ratio of one. A likelihood-ratio statistic
-\(G^2=2\sum O\log(O/E)\) uses the same asymptotic degrees of freedom and
-often agrees with Pearson chi-square when counts are moderate. Both rely
-on asymptotic approximations; neither removes confounding or sampling
-bias.
+The chi-square reference distribution can be inaccurate when expected counts are small, especially when the table has many sparse cells. No single cutoff is universal, but inspect expected counts rather than observed counts alone. For a 2×2 table, Fisher’s exact test conditions on margins; for larger tables, exact or Monte Carlo methods may be feasible. Collapsing categories solely to make the p-value work discards information and may hide clinically meaningful distinctions. Sparse data can also demand a model designed for rare outcomes rather than a test substitution.
 
-The chi-square test is omnibus for an r×c table. If significant, inspect
-standardized residuals or planned contrasts to understand which cells
-contribute, but cellwise follow-up introduces multiplicity. Adjust those
-comparisons or use a model with prespecified contrasts. Cramér's V
-\(\sqrt{X^2/[N\min(r-1,c-1)]}\) summarizes association strength on a
-0–1 scale, though the meaning depends on table dimensions and context.
-For 2×2 tables, report risk difference or odds ratio with an interval
-instead; the chi-square statistic alone is not an effect size.
+The table’s sampling design matters. Pearson’s test assumes independent observational units and ordinary multinomial sampling. Repeated measurements, matched pairs, clustered participants, complex survey weights, or stratified randomization require design-aware inference. McNemar’s test handles paired binary outcomes; survey-adjusted tests account for weights and clustering. A naive chi-square test on thousands of correlated records can produce spuriously precise evidence.
 
-## Sparse cells and alternatives
+### Association, effect, and causality
 
-The common rule that expected counts should all be at least 5 is a
-conservative heuristic, not a theorem. Approximation quality depends on
-table shape, sparsity, and the inferential target. A frequently cited
-guideline allows no expected count below 1 and no more than 20% below 5;
-for a 2×2 table, Fisher's exact test or an exact unconditional method is
-often preferable when counts are sparse. For larger tables, a Monte Carlo
-conditional p-value can approximate the exact conditional distribution.
-Combine categories only when substantively defensible and preferably
-planned before examining results; arbitrary collapsing changes the
-question and can conceal clinically meaningful distinctions.
+A small p-value says the observed table differs from independence more than expected under the null and approximation. It does not provide direction unless cell proportions are examined, nor magnitude without measures such as risk difference, odds ratio, Cramér’s V, or standardized residuals. For large samples, trivial deviations can be significant. For small samples, important differences may be uncertain.
+
+Association does not establish causation. Confounding can create or mask a table association; adjusted regression or stratified methods may be needed, guided by the design and causal question. For a two-by-two table, report event counts/denominators by group, chosen effect measure and interval, test method, expected-count diagnostics, and whether observations were independent. Never report percentages without denominators. If the target is treatment effect, identify the estimand and whether adjustment is warranted rather than equating a test of independence with causal evidence.
+
+## Construct the table around the question
+
+A contingency table is a compact representation of joint categorical outcomes. Its row and column labels should make the denominator logic explicit. In a treatment-by-outcome table, rows as arms make row proportions equal to event risks in each arm. In a case-control sample, columns may be sampled by outcome status, so the sampled proportions cannot estimate population risks without additional sampling information. Column percentages then answer how exposure is distributed among sampled cases and controls, not risk of disease by exposure.
+
+Before calculating a test, verify that each participant contributes to exactly one cell for the analysis being performed, category definitions are mutually exclusive, and missingness is represented rather than silently removed. Ordinal categories should not be collapsed automatically: severity grades have order and collapsing can erase trends. If a category has no observations, determine whether it is structurally impossible or a random zero; these situations have different modeling implications.
+
+## A detailed 2×2 calculation
+
+Take the table with treatment A: 18 recoveries, 42 non-recoveries; treatment B: 30 recoveries, 30 non-recoveries. The margins are 48 and 72 outcomes, 60 participants per arm, N=120. Under independence, expected counts in each arm are 24 recoveries and 36 non-recoveries. Pearson’s statistic is 2[(18−24)²/24]+2[(42−36)²/36]=3+2=5, with one degree of freedom and p≈.025. The observed recovery risks are .30 and .50, risk difference +.20, risk ratio 1.67, and odds ratio (30×42)/(30×18)=2.33 for B relative to A.
 
 ```r
-# Monte Carlo p-value for a sparse larger table
+tab <- matrix(c(18, 42, 30, 30), nrow = 2, byrow = TRUE)
+expected <- outer(rowSums(tab), colSums(tab)) / sum(tab)
+chi2 <- sum((tab - expected)^2 / expected)
+df <- (nrow(tab) - 1) * (ncol(tab) - 1)
+pchisq(chi2, df = df, lower.tail = FALSE)
+chisq.test(tab, correct = FALSE)
+```
+
+This code exposes the expected-count calculation and yields X²=5. The result is different from a previous approximate hand calculation; the actual table governs. A good analysis note checks arithmetic with software and checks software against the table margins. With this table, Yates’ correction makes the test more conservative; name the correction if used.
+
+## Localizing a global association
+
+The omnibus statistic indicates departure from independence but does not identify contributing cells. Pearson residuals (O−E)/√E show which cells differ from expectation, though residual inspection across many cells is itself a multiple-comparison exercise. Adjusted standardized residuals account for row and column margins and can be compared with a normal reference as an exploratory diagnostic. They are not causal effects.
+
+For larger tables, a global test may be significant because of a few cells while most distributions are similar. Display observed and expected counts, row/column proportions, and perhaps residual shading in a mosaic plot. If follow-up cellwise tests are used, predefine or adjust the family. Collapsing categories after seeing which cells drive significance overstates evidence.
+
+```r
+chisq.test(tab)$expected
+chisq.test(tab)$stdres
+mosaicplot(tab, shade = TRUE, main = "Arm by outcome")
+```
+
+The standard residual matrix is useful for diagnosis, not a replacement for effect estimation. With ordered categories, a trend test or ordinal regression may use the order more efficiently than a nominal chi-square test.
+
+## Sparse data and Monte Carlo inference
+
+The approximation relies on the distribution of the statistic being close to chi-square. Sparse expected counts can make tail probabilities inaccurate; a frequently cited heuristic is that no expected cell should be below 1 and not too many below 5, but it is not a universal theorem. A 2×2 table with limited counts is often handled by Fisher’s exact test. For larger tables, Monte Carlo sampling of tables with fixed margins can approximate the conditional null distribution:
+
+```r
+set.seed(2026)
 chisq.test(tab, simulate.p.value = TRUE, B = 100000)
 ```
 
-Monte Carlo error depends on the number of simulations; with B=100,000,
-the standard error of an estimated tail probability p is approximately
-\(\sqrt{p(1-p)/B}\). A simulated p-value near 0.05 should be rerun with
-more replicates if a decision depends on a narrow threshold. Set a seed
-for reproducibility. Do not report the simulation count as if it were the
-sample size; B describes numerical approximation, while N is the study
-sample.
+The Monte Carlo p-value has simulation error. Its approximate SE is √[p(1−p)/B]; if the result is near a decision threshold, increase B and report the simulation settings. Fisher’s exact test conditions on margins, which are fixed by design in some settings but not others; exactness is a property of a sampling model, not a general warranty. Sparse-data regression may use penalization or Bayesian priors, but those methods change assumptions and should be reported explicitly.
 
-## Dependence, survey designs, and interpretation
+## Dependence, matching, and sampling designs
 
-## Effect measures and confidence intervals
+The Pearson test treats units as independent. If each participant is measured before and after, use McNemar for paired binary outcomes or an appropriate repeated-measures model. If patients share clinics, use a model or variance estimator that accounts for clustering. If the data arise from a complex survey, use survey-weighted Rao–Scott adjustments; ordinary Pearson statistics ignore stratification and unequal probabilities. For matched case-control sets, conditional logistic regression or matched methods respect the matching structure.
 
-The Pearson statistic grows with both sample size and association strength,
-so it is not itself a measure of practical importance. For a 2×2 table,
-report the odds ratio with a confidence interval and, when the design
-supports it, risks and risk difference. In a cohort or randomized trial,
-the risk ratio and difference are directly interpretable at a stated
-follow-up horizon. In a case-control sample, the numbers of cases and
-controls are fixed by design, so the table's row proportions do not
-estimate population disease risk; the odds ratio is the usual estimable
-association measure.
+Observations may also be dependent because one person contributes multiple events. A table of events is not a table of independent people if recurrent outcomes are counted. Aggregate at the participant level or model recurrent counts with robust variance/frailty as appropriate. Verify what the unit of analysis represents before applying a test.
 
-For the smoking table, the odds ratio is
-\((160\times60)/(40\times40)=6.0\). Its large magnitude corresponds to
-strong evidence of association in the sampled case-control population,
-but the interval remains important. The standard error of log OR for an
-unadjusted 2×2 table is approximately
-\(\sqrt{1/160+1/40+1/40+1/60}=0.270\). Thus the log-scale 95% interval
-is \(\log(6)\pm1.96(0.270)\), which exponentiates to approximately 3.5
-to 10.2. This is a wide range despite the strong p-value and does not
-adjust for age or occupational exposure.
+## Effect measures and adjusted analyses
 
-For an r×c table, Cramér's V summarizes association magnitude, but its
-maximum interpretation depends on table dimensions and it may be biased
-upward in small samples. A standardized residual for cell (i,j) compares
-observed and expected counts; adjusted residuals can identify which cells
-drive an omnibus result, but scanning many cells is a multiple-testing
-problem. Present observed and expected counts rather than only a color
-heatmap or residual plot.
+For 2×2 comparisons, present event risks, RD, RR, or OR with an interval. The choice follows the decision. For an r×c table, Cramér’s V scales the chi-square statistic by sample size and the smaller table dimension; it summarizes association strength but has no direction and can be difficult to compare across table sizes. Goodman–Kruskal measures or ordinal association statistics may be more interpretable when categories are ordered.
 
-## Sampling and causal interpretation
+If the objective is adjusted association, logistic, log-binomial, or Poisson regression with robust variance may estimate conditional or marginal effects, depending on specification. A significant unadjusted table can disappear after accounting for confounders, or emerge after stratification through Simpson’s paradox. Adjustment must be based on a causal or descriptive plan; adding variables mechanically can create collider bias or change the estimand. Chi-square remains a useful descriptive screen but is not the adjusted analysis.
 
-## Worked 2×2 effect interval and interpretation
+## Sample size and interpretation
 
-For a table \(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\), the
-unadjusted odds ratio is \(ad/(bc)\). Under the large-sample log-Wald
-approximation, \(SE[\log(OR)]=\sqrt{1/a+1/b+1/c+1/d}\), and a 95% interval
-is the exponentiated log estimate plus or minus 1.96 SE. In the smoking
-table, OR=6 and SE≈0.270, yielding an interval around 3.5 to 10.2. The
-approximation is unsuitable when cells are sparse or zero; use exact or
-profile-likelihood intervals in those cases. Even this interval is an
-unadjusted association and may be confounded.
+Planning a chi-square test requires anticipated category probabilities under null and alternative, alpha, power, degrees of freedom, and allocation. Sparse expected counts at the planned sample size suggest that asymptotic testing may be unsuitable; simulation or exact planning can help. If the scientific target is a risk difference, planning directly for that contrast may be clearer than planning around a generic chi-square statistic.
 
-For a cohort table, relative risk is
-\([a/(a+b)]/[c/(c+d)]\) if rows represent exposure groups and columns
-outcomes; risk difference is the subtraction of those row risks. These
-effect measures can be more intuitive than an OR when outcomes are common.
-For randomized trials, give both arms' denominators and event risks so
-absolute benefit can be assessed. For case-control sampling, do not
-mistake the sampled case fraction among exposed for disease risk.
+Report total N, cell counts, denominator percentages, statistic, degrees of freedom, p-value, expected-count diagnostics or exact method, effect measure and interval, and sampling/assignment design. Avoid reporting percentages alone. Explain the direction of the association and whether it is adjusted. Statistical significance indicates evidence against independence under the model; it does not establish causality or practical importance.
 
-## Practical decisions for sparse and large tables
+### Goodness-of-fit and homogeneity questions
 
-Before analysis, define whether categories are mutually exclusive and
-exhaustive. A participant should not appear in multiple cells unless the
-model accounts for repeated or multi-response data. A “not measured” or
-“unknown” category may represent missingness rather than a substantive
-level; including it in the table can create an association driven by the
-measurement process. Report missing counts separately and use an
-appropriate missing-data strategy when missingness is informative.
+The same Pearson statistic supports different designs. A goodness-of-fit test compares one categorical variable’s observed counts with prespecified probabilities, with df typically categories−1 minus estimated parameters. A homogeneity test compares category distributions across independently sampled populations. An independence test asks whether two variables are associated in one sampled population. The table and degrees of freedom may look alike, but the sampling plan and interpretation differ.
 
-If one or more expected counts are small, first inspect whether the table
-is sparse because categories are rare or because the sample is small.
-For 2×2, Fisher's exact test conditions on margins. For larger R×C tables,
-Fisher–Freeman–Halton exact inference is available but can be expensive;
-Monte Carlo conditional tests approximate its p-value. A simulated
-Pearson chi-square is another approximation. Barnard and Boschloo tests
-are unconditional 2×2 methods and should not be described as general
-R×C solutions. State which null distribution was used.
+For goodness-of-fit, expected probabilities should come from a scientific model or prespecified reference distribution; estimating them from the same table changes degrees of freedom. If categories are ordered, a test sensitive to trend may be more powerful than a general chi-square goodness-of-fit test. For a homogeneity question, each population needs independent sampling and clear denominators. State which design generated the counts.
 
-In a large table, an omnibus p-value may be tiny while Cramér's V is
-small. For example, with N=10,000, even a modest deviation from
-independence can yield a large chi-square statistic. Report the statistic
-and effect size together, and show adjusted residuals only as exploratory
-cell diagnostics unless a multiplicity procedure protects the selected
-cells. In ordered categories, a linear-by-linear association or ordinal
-model may gain power by using the order, but scores and trend assumptions
-must be defensible.
+### Rates and person-time are not table proportions
 
-The chi-square test assumes a sampling structure that makes the table
-counts follow a multinomial or product-multinomial model. In a randomized
-trial with fixed arm sizes, the test of equal response proportions has a
-closely related two-sample binomial interpretation. In case-control
-sampling, conditioning on outcome totals supports inference on the odds
-ratio. In cross-sectional surveys with unequal selection probabilities,
-ordinary chi-square ignores weights and clustering and can produce both
-biased estimates and incorrect precision; survey-weighted tests use
-design-adjusted degrees of freedom.
+A table of event yes/no by group is suitable when each person has a defined common follow-up window. If follow-up duration differs, comparing event proportions can be biased because participants have unequal time at risk. Use incidence rates with person-time offsets or survival models, accounting for censoring and competing risks. A chi-square test on person-level “ever event” ignores time and may misrepresent rate differences.
 
-Association is not causation. Stratified tables can reveal confounding or
-effect heterogeneity, including Simpson's paradox, where a marginal
-association differs from stratum-specific associations because group
-composition varies. A Mantel–Haenszel estimate or logistic regression can
-adjust for measured covariates under assumptions, but neither addresses
-unmeasured confounding automatically. If a significant association is
-reported, give plausible alternative explanations and distinguish the
-descriptive table result from a causal claim.
+### Visual and numerical checks
 
-## Reporting checklist for the analysis
+Display row percentages when the question is risk within group, but retain counts. Check that totals reconcile with the analytic population and that missing categories have not disappeared. If a large cell dominates X², examine whether it reflects meaningful association or data errors. For repeated hospital visits, aggregate or model dependence; a table of visit-level outcomes can overstate information if people contribute multiple visits.
 
-## Power, sample size, and sparse-data planning
+### Worked example with denominators
 
-For a 2×2 comparison of proportions, chi-square power depends on both
-proportions, allocation, alpha, and total sample size. A target odds ratio
-does not fix power without a baseline risk: the same odds ratio yields
-different risk differences at different baseline prevalences. For a
-multi-category association, planning can use a prespecified table of
-expected proportions under the alternative and a noncentral chi-square
-distribution, but small expected cells call for simulation under the
-actual design. Multiple planned comparisons, cluster sampling, and survey
-weights alter the effective information and should be represented in
-planning rather than corrected after data collection.
+In the recovery table, treatment A has 18/60 recovered (30%) and B has 30/60 (50%). The row percentages make the risk contrast visible, while the counts show that each estimate is based on 60 people. The RD is 20 points and RR 1.67; approximate intervals would be wide enough to convey uncertainty. A chi-square p-value summarizes evidence against equal distributions but should never substitute for those measures. If the table instead sampled 60 recovered patients and 60 not recovered by design, the same percentages would not estimate recovery risks.
 
-The Pearson test's degrees of freedom increase with table dimensions. A
-large table can have low power for a localized pattern if many categories
-are sparse, while collapsing categories may obscure a meaningful trend.
-If ordered categories are present, a trend test or ordinal regression can
-use their ordering and may answer a more focused question. The categories
-must represent a genuine scale; arbitrary numeric scores imply spacing
-that may not exist.
+### Common coding errors
 
-## Log-linear models and adjusted association
+Factor levels can be dropped when subsetting data, and missing outcomes can silently change the denominator. Use `table()` with explicit missingness checks, compare sums with the analytic sample, and set category order intentionally. If cells are ordered, a trend test can answer a directional question more efficiently, but it assumes scores or ordering structure. Report how categories were defined.
 
-A log-linear model represents expected cell counts through log-linear
-terms. For a two-way table, the independence model includes row and column
-main effects but no interaction; adding the interaction corresponds to
-association. For three-way tables, conditional independence can be tested
-by comparing hierarchical models, revealing whether a two-way association
-persists after stratifying on a third variable. This is a principled way
-to distinguish marginal from conditional association, though sparse cells
-can cause unstable estimates and require combining scientifically
-defensible categories or penalization.
+### Survey and clustered inference
 
-```r
-tab3 <- array(c(12, 18, 22, 28, 25, 15, 35, 25),
-              dim = c(2, 2, 2),
-              dimnames = list(exposure = c("No", "Yes"),
-                              outcome = c("No", "Yes"),
-                              age = c("Younger", "Older")))
-fit_ind <- loglin(tab3, list(c(1, 3), c(2, 3)), fit = TRUE)
-fit_sat <- loglin(tab3, list(c(1, 2, 3)), fit = TRUE)
-```
+Complex survey data use weights to represent unequal inclusion probabilities and often have stratification and clustered sampling. The ordinary Pearson statistic assumes simple multinomial sampling and typically understates variance. A Rao–Scott correction adjusts the test for design effects; survey software also reports design degrees of freedom based on primary sampling units. State the survey design declaration and weighted denominator.
 
-This is a schematic log-linear model comparison: `loglin` terms denote
-interactions among dimensions, and the exact model should be written to
-match the conditional-independence question. For applied regression with
-individual-level covariates, logistic regression estimates adjusted
-associations and supports interactions; categorical table tests alone
-cannot adjust continuously for age or account for multiple confounders.
+In healthcare datasets, many records can come from the same patient, clinician, or hospital. A chi-square test on all rows treats them as independent and can exaggerate evidence. Aggregate at the independent unit or use GEE, mixed models, or cluster-robust methods appropriate to the endpoint. Number of independent clusters matters more than raw row count for uncertainty.
 
-## Communicating percentages without denominator errors
+### Interpretation checklist
 
-When cells represent counts of events over different person-time rather
-than one classification per participant, a contingency-table chi-square
-test discards exposure duration. Use a rate model with a log person-time
-offset, such as Poisson or negative-binomial regression, to compare
-incidence rates and account for covariates or overdispersion.
+Ask: What is the independent unit? Which margin is fixed by sampling? Which percentages answer the clinical question? Are expected counts adequate? Is the effect adjusted or crude? Could confounding or selection explain the association? Report counts, denominators, effect size and interval, and the exact design-aware method. This checklist prevents a simple table test from carrying a stronger interpretation than the data support.
 
-When there are structural zeros—cells impossible by design, such as a
-procedure not offered to one age group—the usual independence model is not
-appropriate because it assigns probability to impossible combinations.
-Exclude or model structural cells according to the sampling mechanism;
-do not interpret their zero expected counts as evidence against
-independence. Distinguish structural zeros from sampling zeros, which are
-possible cells that happen to be unobserved and may require exact or
-penalized methods.
+### The chi-square approximation in context
 
-Always identify whether percentages are rowwise or columnwise. In a
-case-control table with cases and controls in rows, row percentages show
-smoking prevalence within case status; column percentages show the
-fraction of cases among smokers. Because case-control sampling fixes the
-case/control totals, column percentages cannot estimate population disease
-risk. In a cohort table with exposure in rows and outcome in columns,
-row percentages estimate outcome risks if follow-up and sampling support
-that interpretation. Include both counts and percentages so the
-denominator is visible.
+The chi-square reference distribution is asymptotic: it approximates the sampling distribution as information grows. Its quality depends on expected counts and table structure, not just total N. A large total can coexist with rare sparse categories. Monte Carlo and exact methods address calibration under particular conditional models, while penalized or Bayesian regression may estimate effects under a specified model. State which approximation is being used and why it fits the data.
 
-Give the exact contingency table with category definitions, total N,
-denominator for percentages, chi-square statistic, degrees of freedom,
-and p-value. State Pearson, likelihood-ratio, continuity-corrected, exact,
-or simulated inference as applicable, including Monte Carlo replicate
-count. Add an effect size and interval. For sparse data, report why an
-exact or simulation method was selected; for complex sampling, identify
-the design-based procedure. This enables readers to distinguish strong
-statistical evidence from a large but possibly unimportant association.
+For binary outcomes, continuity correction subtracts a small amount from observed-expected deviation in the 2×2 statistic to improve approximation in discrete data. It can be overly conservative at moderate sample sizes; report whether it was applied. The correction is not a substitute for exact inference where counts are extremely sparse.
 
-Each participant must contribute once to a conventional table. Repeated
-visits, matched pairs, household clusters, or multiple lesions per patient
-violate the independent multinomial sampling model. For paired binary
-outcomes use McNemar's test; for clustered categorical outcomes use a
-GEE, mixed model, or design-based method. In a complex survey, account for
-weights, strata, and primary sampling units using survey-adjusted tests.
-Treating a weighted table as if its cell counts were independent raw
-counts does not produce valid standard errors.
+### Stratified tables and Simpson’s paradox
 
-A statistically significant association does not state which variable
-causes the other, nor whether the relationship is clinically important.
-In an observational table, age, disease severity, or selection into the
-sample can generate or distort the association. Report cell counts and
-row/column denominators, an effect estimate with interval, and the sampling
-design. Distinguish row percentages (risk within exposure group) from
-column percentages (exposure composition among outcomes); switching them
-can reverse the substantive interpretation.
+A pooled table can show a different direction from each stratum when a third variable is associated with both exposure and outcome. For instance, treatment may appear to improve outcomes overall because low-risk patients disproportionately received it, while within each severity stratum its advantage is smaller or absent. A chi-square test of the pooled table detects association but cannot explain this structure. Display stratified tables and use a method such as Mantel–Haenszel or regression when justified. Whether to adjust depends on the causal question; not every variable should be controlled mechanically.
+
+### Confidence intervals complement testing
+
+For a 2×2 table, risk difference, risk ratio, and odds ratio intervals communicate magnitude. For multi-category tables, report Cramér’s V or model-based contrasts with intervals. An omnibus p-value can be highly significant in a large sample with tiny association. Readers need both evidence and effect scale.
+
+### Keep causal conclusions separate
+
+Even when assignment is randomized, the chi-square test on observed outcomes may estimate a crude association affected by missingness or nonadherence. In observational studies, it is strictly descriptive absent additional causal assumptions. Report the design and analysis population alongside the test. A table is a starting point for understanding categorical data, not a causal model by itself.
+
+### Do not report a p-value without the table
+
+For categorical outcomes, sparse cell counts are scientifically informative and should remain visible. Percentages can look stable while representing only a few observations. Include denominators, explain row versus column percentages, and provide the actual table in text or supplement. For multiway tables, show relevant strata and model-based estimates rather than an opaque global statistic.
+
+### Final interpretation
+
+Pearson’s chi-square test is a useful global screen for categorical association when observations are independent and expected counts support its approximation. It does not identify magnitude, direction, or cause. Present cell counts and denominator percentages with an effect estimate and interval; use exact or design-aware alternatives when sparse or dependent data violate the simple model.
+
+When reporting a significant association, identify which group has the higher event proportion and give the absolute and relative scale; the statistic itself has no direction.
+
+For a report-ready table, show n and row percentages in each arm, then state the Pearson statistic, degrees of freedom, and exact p-value. Add a confidence interval for the prespecified effect measure and note if design-based correction or continuity correction was used. This allows clinical readers to assess both the observed pattern and its precision.
 
 ## References and further reading
 

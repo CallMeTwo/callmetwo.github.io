@@ -3,162 +3,167 @@ title: Sensitivity, specificity and predictive values
 summary: How well a test detects and excludes disease — and why a positive result's meaning depends on how common the disease is.
 ---
 
-## Overview and key ideas
+## Overview
 
-A diagnostic test is summarised against a reference standard in a 2×2 table. **Sensitivity** = TP / (TP + FN) is the proportion of truly diseased people the test detects; **specificity** = TN / (TN + FP) is the proportion of healthy people correctly called negative. **Positive predictive value (PPV)** = TP / (TP + FP) is the probability that a positive result is truly positive; **negative predictive value (NPV)** = TN / (TN + FN) is the corresponding probability for a negative result.
+Sensitivity and specificity describe test accuracy conditional on the true disease state, defined by a reference standard. Sensitivity is the proportion of diseased people testing positive; specificity is the proportion of non-diseased people testing negative. Positive and negative predictive values instead condition on the test result and depend on disease prevalence in the tested population.
 
-Sensitivity and specificity are (nearly) properties of the test itself at a given threshold, while PPV and NPV are properties of the test in a particular population — they move with the prevalence of disease. This is the practical heart of diagnostic reasoning: a clinician can never "look up" the probability that a positive result is real, because it is not a fixed property of the test; it is a function of how sick the tested population is.
+These measures do not by themselves establish that testing improves health. Their values depend on threshold, disease spectrum, reference standard, and study design. Define the target condition and clinical role—screening, diagnosis, triage, or rule-out—before choosing a test threshold.
 
-The clean bridge between the two worlds is the likelihood ratio: LR+ = sensitivity / (1 − specificity) and LR− = (1 − sensitivity) / specificity, which convert a pre-test probability into a post-test probability via Bayes' theorem without needing to know prevalence.
+## The 2×2 table and threshold-specific estimates
 
-Rough clinical heuristics for likelihood ratios (Fagan's nomogram logic): LR− near 0.1 (e.g. a very sensitive test) can effectively rule disease out; LR+ near 10 can effectively rule it in; LRs between 1 and 10 shift the probability only modestly and are usually not enough for a decision on their own.
+For a binary test and reference standard, true positives (TP) and false negatives (FN) occur among people with disease; true negatives (TN) and false positives (FP) among those without. Sensitivity=TP/(TP+FN), specificity=TN/(TN+FP), PPV=TP/(TP+FP), and NPV=TN/(TN+FN). Always show counts and denominators alongside percentages.
 
-## When to use it
+Suppose 100 people have disease and 900 do not. A test yields TP=80, FN=20, TN=810, FP=90. Sensitivity=.80, specificity=.90, PPV=80/170=47.1%, and NPV=810/830=97.6%. Despite 90% specificity and 80% sensitivity, fewer than half of positive results represent disease because prevalence is 10%.
 
-| Setting | Example question |
-| --- | --- |
-| Emergency rule-out | How well does D-dimer exclude pulmonary embolism in low-risk chest pain? |
-| Rule-in strategy | Which biomarker best confirms myocardial infarction in an ED chest pain cohort? |
-| Test selection | Rapid antigen test versus throat culture for suspected streptococcal pharyngitis — which trade-off fits the setting? |
-| Follow-up of screening | In a 50-year-old woman with an abnormal mammogram, what is the probability of cancer? |
+~~~r
+tab <- matrix(c(80, 20, 90, 810), nrow = 2, byrow = TRUE,
+              dimnames = list(reference = c("disease", "no_disease"),
+                              test = c("positive", "negative")))
+se <- tab["disease", "positive"] / sum(tab["disease", ])
+sp <- tab["no_disease", "negative"] / sum(tab["no_disease", ])
+ppv <- tab["disease", "positive"] / sum(tab[, "positive"])
+npv <- tab["no_disease", "negative"] / sum(tab[, "negative"])
+c(sensitivity = se, specificity = sp, PPV = ppv, NPV = npv)
+~~~
 
-## Assumptions and limitations
+Check row and column ordering; silently reversing the table reverses the interpretation. The calculation assumes one independent test per person and a valid reference status for everyone.
 
-- **Reference-standard assumptions** — sensitivity and specificity assume every participant is classified by a gold standard applied to everyone; if the reference standard is imperfect, or is applied conditionally on the test result (verification bias), both estimates are distorted.
-- **Spectrum effects** — test performance changes with disease stage and severity; a 95% sensitivity in symptomatic patients may be far lower in an asymptomatic screening population.
-- **Transportability of predictive values** — PPV and NPV computed in one study apply at that study's prevalence; moving them to your clinic requires re-computing at your local pre-test probability.
-- **A single threshold** — for a continuous marker, the numbers summarise one chosen cut-off; the full sensitivity–specificity trade-off is shown by the ROC curve (see the article on ROC curves and AUC).
+## Thresholds create trade-offs
 
-## Worked example
+For continuous test scores, lowering the positive threshold generally increases sensitivity and decreases specificity; raising it generally does the reverse. Screening often favors sensitivity when missed disease is costly and confirmatory testing is available. A high-risk intervention may require specificity to reduce unnecessary harm. No threshold is optimal without a decision context.
 
-D-dimer is measured in 400 emergency chest pain patients, of whom 40 (prevalence 10%) have pulmonary embolism confirmed on CT angiography. The test has sensitivity 95% and specificity 55%:
+Youden’s J (sensitivity+specificity−1) chooses a threshold maximizing a balanced accuracy criterion. It weights sensitivity and specificity symmetrically and does not include prevalence, follow-up burden, treatment effects, or patient preferences. Use it as a descriptive summary, not a universal clinical cutoff. Prefer prespecified thresholds from guidelines or decision analysis and validate them independently.
 
-| | PE present | PE absent |
-| --- | --- | --- |
-| Test positive | 38 | 162 |
-| Test negative | 2 | 198 |
-
-- Sensitivity = 38/40 = **95%**; specificity = 198/360 = **55%**.
-- PPV = 38 / (38 + 162) = **19%** — most positive D-dimers are false positives.
-- NPV = 198 / (198 + 2) = **99%** — a negative D-dimer virtually excludes PE.
-- LR+ = 0.95 / 0.45 = **2.1**; LR− = 0.05 / 0.55 = **0.09**.
-
-If the target population has a lower 2% prevalence, PPV falls to 8 / (8 + 176) ≈ **4%** while NPV stays near 99.5%. Interpretation: the test is built for exclusion — its high sensitivity gives a small LR−, so a negative result sharply lowers post-test probability, while a positive result (LR+ 2.1) moves it little and the correct next step is CTPA. The example shows that a "95% sensitive" test can still generate 81% false positives, because the accuracy of a positive result is a property of the patient population, not the test.
-
-## Interpretation and common pitfalls
-
-- Quoting one study's PPV as if it applied in your clinic; PPV moves with prevalence, so recompute it at your patient's pre-test probability.
-- Reading sensitivity and specificity as one "accuracy": a 95%/55% test is excellent for ruling out and poor for ruling in — the two numbers answer different questions.
-- Forgetting the cut-off: for continuous markers, raising the threshold raises specificity and lowers sensitivity; always state which cut-off the quoted values refer to.
-- Confusing test characteristics with post-test probability — sensitivity is not the probability that a positive result is true; that is the PPV.
-- Comparing two tests by their sum of sensitivity and specificity, or by "accuracy," in a lopsided population where most people are healthy (or sick); accuracy can be deceptively high and tells you little about the errors that matter.
-
-Sensitivity and specificity are conditional on disease status and can still vary across clinical settings because case severity, comorbidities, and control selection affect the tested spectrum. Predictive values additionally depend directly on prevalence: for sensitivity Se, specificity Sp, and prevalence π, PPV = Seπ/[Seπ + (1−Sp)(1−π)]. For example, with Se=0.95, Sp=0.90, and prevalence 1%, PPV is about 8.8%, despite high sensitivity and specificity. Validate thresholds in a representative target population and report indeterminate results and missing tests rather than silently excluding them.
-
-## References and further reading
-
-## Threshold-specific accuracy and uncertainty
+Indeterminate results need their own rule. Excluding them can make accuracy look better; classifying them positive or negative changes sensitivity and specificity. Report the proportion indeterminate and how those patients are managed. Repeat testing also changes performance and should be evaluated as a testing strategy, not as isolated accuracy.
 
 ## Likelihood ratios and sequential updating
 
-## Confidence intervals for accuracy estimates
+Positive likelihood ratio LR+=sensitivity/(1−specificity); negative likelihood ratio LR−=(1−sensitivity)/specificity. Likelihood ratios express how much a test result shifts odds. Pretest odds are p/(1−p); post-test odds=pretest odds×LR. Convert back to probability as odds/(1+odds).
 
-## Verification bias correction
+In the example, LR+=.80/.10=8 and LR−=.20/.90=.222. With pretest probability .10, pretest odds=.10/.90=.111. A positive result gives post-test odds .888 and probability .888/1.888=47.0%, matching PPV. A negative result gives odds .0247 and probability about 2.4%. Thus the same test result has different post-test meaning at a different pretest probability.
+
+Sequential test updating assumes appropriate conditional independence or a joint model. Two tests based on the same biological signal may have correlated errors; multiplying their likelihood ratios as if independent overstates evidence. Specify test sequence and dependence. Likelihood ratios also vary with disease severity and threshold, so a single value may not apply across the spectrum.
+
+## Precision and confidence intervals
+
+Sensitivity and specificity are binomial proportions with denominators TP+FN and TN+FP. Their uncertainty depends on numbers with and without disease, not simply total sample size. Wilson or exact intervals are preferable to a simple Wald interval, especially when estimates approach 0 or 1. PPV and NPV need intervals too and should reflect target prevalence uncertainty if prevalence is estimated.
+
+If sensitivity is 80/100=.80, a rough standard error is sqrt(.8*.2/100)=.04; a normal interval is approximately .72 to .88. For small denominators, exact or score intervals can differ substantially. Report numerator and denominator and interval method. Avoid excessive decimal precision.
+
+~~~r
+binom.test(80, 100)$conf.int
+binom.test(810, 900)$conf.int
+~~~
+
+These exact binomial intervals assume independent observations and fixed reference groups. If participants are clustered, use cluster-aware methods. If the threshold was selected on the same data, these intervals do not account for cutpoint selection and are optimistic for future performance.
+
+## Study design and sources of bias
+
+A diagnostic accuracy study should recruit participants who resemble the intended clinical population, preferably consecutive or randomly sampled patients. A two-gate design comparing known advanced cases with healthy controls can exaggerate accuracy due to spectrum differences. Report setting, recruitment, disease severity, comorbidities, and prior testing.
+
+Verification bias occurs when only some participants receive the reference standard, often based on index-test result. Missing reference status can bias sensitivity and specificity. Apply the reference standard to all participants when feasible; otherwise use valid correction methods and sensitivity analyses. Differential verification uses different reference standards and can also distort estimates.
+
+Incorporation bias occurs when the index test contributes to the reference diagnosis. Reviewers should be blinded to index results where possible. Reference standards may be imperfect; describe adjudication, inter-rater agreement, and uncertainty. A “gold standard” is not infallible.
+
+Timing matters. If disease status changes between index and reference tests, discordance may reflect progression rather than test error. State the interval and whether treatment occurred between tests. In screening, follow-up may be needed to identify initially missed disease; incomplete follow-up can misclassify false negatives.
 
 ## Study size and precision planning
 
-## Reporting test performance for practice
+Plan separate sample sizes for diseased and non-diseased participants because sensitivity and specificity have different denominators. To estimate sensitivity near .80 with a 95% margin of error of .05 under a simple normal approximation requires about 1.96²(.8)(.2)/.05²≈246 diseased participants. At 10% prevalence, obtaining that many cases may require enrolling roughly 2,460 people, before loss or design effects.
 
-## Choosing cutpoints responsibly
+If the study uses case-control sampling to obtain sufficient cases, sensitivity and specificity may be estimable under suitable spectrum and verification, but PPV/NPV and calibration do not directly represent the target population. For clustered recruitment, inflate sample size and account for intraclass correlation. Precision planning should reflect clinically important lower bounds, not only expected point estimates.
 
-Thresholds should be selected in development based on a prespecified clinical use and then evaluated in independent validation. Maximizing Youden's J or minimizing distance to upper-left corner ignores prevalence and unequal harms. If a threshold is selected from data, use nested validation or bootstrap optimism correction and label it exploratory. A continuous marker can support multiple thresholds for rule-out, intermediate, and rule-in zones rather than a single dichotomy.
+## Predictive values and prevalence transport
 
-For a test with a gray zone, define what clinicians should do with intermediate values (repeat, additional testing, watchful waiting). Excluding the gray zone from accuracy calculations inflates performance; report its frequency and pathway. Decision thresholds may vary by pretest probability and patient preferences, so decision support can combine test result with clinical risk factors rather than use a universal cutpoint.
+PPV and NPV change with prevalence. With Se=.80 and Sp=.90 at prevalence .01, PPV=.008/(.008+.099)=7.5%. At prevalence .30, PPV=.24/(.24+.07)=77.4%. A screening test can therefore generate many false positives in a low-prevalence population even if sensitivity and specificity appear stable.
 
-Provide a 2×2 table with exact counts, not only rounded percentages. State threshold, test version, reference standard, setting, recruitment spectrum, blinding, and interval method. Include indeterminate tests and participant flow. Report prevalence in intended-use population and distinguish study PPV/NPV from transported values. If several thresholds are considered, explain prespecification and correct/label exploratory selection.
+Transporting sensitivity and specificity also requires caution because case severity and non-disease comorbidities affect score distributions. A test validated in specialty care may not perform similarly in primary care. Validate in the intended setting and report prevalence, spectrum, and predictive values there. Recalculation using a new prevalence alone cannot correct changed sensitivity or specificity.
 
-For a pathway, show test sequence, repeat testing, confirmatory tests, and consequences. Sensitivity and specificity are not necessarily constant at each stage if tests are conditionally dependent. For serial testing (both positive required), overall sensitivity often falls and specificity rises; for parallel testing (either positive), sensitivity rises and specificity falls. Calculate joint performance from participant-level data rather than multiplying marginal values absent independence.
+### Indeterminate and repeated results
 
-To estimate sensitivity with desired half-width (d), a rough sample size among diseased participants is (n_D\approx z^2p(1-p)/d^2). At sensitivity .90, 95% confidence and precision ±5 percentage points, this is about 139 diseased participants. If prevalence is 5%, roughly 2,780 screened participants are needed before nonresponse/verification losses. Specificity requires a separate nondiseased sample-size target. Exact/binomial methods may be preferable near boundaries, and clustering/multicenter design inflates requirements.
+Tests may yield borderline, uninterpretable, or technically failed results. Report these separately and describe repeat or confirmatory pathways. A complete-case analysis that drops failures can overstate accuracy if failures are more common among sick or difficult-to-test patients. For an intention-to-diagnose assessment, retain all attempted tests and count the pathway outcome.
 
-For paired tests, sample size for difference in sensitivity depends on discordant results among diseased participants, not independent proportions. Predefine the clinically meaningful accuracy difference and use paired methods. Diagnostic studies often underpower subgroup and threshold comparisons; report achieved interval precision rather than claiming equivalence.
+Repeated testing can improve sensitivity or specificity depending on whether results are combined with an OR rule, AND rule, or sequential strategy. Errors across repeats may be correlated. Estimate performance of the full algorithm, including retesting intervals and missing follow-up. Do not multiply single-test likelihood ratios unless dependence assumptions are credible.
 
-If reference-standard verification is performed only for test-positive patients, observed false negatives are missing and sensitivity is overestimated. In a two-phase design, randomly verify a known fraction of negatives and weight verified records by inverse verification probability, or use likelihood methods accounting for verification. Verification probabilities must be positive and known/modelled. Report the verification flow and perform sensitivity analysis if verification depends on unobserved disease severity.
+## Clinical consequences and decision utility
 
-## Indeterminate and repeated test results
+False negatives may delay treatment; false positives can cause anxiety, invasive follow-up, and cost. Sensitivity and specificity do not assign these consequences. Decision-curve analysis, cost-effectiveness analysis, or explicit utility models can compare thresholds and testing strategies. Include harms and downstream pathways, not just test classification.
 
-Indeterminate results are clinically meaningful and should not be dropped without accounting. Report their frequency and reasons, and evaluate repeat-testing or indeterminate-as-positive/negative strategies as appropriate. For repeated tests, distinguish test-retest reliability from diagnostic accuracy. If multiple specimens per participant are analyzed, account for within-person clustering. A threshold chosen after seeing the reference results is optimistic; lock the threshold before validation.
+A high-sensitivity test may be useful as a first-stage screen if confirmatory testing is safe and accessible. If follow-up is unavailable, false positives can cause lasting harm. A rule-out claim should consider pretest probability and the negative likelihood ratio. A negative result does not reduce risk to zero.
 
-Sensitivity is estimated among diseased participants and specificity among nondiseased participants, so their precision depends on the numbers in those groups, not total sample size alone. If 90 of 100 diseased participants test positive, sensitivity is 90% with a Wilson interval roughly 82.6%–94.5%; collecting 1,000 non-diseased controls does little to narrow sensitivity uncertainty. Plan diagnostic accuracy sample size separately for desired sensitivity and specificity precision, and account for prevalence when estimating recruitment needs.
+### Reporting accuracy for clinical readers
 
-For predictive values in a probability sample, binomial intervals may be appropriate; case-control enriched samples do not directly estimate PPV/NPV because their disease fraction is artificial. Reweight to target prevalence only if sensitivity/specificity transport. For paired test comparisons, use methods accounting for paired discordant results; DeLong tests compare AUC, while McNemar-type methods compare paired classification rates at a fixed threshold.
+Describe target condition, intended role, participant selection, index test procedure, reference standard, blinding, threshold, timing, missing and indeterminate results, and sample size. Provide the complete 2×2 table and estimates with confidence intervals. State prevalence and predictive values for the intended setting. Report subgroup and external validation where supported.
 
-## Calibration and decision threshold example
+Follow STARD reporting guidance for diagnostic accuracy studies. Distinguish accuracy from clinical utility and impact. Explain how false positives and false negatives affect the care pathway. Report protocol deviations and all thresholds examined to reduce selective reporting.
 
-Suppose a disease has 2% prevalence and a test has 95% sensitivity and 95% specificity. In 10,000 screened, expected true positives are 190 and false positives 490, yielding PPV 28%. A positive result may warrant confirmatory testing, not immediate treatment. If treatment threshold is 10%, a post-test risk of 28% crosses it only if test result and pretest risk are calibrated for this population and harms/benefits support that threshold.
+### Verification bias and correction
 
-Report the flow from screening through confirmatory diagnosis and treatment. False positives can cause anxiety and invasive workup; false negatives can delay care. Sensitivity/specificity alone omit these downstream consequences. Decision analysis should account for prevalence, patient preferences, test costs, and harms.
+Partial verification occurs when reference testing depends on the index result. Suppose all positive screens receive biopsy but only a small random subset of negatives do. If unverified negatives are treated as disease-free, false negatives are missed and sensitivity is biased upward. Specificity may also be distorted. Record who receives verification and why, then use complete verification or validated statistical correction.
 
-Likelihood ratios summarize how much a test result changes disease odds. Pretest odds are (p/(1-p)); post-test odds equal pretest odds times LR. For sensitivity 90% and specificity 90%, LR+ is 9 and LR− is 0.111. At a 5% pretest probability, pretest odds are .0526; a positive result gives post-test odds .474 and probability .474/1.474=32.2%. A negative result gives odds .00585 and probability about 0.58%. This reproduces Bayes' PPV/NPV calculation and makes clear that the same test result has different meaning at different pretest probability.
+Inverse-probability weighting can adjust for verification under a model for the probability of receiving the reference standard conditional on observed variables. Multiple imputation of missing reference status is another option under assumptions. Both require measured predictors of verification and correct models; neither rescues verification that depends on unobserved disease after conditioning. Conduct sensitivity analyses and report the assumptions.
 
-```r
-lr_pos <- 0.90 / (1 - 0.90)
-lr_neg <- (1 - 0.90) / 0.90
-update_prob <- function(p, lr) {
-  odds <- p / (1 - p) * lr
-  odds / (1 + odds)
-}
-c(positive = update_prob(.05, lr_pos),
-  negative = update_prob(.05, lr_neg))
-```
+Differential verification uses different reference tests based on the index result or clinical features. If one reference is less sensitive, apparent index-test accuracy can be biased. Use a uniform reference when ethical and feasible, or a composite adjudication with blinded reviewers. If the reference is imperfect, consider latent-class approaches only when multiple tests and assumptions provide identification; do not label the result as gold-standard accuracy.
 
-Sequential multiplication assumes conditional independence of test results given disease status. Repeating the same test or using correlated tests and multiplying LRs exaggerates evidence. A diagnostic pathway should model joint accuracy or use validated conditional LRs. LRs may also vary by disease severity, so a single value may not fit all patients.
+### A fuller Bayesian updating example
 
-## ROC threshold selection and decision consequences
+For prevalence .10, pretest odds are .10/.90=.111. If LR+=8, post-test odds=.888 and probability=.888/(1+.888)=.47. With prevalence .01, pretest odds=.0101; the same LR+ gives odds=.0808 and probability .0748. Thus a positive result yields about 7.5% post-test probability in a low-prevalence setting versus 47% in the higher-prevalence setting. The test evidence is similar, but the starting risk differs.
 
-The ROC curve plots sensitivity against 1−specificity across thresholds. The AUC is the probability a randomly chosen case ranks above a noncase; it is a ranking measure, not calibration or clinical utility. AUC can remain high despite poor calibration and can change little when clinically important threshold performance changes. Report sensitivity, specificity, PPV/NPV at intended thresholds, calibration if probabilities are produced, and decision consequences such as downstream tests or treatment harms.
+For a negative result and LR−=.222, prevalence .30 gives pretest odds=.30/.70=.429. Post-test odds=.095 and probability=.087. The negative test reduces risk substantially but leaves nearly 9% probability, which may be too high to rule out disease when the clinical stakes are serious. A decision depends on threshold for further evaluation.
 
-Youden's index (sensitivity+specificity−1) weights false positives and false negatives symmetrically and does not account for prevalence or consequences. The “optimal” threshold should reflect clinical harms, costs, and patient preferences. If a test is used to rule out disease, a high-sensitivity operating point may be desired; rule-in use may prioritize specificity and confirmatory evidence. Report multiple prespecified thresholds where no single use dominates.
+Likelihood ratios can be more portable than predictive values, but only if sensitivity and specificity remain similar across spectrum, threshold, and setting. Disease severity and competing conditions can change them. Validate LRs in the target spectrum and provide uncertainty. A likelihood ratio is a summary, not a guarantee that every patient’s odds update identically.
 
-## Verification, spectrum, and imperfect reference standards
+### Confidence intervals and clustered samples
 
-Accuracy studies need the index test and reference standard applied to all participants or a random subset regardless of index result; otherwise partial verification bias distorts results. If the reference standard is invasive, two-phase designs can verify a sample of test-negative individuals and use inverse-probability weighting. Differential verification with different reference tests by index result can introduce bias. Blinding prevents the index result from influencing reference interpretation.
+For sensitivity, a Wilson interval can be calculated from TP successes among diseased participants; specificity is TN among non-diseased. Exact binomial intervals are conservative but useful with small counts. For a paired design in which each participant receives two tests, comparing sensitivities requires the discordant case results, not independent-proportion formulas. McNemar-type methods or paired bootstrap can be used.
 
-If the reference standard is imperfect, observed sensitivity/specificity measure agreement with that standard rather than true disease. Latent-class models can estimate accuracy without a gold standard, but require assumptions such as conditional independence or multiple populations with varying prevalence; these assumptions are often strong. State the clinical disease definition and reference test limitations. Include indeterminate results and test failures in the flow diagram and clarify whether they were excluded, repeated, or counted as errors.
+If participants are clustered within clinics, disease status and test results may correlate. Standard binomial intervals are too narrow. Use a cluster bootstrap or appropriate hierarchical model, and report the number of independent sites. For repeated tests on one patient, define whether accuracy is per test, episode, or person. An episode-level OR rule cannot be evaluated as independent repeated rows.
 
-Sensitivity and specificity are conditional on disease status; positive and negative predictive values (PPV, NPV) are conditional on the test result and therefore depend strongly on prevalence in the tested population. At a chosen threshold, sensitivity is TP/(TP+FN), specificity TN/(TN+FP), PPV TP/(TP+FP), and NPV TN/(TN+FN). These denominators should accompany percentages in reports. Accuracy is not a single immutable property of an assay: spectrum, disease definition, reference standard, setting, and threshold all affect its measured performance.
+Precision should be reported for all key metrics. PPV may be based on few positive tests even in a large cohort, and sensitivity may be imprecise when there are few diseased participants. A confidence interval crossing a clinically important threshold signals uncertainty that should affect the clinical claim.
 
-Suppose 1,000 people are tested, disease prevalence is 5%, sensitivity is 90%, and specificity is 90%. Then there are approximately 45 true positives, 5 false negatives, 95 false positives, and 855 true negatives. PPV is 45/(45+95)=32.1%; NPV is 855/(855+5)=99.4%. A test can therefore have apparently strong sensitivity and specificity while most positive results are false positives when disease is uncommon. Applying the same operating characteristics at 1% prevalence yields PPV below 9%, illustrating why validation cohort PPV should not be exported uncritically.
+## Threshold selection and optimism
 
-```r
-N <- 1000; prevalence <- 0.05
-sens <- 0.90; spec <- 0.90
-tp <- N * prevalence * sens
-fn <- N * prevalence * (1 - sens)
-tn <- N * (1 - prevalence) * spec
-fp <- N * (1 - prevalence) * (1 - spec)
-c(TP = tp, FN = fn, TN = tn, FP = fp,
-  PPV = tp / (tp + fp), NPV = tn / (tn + fn))
-```
+A threshold selected to maximize sensitivity, specificity, Youden’s J, or another metric on a development sample will look better there than in new patients. Either prespecify a threshold from clinical guidance or choose it in a development set and validate independently. If sample size is limited, use nested cross-validation or bootstrap the threshold-selection procedure, while recognizing that internal validation is not external evidence.
 
-The values are expected counts, so fractional results can arise; round only for display. In a real study, use observed counts and confidence intervals. Wilson intervals generally behave better than simple Wald intervals for proportions, particularly near zero or one. For paired diagnostic tests applied to the same participants, account for paired outcomes when comparing sensitivities or specificities; treating estimates as independent wastes information and misstates uncertainty.
+Report all thresholds examined and the rationale for the chosen operating point. A data-driven cutoff can be unstable: small changes in sample composition may change the optimal value. Give a threshold confidence interval or sensitivity analysis where possible. Prefer rounded, clinically implementable values and validate after rounding.
 
-## Threshold selection and study design
+If the test result is continuous, a single cutoff may discard useful information. A multilevel pathway can use low, intermediate, and high zones with different actions. Evaluate the full pathway’s sensitivity, specificity, referrals, and outcomes, including how indeterminate zones are handled. Decision curves can assess risk-threshold utility when the output is a calibrated risk.
 
-Threshold choice encodes the consequences of false positives and false negatives. Screening may favor high sensitivity to avoid missed cases, followed by a confirmatory test; a toxic treatment decision may require higher specificity or a calibrated probability threshold based on expected benefit and harm. The threshold should be prespecified or selected in development data and evaluated independently. Optimizing a threshold and estimating its accuracy in the same small sample creates optimistic performance.
+## Study design and intended spectrum
 
-Diagnostic accuracy studies should recruit a representative clinical spectrum, apply the index test and reference standard to participants without verification bias, and blind interpretation where possible. Partial verification (only test-positive patients receive the reference standard), differential reference standards, and exclusion of indeterminate results can distort both sensitivity and specificity. Case-control samples containing clear advanced cases and healthy controls often inflate apparent accuracy compared with the intended-use population. STARD recommends describing recruitment, test conduct, thresholds, flow, missing results, and uncertainty.
+Consecutive enrollment reduces selection of unusually clear cases and healthy controls. Case-control designs can be efficient for early test development but may exaggerate accuracy because cases and controls are sampled from different clinical pathways. Report recruitment source, disease severity, comorbidities, prior treatment, and exclusions.
 
-Predictive values in practice can be recalculated from sensitivity, specificity, and target prevalence using Bayes' theorem, but this assumes those accuracy values transport to the target setting. If spectrum changes alter sensitivity or specificity, prevalence adjustment alone is insufficient. Report likelihood ratios as well: LR+ = sensitivity/(1−specificity), LR−=(1−sensitivity)/specificity. They update pretest odds to post-test odds, yet they too can vary across disease severity and clinical settings.
+In a screening program, people without disease may include benign conditions that mimic symptoms. In a specialty clinic, disease prevalence and severity are higher. Sensitivity and specificity can change across these spectra. External validation should reflect the actual point of care and operator, not only another dataset from the same highly selected source.
 
-Pitfalls include interpreting NPV as proof that an individual is disease-free, omitting indeterminate tests, choosing a cutpoint after inspecting outcomes, and reporting predictive value without prevalence. For continuous tests, show threshold-specific tradeoffs and consider calibration, clinical utility, and harms from downstream testing. Reference standards are themselves imperfect; observed sensitivity and specificity are relative to the chosen reference definition.
+The reference standard should be applied within a reasonable time of the index test and before treatment changes disease status. If the standard is invasive, ethical constraints may limit universal verification; describe the trade-off and methods. Blinding prevents knowledge of index results from influencing reference classification.
 
-- Bossuyt PM, Reitsma JB, Bruns DE, et al. STARD 2015: an updated list of essential items for reporting diagnostic accuracy studies. *BMJ*. 2015;351:h5527. https://doi.org/10.1136/bmj.h5527
-- Leeflang MMG, Bossuyt PMM, Irwig L. Diagnostic test accuracy may vary with prevalence: implications for evidence-based diagnosis. *Journal of Clinical Epidemiology*. 2009;62:5–12. https://doi.org/10.1016/j.jclinepi.2008.04.007
+### Interpreting predictive values in service planning
 
-- Leeflang MMG, Rutjes AWS, Reitsma JB, Hooft L, Bossuyt PMM. Variation of a test's sensitivity and specificity with disease prevalence. *CMAJ*. 2013;185:E537–E544. [doi:10.1503/cmaj.121286](https://doi.org/10.1503/cmaj.121286)
+A screening test with sensitivity .90 and specificity .95 in a population of 10,000 with prevalence 1% would yield about 90 true positives, 495 false positives, 10 false negatives, and 9,405 true negatives. PPV is 90/(90+495)=15.4%; roughly five and a half positive screens occur per true case. The confirmatory pathway must accommodate this volume and its harms.
 
-- Bland M, Altman DG. *Statistics with Confidence*. BNP Books.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Vickers AJ, Elkin EB. "Understanding the area under the receiver operating characteristic curve." *BMC Medical Informatics and Decision Making*. 2006.
-- The library's "ROC curves and AUC" article shows how to compare thresholds across the full range of cut-offs.
+At prevalence 10%, with the same conditional accuracy, expected TP=900, FP=450, FN=100, TN=8,550, and PPV=66.7%. A test service cannot use PPV from a high-prevalence clinic to communicate screening performance in the general population. Estimate prevalence in the intended setting or report a range.
+
+NPV can be high in low-prevalence populations even for weak tests, so a high NPV alone is not proof of strong rule-out performance. Report LR−, pretest risk, post-test risk, and relevant clinical threshold. Similarly, high PPV in a specialty clinic may mostly reflect high pretest probability.
+
+## Imperfect tests and latent condition
+
+Some conditions lack a definitive reference standard. Expert panels may combine imaging, symptoms, and follow-up; such adjudication can be subjective and may incorporate the index test. State criteria and blinding. Multiple imperfect tests can support latent-class models, but identification requires assumptions such as conditional independence or restrictions on sensitivity and specificity. These assumptions can be implausible when tests share biological mechanisms.
+
+When no gold standard exists, accuracy estimates are conditional on the chosen reference definition. Sensitivity and specificity against an imperfect standard may understate or overstate true disease accuracy. Describe this limitation and avoid calling the reference “truth” without qualification. Clinical outcomes and utility may be more relevant than agreement with a flawed surrogate.
+
+## Reporting the testing pathway
+
+Report the test sequence: who is tested, threshold, confirmatory test, repeat interval, and treatment action. Give accuracy at each stage and for the combined strategy. Include failed tests, nonattendance, and indeterminate results. A test can have excellent accuracy but low program sensitivity if many eligible people never complete testing.
+
+Measure downstream consequences such as time to diagnosis, unnecessary procedures, anxiety, and access to treatment. If a negative result reassures clinicians, assess delayed diagnoses. If a positive result triggers limited specialist referrals, evaluate who receives them. Accuracy is a property of test against reference in a sample; impact is a property of the whole care pathway.
+
+For each cutpoint, preserve units and assay version. A numerical threshold without measurement precision or specimen context may not transfer between instruments or laboratories.
+
+## References and further reading
+
+- Whiting PF, Rutjes AWS, Westwood ME, et al. QUADAS-2: a revised tool for the quality assessment of diagnostic accuracy studies. *Ann Intern Med*. 2011;155:529–536. [doi:10.7326/0003-4819-155-8-201110180-00009](https://doi.org/10.7326/0003-4819-155-8-201110180-00009).
+- Bossuyt PM, Reitsma JB, Bruns DE, et al. STARD 2015. *BMJ*. 2015;351:h5527. [doi:10.1136/bmj.h5527](https://doi.org/10.1136/bmj.h5527).
+- See [ROC curves and AUC](roc-curves-and-auc.html) for full threshold curves.
+- Bossuyt PM, Reitsma JB, Bruns DE, et al. STARD 2015: an updated list of essential items for reporting diagnostic accuracy studies. *BMJ*. 2015;351:h5527. [doi:10.1136/bmj.h5527](https://doi.org/10.1136/bmj.h5527).
+- Deeks JJ, Altman DG. Diagnostic tests 4: likelihood ratios. *BMJ*. 2004;329:168–169. [doi:10.1136/bmj.329.7458.168](https://doi.org/10.1136/bmj.329.7458.168).
+- See [ROC curves and AUC](roc-curves-and-auc.html) for threshold curves and AUC.

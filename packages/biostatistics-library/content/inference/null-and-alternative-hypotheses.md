@@ -3,267 +3,140 @@ title: Null and alternative hypotheses
 summary: The null hypothesis states the default position that the test must reject, and the alternative states what the researcher wants evidence for.
 ---
 
-## Overview and key ideas
+## Overview
 
-Hypothesis testing formalises a decision problem with two competing statements. The **null hypothesis (H0)** is the default position - typically no difference, no association, or no effect - and it carries the burden of proof: it is rejected only when the data are sufficiently incompatible with it. The **alternative hypothesis (H1)** states what the researcher wants evidence for.
+A statistical hypothesis is a statement about a parameter or data-generating process. The null hypothesis defines the reference model against which the data are evaluated; the alternative describes departures that the design aims to detect. These are not necessarily competing beliefs about reality. They are operational definitions that determine test calibration, power, and the conclusions permitted by the study.
 
-The alternative can be **two-sided** (an effect in either direction, for example H1: mean difference not equal to 0) or **one-sided** (an effect in a prespecified direction, for example H1: the new treatment is superior). Two-sided tests split the significance level between both tails and are the default in medical research.
+## Translate the clinical question
 
-Two structural points matter. First, the test is asymmetric: failing to reject H0 is not the same as accepting it; it only means the data did not reach the threshold for rejection. Second, the null is a mathematical device that defines the error probabilities of the procedure; it is not a scientific claim the researcher believes to be true.
+For a randomized trial with mean outcome μT and μC, a superiority test may specify H0: μT−μC=0 against H1: μT−μC≠0. The two-sided alternative recognizes departures in either direction. A one-sided alternative is defensible only when the opposite direction would not support any relevant claim and the direction was chosen before data inspection.
 
-The choice between a point null ("difference exactly equals 0") and a composite or margin-based null deserves attention. Exact point nulls are mathematically convenient and are the default for superiority tests, but they can be unambitious: if the true difference is 0.001 mmol/L, the null is false and the study will eventually "reject" it while nothing of interest has been shown. Margin-based hypotheses (non-inferiority, equivalence) instead anchor the test to a clinically meaningful boundary, which is often a better formulation of the scientific question, at the cost of having to justify the margin up front.
+A non-inferiority trial asks a different question. If larger values are better and Δ>0 is the maximum acceptable loss, H0: μT−μC≤−Δ is tested against H1: μT−μC>−Δ. Failure to reject equality in a superiority test does not establish non-inferiority; the margin, population, assay sensitivity, adherence, and analysis populations need specific justification.
 
-## When to use it
+## Margins and meaningful nulls
 
-| Setting | Typical formulation |
-| --- | --- |
-| Superiority trial | H0: treatment difference = 0; H1: difference is not 0 (two-sided) |
-| Non-inferiority trial | H0: new treatment is worse by at least the margin; H1: worse by less than the margin |
-| Case-control study | H0: odds ratio = 1; H1: odds ratio is not 1 |
-| Observational cohort | H0: no exposure-disease association; H1: an association exists |
-
-## Assumptions and limitations
-
-- A one-sided H1 is defensible only if a result in the opposite direction would be of no scientific or regulatory interest, and only if it is prespecified before the data are seen; a post hoc one-sided test is a route to p-hacking.
-- In non-inferiority and equivalence designs the null is not "no effect" but "an effect of at least a clinically meaningful size"; the margin must be clinically justified, because the conclusion is only as meaningful as the margin.
-- The probability statements behind the test (type I and type II errors) are valid only under the test's conditions: randomisation or a correct error model, independent observations, and the prespecified analysis. Design or selection bias invalidates the p-value no matter how carefully the hypotheses are worded.
-- The choice of null value is a modelling decision that changes the answer; "H0: difference = 0.1" is a different test from "H0: difference = 0".
-
-## Worked example
-
-A non-inferiority trial compares a new oral anticoagulant with warfarin for stroke prevention in atrial fibrillation. The prespecified margin is 1.5 percentage points per year of stroke risk: the new drug would be acceptable even if it were worse by up to 1.5% per year. The hypotheses are H0: (new drug - warfarin) stroke rate is at least +1.5% versus H1: the difference is less than +1.5%. The observed rate difference is -0.2% (favouring the new drug) and the upper limit of the 95% CI is +1.1%. Because even the worst value compatible with the data lies below the margin, H0 is rejected and non-inferiority is declared: the data are incompatible with the new drug being clinically worse by the prespecified margin.
-
-## Interpretation and common pitfalls
-
-- **"We proved the null."** A failure to reject H0 is an absence of evidence against it, not evidence for it; a small underpowered study "proves" almost nothing in either direction.
-- **Believing that rejecting H0 establishes H1 as true.** It shows the data are incompatible with H0 at the chosen level; the effect size and its CI, not the verdict, describe what remains plausible.
-- **Choosing a one-sided test after seeing the data** to obtain a smaller p-value - invalid, because the tail probability was selected after the direction of the result was known.
-- **Mismatching hypothesis and decision.** Using a two-sided test when only one direction would change practice, or the reverse, wastes power or creates a question no one asked.
-
-## Hypotheses as estimands and decision boundaries
-
-The null is not chosen in isolation: it is a statement about a clearly
-defined estimand. Before writing \(H_0\), specify population, treatment
-conditions, endpoint, follow-up, and summary measure. For example,
-“treatment effect” could mean a 12-month risk difference in all randomized
-participants under a treatment-policy strategy, or a hazard ratio among
-those remaining event-free. Those are different quantities and induce
-different hypotheses. In a randomized trial, an intention-to-treat
-estimand preserves the randomized comparison but may include treatment
-discontinuation; a per-protocol estimand asks about adherence and requires
-additional assumptions to avoid selection bias.
-
-For superiority on an additive scale, one may write \(H_0:\Delta=0\) versus
-\(H_1:\Delta\ne0\), where positive and negative signs must be defined in
-advance. In a non-inferiority trial, define \(\Delta=\text{new}-\text{control}\)
-for an outcome where lower is better. A margin M>0 is the largest loss
-deemed acceptable, so \(H_0:\Delta\ge M\) versus \(H_1:\Delta<M\). For
-non-inferiority at one-sided level 0.025, the upper bound of the
-corresponding 97.5% one-sided interval (equivalently the upper bound of a
-95% two-sided interval under matching procedures) must be below M. The
-margin should preserve a clinically meaningful fraction of the established
-control benefit and be justified using prior evidence, not selected from
-the observed confidence interval.
-
-Equivalence asks whether the effect lies inside both limits: \(H_0:\Delta\le
--M\text{ or }\Delta\ge M\) against \(H_1:-M<\Delta<M\). The two one-sided
-tests procedure (TOST) rejects both components of the null; equivalently,
-the matching 90% two-sided interval at alpha=0.05 must fit entirely inside
-[-M,M]. Merely obtaining p>0.05 for a zero-difference test does not establish
-equivalence. A wide interval can include zero and clinically large benefit
-or harm simultaneously.
+A point null of exactly zero is mathematically convenient but can be scientifically weak: a huge study may detect a negligible departure. Equivalence instead asks whether the true effect lies within (−Δ,+Δ), usually requiring two one-sided tests or a corresponding 90% confidence interval wholly inside the margins at a 5% level. The margin must be clinically defensible and set without reference to observed results.
 
 ```r
-# Illustrative normal-theory TOST for difference estimate d and SE s.
-# Both one-sided p-values must be below alpha.
-d <- -0.2; s <- 0.45; margin <- 1.5; alpha <- 0.05
-z_lower <- (d - (-margin)) / s  # test that d is above -margin
-z_upper <- (d - margin) / s    # test that d is below +margin
-p_lower <- pnorm(z_lower, lower.tail = FALSE)
-p_upper <- pnorm(z_upper, lower.tail = TRUE)
-c(p_lower = p_lower, p_upper = p_upper,
-  equivalent = p_lower < alpha && p_upper < alpha)
+# Illustrative two-sided test of a mean difference
+x_t <- c(8, 6, 7, 4, 9, 5, 6, 7)
+x_c <- c(5, 4, 6, 3, 7, 4, 5, 6)
+t.test(x_t, x_c, alternative = "two.sided")
 ```
 
-Here both bounds are met: lower-bound statistic is 2.89 (one-sided p≈0.0019)
-and upper-bound statistic is −3.78 (p≈0.00008). The example assumes a
-normal estimator with known SE and is for illustration; real analyses use
-the design-appropriate standard error and prespecified population. For a
-binary endpoint, scale and margin definition need clinical justification;
-the same numerical percentage-point margin does not correspond to a
-constant relative effect at all baseline risks.
+The code tests a mean difference under independent observations and Welch’s variance approach. It does not validate the choice of endpoint, margin, or study design. For clustered or repeated observations, a model reflecting dependence is needed.
 
-## One-sided tests, composite nulls, and multiplicity
+### Decisions after observing data
 
-A one-sided alternative has meaning only if effects in the excluded
-direction would not support the scientific claim and would not change
-practice. If a new drug is unexpectedly harmful, a prespecified superiority
-test aimed only at benefit does not license a confirmatory claim about
-harm; report the estimate and interval and follow the safety analysis plan.
-Choosing the tail after observing the sign approximately doubles the false
-positive opportunity and invalidates the nominal error guarantee.
+Rejecting H0 means the data are sufficiently inconsistent with the null under the chosen procedure and assumptions; it does not prove H1 or establish causation. Failing to reject means evidence was insufficient at the specified threshold, not that H0 is true. To support “no clinically meaningful difference,” plan an equivalence or non-inferiority analysis and show an interval narrow enough to exclude relevant effects.
 
-Many hypotheses are composite. A test of \(H_0:\beta=0\) evaluates one
-point, while a clinically negligible region such as \(|\beta|<\delta\)
-requires equivalence or interval-based reasoning. A nonsignificant point
-null is not evidence that the effect is in that region. Similarly, testing
-multiple endpoints, doses, subgroups, or interim looks creates a family of
-decisions. Prespecify which hypothesis is primary, the order of gatekeeping,
-and any adjustment procedure; post-hoc selection cannot inherit the error
-rate promised for one preplanned test.
+Pre-specify the parameter, direction, margin, alpha, and test. Report the estimate and interval even when the test is not significant. A directional hypothesis must not be chosen after seeing the sign of the estimate; doing so invalidates the advertised error rate. Hypotheses should constrain claims while leaving interpretation anchored in effect magnitude, precision, and the clinical threshold.
 
-## Statistical nulls and scientific claims
+## Superiority is not equivalence
 
-The point null \(H_0:\Delta=0\) is a convenient reference, but many
-scientific questions concern a range of effects. A test may reject zero
-while the entire estimated effect remains below a clinically meaningful
-threshold. Conversely, a confidence interval that contains zero can still
-exclude important benefits. A useful protocol therefore names both the
-primary null and the clinically relevant region. For a continuous outcome,
-one might define a 2-point reduction as important; for a risk difference,
-the threshold could be an absolute risk reduction tied to treatment harms
-and costs. Such thresholds are context-specific and should be agreed with
-clinical stakeholders before results are observed.
+A superiority test typically places equality in the null and seeks evidence of a departure. A non-significant result leaves open a wide range of possible effects unless the interval is sufficiently narrow. Equivalence reverses the burden: investigators specify lower and upper margins ±Δ, and claim equivalence only when data are sufficiently precise to rule out effects outside those bounds. The null is that the effect is at or beyond one of the unacceptable boundaries; the alternative is that it lies wholly within the acceptable region. This is why ordinary failure to reject zero cannot establish equivalence.
 
-In observational studies, “no association” and “no causal effect” are not
-equivalent hypotheses. A regression coefficient of zero after adjustment
-is a model-based conditional association statement. A causal null compares
-potential outcomes under alternative exposure assignments, which are not
-both observed for any one person. Identification requires assumptions
-such as consistency, exchangeability conditional on measured confounders,
-and positivity. A p-value for a regression coefficient cannot test these
-assumptions; causal interpretation rests on design, measurement, and
-sensitivity analysis as well as estimation.
+For a mean difference where higher values are better and Δ=3 is the largest acceptable loss, non-inferiority tests H0: θ≤−3 versus H1: θ>−3. If an estimate is −0.5 with 95% CI −2.4 to 1.4, the lower confidence bound is above −3, supporting non-inferiority under the stated assumptions. It does not prove identical effects, nor does it show the new treatment is superior. The margin must be clinically justified and preserve an adequate fraction of established benefit.
 
-## Composite hypotheses and interval logic
+## One-sided alternatives and direction
 
-### Translating an interval into a superiority claim
+A one-sided test can increase power for a prespecified direction, but it is legitimate only when the opposite direction would not be interpreted as evidence for an important effect and would not change the decision. If a drug could plausibly cause harm, a one-sided test that ignores harm is generally inappropriate. Switching to a one-sided alternative after seeing the estimate effectively doubles the opportunity to reject in the chosen direction and invalidates the nominal alpha.
 
-Assume the treatment-minus-control risk-difference estimate is −0.2
-percentage points with a 95% interval from −1.1 to +0.7. If lower risk is
-better, the interval includes zero and is compatible with modest benefit
-or modest harm; the trial has not demonstrated superiority. If the
-prespecified non-inferiority margin is +1.5 points, the upper bound +0.7
-lies below the margin, so non-inferiority may be supported under the
-specified analysis. These are not contradictory: the data can fail to
-prove superiority while ruling out an unacceptable loss. If the interval
-were −2.0 to +1.7, the upper bound would exceed the harm margin and
-non-inferiority would not be established, even though the point estimate
-is favorable. For lower-is-better outcomes, it is specifically the upper
-bound that is compared with the harm margin.
+For a planned one-sided test at .025, the corresponding two-sided 95% interval boundary is asymmetric in its decision relevance; do not quote a two-sided p-value and claim the one-sided result unless the plan defined this. State the tail, parameter scale, and boundary precisely.
 
-For an event where higher is better, reverse the sign convention or
-compare the lower confidence bound with the negative margin. Writing the
-estimand and direction explicitly prevents a common error: using the
-wrong confidence bound simply because treatment and control labels were
-reversed in a model. A protocol should define the contrast and margin in
-words and symbols and state which analysis set supports the primary claim.
+## Composite nulls, point nulls, and model structure
 
-## Bayesian hypotheses and scientific uncertainty
+A null need not be a single value. Testing a treatment difference against a clinically important margin uses a composite null containing many parameter values. Regression tests may ask whether a set of coefficients is jointly zero, whether an interaction exists, or whether a slope exceeds a threshold. In each case, the null must correspond to the model parameterization and coding. For categorical predictors, the meaning of the coefficient depends on reference level; a joint test of all factor contrasts differs from a test of one selected contrast.
 
-In Bayesian analysis, a point null can receive a posterior probability
-only when the model assigns it positive prior probability (for example,
-as one component of a spike-and-slab prior). Under a continuous prior,
-the probability that a parameter is exactly zero remains zero before and
-after observing data; inference instead describes posterior mass in
-regions, such as \(P(|\Delta|<\delta\mid data)\). A region of practical
-equivalence (ROPE) is one way to express negligible effects, but its bounds
-must still be clinically justified. A 95% credible interval has a
-posterior probability interpretation conditional on likelihood, prior,
-and model; a 95% confidence interval has a long-run coverage interpretation.
-Neither framework can compensate for a poor estimand or biased data.
+A point null of exactly no effect is often an approximation. In causal inference, the sharp null that treatment changes no participant’s outcome differs from a weak null of zero average treatment effect. Randomization tests based on the sharp null and model-based tests of an average effect therefore have different interpretations. Describe which null is tested, especially when the method is permutation-based.
 
-The distinction between “no evidence” and “evidence of no important
-effect” can be formalized by choosing an interval of negligible effects.
-Suppose clinically trivial differences are within ±1 point. An estimate
-of 0.1 with 95% CI [−0.4, 0.6] is precise enough to place plausible values
-inside that region, whereas an estimate of 0.1 with CI [−2.5, 2.7] is
-not. A conventional p-value for testing zero could be large in both cases;
-only the second result remains compatible with important differences.
+## Connect hypotheses to estimates
 
-## References and further reading
+The test statistic compresses evidence into a tail probability; the estimate and interval retain direction and magnitude. Report the prespecified null, alternative, α, analysis population, and estimate on a clinical scale. When a result is not statistically significant, inspect whether the confidence interval excludes clinically meaningful benefit and harm. If it does not, say the estimate is imprecise. For non-inferiority, report both intention-to-treat and per-protocol analyses when required by the protocol, and discuss whether deviations may bias toward similarity. Hypotheses are a design contract that bounds conclusions, not a substitute for substantive interpretation.
 
-When the null is composite, the test's type-I error guarantee must hold
-over every parameter value in the null region, not only at one convenient
-boundary. In non-inferiority, the hardest-to-reject null is often the
-boundary at the margin; the trial must still be designed so its interval
-can exclude that margin when the therapy is truly acceptable. The margin
-should be set using preserved historical benefit, assay sensitivity, and
-clinical judgment. A margin that is too wide can declare non-inferiority
-even when the new intervention gives up most of the established benefit.
+## Hypotheses for regression and stratified analyses
 
-For equivalence, both one-sided null components must be rejected. If a
-90% two-sided interval is [−0.8, 0.6] and the prespecified equivalence
-range is [−1.0, 1.0], equivalence is supported at alpha=0.05. If it is
-[−1.2, 0.6], the result is inconclusive: the data do not exclude a loss
-beyond the lower margin, even though zero lies within the interval. For
-superiority, the usual two-sided 95% interval excluding zero corresponds
-to rejection at 0.05 for a matching test. These familiar correspondences
-depend on using the same model, estimand, and variance method for the test
-and interval.
+In a linear model, the hypothesis βj=0 concerns the conditional mean difference per unit of xj given the other modeled predictors. A joint hypothesis such as β2=β3=0 tests whether a multi-level factor contributes any conditional association. The reference category affects individual coefficients but not the fitted comparisons as a whole. If the design includes an interaction, a main-effect coefficient is the effect at the reference value of the interacting variable, not a universal average effect. Write the contrast in the parameterization actually used and consider reporting marginal predictions when those better answer the clinical question.
 
-## Preregistration and deviations
+Stratified analyses can test homogeneity of effects across strata, but “no interaction” is scale dependent. Risk differences may be constant while risk ratios vary, or vice versa. State the effect scale on which the null is formulated. A test of interaction often has low power, so a nonsignificant interaction test is not proof that effects are identical. Present stratum-specific estimates and intervals with context rather than overinterpreting a single interaction p-value.
 
-## Hypotheses for multi-arm and dose-response studies
+## Randomization tests and sharp hypotheses
 
-## Writing the null in operational terms
+A randomization test compares the observed statistic with values generated by reallocating treatment according to the actual randomization mechanism. Under the sharp null that treatment changes no participant’s outcome, all missing potential outcomes are known to equal observed outcomes, enabling an exact reference distribution. This differs from the weak null that the average treatment effect is zero: individual benefits and harms can cancel to an average of zero, but the sharp null is false. Large-sample methods may test a weak average-effect null, while randomization inference usually tests the sharp null unless additional procedures are used.
 
-An operational hypothesis should make clear which parameter is tested,
-the scale, direction, and analysis population. “There is no difference in
-readmission” is underspecified: it could mean equal 30-day risks, equal
-odds, equal incidence rates, equal hazards, or equal mean counts. It could
-refer to all randomized participants or only those completing follow-up.
-These choices affect both analysis and interpretation. A useful protocol
-sentence might say: “The primary hypothesis is that the marginal
-12-month risk difference in all randomized adults assigned to intervention
-versus usual care equals zero; negative values favor intervention.” That
-sentence identifies the contrast and sign before any test is run.
+Preserve blocking, stratification, or cluster randomization in permutations. Arbitrarily permuting individual labels in a cluster trial violates the design. The test can be robust to outcome distribution under the randomization scheme, but it does not provide causal inference for nonrandomized exposure allocation without additional assumptions.
 
-For observational research, the null should also be distinguished from a
-causal estimand. A crude equality of observed risks is a descriptive null;
-an adjusted conditional odds ratio of one is a model-specific association
-null; equality of potential-outcome means is a causal null. Confounding can
-make the first two differ from the third. State whether the objective is
-description, prediction, or causal effect estimation, because the same
-regression command can be used for different goals without identifying
-the same quantity.
+### Protocol language and deviations
 
-In a three-arm trial, an omnibus null such as
-\(H_0:\mu_A=\mu_B=\mu_C\) differs from a targeted contrast such as
-\(H_0:\mu_A-(\mu_B+\mu_C)/2=0\). The omnibus F test asks whether any
-mean differs; it does not identify which treatment comparison is important.
-A planned contrast can directly address whether two active regimens
-together outperform control, potentially with greater power than all pairwise
-tests. The contrast and weights should be set before looking at outcomes;
-weights summing to zero ensure the contrast compares means rather than
-their overall level.
+A test’s error guarantee depends on how hypotheses and analyses were chosen. A protocol should define primary and secondary hypotheses, direction, margins, estimands, significance level, interim strategy, and multiplicity family. Deviations may be necessary because data collection encounters unforeseen problems. Document their timing relative to unblinding and explain why they were made. The honest distinction between confirmatory and exploratory analysis preserves the value of new discoveries without claiming an error rate that the analysis did not earn.
 
-For dose-response, a null of equal outcomes across all dose groups may be
-less relevant than a prespecified trend or monotonicity hypothesis. A
-linear trend test gains power if the relationship is approximately linear
-but can miss a U-shaped response. Modeling dose as categorical avoids
-imposing a curve but spends more degrees of freedom. Restricted cubic
-splines can represent nonlinear trends, though the number and placement of
-knots should be chosen without outcome-driven searching. The scientific
-alternative should describe the plausible response pattern, and graphical
-estimates with intervals should accompany a single test statistic.
+### A worked non-inferiority interpretation
 
-In factorial designs, the interaction hypothesis asks whether treatment
-effects differ across levels of another factor. A main effect averaged
-over the other factor may be misleading when interaction is important.
-Define contrasts on an interpretable scale and distinguish an interaction
-test from separate within-subgroup tests. The latter do not test equality
-of subgroup effects and often have substantially less power.
+Assume the primary endpoint is a functional score where larger values are better. Investigators set a non-inferiority margin of 4 points before enrollment, based on prior placebo-controlled evidence and expert/patient judgment. The estimated treatment difference (new minus standard) is −1.2 with a 95% CI from −3.5 to 1.1. Since the lower bound remains above −4, the result meets the statistical criterion for non-inferiority. The interval still allows the new treatment to be 3.5 points worse, so the clinical acceptability of that possibility depends on the margin’s justification. It does not prove equal efficacy or superiority.
 
-Writing the null and alternative in the protocol forces choices about
-direction, analysis scale, population, endpoint, and decision threshold.
-Preregistration does not eliminate judgment, but it separates planned
-confirmatory claims from analyses suggested by observed data. If an
-endpoint definition or model changes after data inspection, report why,
-whether the change preceded unblinding, and how it affects inference.
-Exploratory hypotheses are valuable for discovery; they should be labeled
-so future evidence can assess them without mistaking them for a successful
-prespecified test.
+The estimate may differ by analysis population. Nonadherence can dilute treatment differences toward zero, favoring non-inferiority in an intention-to-treat analysis; exclusions in per-protocol analysis can introduce selection bias. Agreement across analyses, careful protocol adherence, and assay sensitivity support interpretation but do not eliminate uncertainty. State the margin, its clinical basis, interval method, and populations analyzed.
+
+### When evidence is insufficient
+
+Consider a superiority estimate of 1.5 with a 95% interval −2.0 to 5.0. The interval crosses zero, but the proper conclusion is not “the treatments are the same.” It supports a range from modest harm to substantial benefit. If an equivalence margin were ±2, this interval would fail equivalence because its endpoints extend beyond both margins. The study may be underinformative for that question even if the point estimate is near zero.
+
+Power calculations for equivalence must target precision inside the margins, not detection of a difference from zero. A design can have high power for a superiority effect and low power to establish equivalence, or vice versa. Specify the intended claim at design stage.
+
+### A worked equivalence decision
+
+Suppose a generic formulation is compared with a reference, and the acceptable mean difference is ±2 units. The estimated difference is 0.3 with a 90% interval from −1.1 to 1.7. Since the full interval lies inside −2 to 2, the result meets the usual two-one-sided-test criterion for equivalence at 5%, assuming the margin and analysis are justified. If the interval were −2.2 to 1.3, equivalence would not be established even though zero remains well inside it and the point estimate is close to zero. The confidence limits, not proximity of the estimate to zero, determine the conclusion.
+
+This example illustrates why the null/alternative must be tied to the intended claim. A superiority test asks whether evidence supports a difference; equivalence asks whether differences large enough to matter can be excluded. Non-inferiority asks whether an unacceptable loss can be excluded in one direction. These are different hypotheses and require separate planning.
+
+### Avoid post hoc threshold changes
+
+A margin, alpha, and direction chosen after looking at the estimate are tailored to the observed data and no longer provide the planned error guarantee. If a prespecified margin proves impractical or scientifically outdated, revise the protocol prospectively and document why. If the revision occurs after unblinding, present the analysis as exploratory or sensitivity analysis, then seek independent confirmation.
+
+### Hypotheses in Bayesian analyses
+
+Bayesian estimation can assign continuous prior distributions to effects without a point null, but model comparison may still contrast a point-null hypothesis with an alternative model. The Bayes factor depends on the prior distribution under the alternative, so a very diffuse prior can penalize prediction by spreading probability across effects the data did not observe. Specify the hypotheses and prior scales; a posterior interval crossing zero is not a Bayesian test of a point null and does not by itself yield posterior probability of no effect.
+
+### Revisit hypotheses only with transparency
+
+Scientific understanding can evolve during a study. New analyses may be valuable when unexpected safety signals, data-quality problems, or mechanisms emerge. The appropriate response is to record the new hypothesis, timing, and analytic choices, then distinguish that work from the prespecified primary test. A hypothesis generated and tested on the same data has weaker confirmatory status and should be independently evaluated.
+
+### Relate the hypothesis to the estimand
+
+A hypothesis should name the target parameter, not merely the statistical test. “No effect” is underspecified if the outcome could be risk, rate, odds, mean change, or time-to-event hazard. A null hazard ratio of one under a proportional-hazards model differs from equality of survival probabilities at a fixed time. A zero average risk difference can conceal treatment-effect heterogeneity. State the estimand, scale, horizon, and population before writing H0 and H1.
+
+This precision helps avoid test selection after inspecting data. For a common binary outcome, a risk difference may better match a public-health decision than an odds ratio; for non-inferiority, the margin must be on the chosen scale. The same word “no difference” can imply distinct hypotheses across scales, so report the numerical boundary.
+
+### Reporting a hypothesis clearly
+
+A methods statement can say: “The primary estimand was the treatment-policy difference in mean symptom score at week 12. We tested H0: μT−μC=0 against a two-sided alternative at α=.05; the analysis used baseline-adjusted ANCOVA.” For non-inferiority, state the scale, direction, and margin numerically. For an interaction, identify the modifier and scale. This is more informative than “groups were compared using a t-test” because it ties the inferential claim to a parameter and population.
+
+### Statistical versus scientific hypotheses
+
+A clinical mechanism may predict benefit only in a biomarker-defined subgroup, but the statistical null is a parameter restriction within a particular model. A test can reject because of bias or model failure without confirming the mechanism. Conversely, failure to reject can arise from low information. Treat the scientific hypothesis as a broader explanation and the statistical test as a limited implication of that explanation, requiring replication and contextual evidence.
+
+### A short checklist before testing
+
+Before choosing a test, write the estimand in words, parameterize it on a clinically useful scale, state the null boundary, identify whether direction is one- or two-sided, and choose the alpha/margin and multiplicity family. Confirm the analysis model estimates that parameter and reflects the assignment and sampling design. This short sequence prevents common mismatches, such as using a two-sample test for paired data or treating nonsignificance as equivalence.
+
+After analysis, return to the original hypothesis and compare the estimate and interval with its boundary. Do not redefine the hypothesis to fit an observed trend. If the data suggest a new question, label it exploratory and design a future study to answer it.
+
+### Worked superiority and non-inferiority distinctions
+
+Suppose the estimated functional-score contrast is −1.2 points with a 95% interval −3.5 to 1.1. Under a superiority null of zero, the interval crosses zero, so the study does not demonstrate a difference at the usual two-sided level. Under a non-inferiority margin of −4, the lower bound −3.5 is above the unacceptable-loss boundary, so the same data may meet the statistical non-inferiority criterion. The conclusions differ because the hypotheses differ; the analysis is not inconsistent. A margin of −3 would lead to another conclusion, which is why its clinical basis must be settled before results are seen.
+
+For equivalence with bounds −2 and 2, the 90% interval must lie entirely within both limits under the two-one-sided-test procedure. A point estimate near zero does not suffice if uncertainty remains broad. State the margins alongside the interval in any report.
+
+### Reproducible hypothesis statements
+
+Write the hypotheses in the protocol using words and notation. For example: “We test whether the week-12 treatment-policy mean difference in the randomized population is zero, two-sided, at α=.05; negative values favor intervention.” Include the outcome scale and missing-data strategy. This makes it clear what the test means and prevents direction ambiguity when coefficients or software contrasts reverse the group order.
+
+### Summarize conclusions within the boundary
+
+A test conclusion is limited to the parameter and model named in the hypothesis. Rejecting a null of zero adjusted mean difference does not prove every subgroup benefits, establish a biological mechanism, or guarantee future effectiveness. Failing to reject does not establish an exact null. Keep conclusions near the tested statement and use estimates, intervals, and external evidence for broader claims.
+
+### Final interpretation
+
+A well-formed hypothesis is a transparent contract between design and conclusion. It names the target effect, comparison, scale, direction, boundary, and multiplicity context. Once data are observed, report the estimate and interval against that boundary, and do not broaden a narrow statistical rejection into a causal or clinical claim the test was not designed to support.
 
 ## References and further reading
 

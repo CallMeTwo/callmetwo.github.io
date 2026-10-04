@@ -3,340 +3,160 @@ title: Fisher’s exact test
 summary: An exact test for a 2×2 table that uses the hypergeometric distribution, ideal when expected cell counts are small.
 ---
 
-## Overview and key ideas
+## Overview
 
-Fisher's exact test asks whether two binary variables are associated when the
-sample is too small for the chi-square approximation to be trustworthy. Instead
-of relying on a large-sample distribution, it computes the exact probability of
-observing a table at least as extreme as the one at hand, conditional on the
-fixed row and column totals, using the hypergeometric distribution.
+Fisher’s exact test evaluates association in a contingency table by conditioning on its margins and using the hypergeometric distribution. It is especially useful for sparse 2×2 tables, where the large-sample chi-square approximation may be unreliable. “Exact” refers to the conditional sampling calculation under the null, not to freedom from assumptions: observations must still arise from a design compatible with the table model, and the result does not correct confounding or dependence.
 
-For a 2×2 table with cell counts a, b, c, d and row totals (a+b), (c+d) and
-column totals (a+c), (b+d), the probability of that particular arrangement is
+## Why conditioning produces a hypergeometric law
 
-    P = [(a+b)!(c+d)!(a+c)!(b+d)!] / [a! b! c! d! n!]
+If row and column totals are fixed, one cell determines the other three. Under the null of no association, the number of events allocated to one group follows a hypergeometric distribution. Fisher’s test sums probabilities for tables deemed at least as extreme as observed. For a one-sided alternative, extremeness has a clear direction; for two-sided alternatives, software may define it as tables with probability no greater than the observed table. Different two-sided conventions can give slightly different answers, so report software/method when relevant.
 
-and the p-value sums the probabilities of all tables as extreme or more
-extreme than the observed one (one-sided), or of both tails (two-sided). The
-test is "exact" because no approximation is involved — it is valid for any
-sample size, down to tables with counts of zero.
+### Small trial example
 
-## When to use it
-
-| Setting | Example question |
-| --- | --- |
-| Rare event | In 40 patients, does a rare adverse reaction differ between two drug groups? |
-| Small pilot study | Is a new marker present more often in 15 diseased than 15 healthy subjects? |
-| Low-prevalence screening | Does a diagnostic test differ by sex when only a few positives are expected? |
-| Any 2×2 table with a small expected count | Whenever the chi-square approximation would be unreliable |
-
-Reach for Fisher's test whenever a chi-square test on the same table would have
-an expected count below 5, or whenever the study is simply small.
-
-## Assumptions and limitations
-
-- **Fixed margins** — the classic form conditions on the row and column totals
-  being fixed; for two independent random samples this is a conventional
-  approximation, but it is standard and well behaved.
-- **2×2 tables only in its common form** — conditional exact tests extend to
-  larger R×C tables but can be computationally expensive. Use a Monte Carlo
-  conditional test (for example, a simulated Fisher–Freeman–Halton test) or
-  an asymptotic chi-square method when appropriate. Barnard's and Boschloo's
-  unconditional tests are 2×2 procedures, not general R×C alternatives.
-- **Independence of observations** — as with any test of association, each
-  subject must contribute one cell.
-- **Conservative tendency** — because the test is exact over a discrete set of
-  tables, its actual size can fall below the nominal level (e.g. 0.05), making
-  it slightly conservative, especially one-sided.
-
-## Worked example
-
-A small trial of a topical treatment enrolls 12 patients, 6 per group. Two of
-the six treated patients and zero of the six controls develop a rash. The table
-is:
-
-|  | Rash | No rash | Total |
-| --- | --- | --- | --- |
-| Treated | 2 | 4 | 6 |
-| Control | 0 | 6 | 6 |
-
-The chi-square test has expected counts of 1 in each rash cell, so its
-large-sample approximation is unreliable. Conditional on the margins, Fisher's
-exact test gives a one-sided p-value of about 0.227 and a common probability-
-ordered two-sided p-value of about 0.455. Two-sided exact p-values can depend
-on the convention used to order tables, so identify the software when exact
-results matter. There is a hint of an association but not
-enough evidence at the 0.05 level — a reminder that with only 12 patients the
-study is underpowered to detect anything but a very large effect.
-
-## Interpretation and common pitfalls
-
-- Fisher's test is more appropriate than chi-square for small counts, but it
-  does not rescue an underpowered study — a non-significant result in a tiny
-  sample still means the study could not detect a moderate effect.
-- Report the odds ratio and its confidence interval alongside the p-value; the
-  p-value alone does not convey the size or precision of the association.
-- Do not treat Fisher's test as the default for every 2×2 table — for large
-  samples chi-square (or the equivalent proportion test) is simpler and
-  equally valid.
-- For a one-sided test, decide the direction of the alternative *before*
-  looking at the data; choosing the side that yields the smaller p-value
-  inflates the type I error rate.
-
-## Conditional probability and two-sided definitions
-
-Fisher's exact test conditions on both observed margins of a 2×2 table.
-Given fixed row and column totals, the upper-left cell follows a
-hypergeometric distribution under the null odds ratio of one. If a and b
-are case/control exposed counts and margins are fixed, the probability of
-each possible table is determined by combinations, not by a large-sample
-chi-square approximation. The exact p-value sums probabilities of tables
-at least as incompatible with independence as the observed one.
-
-For the common “probability no greater than observed” definition, R sums
-the null probabilities of all feasible tables whose probability is less
-than or equal to that of the observed table. Other definitions of a
-two-sided exact p-value exist, including doubling the smaller one-sided
-tail. They can differ in discrete samples. State software and method when
-this distinction matters; do not choose the convention that produces the
-more favorable result after seeing the table.
+Suppose a rare adverse event occurs in 1 of 12 treated patients and 5 of 12 controls. The observed risk difference is 33.3 percentage points lower on treatment, but the sample is small and the interval will be broad. Fisher’s exact test assesses the table conditional on its margins; it does not imply that conditioning is the only scientifically relevant sampling model.
 
 ```r
-tab <- matrix(c(1, 9, 11, 3), nrow = 2, byrow = TRUE,
-              dimnames = list(c("Treatment", "Control"),
-                              c("Event", "No event")))
-fisher.test(tab, alternative = "two.sided")
-fisher.test(tab, alternative = "greater")
+tab <- matrix(c(1, 11, 5, 7), nrow = 2, byrow = TRUE,
+              dimnames = list(arm = c("treated", "control"),
+                              event = c("yes", "no")))
+fisher.test(tab)                    # two-sided conditional test
+fisher.test(tab, alternative = "less")
 ```
 
-Here `greater` refers to an odds ratio greater than one for the displayed
-row and column orientation. Changing row/column order changes which
-direction is called greater, so define it from the clinical contrast
-rather than relying on labels. A one-sided test is defensible only when
-the direction is prespecified and an effect in the opposite direction
-would not count as evidence for the scientific claim.
+Because the row order and outcome coding determine the direction, verify that “less” corresponds to the intended odds ratio before using a one-sided result. The two-sided test is the usual default unless a directional alternative was justified in advance.
 
-## Worked example with sparse counts
+## What an exact p-value does not do
 
-Suppose a small randomized pilot has 12 patients per arm, with 1 adverse
-event in the new-treatment arm and 6 in control. The risk difference is
-\(1/12-6/12=-0.417\), a large apparent absolute reduction, but there is
-substantial uncertainty because there are only seven events. The odds
-ratio is \((1\times6)/(11\times6)=0.091\). Fisher's test calculates the
-conditional tail probability exactly under fixed margins; it avoids the
-poor chi-square approximation that can occur with expected counts well
-below five. Exactness refers to the null distribution conditional on the
-margins—it does not mean that the estimate is precise or the study is
-free of bias.
+Discrete data yield attainable p-values in jumps. A non-randomized exact test can be conservative: its actual Type I error may be below the nominal level. This is the cost of a valid finite-sample guarantee under the chosen conditional model. Mid-p methods reduce conservatism by assigning half the observed-table probability to the tail, but they are not guaranteed to control Type I error at the nominal level for every table. They should not be selected after seeing which version is significant.
 
-Fisher's test in R also returns a conditional maximum-likelihood odds
-ratio estimate and a conditional exact interval. These may differ from
-the cross-product estimate and Wald interval, particularly in sparse
-tables. The conditional estimate is not generally the same as the
-unconditional maximum-likelihood estimate. Report which interval is
-used and include the cell counts so readers can see the data's limited
-information.
+Exactness also does not mean the effect estimate is precise. An odds ratio can be infinite or poorly estimated when a cell is zero; conditional maximum-likelihood estimates and exact intervals are available, but intervals may be wide. If risk is common, odds ratio can materially exceed the risk ratio. Provide absolute risks and a clinically interpretable contrast where possible, alongside an interval suited to sparse data.
 
-## When Fisher is appropriate and what it does not solve
+### Beyond a simple 2×2 table
 
-## Worked example: exact inference versus approximation
+Fisher’s procedure extends to r×c tables, but the number of possible tables can grow quickly. Monte Carlo conditional sampling approximates exact p-values when full enumeration is expensive; report simulation settings or enough reproducibility details. For matched pairs use McNemar’s test, not Fisher’s test on a flattened table. For clustered observations or confounded comparisons, use an appropriate regression or design-based method; small cell counts may require penalized or Bayesian models with carefully stated assumptions.
 
-In the 12-per-arm adverse-event example, total events are 7 and total
-nonevents are 17. Under the fixed-margin null, the number of events in the
-treatment arm has a hypergeometric distribution with support from 0 to 7.
-The observed value 1 is in the low tail, which corresponds to fewer events
-on treatment than expected if the odds ratio were one. A one-sided exact
-p-value for benefit sums probabilities of tables with one or fewer
-treatment events; the conventional two-sided p-value adds equally or more
-extreme tables according to the selected probability ordering. The exact
-test conditions on the margins, so it can be conservative when the
-discrete support has no tail probability near the nominal cutoff.
+Choose Fisher because the table and sampling design motivate conditional exact inference, not because it is a universal “small sample test.” State cell counts, effect estimate and interval, two-sided convention, and whether the analysis was prespecified. Interpret the p-value as compatibility evidence under the conditional null—not the chance that treatment has no effect.
+
+## Manual probability calculation
+
+Suppose 1 of 12 treated participants and 5 of 12 controls experience an adverse event. Conditional on 6 total events and equal group sizes, the number of events in the treated group X follows a hypergeometric distribution with N=24, K=6, n=12. The probability of observing x events is [choose(6,x) choose(18,12−x)]/choose(24,12). Fisher’s two-sided p-value sums probabilities for tables considered at least as extreme as the observed table under the software’s convention. The calculation is exact for this conditional distribution, not an approximation using a continuous curve.
 
 ```r
-small <- matrix(c(1, 11, 6, 6), nrow = 2, byrow = TRUE,
-                dimnames = list(arm = c("New", "Control"),
-                                outcome = c("Event", "No event")))
-fisher.test(small, alternative = "less")
-fisher.test(small, alternative = "two.sided")
+tab <- matrix(c(1, 11, 5, 7), nrow = 2, byrow = TRUE)
+fisher.test(tab)
+# Show the conditional probability of each possible exposed event count
+x <- 0:6
+dhyper(x, m = 6, n = 18, k = 12)
 ```
 
-In this orientation the odds ratio compares event odds for new versus
-control, and `less` tests an odds ratio below one. If rows or columns are
-reordered, update the alternative accordingly. R reports a conditional
-odds-ratio estimate and exact confidence interval by default; it may not
-equal the cross-product estimate 0.091 exactly. The interval is often
-asymmetric and may extend widely because only seven events occurred.
-That uncertainty should be retained in interpretation even if the exact
-p-value is small.
+The hypergeometric probabilities sum to one over feasible x. Whether a two-sided test includes tables with probability no greater than observed or uses another ordering affects the p-value. R’s `fisher.test` reports a conditional maximum-likelihood odds ratio and conditional interval for a 2×2 table; its estimate can differ from the sample cross-product odds ratio. State the estimate type if reporting it.
 
-## Exactness, conservatism, and alternatives
+### Exact does not mean assumption-free
 
-“Exact” is conditional on the table margins and null model. In a
-randomized trial the treatment totals are fixed by design, but outcome
-total is random; conditioning on it can discard information. Barnard's or
-Boschloo's unconditional exact tests avoid conditioning on both margins
-and can be more powerful, but their calculation and interpretation are
-less familiar. For larger samples, Pearson chi-square or a score test can
-be more efficient. The method should be chosen based on design and
-prespecified analysis, not whichever yields significance.
+The test conditions on both margins. In some designs, one margin is fixed by sampling, such as a case-control study fixing numbers of cases and controls. In other settings, both margins are random, and conditioning is still a valid test under common null models but may be less powerful than unconditional alternatives. Fisher’s procedure is a test of conditional association, not a universal method for every sparse table.
 
-Sparse data also make effect estimates unstable. If a cell is zero, the
-cross-product odds ratio is zero or infinite and its Wald log interval is
-undefined; adding 0.5 to every cell is a continuity correction that can
-stabilize computation but changes the estimator. Exact conditional methods,
-Firth penalized logistic regression, or Bayesian models with weakly
-informative priors may be preferable depending on the question. Penalized
-methods reduce separation bias but cannot manufacture information—report
-the small event counts and wide uncertainty.
+Independence of units remains essential. If each patient contributes multiple lesions, or if treatment is assigned by clinic, a 2×2 table of lesion counts violates the ordinary hypergeometric sampling assumption. If data are matched, use the pair structure (e.g. McNemar for paired binary outcomes). If there are strata, a conditional analysis or regression can account for them; pooling may create confounding or Simpson’s paradox.
 
-When there are covariates, stratified exact procedures can condition within
-strata, but become cumbersome with many strata. Conditional logistic
-regression is designed for matched sets. Ordinary logistic regression may
-separate under sparse outcomes and produce enormous coefficients; exact
-or penalized likelihood methods address estimation but still require
-careful confounding control and model specification.
+## Zero cells and effect estimation
 
-## Reporting exact tests responsibly
+A zero cell can produce a sample odds ratio of zero or infinity. This is not a software malfunction; the data provide a boundary estimate. Fisher’s test can still return a finite p-value, while the interval may be very wide. Adding 0.5 to every cell is a common continuity correction for a rough log-odds interval, but it changes the estimator and is not a general exact solution. Conditional maximum likelihood, profile likelihood, mid-p, penalized logistic regression, or Bayesian models are alternatives with differing assumptions.
 
-## Quantifying effect and uncertainty in sparse tables
-
-For the pilot table, absolute risks are 1/12=8.3% versus 6/12=50.0%;
-the difference is −41.7 percentage points. An approximate interval based
-on independent binomial variances is very wide, emphasizing that this
-small trial does not establish a precise treatment effect. The conditional
-odds ratio estimate from Fisher's procedure may differ from the crude
-cross-product value, and the exact interval can be highly asymmetric. This
-is expected when the likelihood is skewed and should not be hidden by
-reporting only the p-value.
-
-In a randomized trial, risk difference is often clinically more useful
-than OR. Compute risks from arm denominators and use a score-based interval
-for the difference; for very sparse outcomes, consider exact or
-unconditional intervals. If the control risk is high, OR can make a
-benefit appear more extreme than RR. In a case-control study, sampled
-case/control fractions do not estimate risks, though the odds ratio is
-often estimable; an OR approximates RR only for a rare outcome under
-appropriate sampling assumptions.
-
-The zero-cell problem deserves special care. If no events occur in one
-arm, an ordinary log-OR estimate is infinite. A continuity correction
-such as adding 0.5 to all cells yields a finite approximation but is not
-an exact solution and can materially affect small datasets. Exact
-conditional inference handles boundary tables, but its interval may
-include a very broad range. Firth penalized logistic regression often
-reduces first-order bias and separation, while Bayesian priors can
-regularize estimates; report the method and avoid implying that the
-result is precise merely because an estimate is finite.
-
-## Design implications
-
-## Extension to larger tables in R
-
-For the 2×2 pilot, provide the event risk in each arm (1/12 and 6/12),
-not just the odds ratio, so readers can assess absolute clinical impact.
-If a pilot is intended to estimate an effect for a definitive trial, its
-wide interval should inform a range of plausible effects rather than be
-used as the sole sample-size target.
-
-When a 2×2 table comes from a randomized experiment, randomization-based
-inference can condition on the treatment allocation and enumerate
-assignments under a sharp no-effect null. Fisher's test conditions on the
-observed outcome margins as well, so it is related but not always identical
-to the design-based randomization test. With fixed treatment arm sizes,
-permuting treatment labels over outcomes follows the assignment scheme;
-with stratified randomization, permute within strata. Be clear whether the
-goal is conditional association inference or a randomization test of the
-trial's sharp null.
-
-Fisher's test is also unrelated to “Fisher information” despite the shared
-name. The test was developed for exact inference in contingency tables;
-its p-value is not a posterior probability and does not make a small study
-automatically definitive.
-
-For an R×C table, `fisher.test()` performs a conditional exact test when
-computationally feasible. If enumeration is too demanding, its
-`simulate.p.value = TRUE` option draws tables under the fixed-margin null
-and estimates the tail probability. The margins must be nonzero and the
-simulation count controls numerical precision. A seed supports
-reproducibility; it does not affect the statistical assumptions.
+For communication, show absolute risks, risk difference, and an interval suited to the sparse data. If no events occur in one arm, do not conclude the risk is zero. The “rule of three” gives a rough upper 95% risk bound of 3/n after zero events under independent binomial sampling. Exact binomial intervals are readily calculated:
 
 ```r
-tab_rc <- matrix(c(12, 7, 4, 9, 11, 6, 5, 8, 13), nrow = 3,
-                 byrow = TRUE)
-set.seed(81)
-fisher.test(tab_rc, simulate.p.value = TRUE, B = 50000)
+binom.test(1, 12)$conf.int
+binom.test(5, 12)$conf.int
 ```
 
-For Monte Carlo inference, report that the p-value was simulated and give
-B. If the estimate is near a decision threshold, increase B and assess
-Monte Carlo variability. Conditional exact inference tests independence
-given the margins. If the design or substantive question instead calls
-for an unconditional model, fit a log-linear or multinomial model with
-appropriate covariates rather than assuming the conditional test answers
-every association question.
+The arm-specific intervals are not a direct interval for their difference; use a method for the two-sample contrast. Avoid inferring no harm from a small safety sample.
 
-Fisher's exact test can also be used when some cell counts are zero, but
-the resulting odds-ratio interval may be one-sided or very wide. A zero
-cell is information about rarity, not a data-entry problem to “fix” by
-adding a constant without explanation. If a continuity correction is
-used for an effect estimate, distinguish it from the exact test itself.
+## Two-sided tests and one-sided alternatives
 
-Sparse cells often result from a rare disease, uncommon exposure, or an
-overly granular category scheme. Before data collection, enrich case
-sampling or oversample informative groups if the design allows, while
-retaining correct sampling weights or likelihood. For a trial with a rare
-adverse event, extend follow-up or use a larger safety database rather
-than relying on a handful of events. If categories can be collapsed
-without sacrificing important meaning, plan the collapse in advance.
-Do not combine cells post hoc solely to obtain a chi-square approximation
-or favorable p-value.
+For a one-sided test, the alternative has a specified direction, such as treatment reducing event odds. Direction must be chosen before examining the data, and the opposite direction may remain clinically important. A one-sided test is not appropriate merely because observed events favor treatment. In sparse tables, discreteness means a one-sided p-value may not be half of the two-sided value.
 
-Fisher's exact test is conditional on margins, which is natural in some
-case-control settings but may be unnecessarily conservative in randomized
-experiments where only treatment margins are fixed. Barnard's or
-Boschloo's unconditional exact tests can be more powerful for 2×2 data
-under independent binomial sampling, at the cost of less common
-implementation and choices about nuisance parameters. For R×C tables,
-conditional exact tests and Monte Carlo approximations are available;
-the 2×2 Barnard/Boschloo procedures do not extend directly to those
-tables.
+Two-sided definitions are also not unique for discrete distributions. A probability-ordering rule adds probabilities of all tables with null probability at most that of the observed table. Other definitions double the smaller one-sided tail or use a likelihood-ratio ordering. They can yield different values. Report the software and alternative, especially near a decision threshold; do not shop across conventions.
 
-Report all four cell counts, row/column definitions, odds-ratio estimate
-and interval, exact p-value, and alternative direction. State whether
-the two-sided p-value uses probability ordering, doubled-tail convention,
-or a specific software implementation when reproducibility requires it.
-If the endpoint is common, explain that the OR is not the RR. If the
-design is case-control, do not calculate population risks from the sampled
-case/control fractions. In a randomized trial, supplement OR with arm
-risks and absolute risk difference. Exact inference is a way to handle
-small-sample sampling distributions, not a substitute for transparent
-effect reporting or an adequate study design.
+### Extension to larger tables
 
-For 2×2 tables, Fisher's exact test is a useful option for sparse counts,
-small samples, or designs where conditioning on margins is natural. It is
-not automatically superior in every setting. With large samples it can
-be conservative because attainable p-values are discrete, and an
-unconditional exact procedure may have better power for some designs.
-For larger r×c tables, conditional exact calculations can be expensive;
-Monte Carlo methods can approximate them, and log-linear models can
-represent structured associations.
+For r×c tables, Fisher’s exact procedure conditions on all margins and sums over feasible tables. The number of tables can become large, making exact enumeration computationally demanding. Monte Carlo sampling estimates the conditional tail probability. Increase replicates when the p-value is near a threshold and report simulation uncertainty. For ordered categories, exact trend tests may use ordering; for sparse multivariable regression, exact logistic methods may be computationally intensive and still target conditional odds ratios.
 
-Fisher's test does not adjust for confounding, clustering, repeated
-measurements, survey weights, or covariates. A matched case-control design
-requires matched analysis (often conditional logistic regression), not an
-ordinary Fisher test on pooled counts. In a cohort with sparse events,
-Fisher can test association but cannot by itself estimate an adjusted
-risk ratio; exact or penalized regression may be needed for covariate
-adjustment. For a randomized trial, report arm-specific risks and the
-absolute risk difference with an appropriate interval in addition to the
-exact p-value.
+## Design and reporting
 
-The choice between Fisher and Pearson chi-square should be driven by
-design and expected-count behavior, not by whether one p-value crosses
-0.05. If the outcome is common, an odds ratio can exaggerate the risk
-ratio; exact inference does not change that interpretive distinction.
-Small p-values from a sparse table can coexist with a wide interval and
-substantial uncertainty about clinical effect magnitude.
+A sparse table can reflect a rare event, a small study, an imbalanced allocation, or overly fine categories. Fisher’s test handles the approximation issue but cannot manufacture information. Sample-size planning for rare outcomes should consider expected number of events, follow-up, and a clinically meaningful difference, not just participant count. If events are very rare, accumulating person-time or combining evidence across studies may be more informative than a single underpowered trial.
+
+Report the full table with counts and denominators, the effect estimate and interval, the exact or approximate method, sidedness, and how the two-sided extremeness was defined if material. Explain whether margins were conditioned on and how the sampling design supports that calculation. Interpret the result as evidence about association under the stated model. Causality still depends on randomization or confounding control, and clinical importance depends on absolute effect and uncertainty.
+
+### Odds-ratio intervals and clinical meaning
+
+The sample odds ratio for the example is (1×7)/(11×5)=0.127 for treated versus control. This suggests lower odds in the treated group, but its precision is poor because the table has only six total events. The exact test’s p-value is not an interval estimate. Report an appropriate conditional confidence interval and arm-specific risks; readers need the possible effect range as well as the test result. If the outcome is common, translate odds into predicted risks using a baseline risk because an odds ratio can exaggerate relative-risk reduction.
+
+A difference between groups in a rare-event trial may be clinically important even if the exact p-value is not small. Conversely, a low exact p-value does not guarantee benefit if the table arises from a nonrandomized comparison with confounding. Sparse-event interpretation should foreground uncertainty, outcome severity, follow-up, and prior safety evidence.
+
+## Power and information in rare outcomes
+
+Fisher’s exact method can have lower power than an unconditional test because conditioning discards some information about random margins. A more powerful method may be justified if its sampling assumptions match the design. Regardless of method, power is driven by event counts and allocation. With one event in the treatment arm and five in control, the evidence is limited; adding non-event participants helps less than accruing informative events, though follow-up and risk population matter.
+
+A trial planned for a rare event should calculate event yield under plausible baseline rates, expected treatment effect, and follow-up. If the anticipated event count is extremely low, a single trial may only exclude very large harms. Prespecified pooled safety monitoring, registry follow-up, or meta-analysis may be needed. Do not interpret absence of statistical significance as evidence of equal safety.
+
+### Reporting exact analyses reproducibly
+
+Include software and version when the exact definition or confidence interval method may differ. Record table orientation and outcome coding, because a one-sided direction depends on both. If Monte Carlo inference was used, state the number of replicates and seed. Provide raw cell counts in the manuscript or supplement; percentages hide the discreteness that determines exact inference.
+
+## Mid-p and unconditional alternatives
+
+The conventional exact test guarantees conditional Type I error control but can be conservative because p-values are discrete. A mid-p value assigns half the observed-table probability to the tail, which often improves power but can exceed the nominal false-positive rate for some configurations. Unconditional exact tests, such as Barnard’s or Boschloo’s tests, avoid conditioning on both margins and can be more powerful when their sampling model matches the design. These methods are not interchangeable defaults; specify the design and error guarantee sought.
+
+For randomized two-arm trials with a fixed group allocation, unconditional methods may exploit the random allocation and event-count process. Fisher’s conditional analysis is familiar and robust in its scope but may lose power. If the primary claim depends on a threshold, sensitivity analysis across defensible exact procedures can show whether discreteness drives the decision, while the prespecified primary method remains clear.
+
+### Rare events and risk difference
+
+When events are rare, the odds ratio can be numerically close to the risk ratio, but absolute risk difference remains decision-relevant. If 1/12 versus 5/12 events, risks are 8.3% and 41.7%, a large observed difference with enormous uncertainty. The point difference of −33.3 percentage points should not be read as a stable treatment effect; its interval is wide. Exact test significance and effect precision should be discussed separately.
+
+### Communicate the scope of exactness
+
+The finite-sample calculation answers a narrow question conditional on margins and the null model. It does not account for uncertainty in exposure measurement, selection into the study, multiplicity, or causal confounding. A small exact p-value can still arise from a biased table, while a large one may reflect sparse information. Give the full table and confidence interval so readers can assess magnitude and uncertainty independently of the test.
+
+### Compare exact inference with effect uncertainty
+
+For the sparse 1/12 versus 5/12 table, the conditional exact p-value answers whether the allocation of six events is compatible with equal odds given the margins. A confidence interval for the odds ratio can span very large benefit and harm because only six events were observed. This is not contradictory: a test gives a tail probability under one null, while the interval reveals a broad set of effect values compatible with data. Clinical safety decisions should account for event severity, prior knowledge, and cumulative evidence.
+
+### Stratification and confounding
+
+If a prognostic factor such as disease severity is strongly associated with treatment allocation and event risk, an unstratified Fisher test can confound the comparison. For a small number of strata, a Cochran–Mantel–Haenszel analysis may estimate a common odds ratio under homogeneity; exact conditional logistic methods are another option. If effects vary by stratum, a single pooled association may be inadequate. Exactness does not remove confounding; design and covariate structure remain central.
+
+### Distinguish association from intervention effect
+
+In a randomized trial, treatment assignment can support a causal contrast, subject to adherence and missing outcomes. In a case-control study, sampling by outcome prevents direct risk estimation from the table; the odds ratio may estimate an exposure-disease association under appropriate sampling. In a cross-sectional survey, temporal direction may be unclear. Fisher’s calculation is the same form, but design determines which effect measure and causal interpretation are valid.
+
+### Final reporting checklist
+
+Report all four counts, group denominators, effect scale, interval, sidedness, exact method, and sampling design. For zeros, describe boundary estimates and uncertainty. For repeated or matched data, use the corresponding paired method. Do not characterize a non-significant sparse result as no association or safety equivalence.
+
+### Practical comparison with chi-square
+
+For a 2×2 table with adequate expected counts, Pearson chi-square and Fisher exact often give similar conclusions. Fisher conditions on margins and can be more conservative because the distribution is discrete. Yates-corrected chi-square can be similarly conservative but is still an approximation. Do not switch methods after seeing which result is significant. Prespecify a criterion based on design and counts, or report an appropriate sensitivity analysis transparently.
+
+For larger tables, the choice may be driven by computational feasibility and whether conditioning is justified. Report if a Monte Carlo p-value was used, and quantify its simulation precision near a decision boundary.
+
+### Conditional odds ratio interpretation
+
+The conditional maximum-likelihood odds ratio reported by Fisher’s procedure estimates the association given the fixed margins. It can differ from the crude cross-product ratio, especially with small samples. A confidence interval may use conditional probability ordering and be conservative. If a ratio estimate will guide clinical decisions, also report arm-specific risks and an absolute contrast. The choice of effect measure should reflect whether sampling fixed exposure or outcome margins and whether risks are identifiable.
+
+### Don't overstate a sparse table
+
+A single event can move an odds ratio dramatically. Even if a test produces p<.05, the effect estimate may have a broad interval and need replication. If p>.05, the study may simply be uninformative. Explain the evidence scale without dichotomizing small counts into proof/no proof.
+
+### Final interpretation
+
+Fisher’s exact test is a useful finite-sample tool for sparse categorical comparisons when its conditional model matches the design. Its main output is evidence against a conditional null, not a guarantee of precision or causality. Pair it with event counts, absolute risks, a suitable interval, and careful discussion of how much the sparse data can establish.
+
+### Software and reproducibility notes
+
+R’s `fisher.test()` uses a conditional procedure; for 2×2 tables, it can calculate an exact p-value and conditional interval. Larger tables may use network algorithms or Monte Carlo simulation. Different packages can define two-sided extremeness or confidence limits differently. Record the method, alternative, and software version when results are consequential. A zero Monte Carlo exceedance count should never be reported as p=0; use the plus-one estimate and report its simulation precision.
+
+### Final interpretation
+
+Exact conditional inference is most valuable when counts are sparse and the table’s sampling structure supports conditioning on margins. The p-value is only one component of the result. Sparse data generally mean wide uncertainty, so discuss absolute risks and possible effect range, and avoid translating “exact” into “certain.”
 
 ## References and further reading
 

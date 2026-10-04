@@ -3,272 +3,150 @@ title: P-values and significance levels
 summary: The p-value is the probability of data at least this extreme under the null hypothesis, compared with a prespecified threshold alpha to decide whether to reject it.
 ---
 
-## Overview and key ideas
+## Overview
 
-The **p-value** is the probability, assuming the null hypothesis is true, of obtaining a test statistic at least as extreme as the one actually observed. It measures incompatibility between the data and the null: a small p means that, if the null were true, data this extreme would be unusual.
+A p-value is a tail probability calculated under a specified null model: assuming that model and the analysis procedure, it is the probability of obtaining a test statistic at least as incompatible with the null as the observed statistic. It is not the probability that the null is true, nor the probability that chance alone produced the data. Its meaning depends on the design, model, test direction, and analysis plan.
 
-The **significance level (alpha)** - conventionally 0.05, and often 0.025 one-sided in confirmatory trials - is the threshold chosen before the data are examined. If p is at most alpha, the null is rejected; otherwise it is not rejected. For a two-sided test the level is split across both tails, so the p-value is twice the one-tail probability for a symmetric test statistic.
+## What a threshold does
 
-The p-value is a property of the data under the null, not a probability about hypotheses: it is not P(H0 is true | data), and it is not the probability that the observed effect is "real".
+The significance level α is a long-run false rejection rate for a testing procedure when its null is true and assumptions hold. Choosing α=.05 means that in repeated valid studies of a true null, about 5% would cross the prespecified rejection boundary. It does not create a bright scientific boundary between “real” and “not real.” Values .049 and .051 carry nearly identical evidence, though threshold-based rules may treat them differently.
 
-A useful way to build intuition for what a p-value does and does not say is to fix the true state of the world and ask what p-values the procedure would produce. If the null is exactly true, a p-value at or below 0.05 appears in exactly 5% of repetitions. If the null is false and the effect is large, p-values concentrate far below 0.05. If the null is false but the effect is tiny, p-values scatter around and above the threshold and the test will often "fail". The p-value of your one study is a single draw from whichever of these distributions applies - and without knowing the true effect and the power of the design, you cannot say which draw you have.
-
-## When to use it
-
-| Setting | Role of the p-value |
-| --- | --- |
-| Confirmatory trial, prespecified primary endpoint | Decision rule at a prespecified alpha, often one-sided 0.025 |
-| Trial secondary and exploratory endpoints | Descriptive only; interpret cautiously with multiplicity in mind |
-| Observational study | Screening for associations worth investigating, not proof of causation |
-| Meta-analysis | Combining study-level evidence on a common scale |
-
-## Assumptions and limitations
-
-- The p-value is valid only under the test's conditions: correct randomisation or error model, independent observations, and the prespecified analysis. Optional stopping, switching endpoints, or subgroup fishing makes the nominal p-value too small.
-- The p-value depends heavily on sample size: with a very large n a trivially small effect becomes "significant", and with a small n a clinically large effect may not reach significance. The p-value says nothing about the magnitude of the effect.
-- The 0.05 threshold is a convention, not a boundary of evidence: p = 0.051 and p = 0.049 are almost indistinguishable in strength of evidence but are treated categorically differently.
-- The p-value is computed as if the null were exactly true; in practice it is only approximately true, which matters most when interpreting borderline values.
-
-## Worked example
-
-A trial randomises 80 patients per arm to an antihypertensive or to placebo. Over six months, systolic blood pressure falls 4.2 mmHg more in the treatment arm, with a standard error of the difference of 2.0 mmHg. The test statistic is z = 4.2 / 2.0 = 2.10, giving a two-sided p-value of about 0.036. Because 0.036 is below 0.05, the null hypothesis of no difference is rejected. The correct reading is: if the drug truly had no effect, a difference of 4.2 mmHg or more would occur in about 3.6% of similarly sized trials - not "there is a 96.4% probability the drug works". The 95% CI for the difference, 4.2 +/- 1.96 x 2.0, that is 0.3 to 8.1 mmHg, should be reported alongside, because it shows the range of clinically plausible effects rather than a pass/fail verdict at 0.05.
-
-## Interpretation and common pitfalls
-
-- **"The p-value is the probability that the null is true."** It is P(data this extreme | H0 true), computed with the null assumed; reversing the conditioning gives a different (Bayesian) quantity.
-- **"p = 0.03 means a 3% chance the result is due to chance."** The p-value is the tail probability of the test statistic under H0, not a probability that randomness produced the study.
-- **Dichotomising at 0.05.** "Significant" and "not significant" are administrative labels, not a categorical difference in evidence; report the p-value and the effect size with its CI.
-- **P-hacking.** Optional stopping, selective outcome reporting, and subgroup fishing all push p-values down and invalidate the nominal alpha.
-
-## Deriving and reporting a p-value
-
-For a two-sided one-sample t test, the statistic is
-\(t=(\bar y-\mu_0)/(s/\sqrt n)\), with \(n-1\) degrees of freedom under
-the null model. Suppose 25 patients have mean systolic-pressure change −4.0
-mmHg and SD 8.0. The standard error is \(8/\sqrt{25}=1.6\), so testing a
-zero mean gives \(t=-4/1.6=-2.50\), df 24, and a two-sided p-value about
-0.020. This is the probability, assuming the mean change is exactly zero
-and the model is appropriate, of observing a statistic at least as extreme
-as −2.50 in either direction. It is not the probability that the null is
-true, nor the probability that chance alone caused the result.
+Consider an estimated treatment difference of 2.0 units with SE=1.2. The z statistic is 1.67; a two-sided normal p-value is about .096. A 95% interval is −0.35 to 4.35. The result is not proof of no effect: the interval includes potentially meaningful benefit and possible small harm. Interpretation asks which effects remain compatible and whether the study was precise enough to be useful.
 
 ```r
-x <- c(-2, -5, 1, -8, -3, -4, 2, -6, -7, 0,
-       -4, -5, 3, -2, -9, -1, -6, -3, 2, -5,
-       -4, -7, 1, -2, -5)
-t.test(x, mu = 0, alternative = "two.sided")
+est <- 2
+se <- 1.2
+z <- est / se
+p <- 2 * pnorm(-abs(z))
+ci <- est + qnorm(c(.025, .975)) * se
+c(z = z, p_value = p, lower = ci[1], upper = ci[2])
 ```
 
-The toy vector is illustrative; its output need not match the summary
-calculation above. In a real report give the estimate, interval, test
-statistic with degrees of freedom, exact p-value (to sensible precision),
-and sample size. “p = 0.000” is impossible: report “p < 0.001” when the
-software rounds a very small value to zero at the chosen display precision.
-The p-value depends on the test statistic, alternative hypothesis,
-sampling model, stopping rule, and analysis choices; changing any of these
-changes the reference distribution and the meaning of the calculation.
+This calculation uses a normal reference distribution and a known or well-estimated standard error. In actual analyses, use the model-specific test and account for design, finite degrees of freedom, clustering, stratification, and multiplicity.
 
-### Direction, tails, and design choices
+### Evidence is not magnitude
 
-The alternative must reflect the scientific question before data inspection.
-A one-sided test can have more power in its prespecified direction, but it
-cannot be used to claim an effect in the opposite direction when results
-disappoint. A two-sided p-value is not always exactly twice a one-sided value
-(this equality relies on symmetry and a statistic in the expected direction).
-Likewise, repeated looks at accumulating data, outcome switching, selective
-subgroup reporting, or choosing covariates after seeing their p-values make
-the nominal reference distribution misleading. Sequential designs require
-an adjusted boundary or an explicitly valid sequential method.
+The p-value is influenced by effect size, variability, sample size, and analysis choices. With enormous n, a tiny and clinically irrelevant difference can yield a very small p-value. With a small study, an important effect can produce a large p-value because uncertainty is wide. Pair p-values with an effect estimate, interval, clinically meaningful benchmark, and transparent design description.
 
-Statistical significance also does not measure magnitude. If a trial
-estimates a 0.4-mmHg reduction with 95% CI −0.8 to −0.0 and p = 0.049, the
-data remain compatible with a tiny effect and with an effect that might
-matter clinically. Conversely, a clinically important estimate with a
-wide interval and p = 0.12 may signal inadequate precision rather than
-evidence of no effect. Interpret the interval against a prespecified
-clinically important difference and the design’s limitations.
+Optional stopping, endpoint switching, unplanned subgroup searches, and selective reporting change the effective probability of a false positive. A nominal p-value is valid only for the analysis that was actually prespecified or for a fully accounted exploratory procedure. Report all primary outcomes and planned analyses; identify post hoc findings and treat them as hypothesis-generating.
 
-### Reproducible calculation and diagnostics
+## Language that preserves meaning
 
-For a continuous outcome, inspect the distribution of within-group
-residuals and the dependence structure before relying on a textbook test.
-With paired observations, analyze within-person differences; with clusters,
-account for intracluster dependence. A p-value computed from an incorrect
-standard error is not repaired by more decimal places. Avoid reporting only
-whether p fell above or below 0.05; that dichotomy discards information and
-encourages threshold-driven claims. When many hypotheses are tested, define
-the family and error criterion in advance (see the multiple-testing article).
+Prefer “the estimate was X (95% CI L to U; p=...)” to “there was a trend” or “approached significance.” Avoid interpreting p>.05 as equivalence or p<.05 as clinical importance. For Bayesian analyses, posterior probabilities answer different questions and should not be called p-values. A p-value is one summary of data-model compatibility; scientific conclusions require design knowledge, effect magnitude, precision, and external evidence.
 
-## What a p-value can and cannot say
+## A p-value is conditional on the whole procedure
 
-The p-value is calibrated to a reference model. A low value indicates that
-the observed test statistic is unusual if the null parameter value and all
-model assumptions hold. It does not quantify how much the data favor the
-alternative over the null; likelihood ratios, Bayes factors, or posterior
-probabilities answer different questions and require their own assumptions.
-Nor does a p-value measure the probability of replication: replication
-depends on effect size, variability, sample size, design, and analytic
-choices. A result with p=0.04 is not categorically different from p=0.06;
-the two values typically correspond to very similar data and should be
-interpreted with estimates and uncertainty rather than a bright line.
+The conventional definition hides a chain of conditions: a null model is specified; a test statistic is chosen; the sampling distribution under the null is derived or approximated; then extremeness is defined, including whether the test is one-sided or two-sided. The p-value is calibrated only if the complete data-generation and analysis procedure matches that construction. In randomized studies, randomization can justify design-based inference; in observational models, the reference distribution depends more heavily on distributional and confounding assumptions.
 
-P-values are also not invariant to analysis choices. For example, an
-unadjusted comparison and an age-adjusted comparison can test different
-estimands; a one-sided alternative changes the tail; a rank test may target
-a distributional shift rather than a mean difference. Report the method
-and estimand so readers know what null was evaluated. In regression, the
-coefficient p-value tests a conditional model parameter given included
-covariates. It is not a test of whether the variable is “important,” and
-its value can change with coding, collinearity, and adjustment decisions.
+Exact tests can also yield p-values that are discrete because only a finite number of outcomes are possible. A p-value of .06 in a tiny trial does not differ substantively from .05, and the nominal threshold may be unattainable. Report the value and uncertainty rather than pretending the threshold is a natural law.
 
-The exact p-value should not be confused with the alpha chosen to govern a
-decision. Alpha is set before data collection and represents a long-run
-false rejection tolerance for a procedure; a p-value is computed after
-observing data. If p<alpha, the rule rejects; if p≥alpha, it does not.
-This decision does not establish a scientific truth. Evidence can be
-graded, and a well-designed study with an estimate precise enough to rule
-out clinically important effects may be more informative than a nominally
-significant but fragile result.
+## Why p-values vary between replications
 
-## A result can be surprising for reasons beyond chance
+If the null is true and a test is valid, p-values are approximately uniform over repeated studies. When the alternative is true, their distribution depends on effect size and design. Therefore, one study’s p-value is a random draw; a replication can have a different result even with the same underlying effect. A small p-value can be followed by a larger one, and a value above .05 can be followed by a smaller one, without either study being fraudulent. Replication and synthesis should compare estimates and uncertainty, not tally “significant” outcomes.
 
-The reference distribution assumes the analysis was selected as stated.
-If authors inspect outcomes and report only the one with a small p-value,
-the reported value is selected and no longer has the advertised
-calibration. The same concern applies to repeated interim looks without
-stopping boundaries, subgroup searches, and model selection. These
-practices can yield impressive p-values even if every null is true. Use a
-prespecified analysis plan, report deviations, and label exploratory
-analyses honestly. Independent replication is particularly valuable when
-the finding is selected from many candidates.
+The probability that a published significant result reflects a real effect depends on prior plausibility, power, bias, and selection, not only the p-value. For example, among a large set of low-prior-probability hypotheses with modest power, a meaningful fraction of nominal positives may be false even when every individual test is technically calibrated. This is one reason preregistration, complete reporting, and independent validation matter.
 
-In observational epidemiology, a tiny p-value can coexist with residual
-confounding, selection bias, or measurement error. Large data sets make
-standard errors small, so small systematic discrepancies from zero can
-produce tiny p-values. This says the estimated association is precise
-conditional on the model; it does not certify causal identification.
-Interpret the estimate against subject-matter knowledge, plausible bias,
-absolute effect, and design strengths and weaknesses.
+## Thresholds, multiplicity, and optional stopping
 
-### Discreteness and exact tests
+A fixed .05 rule assumes one planned test or a properly controlled family. Testing many outcomes, subgroups, or time points and highlighting any p<.05 increases false-positive risk. Repeatedly checking accumulating data and stopping when significance appears similarly changes the sampling procedure. Sequential tests and group-sequential boundaries provide valid alternatives when early stopping is planned. Exploratory analysis remains valuable, but its p-values should be treated as a starting point and findings independently checked.
 
-When a test and interval are obtained by inverting one another, they are
-dual summaries: a two-sided level-0.05 test rejects a null value exactly
-when its corresponding 95% confidence interval excludes that value. The
-word “corresponding” matters. A likelihood-ratio p-value paired with a
-Wald interval, or an exact test paired with a Wald interval, may not match
-at the boundary because they use different constructions. Differences do
-not automatically indicate an error, but the method should be made clear.
-For multiple adjusted tests, pointwise intervals similarly do not
-correspond to adjusted p-values unless the intervals are simultaneous.
+Do not “correct” optional stopping by changing a threshold informally. Specify the stopping rule and use methods whose operating characteristics cover it. Do not suppress nonsignificant endpoints. A transparent report includes the registered primary analysis, deviations, all key outcomes, and a distinction between prespecified and exploratory results.
 
-Report exact p-values to two or three significant digits when useful, but
-avoid spurious precision such as p=0.0478321. Values below a software
-display threshold should be given as a bound, for example p<0.001. Never
-write p=0: continuous test distributions assign a tail probability, even
-if floating-point arithmetic underflows at extremely small values. For
-large-scale genomic analyses, adjusted p-values can be extremely tiny;
-scientific interpretation still depends on effect sizes and replication.
-The reporting standard should preserve enough precision to distinguish
-meaningful values without implying that the p-value itself is an exact
-measure of evidence.
+### Avoid significance language traps
 
-For discrete data, attainable test statistics and p-values come in jumps.
-In a small 2×2 table, an exact test may have no possible p-value near 0.05;
-its actual type-I error can be well below the nominal level because a
-randomized test would be needed to attain exactly alpha. “Exact” means
-that the null distribution is calculated from the assumed discrete model,
-not that the conclusion is assumption-free. Fisher's exact test
-conditions on observed margins; other unconditional exact procedures
-answer a related but not identical question. State the test and the
-conditioning assumptions, especially when competing methods differ.
+“Statistically significant” means a specified decision threshold was crossed under the procedure; it does not mean large, clinically important, or likely to replicate. “Not significant” means the threshold was not crossed; it does not show absence of an effect. Report exact p-values sensibly (e.g., p=.032, p<.001) but avoid false precision such as p=.0000. Pair with an effect estimate and confidence interval. Discuss whether the data distinguish clinically important benefit from negligible or harmful effects, and name limitations that affect the model’s validity.
 
-For a two-sided test, “as extreme or more extreme” also requires a
-definition. For symmetric continuous statistics, doubling the smaller
-one-sided tail is standard. For discrete or asymmetric null distributions,
-several two-sided conventions exist and can produce different p-values.
-The method should be selected in advance and reported; a smaller value
-chosen after examining alternatives is not a neutral technical detail.
+## Bayesian evidence is not a transformed p-value
 
-### Simulated calibration
+A p-value describes how surprising a test statistic is under a null model. A Bayes factor compares how well two models predict the data, integrating likelihood over parameter distributions under each model. Posterior odds equal prior odds times the Bayes factor. The two can differ substantially because a p-value conditions on a point null and a test statistic, while a Bayes factor depends on the alternative prior and uses the likelihood more fully. Neither should be translated directly into the other without explicit assumptions.
 
-## Practical language for results
+This distinction explains why a small p-value does not tell how probable an effect is. The posterior probability requires a prior distribution over hypotheses or parameters. In repeated-testing settings, p-values require multiplicity control; Bayesian models can partially pool related effects, but they also depend on prior and model structure and can be overconfident if dependence or selection is omitted.
 
-Prefer “the estimated reduction was 4.0 mmHg (95% CI 0.8 to 7.2; p=0.02)”
-to “the treatment was effective (p<0.05).” The first gives direction,
-magnitude, precision, and a model-based compatibility summary; the latter
-reduces the conclusion to a threshold and hides uncertainty. If the study
-was exploratory, say so. If the p-value was adjusted, name the procedure
-and family. If the study was designed for non-inferiority or equivalence,
-report the margin and the confidence-bound comparison rather than relying
-on a superiority-test p-value.
+## P-value functions and compatibility
 
-The p-value is not the chance the observed result happened “by chance.”
-Data arise from chance variation under all statistical models, and the
-calculation conditions on the null and assumptions rather than assigning
-causes to the realized result. A tiny p-value can arise from a real
-association, a biased design, a mistaken model, or selective reporting.
-The inference requires scientific judgment about which explanation is
-plausible. Similarly, a p-value of 0.8 does not show that the null model is
-true; it says the observed statistic is not unusual under that model.
+Rather than focusing on one threshold, a p-value function evaluates the test evidence over a range of hypothesized parameter values. Inverting two-sided tests yields confidence intervals: parameter values that would not be rejected form the interval under the corresponding procedure. This connection shows why a p-value alone is incomplete. The interval reveals which effect sizes are compatible with data at a sequence of thresholds, subject to the same model assumptions.
 
-### Nested model comparisons
+For example, if a 95% interval for risk difference is −1 to 8 percentage points, the data are compatible with slight harm and substantial benefit. A p-value above .05 for zero does not make all those values equally likely, but neither does it select one. The interval and likelihood shape should be interpreted with prior evidence and clinical context.
 
-In regression, a likelihood-ratio test compares nested models, such as a
-model with and without a prespecified set of covariates. Under regularity
-conditions, twice the log-likelihood difference follows an approximate
-chi-square distribution with degrees of freedom equal to the number of
-added parameters. This tests whether the larger model improves fit under
-the likelihood framework; it does not show that the added predictors are
-causal or improve out-of-sample prediction. With boundary parameters (for
-example, a variance component equal to zero) the reference distribution
-may be a mixture rather than ordinary chi-square. Model selection after
-many candidate comparisons also introduces multiplicity and optimism.
+### Practical numerical reporting
 
-Simulation also shows why an individual p-value cannot serve as a posterior
-probability. Under a true null, p-values are spread across the interval,
-not concentrated near zero; under a real alternative they tend to be
-smaller, with the distribution depending on power. The same p=0.03 could
-arise in a well-powered, prespecified trial of a plausible intervention
-or as the smallest of dozens of exploratory analyses. The numerical value
-does not encode which context produced it. Prior plausibility, study
-quality, multiplicity, and publication processes all affect how much
-confidence a reader should place in the finding.
+Report p-values to a useful precision: p=.047 or p<.001, not p=.000. Avoid comparing two p-values as if their difference measures the difference between treatment effects. If arm A yields p=.04 and arm B yields p=.06, the results are not necessarily statistically different; test the contrast directly. Avoid phrases “trend toward significance,” “marginally significant,” or “highly significant,” which obscure the estimate and threshold convention.
 
-At extremely small sample sizes, p-values are limited by the discreteness
-of the data and the test may have low attainable power. At extremely large
-sample sizes, negligible departures from a point null can yield tiny
-p-values. Therefore, the same threshold has no universal substantive
-meaning. Interpret the p-value jointly with an effect estimate, interval,
-design quality, and prespecified decision threshold. If a protocol uses
-multiple looks or a group sequential design, report the adjusted boundary
-and cumulative alpha spending rather than comparing every interim p-value
-with 0.05.
+For a preregistered primary test, explain α and whether the test was one- or two-sided. For secondary outcomes, describe multiplicity and exploratory status. When a p-value is reported alongside a confidence interval, ensure both use a compatible model and sidedness. Include enough information to reproduce the statistic, especially for permutation, exact, complex-survey, or sequential analyses.
 
-The long-run definition can be made concrete by simulation. If the null
-model is true and the test is correctly calibrated, repeated null datasets
-produce p-values that are approximately uniform on [0,1] for a continuous
-test; thus about 5% fall below 0.05. Discrete tests often produce
-super-uniform p-values, so the fraction is at most 5%. If model assumptions
-fail, p-values need not be uniform, and false positive rates can be much
-larger or smaller than intended.
+### An applied reading exercise
 
-```r
-set.seed(7)
-B <- 10000
-pvals <- replicate(B, {
-  x <- rnorm(20, mean = 0, sd = 1) # null mean is zero
-  t.test(x, mu = 0)$p.value
-})
-mean(pvals < .05) # approximately .05, with Monte Carlo variation
-hist(pvals, breaks = 20, main = "Null p-values", xlab = "p-value")
-```
+Imagine two trials estimate the same 2-unit treatment benefit. Trial A has SE .7 and reports p=.004; trial B has SE 1.5 and reports p=.18. Their point estimates agree, but trial B is less precise. The p-values differ because their standard errors differ, not because the estimated benefit has changed. Trial A’s interval is roughly 0.6 to 3.4; trial B’s about −0.9 to 4.9. The second trial cannot distinguish no effect from a meaningful benefit. This is a much more informative comparison than labeling one trial positive and one negative.
 
-This simulation checks only the test under the simulated model. It does
-not validate normality, independence, randomization, or the actual study's
-data-generation process. Repeating an analysis many times on the same
-dataset is not equivalent to this calibration exercise because the
-repeated datasets here are generated under a known null model.
+If the trials are combined, use an appropriate synthesis that accounts for standard errors, heterogeneity, and design compatibility. Do not “vote count” significance. A p-value from a very large observational study can also be tiny while residual confounding makes the causal effect uncertain; design quality is not encoded in the tail probability.
+
+### Tests as decision rules
+
+In some settings, alpha is tied to a regulatory or programmatic decision. Then the decision rule should be written clearly: which endpoint, population, test, threshold, and handling of missing data lead to success. If a gatekeeping sequence is used, specify what happens when a prior gate fails. A p-value below threshold may satisfy a formal rule but the decision-maker should still examine effect size, safety, external evidence, and applicability. Statistical decision and clinical decision are related but not identical.
+
+### Reproducibility and full reporting
+
+Report the analysis model, test statistic where useful, degrees of freedom, sidedness, and exact p-value. If a test is permutation-based, give the number of permutations and random seed; if exact, state the conditional setup; if a sequential design, name the boundary or spending function. Make all outcomes and planned contrasts visible. Independent analysts should be able to reconstruct the inferential path from protocol through result, including deviations.
+
+### A minimal reproducible p-value report
+
+For a two-arm continuous primary outcome, a report should identify the contrast direction, estimate, standard error or interval, test statistic, degrees of freedom, p-value, and planned alpha/multiplicity method. For example, “The adjusted mean difference (intervention minus control) was −3.2 points (95% CI −5.7 to −0.7; t(184)=−2.64; p=.009), using the prespecified linear model.” This gives the reader enough to understand the result without overloading the narrative. Then interpret the interval against the MCID and discuss model assumptions.
+
+For exact or resampling methods, specify the conditioning or randomization scheme. For rare events, distinguish one-sided from two-sided exact inference and acknowledge discreteness. For complex survey or cluster analyses, state the variance procedure because the p-value depends on it. An isolated p-value without this context is difficult to reproduce and easy to misread.
+
+### Why “p=.05” is not a universal standard
+
+Different fields and decisions tolerate different false-positive risks. A confirmatory drug approval may use stringent control across outcomes; exploratory quality improvement may prioritize rapid detection and tolerate more false alarms if followed by review. Lowering alpha does not make evidence intrinsically stronger; it changes the decision rule and usually reduces power. The chosen threshold must be declared before results and interpreted alongside consequences.
+
+## Model checking and p-values
+
+A model-based p-value can be numerically correct under its assumed sampling distribution yet scientifically misleading if the outcome model is wrong. Residual dependence, separation in logistic regression, overdispersion in count models, or unmodeled cluster effects can distort standard errors and reference distributions. Diagnostic checks do not prove assumptions, but they can expose major departures. Use robust, exact, permutation, or alternative-model sensitivity analyses when justified, and report the primary method rather than choosing the most favorable p-value.
+
+For randomized experiments, randomization inference offers a design-based check that can be less reliant on parametric outcome assumptions. Its null must match the sharp or average-effect claim, and the randomization scheme must be faithfully reproduced. Multiple versions of the test are not interchangeable.
+
+### Separate evidence, decision, and importance
+
+A study can produce a small p-value and a trivial effect; it can also produce a large p-value and an effect that would matter if confirmed. Evidence against a null, a decision rule, and clinical importance are separate dimensions. A treatment decision may reasonably require more than statistical significance: safety, cost, alternative therapies, feasibility, and patient preferences matter. Conversely, a nonsignificant but precise estimate can rule out a worthwhile benefit.
+
+Use wording that preserves uncertainty. “The data provide evidence of a reduction” is more defensible than “the treatment works” when intervals remain broad. “The estimated difference was small and imprecise” communicates more than “not significant.” If the confidence interval is incompatible with important benefit, say that specifically and indicate the assumptions under which the conclusion holds.
+
+### Analysis flexibility and selective reporting
+
+Analytic choices can affect p-values: excluding outliers, transforming outcomes, choosing covariates, changing endpoint timing, or trying alternate subgroup cuts. Some flexibility is legitimate when decisions respond to data quality, but undisclosed searching makes nominal p-values too optimistic. A preregistered analysis provides a reference point; a transparent deviation log makes later exploratory work interpretable.
+
+Do not treat preregistration as a guarantee of validity. A prespecified model can still be inappropriate, and data may reveal unexpected problems. Explain the reason for alternatives, show how estimates change, and seek independent validation. Robust conclusions that persist across defensible analyses are more reassuring than a single threshold-crossing result.
+
+### What a result can support
+
+A small p-value can support the statement that the observed data are unusual under the specified null and procedure. It cannot by itself establish causality, clinical benefit, model adequacy, or reproducibility. A large p-value may leave important effects unresolved. The strongest report combines a defensible design, transparent analysis, complete outcome reporting, effect estimates with intervals, and a restrained conclusion.
+
+Readers should see the study as one contribution to evidence, not a binary verdict. Synthesis across studies, external validation, and mechanistic understanding can change confidence in a treatment even when each individual result sits on one side or the other of .05.
+
+### Confidence intervals reveal more than thresholds
+
+For a two-sided test derived by inversion, a 95% confidence interval contains parameter values that would not be rejected at α=.05 under the same procedure. This connection helps explain why the interval is a richer summary: it shows how the conclusion changes across candidate effects, not just whether zero crossed a single boundary. It does not mean all values inside the interval have equal probability or all values outside are impossible.
+
+If the interval spans the null and the MCID, the data leave clinical uncertainty. If it crosses the null but lies entirely below a worthwhile benefit threshold, the study can provide evidence against a large benefit without establishing exact zero. Describe that distinction directly.
+
+### Communicating evidence without binary labels
+
+A sound conclusion names the estimate, its uncertainty, and the plausible clinical interpretation. It may state that evidence was inconclusive for the prespecified superiority test while ruling out effects larger than a certain size. This is more useful than “negative trial.” Similarly, a statistically significant estimate with a tiny absolute difference may provide little reason to change care. Threshold labels should not replace effect-based reasoning.
+
+### Keep exploratory questions useful
+
+Exploration is essential for discovering unanticipated patterns. The appropriate response is not to suppress exploratory p-values but to disclose how the question arose, how many analyses were tried, and what independent evidence is needed. Label results as candidates, share the analysis path, and avoid presenting a selected finding as if it were the sole planned test. Transparent uncertainty allows useful leads without overstating certainty.
+
+### Final interpretation
+
+Treat p-values as calibrated summaries under an analysis procedure, not as universal evidence scores. A defensible account pairs them with the estimate, interval, design, analysis plan, and clinical threshold. The threshold organizes a decision; it does not replace scientific judgment, replication, or transparent reporting.
+
+### Use p-values in cumulative evidence
+
+A single p-value should be interpreted alongside prior studies, protocol adherence, outcome validity, and replication. Evidence accumulates through consistent effect estimates and uncertainty, not by counting how many studies crossed a binary threshold. Meta-analysis should examine design compatibility and heterogeneity, rather than combine p-values alone. This broader view reduces overreliance on one nominal result.
+
+When p-values are rounded for display, preserve enough precision to distinguish values near prespecified decision boundaries.
+
+If p-values are compared across studies, also compare effect estimates, standard errors, populations, and outcome definitions; a larger p-value can reflect lower precision rather than a smaller effect.
 
 ## References and further reading
 

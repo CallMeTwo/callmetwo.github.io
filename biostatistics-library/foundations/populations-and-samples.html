@@ -111,182 +111,72 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Getting started <span class="sep">/</span> <strong style="color:#273e3b">Populations and samples</strong></div>
         <h1 class="article-title">Populations and samples</h1>
         <p class="article-summary">The population is the group you want to know about; the sample is what you can actually measure, and the link between them is sampling.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#design-based-inference-and-nonresponse">Design-based inference and nonresponse</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#target-source-and-analytic-populations">Target, source, and analytic populations</a></li><li class="h3"><a href="#worked-example-unequal-probability-sampling">Worked example: unequal-probability sampling</a></li><li class="h3"><a href="#clustering-and-effective-sample-size">Clustering and effective sample size</a></li><li class="h2"><a href="#selection-mechanisms-and-transportability">Selection mechanisms and transportability</a></li><li class="h3"><a href="#worked-example-nonresponse-weighting">Worked example: nonresponse weighting</a></li><li class="h3"><a href="#probability-sampling-versus-random-assignment">Probability sampling versus random assignment</a></li><li class="h3"><a href="#sample-size-precision-and-representation">Sample size, precision, and representation</a></li><li class="h2"><a href="#positivity-and-support-in-subgroup-sampling">Positivity and support in subgroup sampling</a></li><li class="h3"><a href="#effective-sample-size-under-weights">Effective sample size under weights</a></li><li class="h2"><a href="#recruitment-and-consent-as-selection-processes">Recruitment and consent as selection processes</a></li><li class="h2"><a href="#sampling-uncertainty-versus-coverage-error">Sampling uncertainty versus coverage error</a></li><li class="h2"><a href="#nonprobability-samples-and-cautious-inference">Nonprobability samples and cautious inference</a></li><li class="h2"><a href="#cluster-sampling-and-intraclass-correlation">Cluster sampling and intraclass correlation</a></li><li class="h2"><a href="#precision-gains-from-stratification">Precision gains from stratification</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#the-chain-from-target-to-observed-sample">The chain from target to observed sample</a></li><li class="h2"><a href="#probability-sampling-and-inclusion-chances">Probability sampling and inclusion chances</a></li><li class="h2"><a href="#selection-coverage-and-nonresponse">Selection, coverage, and nonresponse</a></li><li class="h2"><a href="#clustered-populations-and-effective-information">Clustered populations and effective information</a></li><li class="h2"><a href="#transporting-an-estimate-to-another-setting">Transporting an estimate to another setting</a></li><li class="h2"><a href="#a-practical-target-population-example">A practical target-population example</a></li><li class="h2"><a href="#reporting-what-the-sample-represents">Reporting what the sample represents</a></li><li class="h2"><a href="#sampling-variability-is-not-representativeness">Sampling variability is not representativeness</a></li><li class="h2"><a href="#positivity-and-overlap-in-target-comparisons">Positivity and overlap in target comparisons</a></li><li class="h2"><a href="#recruitment-as-an-ethical-and-scientific-process">Recruitment as an ethical and scientific process</a></li><li class="h2"><a href="#choosing-a-strategy-for-population-inference">Choosing a strategy for population inference</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>A <strong>population</strong> is the complete set of individuals or events about which you
-want to draw conclusions; a <strong>sample</strong> is the subset you actually observe.
-Statistics exists because populations are almost never measurable in full, so
-we measure a sample and infer the population quantity from it. Three concepts
-link the two:</p>
-<ul>
-<li><strong>Sampling frame</strong> — the list or mechanism that defines who could enter the
-sample (e.g. the hospital&#39;s admissions register for the year).</li>
-<li><strong>Probability sampling</strong> — every member of the frame has a known, non-zero
-chance of selection; this is what makes valid population inference possible.</li>
-<li><strong>Non-probability sampling</strong> — convenience samples (patients seen on a ward
-round). Useful for pilot work, but inference to a wider population rests on
-how typical the sample is.</li>
-</ul>
-<p>Precision improves with sample size, but no sample size fixes a sampling
-mechanism that systematically excludes part of the population.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<p>Defining population, frame and sampling scheme is a design-stage task.
-Typical scenarios:</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Surveillance</td>
-<td>What is the central-line bloodstream infection rate in all ICU admissions this year?</td>
-</tr>
-<tr>
-<td>Cohort study</td>
-<td>Among all patients newly diagnosed with type 2 diabetes, what is the 5-year risk of retinopathy?</td>
-</tr>
-<tr>
-<td>Clinical trial</td>
-<td>Which population do the results apply to — those randomised, those who took the drug, or all patients like them?</td>
-</tr>
-<tr>
-<td>Quality audit</td>
-<td>Do 60 consecutive knee replacements represent the year&#39;s caseload, or only consenting surgeons?</td>
-</tr>
-</tbody></table>
-<p>In the surveillance example the population is &quot;all ICU admissions to our
-hospital this year&quot;, the frame is the admissions register, and 100% capture
-makes it a census — a reminder that census and sample are roles, not
-properties of data.</p>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<p>Inference from a sample to a population rests on two assumptions:</p>
-<ul>
-<li><strong>Representativeness</strong> — the sampling mechanism does not systematically
-exclude or over-represent subgroups; a frame covering only telephone-triage
-admissions under-represents the sickest patients.</li>
-<li><strong>Non-selective errors</strong> — mistakes in who is sampled or how they are
-counted do not correlate with the outcome being measured.</li>
-</ul>
-<p>The method breaks down when non-participation is selective: an audit whose
-response rate falls from 90% to 40% over the year is not sampling the same
-population at both points. Missing data within the sample is a second,
-separate problem, but it compounds the first — the effective sample may differ
-from the sample in exactly the way the population question cares about.</p>
-<h3 id="design-based-inference-and-nonresponse">Design-based inference and nonresponse</h3>
-<p>In probability sampling, each sampled unit has a known inclusion probability
-πᵢ. When these probabilities differ, an unweighted estimate may not represent
-the target population; design weights are typically related to 1/πᵢ, and
-variance calculations must also reflect stratification and clustering. A
-response rate alone does not determine nonresponse bias: the bias depends on
-how response relates to the outcome after accounting for observed information.
-Define the target population, eligibility period, frame and nonresponse
-strategy before analysis. Randomization in a trial supports an internal
-treatment comparison, but does not guarantee that results transport to every
-population of interest.</p>
-<h2 id="worked-example">Worked example</h2>
-<p>A hospital wants the infection rate among all 1,420 ICU admissions in a year.
-Auditing every chart is infeasible, so the team randomly selects 100 charts
-and finds central-line bloodstream infection in 7 of them: a point estimate of
-7.0%. Treating the selection as a simple random sample, the standard error is
-sqrt(p(1-p)/n) = sqrt(0.07 × 0.93 / 100) ≈ 0.026, so a 95% confidence
-interval is roughly 7.0% ± 1.96 × 2.6% — about 2% to 12%.</p>
-<p>The interval is wide because of the modest sample size, not a flaw in the
-logic: with n = 100, a 7% rate is imprecisely estimated, and the honest
-conclusion is that the true rate plausibly lies in the 2–12% range, subject to
-the assumption that the register frame covers all ICU admissions.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Reporting the sample, silently claiming the population.</strong> If 100 charts
-were randomly sampled from a frame of 1,420, the rate applies to the frame —
-but only if the frame is complete. State frame and population separately.</li>
-<li><strong>Conflating non-response with random error.</strong> If 30 of 100 charts could
-not be obtained and missingness correlates with severity, the effective
-sample is no longer the random sample.</li>
-<li><strong>Extrapolating across settings.</strong> A rate estimated at one hospital cannot
-be generalised to &quot;all hospitals&quot; by statistics alone; that is a multi-centre
-design question, not arithmetic.</li>
-<li><strong>Choosing the sample size after seeing the data.</strong> Power is a planning
-concept; a post-hoc &quot;we only had 40 patients&quot; does not become a design
-decision.</li>
-</ul>
-<h2 id="target-source-and-analytic-populations">Target, source, and analytic populations</h2>
-<p>A population is not always a geographic census. The target population is the group to which the scientific question refers; the source population is the group from which participants could actually be recruited; the analytic sample is the set contributing data to a particular analysis. These groups may differ because of eligibility, consent, enrollment, follow-up, or missing outcomes. Generalizability concerns how results transport from the study sample to a target setting; internal validity concerns whether the study identifies an effect for its own eligible participants. A trial can have strong internal validity and limited transportability, or the reverse.</p>
-<p>Probability sampling gives each unit a known selection probability. Under simple random sampling, each of N population members has equal chance n/N of selection. Stratified designs sample within prespecified subgroups to ensure representation or improve precision. Cluster sampling selects groups such as clinics and then patients; it is operationally efficient but yields correlated outcomes. Convenience sampling has unknown selection probabilities, so ordinary sample summaries do not automatically estimate population quantities. Weighting may correct known unequal probabilities or measured nonresponse patterns, but cannot repair selection driven by unmeasured factors without additional assumptions.</p>
-<p>Nonresponse and loss to follow-up can create selection bias when participation depends jointly on exposure and outcome risk. A flow diagram should account for screened, eligible, enrolled, followed, and analyzed participants. Compare included and excluded groups using available variables, but recognize that similar measured characteristics do not prove absence of selection bias. In longitudinal studies, complete-case analysis changes the target to those with complete records unless missingness assumptions justify broader inference.</p>
-<h3 id="worked-example-unequal-probability-sampling">Worked example: unequal-probability sampling</h3>
-<p>A health survey samples 400 rural and 600 urban residents, although the target population is 30% rural and 70% urban. If observed disease prevalence is 12% in rural respondents and 8% in urban respondents, the unweighted sample prevalence is (400×.12 + 600×.08)/1000 = 9.6%. The population-standardized estimate is .30×.12 + .70×.08 = .092, or 9.2%. The difference is small here, but can be large when oversampling is stronger or subgroup risks differ substantially.</p>
-<pre><code class="language-r">sample_n &lt;- c(rural = 400, urban = 600)
-risk &lt;- c(rural = 0.12, urban = 0.08)
-population_share &lt;- c(rural = 0.30, urban = 0.70)
-unweighted &lt;- weighted.mean(risk, sample_n)
-standardized &lt;- weighted.mean(risk, population_share)
-c(unweighted = unweighted, standardized = standardized)
+          <h2 id="overview">Overview</h2>
+<p>A population is the set of people, encounters, records, or events that a study seeks to describe or inform. A sample is the subset observed. The inferential question is not simply whether the sample is large; it is how the observed units connect to the target. A small probability sample can support population inference when selection is well understood, while a very large convenience sample can remain systematically unrepresentative.</p>
+<p>Population statements should identify eligibility, place, calendar time, care setting, and unit of analysis. “Adults with asthma” could mean all adults with asthma in a country, patients diagnosed in primary care, people treated at a specialist center, or people who consented to a clinical trial. Estimates from each group answer different questions. The source population, sampling frame, recruited sample, analyzed sample, and population where results may be used should therefore be distinguished explicitly.</p>
+<h2 id="the-chain-from-target-to-observed-sample">The chain from target to observed sample</h2>
+<p>The target population is the group to which a descriptive estimate or scientific conclusion is meant to apply. The source population is the group that could in principle have generated the participants. A sampling frame operationalizes access to that source, such as a registry or list of clinic visits. Recruitment and consent select participants from the frame; eligibility exclusions and missing outcomes may select again before analysis. Every transition can alter representation.</p>
+<p>Suppose investigators estimate 30-day readmission after discharge. If they enroll only patients discharged from a tertiary hospital, exclude people transferred to other facilities, and lose some patients whose readmissions occur elsewhere, their analytic sample is not automatically all people discharged in the region. The denominator and follow-up mechanism determine what the estimated proportion represents. Linkage to regional records may reduce missed events, but linked data can still omit patients who move or use unconnected facilities.</p>
+<p>For a finite population such as all admissions to a hospital during 2025, the target may be that actual set of admissions. For a superpopulation target, the interest may be future admissions generated by a continuing process. The finite target can be enumerated and described; superpopulation inference requires a model or sampling argument about future cases. State which one matters, especially when applying finite-population corrections or claiming broad generalizability.</p>
+<h2 id="probability-sampling-and-inclusion-chances">Probability sampling and inclusion chances</h2>
+<p>In probability sampling, every eligible unit has a known, positive chance of selection. Simple random sampling gives units equal selection probabilities. Stratified sampling divides the frame into meaningful groups and samples within each; it can ensure enough observations from small but important subgroups and improve precision when strata predict outcomes. Cluster sampling selects groups such as clinics, then samples or includes people within selected groups. Multistage designs combine these steps.</p>
+<p>Unequal selection probabilities require weighted estimation when the goal is a population average or total. If rural residents are oversampled to make subgroup estimates precise, the unweighted overall estimate overrepresents rural residents. An inverse-probability weight is proportional to 1/πᵢ, where πᵢ is the unit’s inclusion probability. A weighted mean is Σwᵢyᵢ/Σwᵢ. Weights restore the intended composition under the design, but can increase variance when they vary widely. Report the design and variance method rather than treating weighted observations as ordinary independent records.</p>
+<p>A worked calculation: a population has 8,000 urban and 2,000 rural adults. A survey samples 400 urban adults and 400 rural adults. If 40 urban respondents and 80 rural respondents report the outcome, the unweighted prevalence is 120/800 = 15%. Yet urban and rural sample fractions are 0.05 and 0.20. The population-weighted prevalence is 0.8(40/400)+0.2(80/400)=0.12, or 12%. Oversampling improved precision for the rural estimate, but weighting is needed for the population summary.</p>
+<pre><code class="language-r">survey::svydesign(ids = ~1, strata = ~stratum,
+                  weights = ~sampling_weight, data = dat) |&gt;
+  survey::svymean(~outcome, na.rm = TRUE)
 </code></pre>
-<p>This calculation assumes that each stratum&#39;s sample risk estimates its population risk. If nonresponse within rural or urban strata depends on disease beyond modeled variables, post-stratification alone does not remove the bias. Weight uncertainty should also be reflected in standard errors.</p>
-<h3 id="clustering-and-effective-sample-size">Clustering and effective sample size</h3>
-<p>With average cluster size m and intraclass correlation ρ, a rough design effect for equal-sized clusters is DEFF ≈ 1+(m−1)ρ. For m=20 and ρ=.05, DEFF=1.95; 1,000 clustered observations may have variance like roughly 1,000/1.95≈513 independent observations for a mean under this approximation. This is not a replacement for design-based analysis: unequal cluster sizes, stratification, and multistage selection change the calculation. Use cluster-robust, mixed-model, or survey-design methods appropriate to the estimand and sampling process.</p>
-<p>Describe the sampling frame, selection mechanism, recruitment dates, eligibility, participation, and losses. Make claims no broader than the design supports. When transporting results, compare distributions of effect modifiers between study and target populations and state the assumptions used to standardize. Sampling design is part of the analysis, not a background detail.</p>
-<h2 id="selection-mechanisms-and-transportability">Selection mechanisms and transportability</h2>
-<p>Selection occurs at multiple stages: a clinic may serve a distinct catchment; eligibility may exclude comorbid patients; consent may depend on treatment preference; follow-up may depend on prognosis; analysis may condition on complete data. Each stage can alter the distribution of exposures, outcomes, and effect modifiers. A participant flow chart makes counts visible, but causal diagrams and sensitivity analyses are needed to understand implications.</p>
-<p>External validity is not established by matching a demographic table. To transport a trial effect, identify variables that modify treatment effect and compare their distributions in trial and target populations. If individual-level data and target margins are available, standardize trial-specific conditional effects to the target distribution under assumptions of conditional exchangeability and positivity. If some target groups were absent from the trial, extrapolation relies on modeling beyond observed support and should be explicit. A nationally diverse sample can still be unrepresentative if participation is selective.</p>
-<h3 id="worked-example-nonresponse-weighting">Worked example: nonresponse weighting</h3>
-<p>Suppose 70% of invited low-risk adults and 40% of invited high-risk adults respond. Among respondents, outcome risks are 5% and 20%, respectively; the target invitation frame is 60% low-risk and 40% high-risk. The respondent mix is proportional to .60×.70=.42 and .40×.40=.16, so among responders the high-risk share is .16/(.42+.16)=27.6%, less than the target&#39;s 40%. The unweighted respondent risk is .724×.05+.276×.20=.0914. Standardizing risks to the frame yields .60×.05+.40×.20=.11. Here measured risk strata permit correction; if response differs by unobserved outcome within strata, this does not suffice.</p>
-<pre><code class="language-r">frame_share &lt;- c(low = .60, high = .40)
-response &lt;- c(low = .70, high = .40)
-risk &lt;- c(low = .05, high = .20)
-respondent_share &lt;- frame_share * response
-respondent_share &lt;- respondent_share / sum(respondent_share)
-unweighted &lt;- sum(respondent_share * risk)
-standardized &lt;- sum(frame_share * risk)
-c(unweighted = unweighted, standardized = standardized)
-</code></pre>
-<p>This simple post-stratification assumes response is ignorable conditional on risk stratum and that the risk estimates are transportable within stratum. Inverse-probability weights can become large when response probabilities are low; report weight distributions and assess sensitivity to truncation.</p>
-<h3 id="probability-sampling-versus-random-assignment">Probability sampling versus random assignment</h3>
-<p>Sampling and treatment allocation are different random mechanisms. Probability sampling supports design-based generalization from sample to a frame; random assignment supports unbiased comparison of treatment groups among the randomized units. A randomized convenience sample can have strong internal causal validity but limited generalization. A representative observational survey may describe population prevalence accurately yet have confounded exposure-outcome associations. State which randomization is present and what inferential claim it supports.</p>
-<h3 id="sample-size-precision-and-representation">Sample size, precision, and representation</h3>
-<p>Larger samples narrow random error, but do not eliminate bias. Increasing a convenience sample from 500 to 5,000 can produce a very precise estimate of the wrong population quantity. Sample-size planning should account for clustering, unequal weights, nonresponse, subgroup objectives, and multiplicity. Oversampling small groups can improve subgroup precision; weighting then restores population representation for overall estimates. Plan the sample and analysis together rather than treating weights as a post hoc repair.</p>
-<p>In reports, distinguish the recruited sample from the analytic denominator for each result. Show missingness and exclusions by reason; describe the sampling frame and recruitment sites; characterize relevant target-population differences. For transport claims, identify assumptions and provide sensitivity analyses where data allow. The CONSORT and STROBE statements improve transparency, but generalizability requires substantive reasoning about who could enter and remain in the study.</p>
-<h2 id="positivity-and-support-in-subgroup-sampling">Positivity and support in subgroup sampling</h2>
-<p>Positivity means every covariate pattern in the target population has a nonzero probability of entering the relevant exposure or treatment group. In sampling, a subgroup absent from the frame cannot be represented by reweighting; in causal inference, a treatment never used for a covariate pattern cannot be compared there without extrapolation. Extreme weights are a warning that the observed data poorly support the target contrast. Trimming can stabilize estimates but changes the effective target population and should be described.</p>
-<h3 id="effective-sample-size-under-weights">Effective sample size under weights</h3>
-<p>A rough effective sample size for normalized weights wi is (Σwi)²/Σwi². It equals n for equal weights and falls when weights are concentrated. For example, weights 1,1,1,7 sum to 10 and yield effective n=100/(1+1+1+49)=1.92, far below four nominal records. This formula is a diagnostic, not a complete design-based degrees-of-freedom calculation.</p>
-<pre><code class="language-r">w &lt;- c(1, 1, 1, 7)
-(sum(w)^2) / sum(w^2)
-</code></pre>
-<p>Inspect weight histograms, minimum and maximum inclusion probabilities, and subgroup representation. Report whether weights were calibrated, trimmed, or normalized, and how variance accounted for their estimation. A weighted point estimate with a naive unweighted standard error is internally inconsistent.</p>
-<h2 id="recruitment-and-consent-as-selection-processes">Recruitment and consent as selection processes</h2>
-<p>Enrollment may depend on health literacy, trust, transportation, disease severity, and treatment preference. These factors can affect both participation and outcomes. Recruitment strategies that broaden access improve inclusiveness, but statistical weighting can only adjust measured selection predictors under assumptions. Document outreach, reasons for refusal where ethically collected, and site-level participation. Avoid describing participants as “representative” merely because their age and sex distributions resemble census margins; unmeasured clinical characteristics and access mechanisms may still differ.</p>
-<p>For multi-site studies, distinguish site sampling from patient sampling. Sites may be chosen purposively for expertise or infrastructure, not randomly from all hospitals. A random effect captures modeled site heterogeneity but does not by itself make those sites representative. If deployment targets community settings unlike trial centers, conduct external validation or transport analyses using target-setting data.</p>
-<h2 id="sampling-uncertainty-versus-coverage-error">Sampling uncertainty versus coverage error</h2>
-<p>A narrow confidence interval addresses random sampling variation under the model; it does not capture coverage error when the sampling frame omits relevant people. Telephone surveys that exclude people without access, registries that omit untreated disease, and EHR cohorts that exclude patients receiving care elsewhere can all produce systematic differences. Weighting to known margins may reduce some differences but cannot prove representativeness. Triangulate with external data sources, sensitivity analyses, and a clear description of the frame. Population claims should be proportionate to frame coverage and participation.</p>
-<h2 id="nonprobability-samples-and-cautious-inference">Nonprobability samples and cautious inference</h2>
-<p>Many clinical datasets arise from registries, EHRs, and opt-in cohorts with unknown inclusion probabilities. The observed distribution can describe the records captured, but population estimates require additional structure. Calibration weighting aligns measured margins with a target source; inverse odds of sampling weights can support transport when selection is explainable by measured covariates. Both methods require overlap and correct measurement of selection predictors. If participation depends on unmeasured prognosis, sensitivity analysis should quantify how strong that dependence would need to be to change conclusions.</p>
-<p>Repeated sampling from an EHR does not make the sample random. A very large dataset may reduce Monte Carlo error while retaining systematic undercoverage. Report the health systems, catchment, period, coding inclusion criteria, and care outside the network. Validate against external sources and avoid extrapolating to people who rarely access the represented system.</p>
-<h2 id="cluster-sampling-and-intraclass-correlation">Cluster sampling and intraclass correlation</h2>
-<p>Patients in the same clinic share staff, protocols, and neighborhood context. The intraclass correlation ρ is the fraction of total variance attributable to between-clinic differences in a simple random-intercept model. With m equally sampled patients per clinic, the design effect formula 1+(m−1)ρ shows why adding more people to the same clinics yields diminishing information. Adding clinics may be more valuable than adding within-clinic patients, especially for clinic-level interventions. Sample-size planning should use plausible ICC values and number of clusters, and analysis should use cluster-aware methods.</p>
-<p>A useful sampling report names the geographic and temporal frame, inclusion probabilities if known, recruitment channels, eligibility criteria, response fractions, and the unit selected at every stage. Describe nonparticipation and attrition without implying that a large denominator removes bias. For weighted estimates, show weighted and unweighted sample sizes, target margins, and weight diagnostics. These details let readers evaluate whether the sample statistic estimates the intended population parameter or only characterizes the records observed.</p>
-<p>Sampling uncertainty is not the only uncertainty in transport. Treatment effects can differ across settings because of baseline risk, co-interventions, adherence, health-system capacity, or outcome ascertainment. A transported estimate should specify which characteristics are allowed to vary and which mechanisms are assumed stable. If effect modifiers are unknown or absent from both datasets, present a qualitative limitation or quantitative sensitivity analysis instead of claiming broad representativeness.</p>
-<h2 id="precision-gains-from-stratification">Precision gains from stratification</h2>
-<p>If a known subgroup strongly predicts the outcome, stratified sampling can ensure adequate representation and sometimes reduce variance by estimating within-stratum quantities before weighting them to the population. The gain depends on within-stratum homogeneity and proportional allocation. Disproportionate allocation may be useful for rare groups but requires weights for population totals. Analyze with the strata and selection probabilities retained; discarding that design information wastes precision and can bias standard errors.</p>
+<p>In practice, retain primary sampling units, strata, finite-population information where relevant, and nonresponse adjustments in the design object. The simple <code>ids = ~1</code> form above is only appropriate when sampled units are independent within the design; clustered samples require cluster identifiers. A standard weighted average with an ordinary standard error may be badly misleading.</p>
+<h2 id="selection-coverage-and-nonresponse">Selection, coverage, and nonresponse</h2>
+<p>Coverage error occurs when the frame omits part of the target or includes ineligible units. A clinic registry may exclude people who receive care elsewhere; an online survey may underrepresent people without reliable internet access. Increasing the sample size from the same incomplete frame makes the estimate more precise for the frame-covered group, not necessarily for the target population.</p>
+<p>Nonresponse can be unit-level (a person does not participate) or item-level (a participant skips a question). If participation is unrelated to the outcome after conditioning on variables available for adjustment, weighting or standardization may reduce bias. If response depends on unobserved health status even after adjustment, estimates may remain biased. Compare respondents and nonrespondents on frame variables, describe follow-up attempts, and consider sensitivity analyses over plausible outcome differences among those not observed.</p>
+<p>Consent itself may select participants. People with severe illness, limited time, language barriers, mistrust, or unstable housing may be less likely to enroll. A trial can remain internally valid for its randomized participants while its average treatment effect transports imperfectly to those groups. External validity is not a property granted by large sample size; it depends on whether relevant effect modifiers and care contexts are represented or can be modeled.</p>
+<p>Selection bias can also arise from conditioning on a variable caused by both exposure and outcome. For example, a study restricted to hospitalized patients may create an association between a treatment and an unmeasured cause of hospitalization even when none existed in the source population. This collider mechanism is distinct from ordinary confounding. A recruitment diagram and a causal diagram can help locate where selection occurs and clarify which population each comparison describes.</p>
+<h2 id="clustered-populations-and-effective-information">Clustered populations and effective information</h2>
+<p>People recruited within one hospital often share clinicians, protocols, geography, and referral patterns. Their outcomes are correlated. Treating them as independent makes standard errors too small. If clusters have average size m and intraclass correlation ρ, the approximate design effect is 1+(m−1)ρ. With 20 people per clinic and ρ=0.05, the design effect is 1.95; 1,000 records provide roughly the precision of 1,000/1.95 ≈ 513 independent records under the approximation.</p>
+<p>The number of independent clusters can be more important than the number of people for a cluster-level exposure. A program introduced in six hospitals has six independently assigned units, even if thousands of patient records are measured. Small-cluster corrections, randomization-based inference, or carefully specified hierarchical models may be needed. Report clusters, cluster sizes, and whether treatment or exposure varies within or between clusters.</p>
+<p>Cluster sampling also affects the estimand. A patient-average estimate weights large clinics more because they contribute more patients. A clinic-average estimate gives each clinic equal weight. The latter may be relevant if policy decisions are made for the typical clinic. These are both legitimate but distinct targets; the weighting choice should follow the question.</p>
+<h2 id="transporting-an-estimate-to-another-setting">Transporting an estimate to another setting</h2>
+<p>Generalization asks whether a result applies beyond the study participants. Transportability asks whether it applies to a specified target population, often with measured differences in case mix, treatment delivery, or baseline risk. A trial conducted in academic centers may estimate an internally valid effect but have limited evidence for community hospitals. Compare eligibility, age, comorbidities, access, co-interventions, outcome ascertainment, and calendar period.</p>
+<p>If effect modifiers are measured in both study and target populations, standardization can reweight study-specific conditional effects to the target distribution. This requires adequate overlap: for each target subgroup, there must be relevant study data and the effect model must be credible. Extrapolating to groups absent from the trial is not solved by regression adjustment. Present overlap diagnostics and sensitivity to model choices.</p>
+<p>Baseline risk differences can change absolute benefit even when a relative effect is stable. If a treatment reduces risk by 25%, a target population with baseline risk 20% has an absolute reduction of about 5 percentage points; a population with baseline risk 4% has an absolute reduction near 1 point. This calculation assumes the relative effect transports and should not be mistaken for evidence that it does. Decisions may also change when adverse effects, costs, adherence, or care pathways differ.</p>
+<p>Calendar time matters. A sample from before a diagnostic technology or treatment guideline changed may not represent current patients. Changes in coding, referral, screening, and background therapy alter who enters the dataset and how outcomes are observed. Temporal validation can reveal such differences, while periodic recalibration or renewed sampling may be necessary after deployment.</p>
+<h2 id="a-practical-target-population-example">A practical target-population example</h2>
+<p>Imagine a prediction model developed from 5,000 patients in one urban hospital, all of whom had a complete laboratory panel. The proposed use is to prioritize follow-up for all primary-care patients with diabetes in the region. Before applying the model, compare the development and target populations by age, disease severity, laboratory access, and outcome follow-up. Patients lacking the required panel may be systematically poorer or less connected to care. They are not simply missing rows; they may fall outside the model’s support.</p>
+<p>An evaluation sample should be drawn from the intended primary-care setting, with follow-up capable of capturing outcomes whether or not patients return to the original clinic. Assess discrimination and calibration overall and in groups relevant to implementation. If the model systematically underpredicts risk for patients with sparse visits, recalibration may address baseline-risk differences, but it will not fix poor predictor measurement or a changed outcome mechanism. The decision to deploy depends on both population fit and the consequences of errors.</p>
+<p>A population claim can therefore be written as a chain: the frame covered these eligible people; this recruitment process yielded the analyzed sample; these assumptions support the estimate for a stated population; and these differences limit transport elsewhere. Naming each step makes a limitation actionable. It can suggest adding sites, improving linkage, sampling underrepresented groups, or narrowing the intended use.</p>
+<h2 id="reporting-what-the-sample-represents">Reporting what the sample represents</h2>
+<p>Describe inclusion and exclusion criteria, recruitment dates, sites, sampling method, response, losses to follow-up, and the number analyzed. For probability samples, provide selection probabilities, strata, clusters, and weights. For convenience or registry samples, state how records entered the frame and which eligible people may be absent. Report demographic and clinical characteristics relevant to the target claim, but do not treat a table of baseline variables as proof of representativeness.</p>
+<p>Separate descriptive claims about the observed sample from inferences about a broader population. A confidence interval captures sampling variation only under its design and model; it does not quantify coverage error or unmeasured selection. Discuss these limitations directly. If the intended target population changes, say why the available evidence supports that extension and which assumptions carry it.</p>
+<h2 id="sampling-variability-is-not-representativeness">Sampling variability is not representativeness</h2>
+<p>A confidence interval around a sample estimate addresses how much results might vary under repeated sampling from the assumed process. It does not address whether that process selects the right people. A national web poll may have 100,000 responses and a tiny model-based standard error, yet systematically underrepresent people with low internet access or distrust of surveys. Reporting many decimal places cannot compensate for coverage and nonresponse bias.</p>
+<p>For probability designs, uncertainty can be estimated from known random selection. For nonprobability samples, analysts often calibrate or rake sample margins to known population totals. This can reduce imbalance on measured variables, but relies on assumptions that response is explainable by those variables and that relevant groups overlap. If young adults with severe illness never enter the online panel, matching age and sex margins does not recover their outcomes. A sensitivity analysis should explore how unmeasured response differences would alter conclusions.</p>
+<p>Design effects and effective sample size provide a useful but incomplete summary of precision. A common approximation is n_eff = n/deff, but it does not change the target and can hide poor subgroup support. If one subgroup has few sampled units, its estimate can remain unstable despite a large overall n. Report subgroup denominators and uncertainty rather than only a total sample size.</p>
+<h2 id="positivity-and-overlap-in-target-comparisons">Positivity and overlap in target comparisons</h2>
+<p>Transport or adjustment methods require support: people with relevant covariate patterns in the target need comparable observations in the study sample. In a treatment comparison, positivity means each treatment has a nonzero probability at relevant covariate combinations. In transport, the analogous issue is whether target-population profiles are represented in the source data. Near-zero probabilities produce extreme weights and estimates driven by a few observations.</p>
+<p>Inspect weight distributions, propensity or participation score overlap, and covariate ranges. Truncating extreme weights can stabilize variance but trades off bias and may alter the effective target. Restricting inference to the region of common support can be more honest than extrapolating, although the resulting target population is narrower. State this restriction in the conclusion. Sensitivity analysis across plausible trimming or overlap definitions makes the dependence visible.</p>
+<p>For example, a treatment trial may include few patients over age 85, while the health system intends to use results mainly in that age group. An interaction model can produce an estimated effect, but it is extrapolating if the trial data contain almost no very old participants. A narrow model-based interval may understate this structural uncertainty. Additional recruitment, pragmatic evidence, or explicit limits on the target claim may be needed.</p>
+<h2 id="recruitment-as-an-ethical-and-scientific-process">Recruitment as an ethical and scientific process</h2>
+<p>Who can participate is shaped by consent capacity, language, transportation, clinic hours, insurance, and trust. Excluding groups for convenience may reduce relevance and concentrate burdens among those with easier access to research. Inclusion is not only an equity concern; it determines whether the resulting evidence can inform care for the people who need it. Ethical recruitment should be paired with appropriate support and accessible procedures rather than relaxed protections.</p>
+<p>Eligibility criteria should reflect safety and scientific necessity. Broad criteria can improve applicability but may require stratification or careful monitoring; narrow criteria can make a mechanistic effect easier to estimate while limiting clinical generalization. Document reasons for exclusions and compare excluded with included patients using available information. In routine-data studies, define whether an encounter, person, episode, or facility is the sampling unit and avoid counting recurrent records as independent people.</p>
+<p>The data source itself can define a selected population. A claims database includes people with recorded covered services, not all people with the disease. A laboratory repository oversamples those who were tested. A referral-center cohort includes people who reached specialist care. Such samples can be valuable for specific questions, but the source mechanism must be reflected in the target statement and analysis.</p>
+<h2 id="choosing-a-strategy-for-population-inference">Choosing a strategy for population inference</h2>
+<p>Start by drawing a simple flow from target population to frame, recruitment, analyzed observations, and intended use. At each arrow ask who can be lost and whether the selection factors relate to the outcome or exposure. If selection probabilities are known, use design-based estimators. If participation is modeled from observed covariates, consider inverse-probability weighting or standardization and check support. If selection depends on unmeasured factors, quantify plausible bias or collect additional data rather than implying the issue has disappeared.</p>
+<p>The analysis unit should align with the claim. To estimate person-level prevalence, deduplicate repeated encounters and define whether a person with multiple records is counted once. To estimate encounter-level event rates, preserve encounters but account for within-person clustering. To estimate hospital performance, distinguish patient-weighted averages from facility-weighted comparisons. These choices influence both the point estimate and its uncertainty.</p>
+<p>A useful reporting paragraph might say: “We sampled 30 primary-care practices by region, then randomly selected eligible adults from each practice. Selection weights reflected practice and patient sampling probabilities; variance estimates accounted for practice clustering. The target was adults aged 18–75 receiving primary care in the region during 2025. People without a recorded visit in the sampling frame were not covered, so findings may not describe adults disconnected from care.” This is much more informative than saying merely that the sample was representative.</p>
+<p>When possible, compare estimates from complementary sources, such as a probability survey, routine records, and a cohort with active follow-up. Agreement does not prove absence of bias, but discrepancies can reveal differences in case definitions, coverage, or event capture. Triangulation is most useful when each source has distinct strengths and its limitations are documented.</p>
+<p>Also report uncertainty from the sampling design separately from qualitative concerns about coverage, nonresponse, or transport.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>CDC. <a href="https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson3/section2.html" target="_blank" rel="noopener noreferrer" class="ext-link">Principles of Epidemiology: rates and appropriate denominators</a>.</p>
-</li>
-<li><p>STROBE Initiative. <a href="https://www.strobe-statement.org/checklists/" target="_blank" rel="noopener noreferrer" class="ext-link">Checklist for reporting observational studies</a>.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and
-Other Advanced Topics</em>. Brooks/Cole.</p>
-</li>
-<li><p>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
-</li>
-<li><p>The <em>Sampling methods</em> topic in this library covers probability sampling
-methods in detail.</p>
-</li>
+<li>Hernán MA, Robins JM. <em>Causal Inference: What If</em>. Chapman &amp; Hall/CRC; 2020. <a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener noreferrer" class="ext-link">Free online text</a>.</li>
+<li>CDC. <a href="https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson3/section2.html" target="_blank" rel="noopener noreferrer" class="ext-link">Principles of Epidemiology: rates and appropriate denominators</a>.</li>
+<li>STROBE Initiative. <a href="https://www.strobe-statement.org/checklists/" target="_blank" rel="noopener noreferrer" class="ext-link">Checklist for reporting observational studies</a>.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
+<li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
+<li>See <a href="../study-design/sampling-methods.html">Sampling methods</a> for probability-sampling designs.</li>
 </ul>
 
         </article>

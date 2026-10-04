@@ -1,157 +1,142 @@
 ---
 title: Simple and multiple linear regression
-summary: Models a continuous outcome as a weighted sum of predictors, allowing adjustment for confounders and prediction from several variables.
+summary: Estimate conditional mean differences for continuous outcomes, interpret coefficients, examine model form and residuals, and distinguish association from prediction or causation.
 ---
 
-## Overview and key ideas
+## Overview
 
-Simple linear regression models one continuous outcome Y as a straight-line function of a single predictor X: Y = β₀ + β₁X + ε, where β₀ is the intercept and β₁ the slope — the average change in Y for each one-unit increase in X. Multiple linear regression extends this to several predictors: Y = β₀ + β₁X₁ + β₂X₂ + … + βₖXₖ + ε. Each coefficient βⱼ then has the interpretation "the average change in Y per one-unit increase in Xⱼ, *holding the other predictors fixed*", which is what lets the model adjust for confounding.
+Linear regression models the conditional mean of a continuous outcome as a linear combination of predictors. Simple regression has one predictor; multiple regression includes several covariates to describe adjusted associations, improve prediction, or estimate a contrast under causal assumptions. The word “linear” refers to linearity in coefficients, so predictors can be transformed or modeled with spline bases.
 
-The model is fitted by least squares, minimising the sum of squared vertical deviations of observed points from the fitted line. The key outputs are the coefficient estimates with their standard errors, p-values and confidence intervals, the R² (proportion of variance in Y explained by the model), and the adjusted R², which penalises for adding useless predictors. A model with a single predictor is simple regression; with two or more it is multiple, but the mathematics is the same.
+Regression is not a single-purpose method. An explanatory analysis estimates associations, a predictive model estimates outcomes for new observations, and a causal analysis targets effects under identification assumptions. The same formula can support different goals, but coefficient interpretation, validation, and assumptions differ. Start with the estimand and design.
 
-## When to use it
+## The conditional mean model
 
-| Setting | Example question |
-| --- | --- |
-| Prognostic research | Do age, cholesterol and smoking status predict resting systolic blood pressure? |
-| Dose–response | Is the change in FEV₁ per month related to inhaled corticosteroid dose? |
-| Adjustment | Does statin use remain associated with lower LDL after adjusting for diet score? |
-| Prediction | Can a simple equation from routine labs estimate GFR? |
+For outcome (Y_i) and predictors (x_i), ordinary least squares (OLS) estimates \(E(Y_i\mid x_i)=\beta_0+\beta_1x_{i1}+\cdots+\beta_px_{ip}\) by minimizing squared residuals. In simple regression, \(\beta_1\) is the expected mean change in (Y) for one-unit higher (X). In multiple regression, it is the expected difference per unit of (X_j), holding included predictors fixed.
 
-Use it when the outcome is continuous and roughly normally distributed around its mean, the main goal is estimation or adjustment, and the relationship of interest is plausibly linear. If the outcome is a count (e.g. number of ER visits), a binary result (died/survived), or a time-to-event, other models are more appropriate — Poisson/negative binomial, logistic, or survival regression respectively.
-
-## Assumptions and limitations
-
-- **Linearity**: the mean of Y changes linearly with each predictor; curvilinear relationships bias the coefficients and predictions.
-- **Independence**: residuals are uncorrelated across observations; violated by clustered or repeated-measures data (e.g. multiple visits per patient).
-- **Homoscedasticity**: the spread of residuals is constant across fitted values; with heteroscedasticity the coefficient estimates remain unbiased but standard errors and p-values are wrong.
-- **Normality of residuals** (for exact p-values and CIs in small samples); with large n the central limit theorem makes the estimates robust to mild departures.
-- **No strong multicollinearity**: highly correlated predictors make individual coefficients unstable, with wide CIs and sign flips, even though overall predictions stay fine.
-
-## Worked example
-
-A hospital team wants to predict admission systolic blood pressure from age and BMI. Fitting the model to 300 admissions gives: SBP = 84.2 + 0.38·(age) + 0.91·(BMI). For a 60-year-old with BMI 28, the predicted SBP is 84.2 + 22.8 + 25.48 = 132.48 mmHg, about 132.5. The age coefficient of 0.38 means a one-year older patient is expected to have about 0.4 mmHg higher SBP at the same BMI. Age is p < 0.001 (95% CI 0.30 to 0.46) and BMI is p = 0.002 (95% CI 0.40 to 1.42), and R² = 0.41: age and BMI together explain 41% of the observed variation around the sample mean. In ordinary least squares with an intercept, residual SD relative to the outcome SD is approximately sqrt(1−R²)=sqrt(.59)=.768, or 77%, not 24%; substantial individual variation therefore remains unexplained.
-
-## Interpretation and common pitfalls
-
-- "Holding the other predictors fixed" does not mean they *were* fixed — in observational data the adjusted coefficient is a controlled association, and it estimates a causal effect only under no-unmeasured-confounding and a correct model.
-- Never interpret a coefficient of a continuous predictor from a model where it was entered as a dummy or vice versa; scaling (e.g. age in decades vs years) changes the coefficient but not the fit.
-- A small p-value on an added predictor can coexist with a large change in the main predictor's coefficient — that is confounding, and the adjusted (post-change) coefficient is the one to report.
-- Do not select predictors by fishing for significance one at a time; this inflates false positives and gives an optimistic R².
-
-The coefficient in a multiple regression is a conditional contrast: expected outcome difference for a one-unit predictor change with the listed covariates held fixed. It is not automatically a causal effect. If the objective is causal, define the intervention and estimand and justify adjustment from the causal structure; controlling for mediators or colliders can introduce bias. For prediction, do not interpret conditional coefficients as independent importance rankings when predictors are correlated. Report units, coding and a confidence interval, inspect nonlinear terms, and avoid predictions outside the observed covariate range.
-
-## Least squares, estimands, and coefficient interpretation
-
-In matrix notation, the linear model is Y=Xβ+ε. Ordinary least squares chooses β̂ to minimize Σ(y_i−ŷ_i)², yielding β̂=(X'X)^−1X'Y when X has full column rank. This is a conditional mean model: E(Y|X)=Xβ. It does not require predictors to be normally distributed. Under zero conditional mean, the fitted slope estimates the specified linear projection; unbiasedness for a causal effect requires much stronger design and confounding assumptions. Correlated predictors can make X'X nearly singular, increasing coefficient variance and making individual effects unstable.
-
-A slope is a conditional contrast: expected mean outcome difference for a one-unit change in that predictor while other included predictors are held fixed. If age is measured in years, β_age is mmHg/year; rescaling age to decades multiplies the coefficient by ten and divides its standard error by ten without changing fitted values. Centering predictors changes the intercept and main-effect interpretation in models with interactions but not fitted values or model fit. Always report coding and reference levels for categorical variables.
-
-### Worked example: fitted values and residuals
-
-Using SBP=84.2+.38(age)+.91(BMI), the prediction for age 60 and BMI 28 is 132.48 mmHg. If observed SBP is 140, residual=140−132.48=7.52 mmHg. A positive residual means observed pressure exceeded the fitted conditional mean. It is not a prediction error for an individual guaranteed to be correct; it combines unexplained variation, measurement error, and possible model misspecification.
+Suppose a fitted model predicts systolic blood pressure from age and treatment: \(\widehat Y=112+0.45(age)-3.2(treatment)\). The age coefficient means 0.45 mmHg higher mean pressure per year at fixed treatment, under a linear age effect. Treatment coefficient −3.2 means a 3.2 mmHg lower conditional mean compared with control at the same modeled age. If treatment was not randomized, this is not automatically causal.
 
 ```r
-fit <- lm(sbp ~ age + bmi, data = dat)
-coef(fit)
-predict(fit, newdata = data.frame(age = 60, bmi = 28),
-        interval = "prediction")
-resid(fit)[1]
+fit <- lm(sbp ~ age + treatment + baseline_sbp, data = dat)
+summary(fit)
+confint(fit)
 ```
 
-A prediction interval is wider than a confidence interval for the conditional mean because it includes residual individual variation. Newdata must use exactly the model's variable names and factor levels. Predictions outside the observed age/BMI range are extrapolations and should be labeled as such.
+Coefficients depend on coding and scale. Center age at a meaningful value to make the intercept interpretable; rescale variables so coefficients represent clinically useful increments. Include a reference category for factors. Report units and confidence intervals, not just model p-values.
 
-## Multiple predictors, confounding, and collinearity
+## Interpreting adjustment and collinearity
 
-Adding covariates can reduce confounding for an observational contrast, improve precision, or support prediction; these are distinct motivations. A coefficient adjusted for covariates is conditional on their values and can differ from the crude coefficient because of confounding, nonlinearity, or non-collapsibility in related generalized models. Do not adjust mechanically for every available variable. In causal analysis, avoid controlling for mediators when estimating total effects and for colliders that induce selection bias; use a causal diagram and define the estimand.
+Multiple regression estimates conditional associations. Adjustment can reduce confounding when variables are appropriate pre-exposure common causes; adding every available variable can instead introduce bias by conditioning on mediators or colliders. Use a causal diagram or subject-matter rationale, not automated p-value selection, to define a confounder set.
 
-Multicollinearity occurs when predictors contain overlapping information. It does not necessarily harm predictions, but inflates standard errors and makes conditional coefficients sensitive to small data changes. The variance inflation factor (VIF) is 1/(1−R_j²), where R_j² is the R-squared from regressing predictor j on the others. VIF=5 means variance is five times what it would be under orthogonality, and SE is multiplied by √5≈2.24. There is no universal cutoff; consider the scientific estimand and coefficient stability.
+Correlated predictors increase uncertainty and can make coefficients unstable. Multicollinearity does not necessarily harm prediction but complicates attribution of an effect to one variable. Variance inflation factors and condition indices can diagnose near-collinearity; dropping a clinically essential confounder solely to reduce VIF may worsen bias. Consider reporting joint tests or contrasts for correlated predictor sets.
 
-Categorical predictors use indicator variables. With k categories, a reference-coded model has k−1 coefficients; the intercept corresponds to the reference category at continuous covariates equal to zero. Releveling changes coefficient labels but not fitted values. For ordered or continuous predictors, imposing a linear score trend is an assumption, not an automatic property of codes 1,2,3.
+Suppression can occur when adjustment changes a coefficient's direction because covariates capture different associations. This is not necessarily a coding error, but it warrants checking variable coding, temporal ordering, confounding structure, and extrapolation. Compare crude and adjusted estimates with explanation rather than describing changes as proof that adjustment “removed bias.”
 
 ## Functional form and interactions
 
-A straight-line term assumes a constant change in conditional mean per unit predictor. Inspect residuals versus each continuous predictor and consider splines or prespecified quadratic terms when curvature is plausible. Categorizing age or biomarkers loses information and introduces arbitrary boundaries. Restricted cubic splines allow smooth nonlinear associations while retaining the continuous scale, though added degrees of freedom require adequate sample size.
+The phrase “holding other variables constant” describes a conditional comparison that may have little empirical support if predictors are highly correlated. Check overlap in covariate patterns and whether the target contrast requires extrapolation. Comparing treated and untreated patients at combinations of severity and age observed in only one group produces model-dependent estimates. Restricting to common support changes the population and should be explicit.
 
-If an interaction X×Z is included, the main effect of X is its slope at Z=0. Centering Z at a clinically meaningful value makes that coefficient interpretable. For example, center age at 60 so the treatment coefficient describes effect at age 60 rather than the impossible age zero. Present predicted means or contrasts across representative covariate values; the product coefficient alone can be hard to interpret.
+Suppressor variables can make a coefficient larger after adjustment even when confounding is reduced. For linear models, the Frisch–Waugh–Lovell theorem interprets a partial coefficient as the association between residualized outcome and residualized predictor after removing other predictors. This helps explain why coefficient interpretation depends on the full covariate set.
 
-## Uncertainty, fit, and interpretation
+For a log outcome, simply exponentiating the fitted log mean estimates a conditional median under lognormal errors, not arithmetic mean. A smearing estimator or distributional model is needed for the arithmetic mean. If zeros are common, log transformation with an arbitrary constant changes interpretation; a two-part model or alternative family may be more appropriate.
 
-Under classical assumptions, coefficient standard errors support t tests and confidence intervals. Heteroscedasticity does not bias OLS coefficients when conditional mean is correct, but conventional standard errors are wrong; sandwich estimators or variance models can address inference. Dependence from repeated patients or clinics requires cluster-aware standard errors, GEE, or mixed models. Residual normality supports exact small-sample inference, not unbiasedness of β̂. Diagnostics should assess conditional mean, variance, dependence, and influential records.
+Restricted cubic splines use a small number of basis functions to allow smooth nonlinear associations while remaining linear in coefficients. Choose knot locations before examining outcome associations or use a prespecified modeling strategy. A joint test of nonlinear spline terms can summarize departure from linearity, but estimated curves and confidence bands show the shape. Avoid overinterpreting local wiggles in sparse tails.
 
-R-squared is the fraction of sample outcome variability around its mean explained by the fitted model in ordinary least squares with an intercept. It is not percent accuracy, causal explanation, or external predictive performance. Adding predictors cannot lower ordinary R², so adjusted R² penalizes parameter count but does not replace validation. Residual standard error describes residual spread in outcome units. Compare models with appropriate criteria and validate prediction models on new or resampled data.
+Polynomial terms such as \(x\) and \(x^2\) can represent curvature but coefficients depend on scale and are correlated. Centering and scaling improve numerical stability and interpretation. The derivative \(dE(Y\mid x)/dx=\beta_1+2\beta_2x\) gives the local slope; report predictions or contrasts rather than describing \(\beta_1\) as a universal effect when the quadratic term is present.
 
-## Practical R workflow
+OLS assumes the conditional mean is correctly specified. A straight-line term for age assumes each additional year has the same mean association. Plot outcome against predictor and residuals; use restricted cubic splines, polynomial terms, or scientifically motivated transformations when needed. Categorizing a continuous variable discards information and can create arbitrary discontinuities.
 
-```r
-fit <- lm(sbp ~ age + bmi + smoking, data = dat)
-summary(fit)
-confint(fit)
-plot(fit, which = 1:4)  # residual, Q-Q, scale-location, influence
-car::vif(fit)           # inspect collinearity
-```
+Interactions allow a predictor association to vary by another variable. If treatment-by-age coefficient is 0.10, the treatment contrast changes 0.10 outcome units per year on the additive scale. The treatment effect at age (a) is the treatment main effect plus (a) times interaction (depending on centering). Compute a linear contrast and interval using covariance; separate subgroup p-values do not test interaction.
 
-R code assumes one independent row per analysis unit and correctly coded missingness. If patients have repeated visits, a simple `lm` standard error is generally not appropriate. Report coefficient, units, interval, sample size, model form, and purpose (causal estimation, association, or prediction); do not conflate these claims.
+If outcome is log-transformed, coefficients describe changes in log mean. Exponentiating gives multiplicative effects; a coefficient 0.08 corresponds to about \((e^{0.08}-1)\times100=8.3\%\) higher geometric mean, under model assumptions. Back-transforming predictions requires attention to retransformation bias and residual variance.
 
+## Worked calculation: adjusted mean difference
 
-## Confidence intervals, contrasts, and clinical meaning
+In a randomized trial, the model is follow-up score = intercept + treatment + baseline score + site. Treatment estimate is −2.4 points with SE 0.85. With large-sample 95% interval, −2.4 ± 1.96(0.85) gives −4.07 to −0.73 points. If lower scores are better and the minimally important difference is 3 points, the point estimate is clinically relevant but the interval includes smaller effects. The p-value tests a null difference of zero, not whether benefit exceeds 3 points.
 
-A coefficient confidence interval estimates uncertainty in a conditional mean contrast under the model. If β_age=.38 with 95% CI .30 to .46 mmHg/year, a 10-year contrast is 3.8 mmHg with interval 3.0 to 4.6 by linear rescaling. This interval is not a prediction interval for a patient's pressure. To estimate an adjusted mean difference between two treatment levels, use a linear contrast of coefficients; its variance uses the full covariance matrix, including covariance among estimates.
+For a profile with baseline score 30 and a reference site, predicted control mean might be 22.0 and active mean 19.6. The difference remains −2.4 because the model is additive and has no treatment interaction. If treatment-by-baseline interaction is present, the contrast depends on baseline score and must be calculated for chosen values.
 
-For a binary factor, a coefficient compares the nonreference category to reference holding other predictors fixed. For a multi-level factor, use an omnibus F or Wald test before interpreting individual contrasts if the overall factor is the scientific question. Multiple pairwise contrasts need a multiplicity strategy. Report both statistical uncertainty and a clinically meaningful threshold, such as a minimally important SBP reduction.
+The coefficient's standard error describes sampling uncertainty in the adjusted mean contrast under the model. It does not include uncertainty from choosing the functional form, selecting covariates, measurement error, or transporting to another population. If several reasonable models are examined, show a prespecified primary estimate and a small number of scientifically motivated sensitivity results rather than only the most favorable one.
 
-### Centering and changing units
+Standardized regression coefficients divide predictor and outcome by their standard deviations. They can compare scale-free associations within a model but depend on the sample's variability and are less clinically interpretable. In intervention research, native units and clinically meaningful differences are usually preferable. If comparing studies with different outcome scales, standardized effects may be useful but should accompany original-scale context.
 
-Suppose age ranges 20–90 years. The intercept at age zero has no clinical meaning. Centering age at 60 makes the intercept the expected outcome at age 60 and allows interactions to be interpreted there. Centering does not change slope, fitted values, residuals, or R² in a model without interactions, but it can reduce nonessential collinearity when products or polynomials are present.
+For an interaction between treatment and baseline score, suppose \(\hat\beta_T=-1.0\), \(\hat\beta_{TX}=-0.08\), and baseline score is centered at 20. At score 30, the treatment contrast is −1.0−0.08(10)=−1.8. Its variance uses the coefficient covariance. Report the contrast at chosen values with interval and avoid claiming effect modification from a coefficient alone without understanding the scale.
 
-```r
-dat$age60 <- dat$age - 60
-fit <- lm(sbp ~ age60 * treatment + bmi, data = dat)
-```
+## Residual assumptions and inference
 
-The treatment coefficient now describes the treatment contrast at age 60; the interaction coefficient describes change in that contrast per year. Verify treatment factor coding and avoid interpreting coefficients outside observed support.
+### What residual plots can reveal
 
-## Collinearity and partial association
+Residuals are observed minus fitted outcomes. A curved residual pattern suggests a missing nonlinear term; a fan shape suggests nonconstant variance; bands over time indicate autocorrelation; isolated high-leverage points may have disproportionate influence. Studentized residuals, leverage, and Cook's distance are useful screening summaries, but fixed cutoffs are not automatic deletion rules. Investigate the data-generating context and report sensitivity for influential valid observations.
 
-A multiple-regression coefficient is not a simple correlation. It describes the association between Y and the part of X_j not linearly predictable from the other included covariates, with analogous adjustment in Y. If age and comorbidity are highly correlated, their individual conditional slopes can be imprecise even if together they strongly predict outcome. VIF is one diagnostic, but coefficient standard errors, correlation matrices, and stability under scientifically reasonable specifications are also useful.
+Normal Q-Q plots assess residual distribution, not whether predictors are normal. Mild tail departures mainly affect small-sample inference; in larger samples, coefficient estimates can be approximately normal under regularity conditions. Strong skew or heteroskedasticity may call for robust standard errors, transformation, generalized linear modeling, or bootstrap inference. Choose based on target and interpretability rather than a diagnostic test p-value alone.
 
-Collinearity is not fixed by deleting a clinically essential confounder. If the target is the combined predictive value, evaluate prediction. If the target is an individual causal effect, reconsider whether the data can identify it precisely and whether the estimand is sensible. Principal components or ridge regression change coefficient interpretation; they can help prediction but do not automatically answer a causal question.
+Independence is especially important. Repeated outcomes from the same participant, measurements within clinics, or spatially linked observations require a dependence-aware variance or model. Cluster-robust standard errors need enough independent clusters; few-cluster corrections or mixed models may be needed. Robust variance does not correct omitted confounding or a wrong conditional mean.
 
-## Model fit and residual scale
+### Leverage versus residual size
 
-R²=1−SSE/SST in ordinary least squares with an intercept. It measures in-sample variance explained relative to a mean-only model. Residual standard error is sqrt(SSE/(n−p)), where p counts fitted coefficients including intercept. R² does not describe calibration for new data and can be high in a confounded model. Adjusted R² may decrease when a predictor adds little, but is not an external validation estimate.
+A case can have high leverage because its predictor values are unusual, even if its residual is small; another can have a large residual at an ordinary predictor pattern. Influence combines both. Investigate data validity and whether the point lies within the target population. If it is valid but rare, a linear model may be extrapolating from little support; report that limitation rather than trimming the case to improve fit.
 
-For each coefficient, report estimate, interval, and unit. For prediction, report a prediction interval or validated error metric. For causal estimation, emphasize the prespecified contrast and assumptions rather than model fit. A high R² cannot demonstrate a causal mechanism; a low R² does not invalidate a precise mean effect.
+OLS coefficient estimates are unbiased under a correctly specified conditional mean and exogeneity, \(E(\epsilon\mid X)=0\). Classical standard errors assume independent, constant-variance errors; residual normality supports exact small-sample t inference but is not required for unbiasedness. With heteroskedasticity, robust standard errors can improve inference. With clustered observations, cluster-robust or multilevel methods are needed.
 
-## Confounding and model purpose: a practical distinction
+Inspect residual-versus-fitted plots for nonlinearity and unequal variance, Q-Q plots for tail departures, leverage and Cook's distance for influence, and residuals over time or cluster for dependence. Diagnostics identify concerns; they do not validate causal assumptions. Large samples can make minor deviations statistically detectable, so consider practical impact and sensitivity.
 
-Suppose treatment T and baseline severity S both predict outcome Y. A crude difference in Y by T may combine treatment association and severity imbalance. Adding S estimates a conditional contrast only if S is measured adequately and the model form is correct. If S is a mediator caused by treatment, adjustment removes part of a total treatment effect; if S is a collider, adjustment can induce bias. Draw a causal diagram and define whether the goal is total effect, direct effect, or prediction before selecting covariates.
+Heteroskedasticity-robust standard errors change estimated uncertainty, not fitted coefficients or misspecified mean. Weighted least squares can improve efficiency if variance structure is known or modeled, but incorrect weights can harm inference. Bootstrap intervals must resample the independent unit and refit the entire analysis.
 
-For prediction, a predictor need not be causal, but must be available at prediction time and stable enough to transport. For causal estimation, a predictor's predictive value alone does not make it a confounder. This distinction is essential when interpreting “adjusted” coefficients.
+## Prediction and validation
 
-## Missing data and influence
+For prediction, evaluate out-of-sample error using RMSE, MAE, calibration plots, and prediction intervals. Training (R^2) always increases with added predictors, so use adjusted (R^2), cross-validation, or external validation to assess generalization. Randomly splitting repeated observations from the same person leaks information; split by patient, clinic, or time according to deployment.
 
-`lm()` uses complete cases by default, potentially changing the analytic population. Report how many rows were excluded and why. If missingness depends on observed covariates, multiple imputation or weighting may be defensible under assumptions; compare with complete-case results. For repeated outcomes, use models aligned to the longitudinal estimand rather than analyzing only complete trajectories without justification.
+A confidence interval for the mean response is narrower than a prediction interval for an individual outcome because the latter includes residual variation. Do not present a fitted mean as a precise individual prediction. Check whether predictions are used within the observed predictor range; linear models extrapolate indefinitely and can yield impossible values.
 
-Influential cases can arise from a valid rare covariate pattern. Check Cook's distance and DFBETAs, then verify source data and eligibility. If valid, retain in the primary analysis and show sensitivity if conclusions change. Deleting cases based on their effect on statistical significance is not a neutral cleaning choice.
+For an explanatory analysis, cross-validation is not required to interpret an unbiased coefficient under its model assumptions, but it is important if the fitted equation will predict new outcomes. For a prediction task, a random split can be unstable in small samples; bootstrap optimism correction or repeated cross-validation may use data more efficiently. If there are repeated patients or multiple hospitals, split by the independent patient or hospital according to intended deployment.
 
-## Prediction versus explanation
+Report prediction error with uncertainty and compare to a simple benchmark such as predicting the training mean. A high (R^2) may arise from a wide outcome range and does not ensure low individual prediction error. External validation should check calibration slope and intercept as well as RMSE or MAE. Recalibration or model updating changes the model and should itself be evaluated.
 
-A regression equation can be used to estimate a conditional mean, but prediction for a new individual must include residual variability. `interval="confidence"` describes uncertainty in the mean at specified covariates; `interval="prediction"` describes an individual outcome and is wider. Both rely on model assumptions and are unreliable far outside the predictor support. Validate prediction error on held-out or resampled data and check calibration across clinically relevant subgroups.
+Extrapolation is especially risky with polynomial and spline models. A quadratic model can turn sharply upward outside the observed range; spline tails can also behave unexpectedly. Restrict displays to data support and flag predictions outside it. Prediction intervals should include residual variability, parameter uncertainty, and clustering when relevant.
 
-For explanatory analysis, focus on the target contrast and its uncertainty, not on maximizing R². For causal interpretation, adjust for a defensible confounder set and state consistency, exchangeability, and positivity assumptions. For prediction, prioritize validation and calibration; a variable can predict without being causal. A single model report should not blur these goals.
+## Missing data, outliers, and influential observations
 
-## Checking a prediction by hand
+Complete-case regression estimates can be biased if inclusion depends on outcome or predictors. Describe missingness, use appropriate likelihood or imputation methods under stated assumptions, and perform sensitivity analysis when MNAR is plausible. Imputation models should include outcome, predictors, nonlinear terms, interactions, and auxiliary variables relevant to missingness.
 
-For the SBP example, a point prediction is a weighted sum of predictor values plus an intercept. Confirm each unit and coefficient before reporting. A 10-year increase contributes 3.8 mmHg; a 5-unit BMI increase contributes 4.55 mmHg under the fitted linear model. These are conditional model contrasts and assume no interaction or curvature over those ranges. If prediction is intended for practice, compare predicted and observed values in an independent sample and report error in mmHg.
+Outliers can be valid observations or data errors. Verify source records; do not remove cases just because they alter significance. Robust regression can reduce sensitivity to extreme residuals but changes the estimand/weighting. Report prespecified handling and compare estimates under defensible alternatives.
 
-When reporting multiple regression, include the analysis n and missing-data strategy, coefficient units and coding, interval estimates, model purpose, and diagnostics. For prediction, show validated error and calibration rather than only coefficients. For causal contrasts, state the target population and adjustment assumptions. An equation without its scale, reference group, and population is difficult to reproduce or use.
+Heteroskedasticity means residual variance varies with predictors. OLS coefficient estimates can remain unbiased under exogeneity, but usual standard errors may be wrong and OLS may be inefficient. HC-type sandwich errors often provide asymptotically robust inference; in small samples, corrections or bootstrap procedures may be preferable. Weighted least squares can model known variance patterns, but weights should be justified and not chosen to minimize p-values.
 
-If residuals show substantial skew or heteroscedasticity, compare conventional, robust, and model-based intervals rather than choosing whichever is narrowest. Report the primary method and whether conclusions change. A p-value near .05 is especially sensitive to uncertainty method; the effect estimate and interval provide a fuller account than a binary significance label.
+If outcome errors are clustered or longitudinal, robust standard errors should be clustered at the independent sampling unit. A participant-level cluster correction is not enough when the exposure was assigned to clinics. With few clusters, use small-sample methods or design-based inference. A random intercept may improve efficiency and model heterogeneity, but assumes a distribution for cluster effects.
+
+## Causal limits and reporting
+
+An adjusted coefficient is causal only under exchangeability, positivity, consistency, correct temporal ordering, and adequate model specification. Reverse causation, measurement error, selection, and unmeasured confounding can persist. Cross-sectional regression especially cannot establish whether exposure preceded outcome. State whether results are descriptive, predictive, or causal and avoid “independent predictor” when only conditional association is meant.
+
+In randomized trials, baseline adjustment can improve precision if specified in advance and should not compromise the randomized assignment contrast. In nonrandomized data, regression adjustment identifies a causal effect only when all relevant confounding is measured and controlled appropriately. The model cannot distinguish confounders from mediators using statistical significance. Draw a causal diagram or define a target trial before adjustment.
+
+For a total effect, do not casually adjust for post-exposure variables on the causal pathway. If treatment affects adherence, which affects outcome, including adherence changes the estimand and can create collider bias. If time-varying confounders are affected by prior exposure, standard regression may be inadequate; g-methods may be needed. State the target contrast and temporal roles of covariates.
+
+Linear regression is sensitive to the observed outcome range. A mean difference in a selected hospital cohort may not generalize to community care if referral changes both predictors and outcome distribution. External validity is a separate question from model fit. Describe the sample, recruitment, eligibility, and setting so readers can judge transport.
+
+Report sample size, outcome scale, predictor coding, transformations, interactions, model formula, variance estimator, missing-data handling, diagnostics, and validation. Give coefficient estimates with confidence intervals in meaningful units and include model fit where relevant. For prediction, report validation design and calibration; for causal contrasts, state identification assumptions and target population.
+
+## Joint hypotheses and model comparison
+
+An individual coefficient t-test addresses one conditional slope. A joint F-test can assess whether a set of indicators or spline terms contributes collectively, such as whether a categorical exposure has any association or whether nonlinear components improve on a linear term. The model-comparison test should correspond to nested models and a prespecified question. Selecting a model by whichever p-value is smallest inflates uncertainty.
+
+Adjusted (R^2) penalizes additional predictors lightly but is not a causal criterion or guarantee of predictive performance. AIC and cross-validation target relative predictive fit under their own assumptions. For explanation, retain scientifically necessary confounders even if they add little predictive fit. For prediction, avoid reporting training fit as evidence of generalization.
+
+Confidence intervals for coefficients quantify sampling variation conditional on model selection and assumptions. If the same dataset was used to search transformations, interactions, and subgroups, ordinary intervals ignore that search. Prespecification, shrinkage, bootstrap of the full selection procedure, or independent validation can address some optimism. Report the analytic pathway honestly.
+
+When comparing estimates across studies, differences in covariate adjustment sets and outcome scales can matter as much as sampling error. Harmonize estimands before interpreting apparent inconsistency.
+
+State whether reported intervals are confidence or prediction intervals.
+
+The former describes uncertainty in a conditional mean; the latter includes residual variability for a new outcome. Naming the interval prevents false precision in clinical prediction.
+
+If reporting a population-average intervention contrast, standardize fitted means over a stated target population rather than evaluating the equation at a single “average patient.” With interactions or nonlinear terms, the latter can yield a different and sometimes nonexistent covariate profile.
+
+For repeated observations on the same participant, ordinary least squares also requires an appropriate account of within-person dependence. A subject-specific random-intercept model or a marginal model with cluster-robust standard errors may be suitable, depending on whether the target is an individual-specific or population-average association. Merely adding participant ID as a numeric predictor does not model the correlation structure. With few independent clusters, conventional sandwich standard errors can be biased downward; small-sample corrections or a design-based analysis may be needed. Explain the unit of analysis, clustering level, and variance method so readers can judge whether the stated interval reflects the actual sampling process.
 
 ## References and further reading
 
-- Fox J. *Applied Regression Analysis and Generalized Linear Models*. SAGE.
-- Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- The companion [model assumptions and diagnostics article](model-assumptions-and-diagnostics.html) covers checks for linearity, residual spread and influential points.
+- Kutner MH, Nachtsheim CJ, Neter J, Li W. *Applied Linear Statistical Models*. 5th ed. McGraw-Hill; 2005.
+- Harrell FE. *Regression Modeling Strategies*. 2nd ed. Springer; 2015.
+- Gelman A, Hill J, Vehtari A. *Regression and Other Stories*. Cambridge University Press; 2020.
+- Fox J, Weisberg S. *An R Companion to Applied Regression*. 3rd ed. Sage; 2019.
+- The [model assumptions and diagnostics article](model-assumptions-and-diagnostics.html) develops diagnostic tools in more detail.

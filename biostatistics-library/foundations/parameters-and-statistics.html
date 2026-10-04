@@ -111,202 +111,76 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Getting started <span class="sep">/</span> <strong style="color:#273e3b">Parameters and statistics</strong></div>
         <h1 class="article-title">Parameters and statistics</h1>
         <p class="article-summary">A parameter is a fixed population quantity; a statistic is the number computed from a sample that estimates it.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#estimand-estimator-and-standard-error">Estimand, estimator and standard error</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#estimands-estimators-and-sampling-behavior">Estimands, estimators, and sampling behavior</a></li><li class="h3"><a href="#worked-calculation-estimate-versus-uncertainty">Worked calculation: estimate versus uncertainty</a></li><li class="h3"><a href="#what-a-confidence-interval-does-and-does-not-say">What a confidence interval does and does not say</a></li><li class="h2"><a href="#design-based-estimators-and-weighting">Design-based estimators and weighting</a></li><li class="h3"><a href="#worked-example-why-a-standard-error-depends-on-design">Worked example: why a standard error depends on design</a></li><li class="h3"><a href="#bootstrap-robust-and-model-based-uncertainty">Bootstrap, robust, and model-based uncertainty</a></li><li class="h3"><a href="#a-reporting-checklist-for-estimates">A reporting checklist for estimates</a></li><li class="h2"><a href="#finite-sample-and-superpopulation-targets">Finite-sample and superpopulation targets</a></li><li class="h2"><a href="#ratio-estimates-and-nonlinear-transformations">Ratio estimates and nonlinear transformations</a></li><li class="h3"><a href="#worked-example-uncertainty-in-nnt">Worked example: uncertainty in NNT</a></li><li class="h2"><a href="#missingness-changes-the-estimand">Missingness changes the estimand</a></li><li class="h2"><a href="#estimator-choice-robustness-and-influence">Estimator choice, robustness, and influence</a></li><li class="h2"><a href="#statistical-versus-practical-importance">Statistical versus practical importance</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#define-the-target-before-choosing-the-calculation">Define the target before choosing the calculation</a></li><li class="h2"><a href="#statistics-vary-from-sample-to-sample">Statistics vary from sample to sample</a></li><li class="h2"><a href="#a-worked-estimation-example">A worked estimation example</a></li><li class="h2"><a href="#estimators-and-their-trade-offs">Estimators and their trade-offs</a></li><li class="h2"><a href="#confidence-intervals-tests-and-practical-meaning">Confidence intervals, tests, and practical meaning</a></li><li class="h2"><a href="#missingness-selection-and-uncertainty-beyond-the-standard-error">Missingness, selection, and uncertainty beyond the standard error</a></li><li class="h2"><a href="#reporting-the-estimand-and-its-estimate">Reporting the estimand and its estimate</a></li><li class="h2"><a href="#design-based-inference-and-finite-populations">Design-based inference and finite populations</a></li><li class="h2"><a href="#clustered-and-repeated-observations">Clustered and repeated observations</a></li><li class="h2"><a href="#transformations-and-non-linear-summaries">Transformations and non-linear summaries</a></li><li class="h2"><a href="#a-contrast-between-uncertainty-methods">A contrast between uncertainty methods</a></li><li class="h2"><a href="#limits-of-interval-estimates">Limits of interval estimates</a></li><li class="h2"><a href="#practical-checklist-for-statistical-quantities">Practical checklist for statistical quantities</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>A <strong>parameter</strong> is a fixed, usually unknown, numerical quantity describing a
-population — the true 5-year survival probability of a disease. A
-<strong>statistic</strong> is a number computed from a sample — the 5-year survival
-observed in your 200 patients. The statistic is the estimate; the parameter
-is what it aims at. Conventions separate the two notationally:</p>
-<table>
-<thead>
-<tr>
-<th>Quantity</th>
-<th>Parameter (population)</th>
-<th>Statistic (sample)</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Mean</td>
-<td>μ (mu)</td>
-<td>x̄ (x-bar)</td>
-</tr>
-<tr>
-<td>Standard deviation</td>
-<td>σ (sigma)</td>
-<td>s</td>
-</tr>
-<tr>
-<td>Proportion</td>
-<td>p</td>
-<td>p̂ (p-hat)</td>
-</tr>
-</tbody></table>
-<p>Because the sample is a random subset, the statistic is itself a random
-quantity: a different sample gives a different statistic. The <strong>sampling
-distribution</strong> is the distribution of the statistic over repeated samples from
-the same population, and its spread is the <strong>standard error</strong>. For a mean,
-SE = s / sqrt(n); the standard error shrinks with the square root of sample
-size, so quadrupling n halves it. Confidence intervals use the sampling
-distribution to bound where the parameter plausibly lies, and hypothesis tests
-ask whether the data are compatible with a particular parameter value.</p>
-<h2 id="when-to-use-it">When to use it</h2>
-<p>The parameter/statistic distinction is the grammar of every inferential
-statement, not a specific test. Typical scenarios:</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Cohort description</td>
-<td>In a diabetes cohort of 340 people the mean HbA1c is 7.9% — an estimate of the mean in the whole catchment?</td>
-</tr>
-<tr>
-<td>Diagnostic accuracy</td>
-<td>A sensitivity of 88% on 120 test-positive cases estimates the true sensitivity, with a confidence interval around it.</td>
-</tr>
-<tr>
-<td>Trial reporting</td>
-<td>The 30-day mortality difference between arms (6% vs 10%) estimates the treatment effect in the target population.</td>
-</tr>
-<tr>
-<td>Lab reference ranges</td>
-<td>The 2.5th–97.5th centiles from 200 healthy subjects estimate the corresponding population centiles.</td>
-</tr>
-</tbody></table>
-<p>In the HbA1c example, the parameter is the mean HbA1c of <em>all</em> adults with
-diabetes in the catchment area; 7.9% is the statistic. Whether it can be
-reported as &quot;the mean HbA1c of diabetic patients in our area&quot; depends
-entirely on whether the 340 patients were sampled to be representative of
-that population.</p>
-<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
-<p>The bridge from statistic to parameter assumes:</p>
-<ul>
-<li><strong>Random or representative sampling</strong> — the sample must be exchangeable with
-the population of interest, or its deviation must be acknowledged.</li>
-<li><strong>A correct definition of the target parameter.</strong> &quot;Mean HbA1c of all
-diabetic patients&quot; and &quot;…under 65&quot; are different parameters; a statistic
-estimates only the one matching its sampling frame.</li>
-<li><strong>Independence of observations</strong> for the usual standard-error formulas.
-Clustered or repeated measurements make the effective sample size smaller
-than n and the naive SE too small.</li>
-</ul>
-<p>The distinction breaks down when authors report a sample statistic and phrase
-it as a population fact (&quot;the mean age of patients with X is 62&quot;), when n is
-so small the sampling distribution is coarse, or when the data are a complete
-census of a finite population — in which case there is no sampling uncertainty
-about that population, only about further extrapolation.</p>
-<h3 id="estimand-estimator-and-standard-error">Estimand, estimator and standard error</h3>
-<p>An estimand states the population quantity sought, including the population,
-outcome, handling of events after treatment and summary measure. An estimator
-is the rule applied to data; the estimate is the realized value. This matters
-when discontinuation or death changes what a follow-up measurement means. The
-usual SE formula s/√n assumes independent observations. In a cluster sample,
-precision depends on both the number of clinics and within-clinic similarity;
-many patients from only a few clinics can add much less information than the
-same number spread across more clinics. A narrow confidence interval quantifies
-sampling uncertainty under the model, not bias or measurement error.</p>
-<h2 id="worked-example">Worked example</h2>
-<p>A clinic measures HbA1c in a random sample of 340 adults with type 2 diabetes:
-sample mean 7.9%, sample standard deviation s = 1.8%. The standard error of
-the mean is SE = s / sqrt(n) = 1.8 / sqrt(340) ≈ 1.8 / 18.4 ≈ 0.10%, so a 95%
-confidence interval for the population mean μ is 7.9% ± 1.96 × 0.10% ≈ 7.7%
-to 8.1%.</p>
-<p>Interpretation: the mean HbA1c of all adults with type 2 diabetes in the
-catchment area is estimated at 7.9%, and repeated random samples of this size
-would bracket the true mean within roughly 7.7–8.1% on 95 occasions in 100.
-Note the contrast with the standard deviation: 1.8% describes the spread of
-individuals&#39; values, while 0.10% describes the precision of the mean estimate
-— confusing the two is one of the most frequent reporting errors in clinical
-papers.</p>
-<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
-<ul>
-<li><strong>Reporting a statistic as a parameter.</strong> &quot;The mean HbA1c of diabetic
-patients is 7.9%&quot; silently upgrades a sample number to a population fact.
-State the sample, the population, and the confidence interval.</li>
-<li><strong>Confusing standard deviation with standard error.</strong> s describes
-individuals; SE describes the estimate. Both matter, but they answer
-different questions and are easily swapped in a results table.</li>
-<li><strong>Assuming a large n &quot;finds&quot; the parameter.</strong> A larger sample shrinks the
-confidence interval but does not make a biased estimate correct; precision
-and validity are separate properties.</li>
-<li><strong>Ignoring the target population when comparing.</strong> A statistic from a
-tertiary-care sample estimates a tertiary-care parameter, not the general
-population&#39;s, no matter how large the sample.</li>
-</ul>
-<h2 id="estimands-estimators-and-sampling-behavior">Estimands, estimators, and sampling behavior</h2>
-<p>A parameter is defined by a population and a measurement rule. “Mean systolic pressure” is incomplete until one states whose pressure, at which visit, under which measurement protocol, and whether each person or each reading receives equal weight. A statistic computed from collected records estimates that parameter only if the sampling and measurement process connect the sample to the target. In a convenience sample, the sample mean can be calculated precisely while remaining a poor estimate of the population mean.</p>
-<p>An estimator is a rule mapping data to a parameter estimate. Its properties include bias, variance, consistency, and efficiency under a specified model. The sample mean is unbiased for the population mean under simple random sampling with finite expectation. The sample variance uses denominator n−1 because this correction makes it unbiased for population variance under independent identically distributed sampling; dividing by n instead describes the empirical variance around the sample mean. Bias-variance tradeoffs matter: a slightly biased estimator can have lower mean squared error, but the choice must be justified by the target and assumptions.</p>
-<p>The standard error is the sampling standard deviation of an estimator, not the spread of individual observations. For independent observations with variance σ², Var(X̄)=σ²/n and SE(X̄)=σ/√n. Estimating σ with s yields the familiar estimated SE. Under clustered sampling or unequal weights, this simple formula is wrong: observations within a clinic share information, and a survey&#39;s design weights alter variance. Confidence intervals should use the design-consistent variance estimator and degrees of freedom where appropriate.</p>
-<h3 id="worked-calculation-estimate-versus-uncertainty">Worked calculation: estimate versus uncertainty</h3>
-<p>A random sample of 64 adults has mean HbA1c 7.8% and SD 1.6%. Estimated SE = 1.6/√64 = 0.20 percentage points. Using a t critical value with 63 degrees of freedom, approximately 2.00, the 95% interval is 7.8 ± 2.00(0.20) = 7.40 to 8.20%. The interval concerns the target population mean under the sampling model; it does not describe where 95% of individual HbA1c values lie. An approximate interval for an individual distribution would use the SD, yielding a far wider range.</p>
-<pre><code class="language-r">n &lt;- 64; xbar &lt;- 7.8; s &lt;- 1.6
-tcrit &lt;- qt(0.975, df = n - 1)
-se &lt;- s / sqrt(n)
-c(estimate = xbar, SE = se,
-  lower = xbar - tcrit * se, upper = xbar + tcrit * se)
+          <h2 id="overview">Overview</h2>
+<p>A parameter is a quantity that describes a defined population or data-generating process; a statistic is calculated from observed data. Researchers use statistics to learn about parameters, but the numerical estimate is meaningful only after its target is clear. The target could be a population mean, a treatment effect under assignment, a prevalence at a specified date, or the proportion of future patients whose risk exceeds a threshold. Different sampling schemes and analysis choices can make the same statistic estimate different targets.</p>
+<p>The distinction is foundational because statistical uncertainty belongs to the procedure that generated the estimate. If we repeatedly drew samples under the same design, the statistic would vary. Its sampling distribution describes this variation, its standard error measures spread, and inferential procedures use that distribution to quantify compatibility with target values. A standard error does not account automatically for measurement error, confounding, selection, or model misspecification.</p>
+<h2 id="define-the-target-before-choosing-the-calculation">Define the target before choosing the calculation</h2>
+<p>A parameter needs a population, outcome, time, and summary operation. “Average blood pressure” is incomplete until we know which people, whether pressure is baseline or follow-up, how repeated readings are combined, and what population the average is intended to represent. For intervention research, an estimand further specifies the treatment conditions being compared and how events such as discontinuation, rescue therapy, or death enter the outcome.</p>
+<p>Suppose a randomized trial compares assignment to a new antihypertensive strategy with usual care. The treatment-policy estimand compares outcomes by randomized assignment regardless of adherence. A hypothetical estimand may ask what the contrast would have been had everyone remained on assigned therapy. These are distinct parameters. Randomization directly supports the first comparison, while the second requires additional modeling assumptions because adherence after randomization is related to prognosis.</p>
+<p>The estimand determines the statistic. A difference in sample means estimates a difference in population means under a simple random sample or randomized comparison with complete outcomes. A weighted mean may be needed under unequal-probability sampling. A regression coefficient can estimate a conditional association, while standardized predictions can target a marginal contrast. The analysis should explain why its statistic corresponds to the stated target.</p>
+<h2 id="statistics-vary-from-sample-to-sample">Statistics vary from sample to sample</h2>
+<p>Let Y1,...,Yn be independent observations from a population with mean μ and variance σ². The sample mean is Ybar = (1/n)ΣYi. It is unbiased for μ under this sampling model, and its variance is σ²/n; therefore its standard error is estimated by s/√n. Increasing sample size reduces random error at a square-root rate: quadrupling n halves the standard error. This gain assumes that observations are independent and sampled from the target population. Repeated observations per patient or cluster sampling alter the variance.</p>
+<p>A statistic can be biased even when calculated without arithmetic error. If a clinic estimates disease prevalence only among patients who returned for follow-up, the observed proportion may miss people who moved, became too ill, or lacked access. The statistic then describes respondents; it estimates population prevalence only if the selection mechanism and adjustment support that inference. A large sample reduces sampling variability around the wrong target, not systematic bias.</p>
+<p>A ratio statistic illustrates why estimator properties can be subtle. A sample proportion is a ratio of event count to sample size and is unbiased under simple binomial sampling. A ratio of two estimated totals, such as cost per quality-adjusted life-year, is generally not exactly unbiased in finite samples and can have a skewed distribution. The method for uncertainty must match the statistic rather than defaulting to a symmetric normal interval.</p>
+<h2 id="a-worked-estimation-example">A worked estimation example</h2>
+<p>Consider a random sample of 100 adults from a defined clinic population. Their mean systolic pressure is 132 mmHg and standard deviation is 16 mmHg. Under independent, approximately representative sampling, the standard error of the mean is 16/√100 = 1.6 mmHg. A t-based 95% interval is approximately 132 ± 1.984(1.6), or 128.8 to 135.2 mmHg. This interval quantifies repeated-sampling uncertainty under the assumptions; it does not include uncertainty caused by nonresponse or measurement calibration.</p>
+<p>The calculation in R is:</p>
+<pre><code class="language-r">x &lt;- clinic$sbp
+x &lt;- x[!is.na(x)]
+n &lt;- length(x)
+mean_x &lt;- mean(x)
+se_x &lt;- sd(x) / sqrt(n)
+ci &lt;- mean_x + c(-1, 1) * qt(.975, df = n - 1) * se_x
+c(n = n, mean = mean_x, se = se_x, lower = ci[1], upper = ci[2])
 </code></pre>
-<p>The t interval relies on independent sampling and a sufficiently well-behaved distribution of the mean; at small n, severe skew or outliers can undermine it. If the sample design is stratified or clustered, use survey-design methods rather than this formula.</p>
-<h3 id="what-a-confidence-interval-does-and-does-not-say">What a confidence interval does and does not say</h3>
-<p>A 95% confidence procedure has 95% coverage over repeated samples if its assumptions hold. Once the interval is calculated, frequentist interpretation does not assign 95% probability to this fixed parameter lying in that realized interval. The interval communicates precision conditional on the model and design; systematic bias is not included unless explicitly modeled. A narrow interval from a biased sample is still misleading. Statistical significance is also distinct from importance: compare the interval with clinically meaningful effect thresholds and the prespecified null value.</p>
-<p>Parameters can be vectors: regression coefficients, risks at several times, or a treatment-effect curve. Selecting the “best” subgroup after inspecting data changes the inferential problem and often invalidates nominal uncertainty. Prespecify primary estimands, distinguish confirmatory from exploratory analyses, and account for multiplicity where relevant. For population proportions near zero or one, Wald intervals can have poor coverage; score or exact binomial methods are generally preferable. See the sampling-distribution and confidence-interval articles for interval construction and interpretation.</p>
-<h2 id="design-based-estimators-and-weighting">Design-based estimators and weighting</h2>
-<p>For a probability sample with inclusion probability πi, the Horvitz–Thompson estimator of a population total is Σ yi/πi. The corresponding weighted mean divides the weighted total by the estimated population size, or uses a ratio estimator. Large weights can make estimates unstable, so trimming weights trades variance reduction against potential bias and should be justified. Variance estimation must reflect strata and primary sampling units; treating the weighted observations as a simple random sample gives incorrect standard errors.</p>
-<p>In randomized trials, the difference in sample means is unbiased for the finite-sample average treatment effect under random assignment, even when outcomes are non-normal. Covariate adjustment can improve precision if prespecified and correctly implemented; it is not needed to remove baseline confounding caused by assignment, though chance imbalance can occur. In observational data, regression adjustment estimates a conditional contrast and requires exchangeability, positivity, consistency, and adequate model specification for a causal interpretation. A statistic can be unbiased for the wrong target if the estimand is misunderstood.</p>
-<h3 id="worked-example-why-a-standard-error-depends-on-design">Worked example: why a standard error depends on design</h3>
-<p>Consider 20 clinics with 25 sampled patients per clinic, 500 observations total, and an assumed intraclass correlation of .04. The approximate design effect is 1+(25−1)(.04)=1.96. The variance is nearly twice the simple-random-sample variance; the rough effective sample size is 500/1.96≈255. This calculation is an intuition aid, not a substitute for a cluster-robust or multilevel analysis. If clinic sizes vary widely, the equal-cluster approximation can underestimate design effects.</p>
-<pre><code class="language-r">clusters &lt;- 20; m &lt;- 25; rho &lt;- 0.04
-n &lt;- clusters * m
-deff &lt;- 1 + (m - 1) * rho
-c(raw_n = n, design_effect = deff, effective_n = n / deff)
-</code></pre>
-<p>With only 20 clusters, small-sample corrections for cluster-robust standard errors may matter. The number of independent clusters, not merely the number of people, governs precision for cluster-level exposure effects.</p>
-<h3 id="bootstrap-robust-and-model-based-uncertainty">Bootstrap, robust, and model-based uncertainty</h3>
-<p>The bootstrap resamples observations to approximate estimator variability, but the resampling unit must match the independent unit. For paired data resample pairs; for cluster-randomized studies resample clusters; for stratified surveys preserve strata. Parametric bootstrap simulates from a fitted model and inherits its assumptions. Robust standard errors protect against specified variance misspecification, not omitted confounding, selection bias, or a wrong link function. “Robust” is not a universal guarantee.</p>
-<p>For ratios, log-scale intervals often preserve positivity and behave better than symmetric intervals on the original scale. For skewed means, bootstrap intervals can be useful but may be unstable with small samples and extreme tails. Report the method and avoid presenting more decimal places than measurement and design support. Sensitivity analysis should address plausible sources of systematic uncertainty, not merely recalculate the same estimator with several software options.</p>
-<h3 id="a-reporting-checklist-for-estimates">A reporting checklist for estimates</h3>
-<p>State the estimand in words and notation where useful; identify population, outcome, time point, intervention contrast, and handling of post-randomization events. Define the estimator, analysis set, variance method, and missingness assumptions. Give an absolute measure and a relative measure if both aid decisions. Present interval estimates and clinically meaningful benchmarks. For model-adjusted results, describe functional forms and covariates and show enough diagnostic information to support adequacy. This reporting connects the sample statistic to the population parameter the reader cares about.</p>
-<h2 id="finite-sample-and-superpopulation-targets">Finite-sample and superpopulation targets</h2>
-<p>In a finite-population framework, the parameter is a fixed quantity for the actual set of units, and randomness arises from sampling or treatment assignment. In a superpopulation framework, observed units are realizations from a broader process, and uncertainty also reflects that process. A randomized trial&#39;s finite-sample average treatment effect among enrolled participants and a hypothetical effect in future eligible patients are related but not identical targets. Clarify the population before interpreting a standard error.</p>
-<p>The sample mean is an unbiased design-based estimator under simple random sampling, but under unequal inclusion probabilities the unweighted mean may not be. Conversely, a model-based estimator can gain precision through assumptions about outcome structure but can be biased if those assumptions fail. Robustness should be assessed relative to the actual sampling and assignment design rather than by treating any one framework as universally correct.</p>
-<h2 id="ratio-estimates-and-nonlinear-transformations">Ratio estimates and nonlinear transformations</h2>
-<p>For nonlinear functions g(θ), uncertainty in θ must be propagated to g(θ). The delta method approximates Var[g(θ̂)] by [g′(θ)]² Var(θ̂). For a risk ratio, computing a symmetric interval directly on the ratio scale can yield a negative lower bound. Work on the log scale: log(RR) has approximate variance, build an interval there, then exponentiate. For number needed to treat, NNT=1/|RD| is nonlinear and becomes unbounded when the risk difference interval includes zero. Reporting a single finite NNT without the risk-difference interval can conceal substantial uncertainty.</p>
-<h3 id="worked-example-uncertainty-in-nnt">Worked example: uncertainty in NNT</h3>
-<p>If the estimated absolute risk reduction is 0.06 with 95% interval 0.00 to 0.12, the point NNT is about 17, but the interval approaches infinity at a zero effect and is roughly 8.3 to infinity on the benefit side. If plausible effects also include harm, the interval crosses from number needed to treat to number needed to harm. This instability is mathematical, not a software defect. Report the absolute effect first and explain the NNT&#39;s time horizon.</p>
-<pre><code class="language-r">arr &lt;- 0.06
-c(NNT = 1 / arr,
-  NNT_at_larger_benefit = 1 / 0.12,
-  NNT_at_small_benefit = 1 / 0.001)
-</code></pre>
-<p>The near-zero endpoint demonstrates why reciprocal intervals are asymmetric and may be unbounded. Do not compute a confidence interval by taking reciprocals of endpoints that straddle zero without preserving benefit/harm regions.</p>
-<h2 id="missingness-changes-the-estimand">Missingness changes the estimand</h2>
-<p>Complete-case statistics estimate quantities among people with observed outcomes unless additional assumptions justify broader interpretation. If outcome observation depends on treatment or prognosis, the complete-case mean may not represent the randomized groups. Inverse-probability weighting, imputation, likelihood methods, and bounds each rely on assumptions; none automatically recovers the full population parameter. Define whether the target includes all randomized participants, adherent participants, or another population, then align methods accordingly. Report how many observations contribute to each estimate and compare sensitivity analyses under plausible departures from missing-at-random assumptions.</p>
-<h2 id="estimator-choice-robustness-and-influence">Estimator choice, robustness, and influence</h2>
-<p>The sample mean is efficient under a normal model but sensitive to extreme values. The median has a 50% breakdown point under broad conditions and can better represent a skewed distribution, but its standard error and target differ. A trimmed mean discards a prespecified fraction from each tail and can balance robustness and efficiency; it should not be selected after seeing which summary gives a desired result. For regression, a single high-leverage observation can strongly affect coefficients; inspect influence diagnostics and report sensitivity with and without data points only when exclusion has a defensible measurement or eligibility reason.</p>
-<p>A bootstrap standard error for a median can be obtained by resampling independent units and recalculating the statistic. With clustered data, sample clusters, not individual rows. In very small samples, bootstrap distributions may inadequately represent tails, and analytic or randomization-based procedures may be more appropriate. Report both the estimator and uncertainty procedure so readers can understand what variation is represented.</p>
-<h2 id="statistical-versus-practical-importance">Statistical versus practical importance</h2>
-<p>An interval&#39;s width should be judged against a meaningful scale. A treatment effect estimate of 0.2 points with a 95% interval 0.1 to 0.3 can be statistically precise yet clinically trivial if important change is 2 points. Conversely, an interval from −1 to 5 may include zero while also including meaningful benefit; it represents uncertainty, not evidence of no effect. Define a minimally important difference independently of the observed estimate where possible. For equivalence or noninferiority, prespecified margins and one-sided decision frameworks are required; failure to reject a superiority null is not proof of equivalence.</p>
-<p>For a regression coefficient, specify whether it is marginal or conditional, the reference category, predictor scale, and link function. For example, a logistic coefficient is a conditional log-odds contrast holding included covariates fixed; exponentiating it produces an adjusted odds ratio. It does not directly estimate an adjusted risk difference. To present marginal risks, predict each participant&#39;s outcome under each exposure level and average across a defined target sample (g-computation), with uncertainty propagated through the full procedure. The parameter is defined by that averaging target, not by software output alone.</p>
+<p>The code silently treats remaining records as an independent sample and reports a complete-case mean. For cluster samples, use design-based variance estimation; for repeated observations, define a patient-level summary or fit a model that accounts for within-person dependence. If 20% of eligible patients have no measured pressure and their outcomes differ from respondents, the interval above is too narrow as a statement about the full clinic population because it covers only sampling variation among observed records.</p>
+<p>An estimate should be judged against meaningful values as well as zero. A mean pressure of 132 may be precisely estimated but not answer whether the clinic meets a treatment target, whether the distribution has a high-risk tail, or whether a policy reduced pressure. A parameter is a summary; it does not fully describe a population distribution.</p>
+<h2 id="estimators-and-their-trade-offs">Estimators and their trade-offs</h2>
+<p>An estimator is a rule that maps data to a statistic. Different estimators target the same parameter with different properties. The sample mean is efficient under normal sampling but sensitive to extreme values. The median is robust to large tails but estimates a different population feature and may have less precision under symmetric normal data. A trimmed mean trades some tail sensitivity for a target between the mean and median. Selection should follow the scientific question and data-generating process rather than a rule that one summary is universally robust.</p>
+<p>For a proportion near zero or one, the Wald interval p-hat ± 1.96√[p-hat(1−p-hat)/n] can have poor coverage and even extend outside [0,1]. Score-based Wilson intervals generally behave better, and exact binomial intervals may be appropriate when events are very rare, though conservatism and interpretation should be understood. For small samples, use methods matched to the sampling distribution rather than relying automatically on large-sample approximations.</p>
+<p>Regression estimators introduce additional choices. In linear regression, the coefficient for a continuous predictor describes a conditional mean change per unit under the specified model. In logistic regression, the coefficient is a conditional log odds ratio; exponentiating it yields an odds ratio, not a risk ratio. Adjusted and unadjusted estimates can differ because of confounding, non-collapsibility, or both. To report a marginal risk difference, one may predict each participant&#39;s outcome under each treatment and average those predictions, provided the causal assumptions and model are suitable.</p>
+<p>Weights can correct known unequal inclusion probabilities or improve standardization to a target population, but extreme weights increase variance and small effective sample size. Trimming weights changes the procedure and can change the target or introduce bias. Report how weights were constructed, inspect their distribution, and compare reasonable sensitivity analyses. Robust variance estimates do not eliminate bias if the inclusion mechanism is misunderstood.</p>
+<h2 id="confidence-intervals-tests-and-practical-meaning">Confidence intervals, tests, and practical meaning</h2>
+<p>A confidence interval is produced by a procedure that, under its assumptions, covers the fixed parameter at the stated long-run rate. A 95% interval is not a probability distribution over the parameter after the data are observed. Bayesian credible intervals do have a posterior probability interpretation conditional on the model and prior, but they answer a different inferential framework. Both kinds of intervals depend on model assumptions and data quality.</p>
+<p>A p-value measures how incompatible the observed statistic, or something more extreme, is with a specified null model. It is not the probability the null is true, the probability results occurred by chance, or a measure of effect importance. Report estimates and intervals so readers can see direction, magnitude, and precision. When many outcomes or analyses are explored, the interpretation of nominal p-values changes because the search itself creates opportunities for chance findings.</p>
+<p>Consider a treatment difference estimated at −5 mmHg with a 95% interval from −8.5 to −1.5. The interval excludes zero under the analysis model, yet clinical judgment still asks whether a reduction of 1.5 mmHg at the least favorable end is worthwhile given adverse effects and cost. If instead the interval were −11 to 1, the data would be compatible with meaningful benefit and little or no effect; a nonsignificant test would not prove no effect. For equivalence, a clinically justified margin must be prespecified and the whole interval must satisfy the decision criterion.</p>
+<h2 id="missingness-selection-and-uncertainty-beyond-the-standard-error">Missingness, selection, and uncertainty beyond the standard error</h2>
+<p>Sampling uncertainty is only one component of uncertainty. Measurement error, missing outcomes, selection into a study, and uncertain model structure may dominate the reported standard error. A complete-case statistic can be unbiased under special conditions, but is not automatically representative. Multiple imputation addresses missing values under an explicit model, commonly a missing-at-random assumption conditional on included variables. Sensitivity analyses can assess plausible departures from that assumption.</p>
+<p>For an observational treatment comparison, the adjusted statistic estimates a causal contrast only if confounding is controlled, consistency and positivity are plausible, and selection and measurement are adequately addressed. A very narrow confidence interval does not rescue a violated identification assumption. Distinguish statistical uncertainty that an interval quantifies from systematic uncertainty that requires design knowledge, sensitivity analysis, external validation, or replication.</p>
+<h2 id="reporting-the-estimand-and-its-estimate">Reporting the estimand and its estimate</h2>
+<p>A transparent result identifies the target population, outcome definition, follow-up time, effect scale, estimator, adjustment set or weighting procedure, missing-data approach, and uncertainty method. State whether an effect is marginal or conditional and name the reference group and units. Report denominators and exclusions so a reader can reconstruct the analysis population. For weighted or clustered samples, describe the design variables and variance method.</p>
+<p>When a point estimate is transformed, explain the transformation. A coefficient on the log scale, exponentiated odds ratio, standardized risk difference, and absolute risk all represent related but not interchangeable summaries. If an estimate is intended for a different target population than the observed sample, show the standardization or transport assumptions and identify regions with little data support.</p>
+<h2 id="design-based-inference-and-finite-populations">Design-based inference and finite populations</h2>
+<p>Inference can be grounded in a sampling design rather than a probability model for outcomes. In a probability sample, each unit has a known, nonzero inclusion probability. The Horvitz–Thompson estimator of a population total is the sum of each observed outcome divided by its inclusion probability. Dividing an estimated total by an estimated population size yields a ratio or Hájek estimator of a mean. These weighting rules restore representation under unequal sampling probabilities, but their uncertainty depends on the actual design, including stratification, clustering, and without-replacement sampling.</p>
+<p>For example, a health survey may deliberately sample rural residents at twice the rate of urban residents. The unweighted sample proportion is not generally the national prevalence. If rural and urban inclusion probabilities are 0.04 and 0.02, their inverse-probability weights are 25 and 50. The weighted prevalence is the weighted event count divided by total weight. Variance calculations must retain design strata and primary sampling units; treating all weighted rows as independent usually understates uncertainty. Nonresponse adjustments may improve representation when response propensities are modeled adequately, but do not guarantee correction for unmeasured differences between respondents and nonrespondents.</p>
+<p>Finite-population correction can matter when a substantial fraction of a small population is sampled without replacement. If 80 of 100 eligible clinics are sampled, sampling variability for the finite-population mean is smaller than if the same 80 clinics were sampled from a very large superpopulation. The correction factor for a simple random sample is approximately sqrt((N−n)/(N−1)). Analysts should clarify whether inference concerns the finite list itself or a broader process of future clinics; those are different targets and may not warrant the same correction.</p>
+<h2 id="clustered-and-repeated-observations">Clustered and repeated observations</h2>
+<p>When outcomes within a cluster are correlated, the effective sample size can be far smaller than the row count. For equal cluster size m and intraclass correlation ρ, a rough design effect is 1+(m−1)ρ. With 20 patients per clinic and ρ=0.05, the design effect is 1+19(0.05)=1.95, so 1,000 patient records contain roughly the precision of 513 independent observations under this simple approximation. Unequal cluster sizes can increase the design effect further.</p>
+<p>The point estimate may also need to reflect the desired weighting. A patient-average treatment effect weights large clinics more heavily; a clinic-average effect gives each clinic equal weight. Mixed models and generalized estimating equations encode different correlation structures and interpretations. Cluster-robust standard errors need enough independent clusters to work well; with few clusters, small-sample corrections or randomization-based inference may be preferable. Report the number of clusters, their size distribution, and the level at which assignment occurred.</p>
+<p>Repeated measures require a target summary too. A baseline-adjusted follow-up mean difference, an average difference across all time points, and a difference in change are not necessarily the same estimand. A mixed model can use incomplete longitudinal observations under assumptions about missingness conditional on observed data, but it does not automatically make missing-not-at-random dropout ignorable. Plot trajectories, state the time contrast, and conduct sensitivity analyses when dropout may depend on unseen outcomes.</p>
+<h2 id="transformations-and-non-linear-summaries">Transformations and non-linear summaries</h2>
+<p>Many statistics are transformations of an underlying estimator. For a risk ratio, the log ratio often has a more nearly symmetric sampling distribution; inference can be performed on that scale and exponentiated for presentation. If two independent groups have event counts a and c and denominators n1 and n0, the estimated log risk ratio is log[(a/n1)/(c/n0)]. Its approximate variance is 1/a−1/n1+1/c−1/n0 when counts are sufficiently large. With zero or sparse cells, this approximation fails; exact or likelihood-based methods, carefully justified continuity corrections, or Bayesian models may be considered.</p>
+<p>The odds ratio is non-collapsible: a conditional odds ratio can differ from a marginal odds ratio even without confounding. Therefore, a change in logistic regression coefficients after covariate adjustment is not by itself proof that confounding was removed. For a clinical audience, standardized predicted risks can make the target more transparent. For each person, predict outcome under each intervention value, average those predictions over the target population, then contrast averages. This g-computation approach still needs correct model specification or a robust alternative and causal identification assumptions.</p>
+<p>Bootstrap methods approximate a statistic&#39;s sampling distribution by resampling observational units and repeating the entire estimation procedure. The resampling unit must respect the design: resample patients for independent patient data, clusters for cluster-randomized data, and potentially strata within sampling strata for complex surveys. If variable selection, imputation, or tuning is part of the estimator, repeat it inside each bootstrap replicate. Holding the selected model fixed gives intervals conditional on selection and generally understates full procedure uncertainty.</p>
+<h2 id="a-contrast-between-uncertainty-methods">A contrast between uncertainty methods</h2>
+<p>Suppose 12 of 80 treated patients and 20 of 80 controls experience an event. The observed risks are 0.15 and 0.25, giving a risk difference of −0.10 and risk ratio 0.60. The approximate standard error for the risk difference is sqrt[0.15(0.85)/80 + 0.25(0.75)/80] ≈ 0.063. A rough normal interval is −0.10 ± 1.96(0.063), or −0.223 to 0.023. It includes no difference while also including a substantial benefit. A Wilson/Newcombe interval is generally preferable for small binomial samples, but the interpretation remains: the sample is not precise enough to rule out several clinically relevant values.</p>
+<p>The number needed to treat is the reciprocal of an absolute risk reduction, here 1/0.10=10 over the stated follow-up. Its uncertainty is not well represented by simply taking reciprocals of the risk-difference interval when that interval crosses zero; the transformed interval has disconnected or unbounded regions. Report the risk difference and interval first, with NNT conventions and time horizon clear. Avoid reporting an NNT without the underlying baseline risk, endpoint, and duration.</p>
+<p>A Bayesian analysis instead combines a likelihood with a prior distribution to obtain a posterior distribution for parameters. A posterior interval can directly state that a specified proportion of posterior mass lies in a range, conditional on model and prior. The prior can stabilize estimation for sparse data, but its influence should be examined, especially when evidence is limited. A Bayesian posterior probability is not assumption-free; the likelihood, exchangeability assumptions, and prior all matter. Frequentist and Bayesian summaries answer different questions and should not be mixed casually in one interpretation.</p>
+<h2 id="limits-of-interval-estimates">Limits of interval estimates</h2>
+<p>Intervals often cover only sampling variation conditional on an analysis model. They may not include uncertainty from choosing among outcomes, selecting a model, estimating nuisance parameters, or transporting results to another health system. Prediction intervals for individual outcomes are wider than confidence intervals for a mean because they include person-to-person variation. Intervals for a treatment effect across settings may need to include between-study heterogeneity.</p>
+<p>If a model has strong nonlinearities, sparse data, or estimates near a parameter boundary, symmetric Wald intervals can be misleading. Likelihood profiles, bootstrap distributions, score intervals, or posterior summaries may better reflect asymmetry. However, a sophisticated interval cannot compensate for poor data, weak measurement, or lack of overlap between compared groups. Show raw denominators or distributions when possible so readers can assess support.</p>
+<h2 id="practical-checklist-for-statistical-quantities">Practical checklist for statistical quantities</h2>
+<p>Before reporting a number, identify: the population or process it describes; the outcome scale and time point; whether it is an estimand, estimator, or realized estimate; the sampling and assignment units; and the assumptions used for uncertainty. Check that transformations preserve the interpretation readers need. Compare interval width with clinically meaningful differences. Assess whether missingness, selection, clustering, and multiplicity are addressed. If the statistic is weighted or adjusted, explain the reference population and the role of each adjustment.</p>
+<p>A good statistical report states what the data estimate and where the estimate may fail. “The mean was 132 mmHg” is descriptive but incomplete if the intended claim concerns all eligible patients. “The estimated population mean was 132 mmHg (95% CI 128.8–135.2) from a stratified cluster sample, using design weights and Taylor-linearized variance” makes the target and uncertainty method more assessable. Then discuss residual coverage and nonresponse limitations in plain language.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>ICH. <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf" target="_blank" rel="noopener noreferrer" class="ext-link">E9(R1): Estimands and sensitivity analysis in clinical trials</a>.</p>
-</li>
-<li><p>Greenland S et al. <a href="https://doi.org/10.1007/s10654-016-0149-3" target="_blank" rel="noopener noreferrer" class="ext-link">Statistical tests, P values, confidence intervals, and power</a>. <em>Eur J Epidemiol</em>. 2016.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and
-Other Advanced Topics</em>. Brooks/Cole.</p>
-</li>
-<li><p>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
-</li>
-<li><p>The sampling-distribution article in this library explains how repeated
-sampling determines standard errors and interval estimates.</p>
-</li>
+<li>ICH. <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf" target="_blank" rel="noopener noreferrer" class="ext-link">E9(R1): Estimands and sensitivity analysis in clinical trials</a>.</li>
+<li>Greenland S et al. <a href="https://doi.org/10.1007/s10654-016-0149-3" target="_blank" rel="noopener noreferrer" class="ext-link">Statistical tests, P values, confidence intervals, and power</a>. <em>Eur J Epidemiol</em>. 2016.</li>
+<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
+<li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
 </ul>
 
         </article>

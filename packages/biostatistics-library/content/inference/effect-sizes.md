@@ -3,289 +3,154 @@ title: Effect sizes
 summary: Measures of how large an association or treatment effect is - risk differences, risk ratios, odds ratios, hazard ratios, and standardised mean differences.
 ---
 
-## Overview and key ideas
+## Overview
 
-An **effect size** quantifies the magnitude of an association or a treatment effect. Unlike the p-value, which mixes magnitude with sample size, the effect size answers "how big is it?", and the confidence interval around it answers "how precisely is it estimated?"
+An effect size expresses the magnitude of a difference or association. Unlike a p-value, it does not combine magnitude with sample size into one thresholded signal. The right measure depends on the outcome scale, design, and decision: a risk difference answers absolute impact; a risk ratio compares relative risks; a mean difference preserves the original units; a standardized mean difference facilitates comparison across instruments but loses direct clinical meaning.
 
-For binary outcomes three scales are used most often:
+## Match the scale to the decision
 
-| Measure | Definition | Typical use |
-| --- | --- | --- |
-| Risk difference (RD) | p1 - p2, the absolute change in risk | Trials; links directly to number needed to treat |
-| Risk ratio (RR) | p1 / p2, the relative risk | Cohort studies and trials with a defined risk set |
-| Odds ratio (OR) | (p1 / (1 - p1)) / (p2 / (1 - p2)) | Case-control studies; logistic regression |
-
-For time-to-event outcomes the **hazard ratio** summarises the relative instantaneous risk over follow-up. For continuous outcomes the **mean difference** is used, and the **standardised mean difference** (Cohen's d = mean difference / pooled SD) expresses the effect in units of variability so that different endpoints can be compared, for example in a meta-analysis.
-
-One decision aid that follows directly from the absolute scale is the **number needed to treat** (NNT): NNT = 1 / RD when the treatment is beneficial (number needed to harm, NNH = 1 / RD, when it is harmful). An NNT of 33 means 33 patients must be treated for one year to prevent one recurrent myocardial infarction in this example; it combines the effect size with the follow-up horizon and is often the single clearest number for clinicians and patients.
-
-## When to use it
-
-| Setting | Appropriate effect size |
-| --- | --- |
-| Randomised trial with a hard endpoint | RD with NNT, plus RR for context |
-| Prospective cohort study | RR, or hazard ratio if follow-up times differ |
-| Case-control study | OR (the only ratio the design can validly estimate) |
-| Meta-analysis across different endpoints | Standardised mean difference |
-| Policy or formulary decisions | RD and NNT, because they map to absolute impact |
-
-## Assumptions and limitations
-
-- The OR estimates the RR only when the outcome is rare; for common outcomes the OR exaggerates the strength of the association in whichever direction it points.
-- RR and RD require a well-defined population at risk with known follow-up; the hazard ratio additionally assumes the proportional hazards condition holds over the follow-up window of interest.
-- The SD in Cohen's d is estimated from the data and differs between populations; the 0.2 / 0.5 / 0.8 "small / medium / large" thresholds are rules of thumb, not clinical truths.
-- Relative measures can make tiny absolute effects look dramatic: a 50% reduction of a baseline risk of 1 in 10,000 still halves something negligible.
-
-## Worked example
-
-A trial randomises 500 patients with acute coronary syndrome to an intensive antiplatelet strategy and 500 to standard care. At 12 months, 25 of 500 (5%) versus 40 of 500 (8%) in the two arms have a recurrent myocardial infarction. The risk difference is 8% - 5% = 3% (number needed to treat = 1/0.03 = 33); the risk ratio is 5/8 = 0.625; the odds ratio is (25 x 460) / (475 x 40) = 0.605. The OR is close to, but slightly more extreme than, the RR because the outcome, at 5-8%, is no longer rare. Reporting only the RR ("a 37.5% relative reduction") would overstate the benefit for a clinician deciding about an individual patient; the 3% absolute reduction, with its confidence interval, is the number that drives the treatment decision.
-
-## Interpretation and common pitfalls
-
-- **Reporting only the relative effect.** Pair every RR or OR with the absolute risk difference so readers can see the baseline risk it acts on.
-- **Reading an OR as if it were an RR** when the outcome is common - it exaggerates the association.
-- **Letting the p-value, not the effect size, carry the conclusion.** A statistically significant 1 mmHg blood pressure difference is "significant" but clinically unimportant.
-- **Choosing the most flattering scale.** RR and RD tell different stories when baseline risk is extreme; prespecify the primary measure and report the others alongside it.
-
-## Calculating absolute and relative effects together
-
-In the trial example, intensive treatment has risk 25/500=0.05 and
-standard care 40/500=0.08. Defining benefit as standard care minus
-intensive treatment, the absolute risk reduction is 0.03 and the relative
-risk reduction is \(1-0.05/0.08=0.375\), or 37.5%. The odds ratio is
-\((25/475)/(40/460)=0.605\). These statements are all correct, but answer
-different questions. If the untreated risk were only 0.008, the same RR of
-0.625 would imply an absolute reduction of 0.003 and NNT about 333, not
-33. NNT must always name the outcome and time horizon; “NNT=33” without
-“to prevent one recurrent MI over 12 months” is incomplete.
-
-The point estimate of NNT is reciprocal to the risk difference, so its
-uncertainty behaves nonlinearly. If the 95% CI for absolute benefit is
-0.005 to 0.055, the corresponding NNT interval is about 18 to 200. If the
-risk-difference interval crosses zero, reciprocal transformation produces
-two disjoint regions: possible benefit (positive NNT) and possible harm
-(negative NNT/NNH). Do not report a single finite NNT interval across zero.
-For decision making, retain the RD and its interval as primary and treat
-NNT as a transformed, horizon-specific aid.
+Suppose 30 of 200 control participants and 20 of 200 treated participants are readmitted. Risks are 15% and 10%. The risk difference is −5 percentage points, risk ratio 0.67, and odds ratio (20/180)/(30/170)=0.63. The absolute reduction gives an NNT of 1/0.05=20 over the stated follow-up, while the relative measures describe proportional change. NNT is meaningful only with a defined population and time horizon; it is not a timeless property of a drug.
 
 ```r
-treated_events <- 25; treated_n <- 500
-control_events <- 40; control_n <- 500
-p_t <- treated_events / treated_n
-p_c <- control_events / control_n
-rd_benefit <- p_c - p_t
-rr <- p_t / p_c
-or <- (treated_events * (control_n - control_events)) /
-      ((treated_n - treated_events) * control_events)
-c(RD_benefit = rd_benefit, RR = rr, OR = or,
-  NNT = 1 / rd_benefit)
+control <- c(event = 30, nonevent = 170)
+treated <- c(event = 20, nonevent = 180)
+risk_c <- control[1] / sum(control)
+risk_t <- treated[1] / sum(treated)
+c(risk_difference = risk_t - risk_c,
+  risk_ratio = risk_t / risk_c,
+  odds_ratio = (treated[1] / treated[2]) /
+               (control[1] / control[2]),
+  nnt = 1 / (risk_c - risk_t))
 ```
 
-This simple computation returns point estimates only. Use a method that
-accounts for binomial uncertainty to obtain intervals (for example, a
-Newcombe interval for risk difference or a log-scale interval for RR/OR).
-For adjusted analyses, obtain standardized marginal risks by predicting
-each participant under both treatment conditions and averaging over a
-defined target covariate distribution. Exponentiating a logistic coefficient
-gives a conditional OR; it is not generally the marginal OR, even without
-confounding, because odds ratios are non-collapsible. The two quantities
-answer distinct questions and should not be conflated.
+This calculation is unadjusted. Random variation is substantial, so report confidence intervals, preferably using methods suited to the effect scale. For an adjusted trial estimate, distinguish model-based marginal risks from conditional odds ratios; logistic-regression coefficients are conditional and odds ratios are non-collapsible, so they can differ from crude ratios even without confounding.
 
-## Continuous outcomes and standardisation
+## Continuous outcomes and standardized effects
 
-For an unadjusted mean difference, retain the native units whenever they
-are interpretable: a 4-mmHg systolic-pressure difference is more useful
-than “0.27 SD.” Cohen's d divides the mean difference by a pooled within
-group SD. In a two-arm design, Hedges' g applies a small-sample correction
-to reduce d's upward bias. Standardisation facilitates synthesis across
-scales but makes the denominator population-dependent: the same absolute
-change yields a larger d in a homogeneous sample than in a heterogeneous
-one. In repeated-measures designs, standardised change depends on whether
-the denominator is the baseline SD, final SD, or SD of paired differences;
-state the convention because values are not directly interchangeable.
+For a continuous endpoint, the mean difference is usually easiest to interpret: a 3 mmHg reduction in pressure or a 1.2-point change on a validated scale. Cohen’s d divides the mean difference by a pooled SD and supports synthesis across scales, but conventions such as “small” or “large” are context dependent. Hedges’ g corrects small-sample bias in d. Standardization can conceal clinically meaningful units and can vary across populations when variability differs.
 
-For skewed outcomes, a ratio of geometric means or a difference in
-medians may be more faithful than a standardised mean difference. For
-ordinal patient-reported outcomes, proportional odds or a probability of
-superiority can preserve rank interpretation. No universal “small,”
-“medium,” or “large” threshold substitutes for clinical context, baseline
-risk, treatment burden, harms, and patient preferences.
+For binary outcomes, report absolute and relative measures together when feasible. Relative reduction may look impressive when baseline risk is tiny: reducing risk from 2 in 10,000 to 1 in 10,000 is a 50% relative reduction but only one fewer event per 10,000. Conversely, a moderate relative effect can have large absolute impact in a high-risk population.
 
-## Time-to-event and heterogeneity
+### Uncertainty, heterogeneity, and interpretation
 
-A hazard ratio compares instantaneous event rates among people who remain
-at risk; it is not a ratio of cumulative probabilities. With nonproportional
-hazards, one HR may obscure early benefit and later harm. Report survival
-probabilities at clinically relevant times, a difference in restricted
-mean survival time, or another estimand aligned with the question. In
-observational studies, association measures also depend on confounding
-control and selection; an adjusted effect is conditional on model choices
-and does not automatically represent a causal effect. Report both absolute
-and relative effects with intervals and make the reference group, event
-definition, follow-up duration, and adjustment set explicit.
+An effect estimate is not a property of the intervention independent of context. Baseline risk, adherence, co-interventions, follow-up, and outcome definition influence observed absolute effects. A single average may mask variation across clinically important groups; subgroup claims require interaction evidence and multiplicity awareness, not separate “significant / nonsignificant” labels.
 
-## Baseline risk, transportability, and adjusted effects
+Report direction explicitly, define the reference group, show units, interval, and analysis population. Do not infer importance from a standardized threshold or statistical significance. Compare the full interval with a prespecified minimal important difference and discuss both benefit and harm. For observational studies, an effect-size label such as “risk ratio” does not imply a causal effect: design and confounding control determine that interpretation.
 
-Relative effects do not determine absolute benefit without a baseline risk.
-If a treatment has RR=0.75, a control risk of 20% implies a treated risk of
-15%, an RD of −5 percentage points, and NNT 20 over the stated horizon.
-At a control risk of 2%, the same RR implies a treated risk of 1.5%, RD
-−0.5 points, and NNT 200. This is why trial results transported to a
-population with a different baseline risk can have a different absolute
-impact even if the relative effect is stable. Conversely, assuming a
-constant RR across populations is itself an assumption that may fail when
-effect modifiers or care pathways differ.
+## Effect measures encode different questions
 
-For a common outcome, an OR can be translated to a risk only when baseline
-risk is known: \(p_1=OR\,p_0/(1-p_0+OR\,p_0)\). For example, OR=0.60 at
-control risk 0.20 corresponds to treated risk
-\(0.12/(0.80+0.12)=0.130\), giving RR≈0.65—not RR=0.60. At low baseline
-risk, OR and RR converge. This conversion is a useful communication
-device, but the baseline risk must come from a relevant population and
-the OR's conditional or marginal interpretation must be clear.
+For binary outcomes, risk difference (RD), risk ratio (RR), and odds ratio (OR) are mathematically related but not interchangeable. RD is additive and directly describes excess events per population. RR is multiplicative and often easier to compare across baseline risks. OR compares odds and is the natural parameter of logistic regression, but it approximates RR only when outcomes are uncommon. In a randomized study with risks 0.10 and 0.15, RD=−0.05 and RR=.67, while OR=.63; if risks were 0.40 and 0.60, the same RR of .67 would correspond to OR=.44. The apparent magnitude depends on scale.
 
-Adjusted treatment effects require care in choosing the scale. A logistic
-model coefficient is a conditional OR holding covariates fixed. The
-marginal RD or RR can be more useful for policy because it averages
-predicted risks across a target population. Standardization estimates
-these risks by predicting each eligible subject under each treatment and
-averaging; the contrast of those averages is then reported with an interval
-that accounts for model estimation. In observational work, a causal
-interpretation also requires exchangeability, consistency, positivity, and
-adequate handling of missingness and selection. A sophisticated estimator
-does not make those assumptions automatically true.
+For a time-to-event outcome, a hazard ratio compares instantaneous event rates among participants still event-free at each time; it is not generally a risk ratio at a fixed time. If hazards are not proportional, one summary HR can hide changing effects. Consider reporting standardized survival probabilities, restricted mean survival time difference, or risk difference at a clinically justified horizon. Competing risks alter cumulative incidence and must be reflected in the measure.
 
-## Effect modification and subgroup presentation
+## Standardization and small-sample correction
 
-## Translating effects into expected event counts
+A standardized mean difference removes units by dividing the mean difference by a pooled SD. Cohen’s d is convenient for meta-analysis across instruments, but an SD depends on population heterogeneity, eligibility criteria, and measurement reliability. A change in d can reflect a changed denominator even if the raw treatment contrast is unchanged. Hedges’ g multiplies d by a small-sample correction, approximately J≈1−3/[4df−1], reducing upward bias in small samples. Neither converts a test statistic into a universal clinical scale.
 
-## Choosing a scale for clinical communication
+For correlation, r summarizes linear association on a bounded scale, while regression coefficients describe expected change on the outcome scale per unit predictor, conditional on modeled covariates. A nonlinear or nonmonotone relationship can have low Pearson correlation despite a strong pattern. Explain the scale and shape; “effect size” is not one statistic.
 
-The best effect scale often depends on who will use the result. Clinicians
-may need absolute risk differences to discuss expected benefit with a
-patient; epidemiologists may use relative measures to compare associations
-across populations; health-system planners may need events prevented per
-1,000 eligible people and a fixed budget impact. A complete report can
-present all these views without implying they are competing answers.
-State the denominator and time horizon beside every absolute estimate and
-name the comparator beside every ratio.
+### Intervals, baseline risk, and transportability
 
-For example, a 25% relative reduction may sound large, but if control risk
-is 4%, treated risk is 3%, an absolute reduction of one percentage point.
-If the control risk is 40%, the same RR implies treated risk 30%, an
-absolute reduction of ten points. Conversely, equal RDs can represent
-different proportional changes at different baselines. Absolute and
-relative scales are mathematically linked once baseline risk is given, but
-they emphasize distinct aspects relevant to choices and resource
-allocation.
+Uncertainty for an effect size should use a method compatible with its sampling distribution. For ratios, work on the log scale; for RD, account for the joint variance of the two proportions; for standardized effects, account for uncertainty in the pooled SD. Profile-likelihood, score, bootstrap, or Bayesian intervals may behave better than a simple Wald formula in small samples. If multiple groups or clusters are sampled, reflect that design.
 
-For continuous outcomes, translate standardized effects back to a familiar
-unit when a credible SD is available. If Hedges' g is 0.30 and the relevant
-SD is 10 points on a symptom scale, this corresponds roughly to a 3-point
-mean difference. The translation should use a representative SD and
-should not be mistaken for a guarantee that an individual improves by
-three points. For outcomes with a known minimally important difference,
-report the probability or proportion exceeding that threshold when the
-analysis supports it, alongside the average effect.
+Absolute benefit varies with baseline risk even if the relative effect is stable. For RR=.8, a baseline risk of 2% yields a treated risk of 1.6% and RD=−0.4 percentage points; baseline risk of 20% yields treated risk 16% and RD=−4 points. The implied NNTs are 250 and 25 over the same period. Transporting an effect to a new setting requires assessing baseline-risk distribution, eligibility, care, competing interventions, and whether the relative effect itself changes.
 
-Absolute effects can be made more concrete by applying a risk difference to
-a target population. If an intervention prevents 3 events per 100 people
-over one year and 10,000 eligible patients are treated, the expected
-reduction is about 300 events, assuming the trial effect transports to
-those patients and treatment uptake is complete. If only 70% adhere, the
-impact may be smaller, though a per-protocol adjustment needs causal
-assumptions rather than a simple multiplication. A benefit of 3 per 100
-should be accompanied by adverse-event effects on the same time horizon;
-net benefit depends on event severity and patient preferences.
+## Heterogeneity and subgroup interpretation
 
-For rare outcomes, risk ratios can look large while event counts remain
-small. Reducing risk from 2 per 10,000 to 1 per 10,000 halves relative
-risk, yet prevents only one event per 10,000 treated; an NNT of 10,000 may
-not justify substantial burden or cost. In contrast, a modest relative
-effect on a frequent, serious outcome can prevent many events. Present
-baseline and treated risks per a clear denominator (for example per 1,000
-people over five years), the difference, and uncertainty. This avoids
-relying on relative language such as “50% lower” without context.
+A pooled effect averages over participants and depends on how averaging is performed. Marginal and conditional effects can differ even without confounding: odds ratios are non-collapsible. Subgroup-specific effects should be interpreted using interaction contrasts, not the common error of declaring a difference because one subgroup’s p-value is below .05 and another’s is not. Prespecified subgroup effects with intervals and multiplicity awareness are preferable to an unplanned collection of point estimates.
 
-Competing risks further complicate absolute event measures. If death
-prevents a nonfatal outcome from occurring, a cause-specific hazard ratio
-does not directly equal the difference in cumulative incidence. Use a
-competing-risk estimand appropriate to the question and report cumulative
-incidence by time point. Likewise, censoring in a survival analysis can
-make simple event proportions misleading when follow-up differs. Effect
-size is inseparable from how the endpoint and follow-up are defined.
+## A reporting pattern
 
-When effects differ across patient groups, a single average can obscure
-clinically important variation. Report subgroup estimates with intervals
-and test or estimate the interaction directly; “significant in group A,
-nonsignificant in group B” does not establish that the groups differ. On
-the additive scale, interaction concerns differences in risk differences;
-on the multiplicative scale it concerns ratios of ratios. Effect
-modification is scale-dependent, so specify the scale that maps to the
-decision. Subgroup findings are often imprecise and multiple, and should
-be distinguished as prespecified confirmatory analyses or exploratory
-hypothesis generation.
+State the outcome frequency or distribution, contrast direction, estimand, measure, interval, follow-up horizon, and adjustment set. For instance: “At 12 months, admission occurred in 10% (20/200) under intervention and 15% (30/200) under usual care; marginal RD −5.0 percentage points (95% CI …), RR .67 (95% CI …).” Then discuss whether the absolute effect meets a patient-important threshold. NNT/NNH should be derived from absolute risks with the interval and horizon clear; when the RD interval crosses zero, the NNT interval is discontinuous and should not be reported as a deceptively simple finite range.
 
-For meta-analysis, between-study heterogeneity means that a pooled mean
-effect may not apply to every setting. A random-effects mean, prediction
-interval, and study-level context communicate different pieces of evidence.
-Standardised mean differences facilitate pooling but should be translated
-back to a familiar scale when possible. Keep the clinical endpoint and
-absolute event rates visible so readers do not mistake a standardized or
-relative summary for an individual patient's expected benefit.
+## Calculating uncertainty for absolute and relative effects
 
-## Precision for a risk difference and transformed measures
-
-For two independent event risks, a first-order standard error for the
-risk difference is
-\(\sqrt{p_1(1-p_1)/n_1+p_0(1-p_0)/n_0}\). With 25/500 versus 40/500,
-this is \(\sqrt{0.05(0.95)/500+0.08(0.92)/500}=0.0156\), or 1.56
-percentage points. A simple normal interval for benefit (control minus
-treatment, 3 points) is approximately 0.03 ± 1.96(0.0156), or −0.0005 to
-0.0605. The interval crosses zero; a score-based Newcombe
-interval is preferable to relying on this boundary-sensitive Wald
-calculation. The reciprocal range maps to a very broad NNT range (about
-17 to several thousand), illustrating how unstable NNT becomes when the
-absolute effect is near zero.
+For independent binomial groups, the approximate standard error of a risk difference pT−pC is √[pT(1−pT)/nT+pC(1−pC)/nC]. A Wald interval uses this SE, although score-based intervals can have better coverage, particularly near boundaries. For a risk ratio, work on log(RR): its approximate variance is (1/a−1/nT)+(1/c−1/nC), where a and c are event counts in the treatment and control groups, then exponentiate the interval. Zero cells require methods beyond a direct plug-in formula.
 
 ```r
-n1 <- n0 <- 500
-p1 <- 25 / n1  # treatment
-p0 <- 40 / n0  # control
-rd <- p0 - p1
-se_rd <- sqrt(p0 * (1 - p0) / n0 + p1 * (1 - p1) / n1)
-c(rd = rd, lower_wald = rd - 1.96 * se_rd,
-  upper_wald = rd + 1.96 * se_rd)
+a <- 20; nT <- 200
+c <- 30; nC <- 200
+pT <- a / nT; pC <- c / nC
+rd <- pT - pC
+se_rd <- sqrt(pT * (1-pT) / nT + pC * (1-pC) / nC)
+rd_ci <- rd + qnorm(c(.025, .975)) * se_rd
+rr <- pT / pC
+se_log_rr <- sqrt(1/a - 1/nT + 1/c - 1/nC)
+rr_ci <- exp(log(rr) + qnorm(c(.025, .975)) * se_log_rr)
+list(RD = rd, RD_CI = rd_ci, RR = rr, RR_CI = rr_ci)
 ```
 
-The code intentionally labels the interval Wald; do not treat its narrow
-positive lower bound as robust evidence that benefit is nonzero. Score
-intervals generally behave better for small risks. The point estimate NNT
-is 33.3, but its interval should be derived from a suitable RD interval and
-reported with the follow-up horizon.
+These are large-sample intervals, not universal defaults. With sparse counts, use score or exact methods and report limitations. A confidence interval for NNT is not obtained by simply taking reciprocals of two RD endpoints when the interval crosses zero; the effect may include benefit and harm, producing disjoint ranges. Present the RD interval directly and explain this uncertainty.
 
-## Relative effects are estimand-specific
+## Clinical importance and minimal important differences
 
-Risk ratios compare cumulative risks by a fixed time; incidence rate ratios
-compare events per person-time; odds ratios compare odds; and hazard ratios
-compare instantaneous event rates among those still event-free. They are
-not interchangeable. If follow-up varies, a risk ratio requires a common
-horizon and censoring handled appropriately. A rate ratio can exceed 1
-without representing a probability ratio. A hazard ratio under
-nonproportional hazards can average changing relative hazards in a way
-that is difficult to interpret clinically. Report survival or cumulative
-incidence at meaningful time points alongside the HR where appropriate.
+A minimal clinically important difference (MCID) is an interpretive benchmark, not a universal property of an instrument. Anchor-based approaches compare score changes with patient judgments or clinical events; distribution-based approaches relate change to measurement variability. MCIDs can vary by baseline severity, condition, treatment burden, and direction of change. If the estimated effect is smaller than an MCID but its interval includes larger benefit, the result is uncertain; if the entire interval lies below the threshold, a clinically important average benefit is less compatible with the data under the model.
 
-In case-control sampling, the sampling fractions fix numbers of cases and
-controls, so absolute disease risk and the risk ratio generally cannot be
-estimated from the sampled table alone; the odds ratio remains estimable
-under standard sampling schemes. In cohort data, logistic regression also
-estimates an OR, but when outcome risk is common that OR can be far from
-the risk ratio. Modified Poisson models with robust variance can estimate
-adjusted RRs for binary outcomes, while standardization from a logistic
-model can estimate marginal risks and contrasts. Choose a measure that
-matches study design and stakeholder decisions, not whichever gives the
-most dramatic number.
+Measurement reliability also affects standardized effects. Classical measurement error increases observed SD and can attenuate correlations and standardized mean differences. Conversely, a restricted-range population can inflate a standardized effect for the same raw contrast. Report raw units whenever possible and clarify the instrument version and scoring direction.
+
+### Effects from observational data
+
+In observational studies, a measure such as adjusted risk ratio remains an association unless assumptions for causal identification are justified. Confounding, selection, measurement error, and positivity violations can distort both point estimates and intervals. Narrow uncertainty around a biased association is not causal precision. If causal language is intended, state the target trial or estimand, adjustment strategy, and sensitivity analyses for unmeasured confounding. Absolute effects derived from adjusted models may depend strongly on the target population’s covariate distribution.
+
+### Meta-analysis and heterogeneity
+
+Standardized effects are commonly pooled when studies use different instruments, but the scale assumes constructs and population variabilities are sufficiently comparable. Random-effects meta-analysis distinguishes within-study uncertainty from between-study heterogeneity; a pooled average can conceal a wide distribution of effects. Report prediction intervals when enough studies support them, and interpret heterogeneity in relation to populations and methods rather than relying only on I². For binary outcomes, odds ratios are statistically convenient but may be difficult to interpret; translating to absolute risks requires an explicit baseline-risk assumption.
+
+### Patient-level interpretation of a mean contrast
+
+Suppose a symptom scale ranges from 0 to 100 and a randomized trial estimates a 4-point average improvement with a 95% CI from 1 to 7. If a patient-level MCID is 5 points, the interval includes effects below and above that threshold. The average effect does not imply that each patient improves by four points: responses vary, some may worsen, and the mean summarizes a distribution. Report the outcome distribution, responder proportions under a prespecified threshold, or quantiles if individual variation is clinically important. Responder analysis loses information and can be sensitive to the chosen cutoff, so it complements rather than replaces the continuous outcome.
+
+### Standardized effects in planning
+
+When sample size planning uses a standardized mean difference, d=δ/σ, the assumed SD is as important as δ. If scale reliability is lower or population heterogeneity larger than expected, the observed d shrinks and power falls. Pilot estimates of SD are noisy, especially in small pilots; conservative ranges and blinded sample-size re-estimation can reduce sensitivity to this uncertainty. Do not use the observed treatment effect from a small pilot as the sole planning target, as it is vulnerable to selection and exaggeration.
+
+### Treatment benefit and harm on a common scale
+
+Net clinical benefit can require comparing effects on outcomes with different scales, such as fewer hospitalizations against more adverse events. A single standardized effect is not enough; decision analysis needs weights or utility functions that reflect patient preferences and severity. Report each outcome’s absolute and relative effect with uncertainty, then make the value assumptions explicit. An NNT and NNH can be compared only with the same time horizon and comparable populations. Event severity and reversibility matter as much as numerical frequency.
+
+### Effect-size reproducibility
+
+Before extracting results for a review, record the exact contrast, scale, time, analysis population, and whether estimates are adjusted. A standardized effect calculated from change scores can differ from one calculated from endpoint scores because the SD denominator and correlation differ. Conversions between odds ratios, risk ratios, and standardized differences require assumptions; document them. Precision-weighted synthesis should not mix compatible-looking metrics that answer different causal or descriptive questions.
+
+### Risk reduction example with uncertainty
+
+Using the earlier counts, treated risk is 20/200=.10 and control risk is 30/200=.15. The risk difference is −.05, risk ratio .67, and approximate odds ratio .63. The NNT over one year is 1/.05=20. However, if a score interval for RD runs from −.11 to .01, the data are compatible with a benefit as large as 11 fewer events per 100 and a slight increase. Reciprocating those bounds does not produce one stable NNT interval: it spans possible harm and benefit. Report the risk-difference interval; discuss NNT only with proper transformation and sign convention.
+
+Absolute and relative measures should be shown together when readers face a treatment choice. Relative measures help compare intervention effects across settings, while absolute effects reflect baseline risk and determine likely event reduction. If transporting a trial result to a high-risk population, provide standardized absolute risks under explicit assumptions rather than multiplying a relative effect without checking effect modification.
+
+### Standardized response thresholds
+
+A responder analysis classifies participants as improved by at least an MCID. This can make results clinically legible, but discards information and can create a sharp boundary where the underlying scale changes continuously. Report the threshold source, responder risk difference, and the continuous outcome contrast. Sensitivity analyses using plausible thresholds can show whether the conclusion depends on an arbitrary cutoff. Avoid selecting the threshold that yields the most favorable response rate after seeing data.
+
+### Effect modification versus subgroup noise
+
+Treatment effects may differ across baseline risk or disease severity. On the absolute scale, even a constant relative effect yields larger benefit in higher-risk patients. This is a predictable mathematical consequence, not necessarily biological effect modification. Decide which scale matters for treatment policy, test interactions on that scale, and report uncertainty. Do not infer heterogeneity from different subgroup significance labels; test the contrast of subgroup effects.
+
+### Relative importance across populations
+
+A treatment’s absolute effect depends on baseline risk and time horizon. A risk ratio of .75 applied to 4% risk corresponds to 1% absolute reduction and NNT=100; the same ratio at 24% risk corresponds to 6% reduction and NNT≈17. These figures assume the relative effect transports and that risk definitions match. If follow-up differs, cumulative risks are not directly comparable. Display baseline and treated risks at the same horizon and explain how estimates were standardized.
+
+For continuous outcomes, a fixed mean difference may have different practical importance by age, baseline severity, or instrument version. Include baseline distributions and use validated thresholds cautiously. A population-level average can be useful for policy but does not substitute for individual response distributions when shared decision-making requires them.
+
+### Odds ratios and interpretive scale
+
+For a 2×2 table, odds are p/(1−p). An odds ratio compares those odds and is symmetric under exchanging outcome and exposure in a way the risk ratio is not. When outcome risk is low, OR approximates RR; as outcome becomes common, the gap widens. For example, if control risk is .30 and OR=.5, treatment risk is not .15. Solving pT/(1−pT)=.5×(.30/.70) gives pT≈.176, so RR≈.59. Use baseline risk to translate the OR into predicted absolute risk, and state that translation depends on the chosen baseline population.
+
+### Continuous and binary effects together
+
+For a continuous score, a mean difference of 4 points can be paired with a standardized mean difference for meta-analysis, but do not let the standardized number replace the original units. For binary responder outcomes, show risk differences to convey patients affected. Both summaries can coexist when they represent prespecified views of the endpoint; avoid selecting one based on significance. Sensitivity analyses on scales should be motivated by clinical meaning, not by result shopping.
+
+### A final interpretation framework
+
+For each effect estimate, ask four questions: what population and time does it describe; on what scale is it expressed; how precise is it; and what difference would matter to patients or decision-makers? A p-value cannot answer these alone. Absolute risk helps communicate impact, a relative effect supports comparisons, a mean contrast preserves clinical units, and a standardized measure may support synthesis. No measure is universally best.
+
+Show estimates with intervals and the underlying group distributions or event counts. State whether an effect is adjusted and for which covariates. For observational associations, distinguish predictive from causal interpretation. Explain heterogeneity and generalizability; a precise average can conceal treatment variation across sites or baseline risks. This makes the effect-size section of a report useful beyond a binary “positive/negative” conclusion.
+
+### Keep precision and importance distinct
+
+A confidence interval describes sampling uncertainty around the estimated effect under the analysis assumptions. A clinically important threshold is a value judgement or evidence-based benchmark. An estimate may be statistically precise yet too small to matter, or large but too uncertain to support action. Describe both: where the estimate lies relative to the threshold and whether the interval includes values on either side. Avoid classifying an effect as “small” solely by a generic standardized cutoff.
+
+When a measure is transformed or standardized, retain a bridge to the original units. Readers should be able to tell how many events, score points, or days correspond to the estimate in the population studied.
 
 ## References and further reading
 

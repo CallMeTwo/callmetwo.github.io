@@ -3,138 +3,179 @@ title: Health economic evaluation
 summary: Compare the costs and health consequences of alternative interventions, including cost-effectiveness, QALYs, incremental analysis, and uncertainty.
 ---
 
-## Overview and key ideas
+## Overview
 
-A **health economic evaluation** compares at least two alternatives in terms of both costs and consequences. It asks whether additional health gains justify additional resource use from a stated decision-maker's perspective. Common forms include cost-effectiveness analysis (outcomes in natural units), cost-utility analysis (often quality-adjusted life-years, QALYs), and cost-benefit analysis (both costs and benefits expressed in monetary units). A cost analysis that compares expenditures without measuring consequences is not a full comparative economic evaluation.
+Health-economic evaluation compares the costs and consequences of alternative health interventions. It asks whether the additional health gained from one option is worth its additional resource use from a specified decision maker’s perspective. Common forms include cost-effectiveness analysis using natural health units, cost-utility analysis using quality-adjusted life-years (QALYs), cost-benefit analysis using monetary values, and cost-minimization when outcomes are demonstrably equivalent.
 
-The perspective determines which costs and consequences count. A health-system perspective may include medical care paid by that system; a societal perspective may also include patient time, informal care, and productivity effects. The **time horizon** must be long enough to capture important differences in costs and outcomes. A model may combine trial data with external evidence to extrapolate beyond observed follow-up, but extrapolation adds uncertainty.
+Economic evidence complements clinical efficacy. A treatment can improve outcomes and still be poor value at its price; a modestly effective program may be worthwhile if inexpensive and scalable. Results depend on perspective, population, time horizon, outcome measurement, comparator, and willingness-to-pay threshold. These choices should be set before examining results.
 
-For two strategies, incremental cost-effectiveness ratio (ICER) is:
+## Frame the decision and perspective
 
-`ICER = (Cost_new − Cost_comparator) / (Effect_new − Effect_comparator)`.
+Specify the decision context: population, intervention, comparator, setting, and decision maker. The comparator should represent current practice or the next-best feasible alternative, not an irrelevant placebo if patients would otherwise receive active care. State whether the perspective is health system, payer, provider, patient, or societal. Perspective determines which costs count. A health-system analysis might include medication and hospitalization costs; a societal analysis may also include patient travel and productivity loss.
 
-For cost-utility analysis, the effect is often QALYs: a year in a health state is weighted by its health-related quality-of-life utility (usually anchored at 0 for death and 1 for full health, though some states may be valued below 0). Decision-makers compare incremental cost and effect with an opportunity-cost threshold or use net benefit, `λ × effect − cost`, where `λ` is the value placed on a unit of health gain.
+Set a time horizon long enough to capture important costs and consequences. A short trial may miss future complications or benefits. Extrapolation beyond observed follow-up requires a model, assumptions about survival and treatment effects, and validation. Use a decision tree for short, discrete pathways and state-transition or individual-level simulation for recurrent events and long-term trajectories. Match complexity to the question and data.
 
-## When to use it
+Define the health outcome. Cost-effectiveness analysis may use life-years gained, events prevented, or symptom improvement. Cost-utility analysis uses QALYs, combining survival and health-related quality of life. QALYs depend on preference weights and duration; report how utilities were measured and whose preferences they represent. Cost-benefit analysis values health outcomes in money, which raises additional valuation and equity questions.
 
-Use comparative economic evaluation when decision-makers must allocate limited resources among interventions, services, or technologies. Trial-based analyses can use observed resource use and outcomes; decision models are useful when evidence comes from multiple sources, outcomes extend beyond trial follow-up, or uncertainty and long-term consequences matter. Budget-impact analysis is related but asks whether a payer can afford adoption over a budget period; it does not replace cost-effectiveness analysis.
+## Measure costs and health outcomes
 
-## Assumptions and limitations
+Resource use can include medications, visits, tests, admissions, staff time, patient expenses, and productivity. Identify quantities and unit costs separately. Micro-costing records detailed inputs; gross-costing applies average costs to service counts. Use current, setting-appropriate prices and state currency and price year. Distinguish charges from opportunity costs; billed charges do not necessarily represent resources consumed.
 
-- **Perspective and costing:** State whose costs count, the price year, currency, setting, resource quantities, and unit costs. A narrow perspective can omit costs shifted to patients, caregivers, or other services.
-- **Comparator and population:** Compare with current relevant practice and define the population, setting, and intervention strategies. Results can change with the comparator and baseline risk.
-- **Time horizon:** A short horizon can miss delayed benefits or downstream costs; a long horizon requires transparent extrapolation and validation.
-- **QALYs and utilities:** Utility weights depend on instruments, respondents, valuation methods, and context. A QALY is a summary measure and may not capture every distributional or equity concern.
-- **Discounting:** Future costs and health effects are generally discounted to present value under jurisdiction-specific guidance. Report the rates and explore alternatives when required; rates and reference-case rules vary by decision-maker and can change over time.
-- **Incremental analysis:** Order strategies by cost, remove dominated and extendedly dominated options where appropriate, and compare incremental rather than average ratios. An ICER can be difficult to interpret when incremental effects are near zero or when an option is both more effective and less costly.
-- **Uncertainty:** Parameter uncertainty, structural uncertainty, and heterogeneity can materially affect conclusions. Use deterministic and probabilistic sensitivity analyses, scenario analyses, and value-of-information methods when useful.
-- **Transferability and equity:** Costs, clinical practice, utilities, and thresholds differ across settings. A cost-effective average result does not establish affordability, equitable access, or equal benefit across groups.
-- **Reporting versus quality:** CHEERS 2022 is a reporting checklist. Complete reporting improves transparency but does not by itself establish that the model, data, or conclusions are methodologically sound.
+Costs are often skewed, with many low values and a few very high-cost patients. Mean cost is usually the relevant per-person total for budget impact, but its uncertainty may require bootstrap or generalized models. Do not compare medians alone when the decision concerns total expenditure. Explain handling of zero costs, censoring, recurrent costs, and missing follow-up.
 
-## Worked example
+For QALYs, utility weights typically range from death at 0 to full health at 1, though some states may be valued below zero. Utility is integrated over time. If a patient spends half a year at utility .8 and half a year at .6, undiscounted QALYs are .5(.8)+.5(.6)=.7. State whether utilities came from patient reports, general-population preferences, mapping, or literature.
 
-Over a common 10-year horizon, a new intervention costs $24,000 per patient and yields 5.4 QALYs; usual care costs $18,000 and yields 5.0 QALYs. Incremental cost is `$24,000 − $18,000 = $6,000`; incremental effect is `5.4 − 5.0 = 0.4 QALYs`. The ICER is `$6,000 / 0.4 = $15,000 per QALY gained`.
+## Incremental comparison and worked example
 
-At an illustrative willingness-to-pay value of $20,000 per QALY, incremental net monetary benefit is `($20,000 × 0.4) − $6,000 = $2,000`. This suggests the new strategy is cost-effective under that threshold and these inputs. It does not mean it saves money: it costs more and gains health. If costs and QALYs are discounted over the 10-year horizon, the example's numbers should already represent present values; the chosen rates must follow the target jurisdiction's guidance. Uncertainty in effectiveness, utilities, costs, and extrapolation should be reflected in sensitivity analyses rather than hidden behind one ICER.
+Economic evaluation compares differences, not isolated totals. Let ΔC be mean cost in intervention minus comparator and ΔE the corresponding health effect. The incremental cost-effectiveness ratio is ICER=ΔC/ΔE. Suppose a new program costs $6,000 more per patient and yields 0.4 additional QALYs. ICER=$6,000/.4=$15,000 per QALY. At a willingness-to-pay threshold λ=$20,000/QALY, incremental net monetary benefit is INMB=λΔE−ΔC=$20,000(.4)−$6,000=$2,000. Positive INMB favors the new program under that threshold.
 
-## Interpretation and common pitfalls
+The ratio can be difficult to interpret when ΔE is near zero or negative. Plot incremental costs and effects on the cost-effectiveness plane and report INMB across thresholds. Strategies that cost more and produce fewer QALYs are dominated; extended dominance can occur when a combination of alternatives provides better value. Do not interpret a single ICER without uncertainty and comparators.
 
-- Do not call an intervention “cost-effective” without stating the comparator, perspective, horizon, outcome metric, threshold, and uncertainty.
-- Do not compare ICERs from studies with different perspectives, populations, horizons, price years, or modeling assumptions as though they were directly interchangeable.
-- Do not confuse cost-effectiveness with affordability. A good value per QALY may still have a large budget impact.
-- Avoid reporting only an ICER when strategies are dominated, incremental effects are near zero, or costs and effects have complex uncertainty; show incremental costs and effects and a cost-effectiveness plane or acceptability curve where appropriate.
-- Show model structure, data sources, validation, assumptions, and sensitivity analysis. Probabilistic sensitivity analysis propagates parameter uncertainty but does not resolve structural uncertainty or biased evidence.
-- Treat CHEERS as guidance for what to report, not a certification of analytic quality.
+~~~r
+delta_cost <- 6000
+delta_qaly <- 0.4
+icer <- delta_cost / delta_qaly
+lambda <- 20000
+inmb <- lambda * delta_qaly - delta_cost
+c(ICER = icer, INMB = inmb)
+~~~
 
-## Decision problem, perspective, and analytic structure
+These values are illustrative. In an empirical study, estimate mean incremental costs and effects for the target population, account for missingness and censoring, and preserve paired patient-level differences. Report the price year and perspective. A positive INMB is not a universal statement of affordability or equity.
 
-An economic evaluation is a structured comparison of alternative courses of action for a defined decision-maker and population. Specify the decision problem before extracting costs: target population, setting, intervention and comparator, perspective, time horizon, outcome measure, and decision rule. The perspective determines whose costs and outcomes count. A payer perspective may include reimbursed medical services; a healthcare-sector perspective can include health services regardless of payer; a societal perspective can add patient time, informal care, transport, and productivity where appropriate. A transfer may be a cost to one party and a saving to another, so perspective changes the ledger and sometimes the conclusion.
+## Uncertainty and decision thresholds
 
-Choose the horizon to capture meaningful differences in survival, quality of life, recurrence, adverse effects, and downstream resource use. Trial follow-up can support direct estimates during observed time, but long-term extrapolation requires a model. State structure should reflect clinically distinct states and transitions; a cohort Markov model uses transition probabilities between states, while microsimulation follows individuals with attributes and history. Partition survival models may be suitable when individual-level trial data exist, but extrapolated state occupancy should remain clinically plausible. Model complexity is not evidence quality: a simple model with transparent inputs may be preferable to an opaque microsimulation.
+Sampling uncertainty in costs and outcomes can be represented using nonparametric bootstrap of patients, preserving treatment groups and any cluster assignment. Each replicate yields ΔC, ΔE, ICER, and INMB. The cost-effectiveness plane displays joint uncertainty; a cost-effectiveness acceptability curve shows the probability of positive INMB over λ values. It is a probability conditional on data and analysis assumptions, not the probability the intervention is objectively cost-effective.
 
-For cohort state-transition models, a row vector of state occupancy `s_t` evolves as `s_(t+1) = s_t P`, where `P` is a transition matrix whose rows sum to one. If `c` is the vector of state costs and `u` the state utility vector, expected costs and QALYs over cycles can be accumulated as `Σ d_C(t) s_t c` and `Σ d_E(t) s_t u Δt`, with appropriate discount factors `d_C,d_E`. Apply half-cycle corrections when events can occur throughout a cycle and the discrete cycle approximation would otherwise systematically overcount time in states. Validate that transition probabilities, state occupancy, costs, and outcomes behave plausibly under extreme scenarios.
+Parameter uncertainty in a decision model is distinct from sampling uncertainty. Probabilistic sensitivity analysis assigns distributions to uncertain parameters and simulates outcomes. Structural uncertainty concerns model form, extrapolation, and omitted pathways; examine alternative assumptions and scenarios. One-way sensitivity analysis can identify influential inputs but does not summarize joint uncertainty.
 
-## Costs, outcomes, and incremental decisions
+A willingness-to-pay threshold reflects opportunity costs and decision context. It may not be a single accepted number. Report INMB over a plausible range and distinguish cost-effectiveness from budget impact: an intervention can be good value per QALY but unaffordable at scale. Budget impact estimates total expenditure over a budget period given uptake and eligible population.
 
-Measure resource quantities and unit costs separately where possible. Record currency and price year; adjust older prices with relevant health-sector or inflation indices and convert currencies transparently when comparing countries. Include implementation, training, infrastructure, monitoring, adverse events, and downstream care if they differ between strategies and belong to the chosen perspective. Avoid double-counting bundled costs or counting transfer payments as resource use without a rationale.
+## Trial-based and model-based evaluation
 
-QALYs combine duration and health-related quality weights: a patient spending half a year at utility 0.8 accrues approximately `0.5×0.8=0.4` QALYs, under the conventional area-under-the-curve approach. Utility instruments and valuation sets matter. Utility may vary over time, and baseline utility should be included when estimating within-person change. QALYs support comparison across conditions but can obscure distributional priorities, severity, caregiver effects, or non-health benefits. Present disaggregated outcomes when relevant and consider distributional cost-effectiveness analysis if equity is central.
+Trial-based analyses use observed resource use and outcomes alongside a clinical study. Randomization supports a causal comparison within the trial population, but missing follow-up, short horizon, protocol-driven care, and trial participation can limit inference. Use intention-to-treat consistent with the estimand, account for censoring, and explain extrapolation beyond trial duration.
 
-Order strategies by cost and remove simple dominance (a strategy costs more and yields fewer health gains) and extended dominance (a strategy has a higher ICER than a more effective alternative). Compute incremental ratios between adjacent nondominated options, not separate average ratios versus a convenient baseline. ICERs can be negative in two quadrants: a cheaper, more effective intervention is dominant, whereas a more costly, less effective option is dominated. When incremental effects approach zero, the ratio becomes unstable and misleading. Net monetary benefit is often easier for uncertainty analysis: `NMB(λ)=λE−C`; incremental NMB is positive when the intervention is preferred at willingness-to-pay value `λ`.
+Model-based evaluations synthesize evidence from trials, registries, and literature to represent longer-term pathways. Specify states, transitions, cycle length, treatment effects, utilities, costs, and validation. Avoid double-counting events or applying relative effects to incompatible baseline risks. Calibration to observed data and external validation strengthen confidence but do not prove the model is correct.
 
-### Worked calculation with dominance
+## Equity, distribution, and affordability
 
-Suppose three strategies have costs and QALYs: A ($10,000; 4.0), B ($14,000; 4.3), C ($20,000; 4.5). B versus A costs $4,000 for 0.3 QALY, ICER $13,333/QALY. C versus B costs $6,000 for 0.2 QALY, ICER $30,000/QALY. At `λ=$20,000/QALY`, incremental NMB is $2,000 for B versus A; C versus B is `20,000×0.2−6,000=−$2,000`. B is preferred among these options under the threshold. If C instead yielded 4.6 QALYs for $21,000, C's incremental ICER versus B would be $70,000/QALY; if its ratio exceeded that of a still more effective option, extended dominance could remove an intermediate strategy. Always show the cost-effect and health differences and the alternatives retained.
+Standard cost-effectiveness analysis often aggregates health gains and costs, potentially hiding who benefits and who bears costs. Distributional cost-effectiveness analysis can examine health impacts by subgroup and trade-offs between total health and equity. Report subgroup assumptions and uncertainty. Consider whether access barriers mean projected benefits will reach the intended population.
 
-## Discounting and uncertainty
+Affordability depends on eligible population, uptake, implementation capacity, and budget constraints. A low ICER can coexist with a large total budget impact. Conversely, a high-cost intervention may be targeted to a small group. Decision makers need both value and financial impact, plus operational feasibility.
 
-Discount future costs and health outcomes to reflect time preference and the opportunity cost of resources, using rates and reference-case rules of the relevant jurisdiction. Rates can differ across jurisdictions and guidance changes, so do not hard-code a generic value as universal. Test alternative rates and timing assumptions. The discount convention matters for cycle models: apply factors using cycle midpoints or another prespecified convention consistently.
+## Reporting and reproducibility
 
-Distinguish parameter uncertainty (imprecise transition probabilities, costs, utilities), structural uncertainty (model form, omitted states, treatment waning), heterogeneity (real effect variation across patients), and methodological uncertainty (perspective, discount rate, outcome valuation). Deterministic one-way and scenario analyses reveal drivers but do not quantify joint probability. Probabilistic sensitivity analysis samples uncertain parameters jointly from defensible distributions and recalculates incremental outcomes. Preserve correlation: for example, costs and event rates may share a source or be correlated. Avoid independently sampling probabilities that must sum to one; use a multinomial or suitable transformed parameterization.
+Report perspective, population, comparator, time horizon, discounting, outcome measure, cost components, unit prices, price year, missing-data methods, analytic model, and uncertainty. Provide incremental costs and effects, dominance assessment, ICER and INMB, threshold range, and sensitivity analyses. Identify data sources, assumptions, and validation. Use CHEERS 2022 to support transparent reporting.
 
-A cost-effectiveness plane plots incremental cost against incremental QALYs, showing uncertainty and the four decision quadrants. A cost-effectiveness acceptability curve gives the proportion of probabilistic iterations with positive incremental NMB across `λ`; it is not the probability the intervention is “cost-effective” in an absolute sense unless uncertainty distributions and decision context are appropriately interpreted. Expected value of perfect information estimates the expected value of eliminating parameter uncertainty; expected value of sample information can inform whether further research is worth its cost. These quantities depend on population size, time horizon, and decision lifetime, not just individual-level uncertainty.
+### Discounting and time horizon
 
-## R calculations and model checks
+Costs and health consequences that occur in the future are often discounted to reflect time preference and opportunity cost. If annual discount rate r applies to a cost or outcome at year t, present value is value_t/(1+r)^t. A $1,000 cost in five years discounted at 3% has present value about $1,000/(1.03)^5=$863. Apply rates according to relevant national or payer guidance and test alternatives. Costs and health effects may have different prescribed rates in some jurisdictions.
 
-For a simple two-arm analysis from trial data:
+The horizon should capture meaningful differences between strategies. A vaccination program may have up-front costs and benefits years later; a 12-month horizon would omit most value. Lifetime horizons require assumptions about survival, recurrence, waning effects, and future costs. Extrapolation uncertainty can dominate sampling error. Show results for alternative horizons and treatment-effect duration assumptions.
 
-```r
-incremental <- function(cost_new, qaly_new, cost_control, qaly_control,
-                        lambda = 20000) {
-  dC <- cost_new - cost_control
-  dE <- qaly_new - qaly_control
-  c(delta_cost = dC, delta_qaly = dE,
-    ICER = if (dE == 0) NA_real_ else dC / dE,
-    incremental_NMB = lambda * dE - dC)
-}
-incremental(24000, 5.4, 18000, 5.0)
-```
+A Markov model cycles through health states such as stable disease, complication, and death. Transition probabilities and state utilities can generate costs and QALYs over time. Half-cycle correction, competing risks, and tunnel states may matter. Individual-level simulation may represent history-dependent risks more naturally but is harder to validate. Explain why the chosen structure represents the disease pathway.
 
-This returns $6,000 incremental cost, 0.4 QALY, $15,000/QALY, and $2,000 incremental NMB at $20,000/QALY. For paired patient-level data, bootstrap the joint cost and effect outcomes by patient (or cluster, if randomized by cluster); do not bootstrap costs and QALYs independently because their covariance affects uncertainty. For a model, use probabilistic simulation and report convergence/stability checks. Compare model predictions with external data, validate face validity with clinicians, and test extreme parameter values. Calibration against the same evidence used to construct the model is not independent validation.
+### Estimating patient-level cost and outcome differences
 
-## Reporting and decision interpretation
+In a randomized study, calculate total costs and outcomes per person over the follow-up horizon, then estimate group means and incremental differences. Preserve pairing of cost and effect within each patient for bootstrap analysis. Costs are often right-skewed, but arithmetic mean differences remain relevant to a payer deciding total expenditures. Generalized linear models can adjust for baseline variables, but report the estimand and marginal adjusted means rather than only a regression coefficient on a transformed scale.
 
-Present the reference case first, then transparent scenario analyses. Explain why inputs were chosen, their uncertainty distributions, source populations, and transformations. Report incremental costs and effects, NMB or ICER, uncertainty, subgroup results where prespecified, and budget impact separately. Cost-effectiveness is not affordability: a highly cost-effective intervention can be unaffordable at scale, while budget impact does not indicate value for money. Neither economic measure answers distributional fairness by itself.
+Censoring can make observed costs incomplete when follow-up differs. Methods include inverse-probability weighting, multiple imputation, or model-based extrapolation under assumptions. Complete-case comparisons can select patients with longer or more successful follow-up. Describe costs accrued before censoring and use sensitivity analyses for unobserved future costs. For terminal care costs, mortality can create complex dependence between cost and survival; model them jointly or justify the chosen approach.
 
-A result is transferable only when epidemiology, treatment pathways, prices, utilities, capacity, and opportunity costs are sufficiently similar or adapted. Local adaptation should not consist only of changing currency. State the decision threshold's source and uncertainty; thresholds approximate opportunity cost and are not universal biological constants. Explain whose opportunity costs and health gains are represented. Reporting checklists such as CHEERS improve completeness but do not certify methods. Publish model code and input documentation where possible, while protecting participant privacy and proprietary data. The library's [clinical trial article](../study-design/randomized-controlled-trials.html) discusses trial endpoints and [effect sizes article](../inference/effect-sizes.html) covers interpretation of meaningful health gains.
+Missing utility measurements also affect QALYs. Linear interpolation between observed utility points assumes a path between visits; it can miss acute changes. Mapping from a disease-specific score introduces prediction error. Multiple imputation should preserve treatment, survival, utility trajectory, and predictors of missingness. Test alternative assumptions when drop-out relates to health state.
 
+## The cost-effectiveness plane and ratios
 
-## Handling patient-level economic data
+Plot each bootstrap replicate’s incremental cost and effect. The northeast quadrant means more costly and more effective; southeast is less costly and more effective (dominant); northwest is more costly and less effective (dominated); southwest is less costly and less effective, requiring a value judgment. The ICER ratio becomes unstable near zero incremental effect and can occupy multiple quadrants. This is why net benefit is often easier for statistical inference.
 
-Costs are often right-skewed, with many moderate observations and a few very expensive admissions. The arithmetic mean is still the relevant average resource use for a budget decision, even when the distribution is skewed. A log transformation changes the estimand and can produce bias when retransformed; bootstrap confidence intervals, generalized linear models with suitable distributions/link functions, or two-part models can be considered. QALYs may be bounded or concentrated near zero, but methods should target mean differences that decision makers need. For randomized economic evaluations, adjust for baseline utility and stratification variables when prespecified to improve precision.
+For each willingness-to-pay value λ, INMB=λΔE−ΔC. The intervention is favored if INMB is positive. A cost-effectiveness acceptability curve plots the proportion of bootstrap or probabilistic simulations with positive INMB. This probability summarizes uncertainty conditional on inputs and model. It is not a posterior probability unless generated under an explicitly Bayesian analysis.
 
-Missing cost and utility data may be related to health status and healthcare use. Complete-case analysis can be biased and inefficient. Multiple imputation should include treatment, outcome, baseline predictors, resource-use variables, and auxiliary predictors of missingness, with distributions and bounds appropriate to each variable. Impute cost and effect jointly or preserve their dependence. Sensitivity analyses under departures from missing at random can explore how conclusions change if missing patients have systematically different costs or utilities.
+An incremental net monetary benefit calculation from the example is $2,000 at λ=$20,000/QALY. If the standard error of ΔE and ΔC is substantial, many joint draws may yield negative INMB. Report a confidence interval or acceptability curve, and show how it changes across λ. State the distribution and correlation assumptions for model parameters.
 
-Cluster trials and repeated observations require the analysis to respect design. Ignoring within-person repeated utility measures can underestimate uncertainty; ignoring cluster assignment can overstate precision. Patient-level bootstrap resampling should occur at the randomized unit when appropriate. If costs and QALYs are compared at group level, preserve the covariance between them because incremental net benefit is `λΔE−ΔC` and its variance depends on `Cov(ΔE,ΔC)`.
+## Probabilistic sensitivity analysis
 
-## Model transparency and validation
+In a decision model, assign probability distributions to uncertain inputs: beta for probabilities or utilities bounded 0–1, gamma or lognormal for positive costs, and suitable distributions for relative effects. Draw parameter sets jointly, run the model, and calculate incremental costs, QALYs, and INMB. Correlations should be retained where evidence supports them. Arbitrary independent sampling can create implausible parameter combinations.
 
-Document the conceptual model before coding: health states, events, treatment pathways, cycle length, competing risks, and assumptions about treatment waning. Use a diagram and explain why relevant events are included or omitted. Parameter sources should be linked to the target population; relative treatment effects may need to be combined with local baseline risks. Extrapolation can dominate lifetime results, so show alternative survival distributions, hazard shapes, treatment waning, and mortality assumptions. External validation may compare predicted survival, state occupancy, costs, or QALYs with independent cohorts or registries.
+One-way analysis varies one input at a time and can show which assumptions drive results, but does not represent joint uncertainty. Scenario analysis can test structural choices such as treatment waning, alternative mortality extrapolation, or inclusion of caregiver costs. Value-of-information analysis estimates whether additional evidence might be worth collecting, but requires careful decision-model specification.
 
-Internal verification checks that code implements the conceptual specification: extreme-case tests, conservation of cohort size, probability sums, event accounting, and independent replication of key calculations. Face validation asks clinical experts whether structure and outputs are plausible, but expert agreement cannot establish empirical accuracy. Document software, code version, random seeds for probabilistic analyses, and any manual corrections. Where code cannot be released, provide enough equations and inputs for a reviewer to reproduce the model.
+~~~r
+set.seed(21)
+B <- 5000
+delta_cost <- rgamma(B, shape = 25, rate = 25 / 6000)
+delta_qaly <- rnorm(B, mean = 0.4, sd = 0.08)
+lambda <- 20000
+inmb <- lambda * delta_qaly - delta_cost
+mean(inmb > 0)
+quantile(inmb, c(.025, .5, .975))
+~~~
 
-Value-of-information analyses can identify whether uncertainty could change the decision. Expected value of perfect information is the expected gain from eliminating all parameter uncertainty; expected value of partial perfect information focuses on selected parameters. Expected value of sample information models a proposed future study and its ability to reduce decision uncertainty, accounting for study cost and delay. These analyses can help prioritize research, but are only as credible as the underlying decision model and evidence distributions.
+This simulation is illustrative and assumes independent cost and effect uncertainty, which may be unrealistic. In a trial-based analysis, bootstrap paired patient data instead. The fraction with positive INMB depends on the assumed sampling or parameter distribution and should not be described without its conditioning assumptions.
 
+### Cost-effectiveness versus affordability
 
-## Distributional and affordability questions
+Cost-effectiveness compares incremental costs with incremental health outcomes; budget impact asks whether a payer can fund the program over a near-term budget horizon. Estimate eligible population, uptake, implementation costs, substitution from existing services, and price changes. A favorable ICER does not imply that implementation is affordable, especially for a large population.
 
-An average incremental cost-effectiveness result can conceal who gains and who bears costs. Distributional cost-effectiveness analysis estimates health gains and opportunity costs across socioeconomic or clinical groups and makes equity weights explicit. Equity weights are value judgments and should be visible, not embedded silently in a model. Report subgroup effects only when evidence supports them, and distinguish heterogeneity in treatment response from differences caused by access or baseline risk.
+Implementation costs include training, infrastructure, monitoring, and patient support. Savings may accrue to a different budget holder or later period than the initial investment. Report annual spending and cash-flow timing. Consider scale-up constraints and whether capacity can deliver the intervention with trial-level effectiveness.
 
-Budget impact analysis complements cost-effectiveness by estimating the cash-flow consequences of adoption over a payer's short-term budget horizon. It uses eligible population size, uptake, displacement, implementation costs, and timing. A cost-effective intervention can create an unaffordable near-term budget impact; a budget-neutral intervention may still deliver poor health value. Present these as separate questions to decision makers.
+Thresholds vary across decision makers and opportunity costs. A threshold based on historical practice may not reflect marginal health displaced elsewhere. Present a range and avoid false precision. Decision makers also consider severity, unmet need, distributional effects, and uncertainty beyond one numerical ratio.
 
-Productivity costs are contentious because valuation methods can favor working-age groups and omit unpaid labor. The chosen perspective and valuation method should follow the decision context and applicable guidance. If productivity is excluded from a health-system reference case, a supplementary societal scenario can show its influence without conflating perspectives. Similarly, caregiver outcomes and patient time may matter even when excluded from a narrow payer perspective.
+### Perspective and distributional choices
 
+From a patient perspective, travel time, out-of-pocket payments, and informal care can matter. A payer perspective may exclude productivity loss; a societal perspective may include it. The selected perspective is normative and changes the result. Present alternative perspectives when stakeholders have legitimate different interests.
 
-## Interpreting thresholds and uncertainty for decision makers
+Distributional analyses examine which subgroups receive costs and benefits. An intervention can improve total QALYs while widening gaps if uptake is lower among disadvantaged groups. Report subgroup outcomes and access assumptions, and consider equity weights only when their ethical basis is explicit. Avoid claiming a single aggregate ICER resolves distributional concerns.
 
-A willingness-to-pay value `λ` is often treated as a fixed threshold for reporting, but decision makers may face an uncertain opportunity-cost threshold. Show results over a range and explain the source of any reference value. Positive incremental NMB at a selected λ indicates preference under that value and modeled uncertainty; it does not mean the intervention is universally efficient. If evidence uncertainty is large, report the probability of positive incremental NMB and expected value of additional research alongside a clear statement of structural limitations.
+### Practical data quality in economic studies
 
-For multiple comparators, pairwise comparisons against usual care can be misleading because the preferred option may depend on the set of available alternatives. Present the efficient frontier and remove dominated strategies before interpreting ICERs. If a new option changes the treatment pathway or makes a previously irrelevant alternative feasible, include the complete decision set. Where the decision is sequential—for example, test first, treat after a positive result—model the full sequence rather than attributing all costs and QALYs to the initial technology alone.
+Resource-use instruments should match the setting and recall period. Patient recall of hospitalizations can be incomplete; administrative claims can omit services outside coverage. Linkage requires consent, stable identifiers, and assessment of unmatched records. Unit costs should reflect resource opportunity cost and be updated to a stated price year using appropriate indices.
 
+Cost categories should avoid double counting. If a bundled payment already includes laboratory tests, do not add them again. Productivity estimates depend on method and employment assumptions. Utilities measured with EQ-5D or another preference instrument should identify version, tariff, and respondent. Sensitivity analyses should examine alternative cost sources and utility values.
+
+## Reporting the economic result
+
+Show mean costs and outcomes by arm, incremental differences with uncertainty, price year, perspective, horizon, discount rates, and missingness. Report the cost-effectiveness plane, INMB across thresholds, and sensitivity analysis. If only one comparator is assessed, explain why alternatives were omitted. Provide model structure and inputs in supplementary materials where possible.
+
+Use CHEERS 2022 to report objectives, setting, comparators, population, outcomes, and assumptions. Distinguish a trial-based analysis from a model extrapolation. Explain whether uncertainty is sampling, parameter, structural, or methodological. State what evidence would most change the decision and whether impact or budget evaluation remains necessary.
+
+### Bootstrap uncertainty from trial data
+
+A patient-level bootstrap preserves the pairing of costs and outcomes and can estimate uncertainty in incremental net benefit. Resample within randomized groups when allocation was individual; for cluster randomization, resample clusters. If cost and QALY data have different missingness, imputation or weighting must be repeated within each replicate. Do not bootstrap rows independently when repeated observations belong to the same patient.
+
+~~~r
+set.seed(31)
+B <- 2000
+boot_inmb <- replicate(B, {
+  id <- sample(seq_len(nrow(dat)), replace = TRUE)
+  d <- dat[id, ]
+  dc <- mean(d$cost[d$arm == "new"]) - mean(d$cost[d$arm == "usual"])
+  de <- mean(d$qaly[d$arm == "new"]) - mean(d$qaly[d$arm == "usual"])
+  20000 * de - dc
+})
+quantile(boot_inmb, c(.025, .5, .975))
+~~~
+
+This code assumes complete patient-level data and independent randomization. Clustered or missing data require design-specific resampling and analyses. It estimates uncertainty in INMB at one threshold, not a complete decision model or budget impact.
+
+## Model credibility and validation
+
+A transparent model should be internally checked for arithmetic, state occupancy, and face validity, then compared with external survival, utilization, or cost data. Validate intermediate outcomes as well as total QALYs and costs. If the model reproduces observed trial data only because parameters were tuned to it, that fit is not independent validation. Document calibration targets, deviations, and data limitations.
+
+Structural sensitivity analyses should vary assumptions about treatment duration, recurrence, mortality, utility after events, and future care. Show which choices reverse the decision. A model can be mathematically correct yet inappropriate if it excludes relevant comparators, patient costs, or implementation constraints.
+
+Report both deterministic checks and probabilistic results, and preserve input sources and code so an analyst can reproduce a result. Cost-effectiveness models are decision aids; their conclusions should be revisited when prices, clinical evidence, service capacity, or societal preferences change.
+
+If uncertainty includes structural model choices, present scenario results alongside the probabilistic analysis rather than burying them in a single wide interval. Identify which assumptions are supported by direct evidence and which rely on expert judgment.
+
+State how cost and health outcomes were valued and whether the analysis included patient preferences, implementation constraints, and distributional effects.
+
+Report uncertainties in units and currency as well as relative changes.
+
+Revisit findings when prices, clinical evidence, or service capacity change.
+
+## Price and currency transparency
+
+State currency and price year whenever costs are compared. If converting currencies or inflating prices, document exchange rates and indices; otherwise apparent cost differences may reflect accounting conventions rather than resource use.
 
 ## References and further reading
 
-- Husereau D, Drummond M, Augustovski F, et al. [CHEERS 2022 statement: updated reporting guidance for health economic evaluations](https://doi.org/10.1136/bmj-2021-067975). *BMJ*. 2022;376:e067975.
-- National Institute for Health and Care Excellence. [NICE health technology evaluations: the manual, economic evaluation](https://www.nice.org.uk/process/pmg36/chapter/economic-evaluation-2/). Follow the version and reference-case rules relevant to the decision context.
-- Sanders GD, Neumann PJ, Basu A, et al. [Recommendations for conduct, methodological practices, and reporting of cost-effectiveness analyses: Second Panel on Cost-Effectiveness in Health and Medicine](https://doi.org/10.1001/jama.2016.12195). *JAMA*. 2016;316(10):1093–1103.
-- The library's [effect sizes article](../inference/effect-sizes.html) discusses meaningful effect scales; [meta-analysis and forest plots](meta-analysis-and-forest-plots.html) covers synthesis of evidence that may inform model inputs.
+- Husereau D, Drummond M, Augustovski F, et al. CHEERS 2022 statement. *BMJ*. 2022;376:e067975. [doi:10.1136/bmj-2021-067975](https://doi.org/10.1136/bmj-2021-067975).
+- Drummond MF, Sculpher MJ, Claxton K, Stoddart GL, Torrance GW. *Methods for the Economic Evaluation of Health Care Programmes*. 4th ed. Oxford University Press; 2015.
+- See [Decision-curve analysis](decision-curve-analysis.html) for threshold-based predictive utility.

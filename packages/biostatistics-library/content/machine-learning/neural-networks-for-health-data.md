@@ -3,158 +3,153 @@ title: Neural networks for health data
 summary: The shared concepts behind neural networks and deep learning, with guidance on when added model flexibility is justified.
 ---
 
-## Overview and key ideas
+## Overview
 
-A neural network composes simple mathematical units into layers. Each unit combines inputs using learned weights and a bias, applies a nonlinear activation, and passes a representation onward. Training adjusts weights to reduce a specified loss, commonly by gradient-based optimization and backpropagation. Multiple learned layers can represent complex patterns; “deep learning” generally refers to networks with multiple representation layers.
+Neural networks are flexible functions built by composing layers of weighted sums and nonlinear activation functions. During training, an optimization algorithm adjusts parameters to reduce a loss function. Networks can learn representations from tabular data, images, waveforms, text, and longitudinal records, but architecture alone does not solve problems of target definition, data quality, validation, or clinical utility.
 
-Architecture should match data structure. A **multilayer perceptron (MLP)** handles fixed-size feature vectors; **convolutional neural networks (CNNs)** exploit local spatial structure such as images; **recurrent neural networks (RNNs)** process sequences; **Transformers** use attention to relate sequence elements. These are modeling choices, not guarantees of better performance. See the specific articles on [MLPs](multilayer-perceptrons.html), [CNNs](convolutional-neural-networks.html), [RNNs](recurrent-neural-networks.html), and [Transformers](transformers-for-health-data.html).
+A neural network’s output is conditional on its training data, preprocessing, architecture, and optimization. It can predict outcomes without estimating intervention effects. A feature that contributes to a high predicted risk is not necessarily a cause, and a visually plausible explanation does not establish biological mechanism. Neural models require the same clarity about population, prediction time, outcome, horizon, and action as any other prediction method.
 
-## When to use it
+## From input to prediction
 
-Neural networks are plausible when data are large or structured and the task benefits from learned representations, such as image segmentation, waveform classification, or text extraction. For modest tabular cohorts, regularized regression and tree ensembles are strong comparisons and may be easier to validate. A network should be chosen because it addresses a data or task need, not because it is labeled AI.
+A basic dense network maps an input vector through layers. In layer l, the hidden representation is h_l = g(W_l h_(l−1)+b_l), where W_l and b_l are weights and biases, and g is a nonlinear activation such as ReLU. The final layer maps the representation to an output: a linear value for regression, a logit for a binary event, or multiple logits for categories. Without nonlinear activation, several stacked affine layers collapse to one linear transformation.
 
-## Assumptions and limitations
+Training minimizes a loss over examples, often with regularization. For binary classification, cross-entropy penalizes disagreement between predicted probabilities and outcomes. Gradient-based optimization updates parameters using minibatches; learning rate, batch size, initialization, optimizer, and stopping rule affect the fitted solution. Different random seeds can yield different networks, so repeatability and uncertainty should be assessed.
 
-- Training requires enough informative examples relative to model flexibility. Parameter count alone does not determine sample needs; outcome prevalence, label noise, patient clustering, and distribution shift matter.
-- Optimization can be sensitive to initialization, architecture, regularization, and random seed. Repeated experiments and tuning consume information; preserve an untouched evaluation set.
-- Inputs require representation choices, normalization, and missing-data handling. Learn all data-dependent preprocessing on training partitions only.
-- Networks can be poorly calibrated and can perform unevenly across subgroups. Evaluate both, and examine data quality and label construction.
-- Saliency maps or attention weights are not automatically faithful explanations or causal evidence. Model behavior and clinical mechanism are different questions.
-- Deployment adds risks from software changes, data pipelines, and workflow. A retrospective metric alone cannot demonstrate patient benefit.
+Representation learning can be valuable when raw data contain structure. Convolutional networks exploit local patterns in images, recurrent networks process sequences with state, and transformers use attention to represent relationships among tokens or time steps. These architectures encode assumptions about spatial or temporal structure. They are not interchangeable, and their complexity should match the data and use.
 
-## Worked example
+### A small forward-pass calculation
 
-A hospital wants to classify 12-lead ECG windows as atrial fibrillation or no atrial fibrillation. The unit of partition must be the patient, not the ECG window, so repeated ECGs do not occur in both training and test sets. If 1,000 independent test patients include 100 with atrial fibrillation and the model identifies 80 of them, sensitivity is 80/100 = 80%. If it also flags 180 of 900 patients without atrial fibrillation, specificity is 720/900 = 80%, and positive predictive value is 80/(80+180) ≈ 30.8%. This illustrates prevalence effects: at a lower prevalence, most positive alerts may be false positives despite 80% sensitivity and specificity. External testing at another hospital and calibration checks are needed before use.
+Consider a one-hidden-layer network with two inputs x1 and x2, a single hidden unit with weights 0.5 and −0.25, bias 0, and ReLU activation. For x=(2,4), the hidden value is ReLU(0.5×2−0.25×4)=ReLU(0)=0. A final logit with hidden weight 1 and bias −1 is −1, corresponding to probability expit(−1)≈0.269. This arithmetic illustrates the mapping, not how the weights should be chosen or whether the probability is calibrated.
 
-## Interpretation and common pitfalls
+~~~r
+logit <- -1
+risk <- plogis(logit)
+risk
+~~~
 
-- Define a simple benchmark and compare fairly using the same patient-level splits and preprocessing.
-- Report the full data pipeline, architecture, tuning, software, and uncertainty; follow [TRIPOD+AI](https://doi.org/10.1136/bmj-2023-078378) for clinical prediction reporting.
-- Evaluate external transport, calibration, subgroup performance, and operational consequences, not only a random internal test split.
-- Beware of shortcuts such as image markers, hospital-specific acquisition signatures, or labels generated from downstream decisions.
-- A neural network that predicts outcome accurately does not estimate the effect of changing treatment. Use causal designs and assumptions for causal questions.
+For a real model, inspect input units, normalization, missing-data handling, and output layer. If inputs are standardized, transformations must be stored and applied exactly at validation and deployment. A model artifact without preprocessing can yield different predictions from those evaluated.
 
+### Capacity, sample size, and regularization
 
-## Mathematical foundation and design choices
+A network with many weights can fit complex patterns but also memorize noise. Capacity depends on architecture, parameter count, regularization, data augmentation, and optimization; parameter count alone does not determine overfitting. Dropout, weight decay, early stopping, and data augmentation are common tools, but each changes the training procedure and must be evaluated inside validation.
 
-A feed-forward network composes transformations h_l=phi_l(W_l h_(l-1)+b_l), with h_0=x. The final layer maps the learned representation to a prediction; sigmoid yields a binary probability and softmax yields a multiclass probability vector. A loss (for example, cross-entropy) measures fit, and a penalty can constrain weights. Backpropagation applies the chain rule to compute gradients. Optimization finds parameters that reduce empirical loss, not necessarily a unique or causal representation. Non-convex optimization makes initialization and seed relevant, although modern training often yields similar predictive behavior across some solutions.
+The effective sample size is the number of independent units and outcome events, not the number of rows, image patches, or hourly windows. Millions of pixels from a few hundred patients do not provide millions of independent examples. Keep all records from a patient in one partition. For high-dimensional modalities, external site and temporal validation are essential because device and workflow differences can dominate signals.
 
-Architecture encodes assumptions: convolutions favor local patterns and weight sharing; recurrence summarizes an ordered stream; attention permits content-dependent interactions among positions; dense layers treat input dimensions as a vector. These inductive biases can improve sample efficiency when aligned with the data and mislead when structure is wrong. Transfer learning supplies parameters learned elsewhere, but population, label, and acquisition mismatch can defeat transfer. Fine-tuning and model selection still require leakage-safe validation.
+Learning curves can show whether validation performance improves with more independent patients or has plateaued. If a model has few events, reduce architecture complexity, limit candidate experiments, and compare with regularized regression or established baselines. Pretraining can help learn representations but does not remove the need for target-specific validation or calibration.
 
-```r
-# Binary loss for logits z and binary outcome y, shown mathematically in R:
-log1pexp <- function(z) pmax(z, 0) + log1p(exp(-abs(z)))
-bce <- function(y, z) mean(log1pexp(z) - y * z)
-# A network should be compared against a prespecified simpler benchmark.
-```
+## Worked binary risk model
 
-Cross-entropy is a proper scoring rule in expectation: it rewards honest probabilities when evaluated on the target distribution. Optimization on a finite, selected cohort does not guarantee calibration in new data. Track loss by epoch, use regularization and early stopping based only on development folds, and evaluate calibration externally. For imaging, report patient-level partitions and acquisition conditions; for sequences, define time windows and censoring; for text, state note availability and prevent copied notes from crossing partitions. Explain the full pipeline, including preprocessing and pretrained weights, rather than only the layer diagram.
+Suppose a cohort of 2,000 patients has 160 events by 90 days. A dense network predicts probabilities using baseline laboratory and demographic features. The development procedure uses patient-level partitions, fits imputation and scaling within each training fold, and tunes regularization and hidden-layer width in inner folds. A later hospital cohort is reserved for external evaluation.
 
+If 40 patients in that external cohort have predicted risks above 0.20 and 14 experience the event, PPV is 14/40=35%. Sensitivity still requires the total event count. The network’s AUC describes ranking; calibration determines whether a score of 0.20 corresponds to about 20% event frequency. A decision threshold must be justified by the action’s harms and benefits, not selected only to maximize a metric.
 
-## Development workflow: from question to a defensible model
+~~~r
+library(nnet)
+fit <- nnet(event ~ age + baseline_score + lab_a + lab_b,
+            data = train, size = 5, decay = 0.01,
+            maxit = 500, trace = FALSE)
+p <- predict(fit, newdata = test, type = "raw")
+~~~
 
-A model is meaningful only after the prediction problem has been made precise. State the eligible population, prediction index time, outcome definition, prediction horizon, and intended action. For example, “predict deterioration” is incomplete: a usable specification says which patients, what counts as deterioration, when prediction occurs, and how far ahead it should signal. Predictors must be available at that index time. Variables entered later may encode the outcome or the clinical response to it. This is temporal leakage even if the data table contains no obvious duplicate column.
+This simple R interface is illustrative and may not scale to large or high-dimensional data. It assumes a correctly coded binary outcome and complete predictors. Use a pipeline that prevents preprocessing leakage, groups patients appropriately, and evaluates calibration with independent data. Neural network software differs in architecture, optimization, and defaults, so report package and version.
 
-Choose the independent unit to match deployment. If the system will predict for new patients, every record from a patient belongs to one partition. If it will predict future cases at an existing hospital, a chronological split is often more informative than a random split. If use at a new hospital is intended, retain site-level external validation. Confidence intervals and effective sample size should reflect clustering by patient or site; thousands of rows do not imply thousands of independent people.
+## Validation, calibration, and clinical utility
 
-Keep every data-adaptive step inside resampling: imputation, scaling, feature filtering, encoding, dimension reduction, class rebalancing, and hyperparameter selection. A typical nested workflow uses inner folds to choose settings and outer folds to estimate the performance of that entire selection process. A separate temporal or external test cohort, if available, should be used once after choices are frozen. Repeatedly checking its results turns it into development data. Report the number of patients and outcomes in each split, not only the row count.
+A random row split is often inadequate. Use patient-grouped folds for new-patient prediction, temporal splits for future deployment, and site-held-out evaluation for transport. Tune architecture and preprocessing within development folds. If early stopping uses a validation set, reserve a separate final test set. Repeatedly comparing architectures on the same test data converts it into training information.
 
-Use metrics tied to the intended decision. Discrimination measures ranking; for a binary outcome, ROC AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case. It does not assess absolute risk. Calibration compares predicted and observed risks, using calibration-in-the-large, slope, and plots with uncertainty. At a chosen operating point, show sensitivity, specificity, positive predictive value, negative predictive value, and the proportion flagged. Precision-recall summaries can be informative when events are uncommon. For time-to-event outcomes, account for censoring rather than labeling patients event-free before adequate follow-up. Decision-curve analysis or a prospective impact study is needed to connect predictions to clinical net benefit.
+Report discrimination, calibration, threshold-specific consequences, and uncertainty. Calibration curves, intercept and slope, Brier score, and log loss complement AUC. For rare outcomes, include precision-recall summaries and event counts. Confidence intervals should resample patients or sites, and paired comparisons should use the same cases. A neural network with superior AUC but poor calibration may be unsafe at probability thresholds.
 
-A compact R pattern for a binary outcome illustrates the separation between fitting, discrimination, and calibration. It presumes `dat` has one row per patient, a 0/1 `event`, and predictors fixed before the prediction time. The split is only illustrative; repeated patients, sites, or calendar time require grouped or temporal partitions. The final test set must not be used to tune the model.
+Decision-curve analysis can compare net benefit over plausible thresholds, but assumes an action whose relative benefits and harms are represented by the threshold. Prospective impact evaluation tests whether the complete model-supported workflow improves outcomes. Retrospective validation cannot establish adoption, clinician response, or patient benefit.
 
-```r
-set.seed(41)
-i <- sample(seq_len(nrow(dat)), floor(.8 * nrow(dat)))
-train <- dat[i, ]; test <- dat[-i, ]
-fit <- glm(event ~ age + prior_admissions + severity,
-           data = train, family = binomial())
-p <- predict(fit, newdata = test, type = "response")
-# Calibration-in-the-large: intercept ideally 0 when slope fixed at 1
-cal0 <- glm(test$event ~ 1, offset = qlogis(p), family = binomial())
-# Calibration slope: ideally 1; assess uncertainty, not only point estimate
-cals <- glm(test$event ~ qlogis(p), family = binomial())
-coef(cal0); coef(cals)
-```
+## Interpreting model behavior
 
-The code does not replace internal validation or uncertainty intervals. A small event count can make both performance and calibration estimates unstable. Bootstrap at the patient level or repeat appropriately grouped resampling, and report intervals. When transporting a model, compare outcome prevalence, predictor distributions, measurement practice, and label ascertainment; recalibration of the intercept can address a prevalence shift under restrictive conditions, but cannot repair changed predictor effects or systematic measurement errors.
+Weights are distributed across layers and rarely provide a direct clinical explanation. Saliency maps, feature attribution, counterfactuals, and attention visualizations describe aspects of model behavior under method-specific assumptions. They can be unstable, insensitive to model parameters, or misleading when features are correlated. An explanation is not causal evidence.
 
-For a clinical prediction report, document the cohort flow, missingness, feature timing, model specification, tuning procedure, split unit, and evaluation population. TRIPOD+AI provides a reporting framework. PROBAST+AI can help assess risk of bias and applicability. Neither checklist certifies clinical usefulness. A retrospective prediction model still requires prospective evaluation of workflow, alert burden, clinician response, and patient outcomes before claims of benefit.
+Use explanation methods to identify possible leakage, spurious image borders, site markers, or unexpected input dependence. Validate findings through targeted data checks and external tests. For images, inspect whether predictions rely on acquisition artifacts; for text, ensure copied templates and post-outcome notes are absent; for time series, check that future measurements do not enter the input window. Explanations should be accompanied by uncertainty and a description of method limits.
 
+## Shift, fairness, and safety
 
-## Training, uncertainty, and translation across modalities
+Performance can change when patient mix, prevalence, devices, assays, language, or care pathways shift. Neural networks can be highly confident outside training support. Monitor input distributions, missingness, calibration, and subgroup errors. Define when the model abstains, when human review is required, and how unsupported inputs are handled.
 
-The empirical objective is a sample average, such as L(theta)=-(1/n)sum_i[y_i log(p_i)+(1-y_i)log(1-p_i)]+lambda*||theta||^2. Mini-batch gradients are noisy estimates of the full gradient. Learning rate, batch size, optimizer, initialization, normalization, and weight decay interact; a training-loss decrease alone is insufficient because flexible networks can memorize labels. Early stopping, dropout, augmentation, and weight penalties are regularization choices that must be selected without using final-test outcomes. A fixed number of epochs chosen after looking at test loss is test-set tuning.
+Assess performance across relevant groups with sample sizes and uncertainty. Apparent disparities may reflect differential measurement or label quality, not only architecture. Removing sensitive fields does not remove proxies. Engage affected communities and clinical users in choosing error metrics, actions, and acceptable trade-offs. Consider downstream effects such as alert burden, resource allocation, and denial of care.
 
-For repeated clinical records, uncertainty should be assessed at the patient rather than row level. Bootstrap or repeated grouped cross-validation can reveal instability from sampling and model fitting, though it cannot cover shifts absent from the data. Ensembles across seeds may improve stability but increase compute and do not remove shared bias. For transferred models, freeze versus fine-tune is a substantive choice: full fine-tuning can adapt strongly but overfit small cohorts; freezing early layers reduces parameters but may preserve incompatible acquisition features. Compare these strategies on nested development data.
+Before deployment, freeze model and preprocessing versions, test production parity, establish audit logs, and specify update governance. A new training run is a new model requiring validation. Define triggers for recalibration, evaluation, suspension, or rollback. Human oversight should provide a route to challenge a prediction and investigate a harmful recommendation.
 
-A complete model card should specify intended users and population, exclusions, inputs, timing, target, known failure modes, performance by setting and subgroup, calibration, uncertainty, and monitoring. If the system produces a score, determine who sees it and what action follows. Retrospective utility can be misleading if clinicians respond to scores during data collection or if treatment changes the outcome used as the label. Prospective evaluation may need a silent phase followed by an impact design. Resource-use, false-alert consequences, and unequal access are part of validity, not post-deployment decoration.
+## Reporting and reproducibility
 
+Describe population, index time, outcome and horizon, modality, preprocessing, architecture, parameter choices, optimizer, loss, regularization, stopping rule, tuning, and validation. Report patient and event counts, not only the number of images, visits, or windows. Provide calibration and threshold consequences, subgroup analyses, uncertainty, external validation, and all key comparisons.
 
-## Reproducibility, governance, and model lifecycle
+Document software versions, random seeds, data provenance, and code. For pretrained models, identify training source, model checkpoint, fine-tuning or prompting procedure, and any licensing limits. Use TRIPOD+AI and PROBAST+AI to support complete reporting and risk-of-bias assessment. Separate technical performance from evidence that using the system improves health.
 
-A neural network artifact includes learned weights, input order, units, encoders, normalization constants, missingness handling, software libraries, hardware behavior, and thresholds. Saving weights alone is not sufficient. Create deterministic preprocessing tests and retain a versioned reference set for reproducibility. Numerical differences across libraries or accelerators may be small but can move patients near decision thresholds; assess this explicitly if the action is discontinuous.
+### Data construction across modalities
 
-External validation should test the complete pipeline in populations that differ meaningfully in site, time, equipment, language, or care pathway. Report uncertainty and the number of events by subgroup; a subgroup with ten events cannot support a precise claim of equal performance. Do not use a non-significant interaction test as proof of fairness. Investigate differences in calibration, sensitivity, false-positive burden, and access to follow-up actions. If a model is updated, evaluate the new version prospectively and preserve the ability to roll back.
+For tabular data, categorical encoding, scaling, missing-value handling, and interaction structure need explicit choices. One-hot encoding can create wide sparse vectors; embeddings can learn category representations but require enough examples and may encode site-specific patterns. Missingness indicators can capture test-ordering behavior. Compare neural approaches with simpler models that handle nonlinearities, such as splines and boosted trees, under identical partitions.
 
-Retrospective AUC does not show that a neural-network intervention improves outcomes. A silent prospective phase estimates real-time data quality and workload without influencing care. A subsequent randomized, stepped-wedge, or carefully controlled implementation evaluation can estimate impact, depending on feasibility and contamination. Measure unintended effects such as alert fatigue, delayed care, or disparities in access. Governance should assign responsibility for drift monitoring, incident review, and retirement; these operational details are part of the model’s validity in use.
+For images, the analysis unit is usually the patient or study, not the individual crop or image. Multiple views and scans should remain grouped in validation. Check image orientation, resolution, acquisition device, and preprocessing. A network may learn rulers, text overlays, or institutional marks that correlate with diagnosis. External testing across devices and hospitals is important, and image-level performance should not be mistaken for patient-level performance.
 
+For longitudinal records, define the prediction window and feature availability at each index time. Padding, truncation, irregular intervals, and missing observations alter what the network can learn. A sequence model may infer care intensity from measurement frequency; that pattern can shift when protocols change. Compare against landmark regression or time-series baselines and test prospective timestamps.
 
-## Sample size, shift, and claims of benefit
+For clinical text, preserve whether notes were available before prediction and remove post-outcome or discharge content. De-identification can leave rare phrases that identify people. Language models can reproduce memorized text or produce unsupported answers. Evaluate task-specific errors, hallucination, privacy, and human review rather than relying on generic language benchmarks.
 
-Neural networks can be data hungry, but raw sample count is not enough: repeated images, tiles, ECG segments, or visits from one person are correlated. Effective information depends on independent patients, event count, label quality, diversity of sites and devices, and representation of important subgroups. Randomly splitting image tiles can create thousands of nominal examples while testing on near-duplicates. Split at the patient or higher unit matching the intended transport claim.
+### Uncertainty and ensemble behavior
 
-A model can perform well under internal validation and fail under temporal, geographic, or technical shift. Use external validation that reflects deployment and identify whether the shift involves prevalence, acquisition, predictor distributions, or outcome definitions. Recalibration may correct a changed baseline event rate but cannot fix new image artifacts, shifted coding, or altered predictor effects. Monitor failures and maintain a route to human review or fallback. Prospective impact evaluation is required to claim that model-assisted care improves outcomes; good retrospective discrimination is not sufficient.
+Neural predictions can vary with random initialization, training sample, and optimization. Repeated seeds or bootstrap refits can show variability, but seed-to-seed spread alone is not a calibrated uncertainty interval. Ensembles may improve accuracy and sometimes reduce variance, at the cost of computation and more complex monitoring. Bayesian approximations and dropout-based uncertainty methods also rely on assumptions and may be miscalibrated under shift.
 
-Communicate the exact intended use: decision support, prioritization, automation, or research triage. Define the action and harm of an incorrect output. A network used to prioritize specialist review should be assessed for queue effects and delayed care among people not prioritized. A segmentation tool should be assessed for editing time and clinically important omissions. These outcomes may require workflow experiments rather than more retrospective model metrics.
+For decisions, uncertainty should include both outcome uncertainty and uncertainty in model development. A narrow confidence interval around AUC may coexist with large uncertainty for subgroup calibration or a high-risk threshold. Report event counts, interval methods, and the resampling unit. In small samples, avoid fine-grained subgroup claims and plan additional validation.
 
+An abstention policy can flag inputs unlike training data, low-quality images, missing critical variables, or high disagreement among ensemble members. Define what happens next: human specialist review, conventional scoring, or no automated output. Measure how often abstention occurs and for whom; otherwise a safety mechanism can systematically exclude underrepresented patients.
 
-## Model selection and communicating evidence
+## The role of pretraining and transfer
 
-The choice among MLP, CNN, RNN, and Transformer should follow the form of the data and the independent sample available. A CNN encodes local spatial structure; an RNN encodes sequential updating; a Transformer uses attention over positions; an MLP assumes a fixed vector input. None is universally best. In multimodal work, simple late fusion (fit modality-specific representations and combine them) may be easier to validate than a single large network. Missing modalities need explicit handling because availability can be associated with severity or access.
+Pretraining uses a model learned from another task or dataset as initialization or representation. It may reduce the number of target examples needed, particularly for images and language, but source-target mismatch matters. Differences in population, device, label, language, or data pipeline can limit benefit. Report pretraining corpus, objective, selection, licensing, and whether sensitive data were used.
 
-A fair comparison fixes the target, patient split, and evaluation metrics, then gives each approach an appropriate but documented tuning budget. Compare against standard clinical predictors and established scores where relevant. Report paired differences with uncertainty, not only which model has the largest point estimate. If the best model changes substantially across folds or seeds, state that selection instability. Complexity has costs in compute, maintenance, latency, and auditability; a small gain may not justify these costs.
+Fine-tuning can overfit a small target cohort. Freeze some layers, use low learning rates, regularize, and compare with training from scratch when feasible. Evaluate all transfer choices within resampling. A model selected because it performs best on an external cohort has used that cohort for selection; obtain another independent assessment.
 
-For a risk model, separate discrimination, calibration, threshold performance, and clinical utility. Calibration-in-the-large assesses mean risk bias; the calibration slope assesses whether predictions are too extreme or too moderate. AUC can remain unchanged after recalibration even as absolute probabilities become much more useful. Decision curves evaluate net benefit across threshold probabilities, but depend on whether the threshold represents a plausible clinical trade-off. Prospective evaluation is required to establish impact.
+For foundation models and generative systems, prompting choices and model versions are part of the method. Output can vary across prompts or updates. Use a prespecified test set of representative cases, including safety-critical and rare scenarios. Evaluate completeness, factuality, subgroup performance, privacy, and workflow fit with domain experts. A language model’s fluent explanation is not evidence that its prediction is correct.
 
-Communication should avoid anthropomorphic claims that a network “understands” a scan or chart. It estimates patterns under a training distribution and objective. Explain what evidence supports the claimed use, what populations were tested, and what failure modes remain. Provide a clear fallback when inputs are missing, corrupted, or outside the validated range.
+## Sample size and experimental discipline
 
+There is no fixed number of observations that makes a neural network safe. Information depends on independent patients, event counts, feature dimensionality, label noise, and intended generalization. Repeated windows or augmented images do not create new independent patients. A model with millions of parameters can be fit with fewer cases under strong pretraining or regularization, but uncertainty and transport still need evidence.
 
-## Reporting a reproducible model and meaningful comparison
+Limit architecture and hyperparameter experiments based on available data. Use learning curves to assess whether added independent patients improve validation. Register primary metrics and splits where possible; report all major model families explored. Reusing a small holdout to choose architecture, preprocessing, threshold, and calibration leads to optimistic performance. Nested validation or a truly locked external dataset is preferable.
 
-To reproduce a neural model, report input construction, tensor shapes, units, normalization, missingness masks, architecture, loss, optimizer, learning-rate schedule, batch size, epoch selection, regularization, augmentation, hardware, software versions, and random seeds. For pretrained systems, give source model and weights, pretraining domain where known, fine-tuning data, and layer-freezing strategy. A diagram of layers without preprocessing is not a reproducible method. Preserve the inference code and a small set of permitted test examples for regression testing.
+Data augmentation can encode plausible invariances, such as image rotation within a clinically valid range. It can also create unrealistic inputs or remove meaningful orientation. Justify augmentations clinically and apply them only to training data. For tabular data, synthetic oversampling may create implausible combinations and does not replace representative validation.
 
-Model comparisons should use paired predictions on identical held-out patients. Compare absolute performance and uncertainty, such as the bootstrap distribution of difference in AUC or Brier score. If outcomes are rare, confidence intervals may be broad even in large datasets. Report subgroup denominators and do not treat a non-significant subgroup difference as proof of parity. Calibration and threshold-specific error burden may differ even when subgroup AUC is similar.
+## Model behavior under distribution shift
 
-Communicate results in terms of intended clinical decisions: how many people are flagged, what follow-up occurs, how many true cases are identified, and what adverse consequences may follow. If the model changes care, outcomes under deployment will differ from historical labels. Monitoring therefore needs both statistical performance and workflow measures, and impact claims require a prospective comparison. Maintain governance for retraining, approval, and version retirement.
+Covariate shift changes the predictor distribution, while concept shift changes the predictor-outcome relationship; label shift changes outcome prevalence. These categories are useful diagnostics but can co-occur. Monitoring only input histograms can miss changed clinical relationships. Link deployed predictions to outcomes when governance permits and monitor calibration over time.
 
+A model trained during one treatment era may predict outcomes poorly after a new therapy changes baseline risk or disease progression. Recalibrating the intercept may help only if ranking remains stable and outcome definition is consistent. If sensor firmware changes, images are acquired differently, or clinical practices alter missingness, inspect feature meaning and recalibrate or retrain only after appropriate evaluation.
 
-## A minimum evidence statement
+Data drift alerts can be noisy. Define thresholds with domain knowledge and ensure an owner investigates them. Monitor the fraction of cases outside training support, rate of missing predictors, delayed data, and subgroup composition. A safe system should have a tested rollback and a documented route to pause automated recommendations.
 
-A useful conclusion separates four claims: the model learned a signal in development data; it predicts in an independent population; its risks or outputs are calibrated for the intended use; and using it improves decisions or health. Each needs different evidence. Report which claims are supported and where. Do not infer clinical readiness from a single random split, explanation plot, or benchmark score. State the limits of population, modality, outcome definition, and workflow, and identify what prospective evidence is still required.
+## Prospective evaluation and clinical impact
 
+A retrospective test estimates performance under recorded historical data. It does not establish that clinicians can act on predictions in time or that actions improve health. Silent prospective evaluation checks workflow, data latency, and calibration without influencing care. An impact study compares model-supported care with usual practice and measures outcomes, adverse consequences, workload, and equity.
 
-## Maintenance after release
+The model’s interface matters: showing a single score, a risk trajectory, uncertainty, or contributing observations can change clinician response. Evaluate usability and automation bias. Users need to know intended scope, contraindications, and when to seek review. A human-in-the-loop design is not automatically safe; measure how often people override the model and whether overrides improve or worsen outcomes.
 
-Record expected input ranges, software dependencies, acceptable latency, and the contact responsible for reviewing drift. Monitor outcome labels when they mature and distinguish data-quality incidents from genuine performance change. Retraining creates a new model version and requires renewed evaluation; silent updates undermine reproducibility and may change care unevenly across groups.
+### Reporting modality-specific evidence
 
+For each modality, report how inputs were constructed and which unit defined the split. Image studies should report patient-level separation, scanners, preprocessing, and image quality exclusions. Sequence studies should report time windows, sampling frequency, padding, and censoring. Text studies should report note timing, de-identification, prompting or fine-tuning, and output review. Tabular studies should state coding, missingness, and scaling.
 
-State clearly whether a reported result comes from internal resampling, temporal validation, independent external validation, prospective feasibility, or an impact evaluation. Readers should not have to infer the evidence stage from the methods section.
+Provide external validation on populations and acquisition settings that reflect intended use. Report subgroup calibration and error with uncertainty. Describe the model version, weights or checkpoint, dependencies, and preprocessing so results can be reproduced. State whether a model is a research prototype, silent tool, decision support, or autonomous system. These are different evidence claims.
 
+## Interpreting benefit and harm
 
-Avoid claims beyond the modality, population, and workflow actually represented in evaluation.
+A model may shift workload rather than improve outcome. For a deterioration alert, relevant outcomes include time to review, unnecessary testing, missed escalation, staff burden, and patient harm. For image triage, quantify delayed cases and false urgent flags. For text-generation support, measure factual errors, omissions, privacy exposures, and downstream decisions. Choose outcomes with clinicians and patients before implementation.
 
+A decision curve can summarize expected net benefit under threshold assumptions, but does not replace impact evaluation. Costs and harms may differ by subgroup, institution, and available care. A model that increases average efficiency while worsening access for a small group may be unacceptable. Governance should provide routes to appeal, investigate, and correct errors.
 
-A comparison should report the baseline result and paired difference, not just the neural network’s standalone score. This helps establish whether its added complexity produced meaningful predictive or clinical value.
+## Updating and retiring models
 
+Every model update changes the evidence object. Changes to weights, preprocessing, prompts, software library, threshold, or input source may change behavior. Version the complete pipeline and evaluate changes before deployment. Maintain a rollback option and document who authorizes release.
 
-Where there is no reproducible gain, favor the simpler validated alternative.
-
-
-Maintain a complete record of the inference pipeline.
+Retire or restrict a model if calibration collapses, data feeds become unreliable, a safer alternative emerges, or the supported action is no longer available. Continued use is not justified by historical validation alone. Monitor implementation outcomes and reassess whether the original decision problem remains relevant.
 
 ## References and further reading
 
-- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI: an updated quality, risk of bias, and applicability assessment tool for prediction models using regression or artificial intelligence methods. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505)
-- LeCun Y, Bengio Y, Hinton G. Deep learning. *Nature*. 2015;521:436–444. [doi:10.1038/nature14539](https://doi.org/10.1038/nature14539)
-- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
+- Goodfellow I, Bengio Y, Courville A. *Deep Learning*. MIT Press; 2016.
+- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378).
+- Moons KGM, Damen JAA, Kaul T, et al. PROBAST+AI. *BMJ*. 2025;388:e082505. [doi:10.1136/bmj-2024-082505](https://doi.org/10.1136/bmj-2024-082505).
+- See [Multilayer perceptrons](multilayer-perceptrons.html) for dense networks and [Convolutional neural networks](convolutional-neural-networks.html) for image models.
