@@ -110,7 +110,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Hypothesis testing <span class="sep">/</span> <strong style="color:#273e3b">Multiple testing</strong></div>
         <h1 class="article-title">Multiple testing</h1>
         <p class="article-summary">Testing many hypotheses inflates the chance of false positives; Bonferroni and Holm corrections control the familywise error rate at a prespecified level.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#step-down-adjustment-and-false-discovery-rate">Step-down adjustment and false discovery rate</a></li><li class="h2"><a href="#defining-the-hypothesis-family">Defining the hypothesis family</a></li><li class="h2"><a href="#interpretation-selection-and-uncertainty">Interpretation, selection, and uncertainty</a></li><li class="h2"><a href="#dependence-and-structured-hypotheses">Dependence and structured hypotheses</a></li><li class="h2"><a href="#analysis-flexibility-and-selective-reporting">Analysis flexibility and selective reporting</a></li><li class="h2"><a href="#fdr-workflow-and-reporting">FDR workflow and reporting</a></li><li class="h2"><a href="#choosing-the-error-criterion-from-the-use-case">Choosing the error criterion from the use case</a></li><li class="h2"><a href="#simultaneous-intervals-and-planned-contrasts">Simultaneous intervals and planned contrasts</a></li><li class="h3"><a href="#example-what-changes-between-fwer-and-fdr">Example: what changes between FWER and FDR?</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>When m hypotheses are each tested at level alpha, even if all m nulls are true, the probability of at least one false rejection is 1 - (1 - alpha)^m. For 20 independent tests at alpha 0.05 that probability is 1 - 0.95^20, about 0.64: in a 20-way screen, a &quot;significant&quot; finding is far more likely to be a false positive than a real discovery. The <strong>familywise error rate (FWER)</strong> is the probability of at least one false rejection within a &quot;family&quot; of tests, and multiple testing correction is designed to control it.</p>
@@ -171,11 +171,213 @@
 <li><strong>Choosing the method after seeing the results</strong>, for example falling back on &quot;no correction&quot; when the correction removes significance.</li>
 <li><strong>Defining the family post hoc</strong> to minimise or maximise the correction; the family should be the prespecified set of hypotheses, not whichever set is convenient.</li>
 </ul>
+<h2 id="step-down-adjustment-and-false-discovery-rate">Step-down adjustment and false discovery rate</h2>
+<p>For sorted p-values (p_{(1)}\le\cdots\le p_{(m)}), Holm compares
+(p_{(i)}) with (\alpha/(m-i+1)), stopping at the first failure. In the
+four-biomarker example, adjusted p-values are 0.016, 0.048, 0.12, and 0.30.
+Thus the first two discoveries survive familywise correction at 0.05. The
+adjusted values can be interpreted as the smallest familywise alpha at
+which each hypothesis would be rejected by the step-down procedure.</p>
+<pre><code class="language-r">p &lt;- c(inflammation = .004, troponin = .016,
+       natriuretic_peptide = .060, renal_marker = .300)
+p.adjust(p, method = &quot;holm&quot;)
+p.adjust(p, method = &quot;bonferroni&quot;)
+p.adjust(p, method = &quot;BH&quot;)
+</code></pre>
+<p>The Benjamini–Hochberg (BH) procedure controls the false discovery rate
+(FDR), (E[V/(R\vee1)]), where V is the number of false rejections and R
+the total rejections. Sort p-values and find the largest i such that
+(p_{(i)}\le iq/m); reject through i. Unlike FWER, FDR is not the
+probability of at least one false discovery. Under an all-null global
+scenario, BH&#39;s FDR equals the probability of any rejection, but when some
+nulls are false, the guarantees differ. Standard BH control holds under
+independence and certain positive dependence structures; the
+Benjamini–Yekutieli procedure is valid under arbitrary dependence but is
+more conservative. <code>p.adjust(..., method=&quot;BH&quot;)</code> returns adjusted p-values
+for BH; selecting a method after viewing which yields more discoveries
+invalidates the planned error guarantee.</p>
+<h2 id="defining-the-hypothesis-family">Defining the hypothesis family</h2>
+<p>Multiplicity is a property of the decision process, not just a count of
+columns in a results table. A family may comprise all co-primary endpoints,
+all pairwise comparisons among treatment arms, all candidate biomarkers,
+or all planned interim looks. Distinct scientific questions may justify
+separate families, but the boundary should be defined before unblinding and
+reported transparently. Hierarchical gatekeeping tests a primary endpoint
+first and releases alpha to secondary endpoints only if a prespecified
+condition is met. Closed testing can provide strong FWER control across
+complex hypotheses, although it may be more involved than Holm.</p>
+<p>In ANOVA, Tukey&#39;s method controls familywise error over all pairwise mean
+comparisons; Dunnett is more efficient when every active arm is compared
+with one common control. For a small set of planned contrasts, Holm or a
+contrast-based simultaneous interval may be suitable. The omnibus test
+does not magically remove multiplicity if investigators then inspect many
+unplanned subgroups. Conversely, a single prespecified primary contrast
+does not require adjustment merely because descriptive tables contain
+other summaries.</p>
+<h2 id="interpretation-selection-and-uncertainty">Interpretation, selection, and uncertainty</h2>
+<p>Adjusted significance does not estimate effect magnitude, remove bias, or
+validate a hypothesis generated by the same data. Report unadjusted effect
+estimates and confidence intervals alongside adjusted p-values, while
+distinguishing simultaneous intervals from ordinary pointwise intervals.
+In large screens, FDR results are useful for prioritizing follow-up; they
+are not a license to treat every selected feature as confirmed. Replication
+in independent data and shrinkage of selected effect estimates are often
+needed because the most extreme discoveries are subject to winner&#39;s curse.</p>
+<p>Multiplicity also arises from analytic flexibility: trying multiple
+outcome definitions, transformations, covariate sets, exclusions, and
+subgroups, then reporting the preferred result. A correction over a
+narrowly defined published table does not account for unreported analysis
+paths. Prespecification, transparent reporting, and independent validation
+address this broader selective-inference problem more effectively than
+applying a mechanical correction to only the final p-values.</p>
+<h2 id="dependence-and-structured-hypotheses">Dependence and structured hypotheses</h2>
+<h2 id="analysis-flexibility-and-selective-reporting">Analysis flexibility and selective reporting</h2>
+<p>The multiplicity counted by an adjustment is only as complete as the
+analysis history. A researcher may try several outcome definitions,
+transformations, covariate sets, missing-data methods, or exclusion rules.
+If the preferred result is selected because its p-value is smallest, the
+nominal error rate for that final model no longer describes the search.
+An ordinary Holm correction across three published endpoints does not
+account for ten unpublished model variants that were also examined.
+Transparent protocols, registered reports, and disclosure of analytic
+choices make the evidence easier to interpret; selective inference methods
+may help in specific settings but are not a universal correction for
+unrecorded flexibility.</p>
+<p>Exploratory work remains valuable and should not be discouraged by
+mechanical demands to adjust every descriptive calculation. The key is to
+distinguish estimation and hypothesis generation from confirmatory claims.
+If exploratory screens use FDR control, report the full tested family and
+treat results as candidates for replication. If a study makes a small
+number of confirmatory claims, define those hypotheses and their testing
+sequence before data access. Error control should support honest inference,
+not substitute for it.</p>
+<p>The number m alone does not fully describe a multiple-testing problem.
+Highly correlated endpoints may carry overlapping information; Bonferroni
+remains valid but can lose substantial power. Resampling methods can exploit
+the joint dependence among test statistics to obtain simultaneous
+critical values, but they require exchangeability or other design
+conditions and careful implementation. Correlation is not permission to
+ignore multiplicity: quantify the family and choose a method with a
+guarantee appropriate to the design.</p>
+<p>Hierarchical hypotheses encode scientific structure. For example, a trial
+may first test the primary endpoint, then a key secondary endpoint, and
+then additional outcomes in a prespecified sequence. If the primary test
+fails, later outcomes may be reported as descriptive or exploratory rather
+than confirmatory. Graph-based gatekeeping can recycle alpha across
+families after rejection, but the rule and transition weights must be
+specified in advance. This can be more powerful than flat Bonferroni while
+keeping the overall FWER controlled.</p>
+<p>For post-hoc comparisons after one-way ANOVA, Tukey&#39;s honestly significant
+difference controls familywise error for all pairwise means under the
+model. Dunnett&#39;s method is tailored to several active treatments versus a
+shared control and typically yields narrower intervals than adjusting all
+pairwise comparisons. If comparisons were planned around clinically
+meaningful contrasts (such as pooled active treatment versus control),
+test those contrasts directly rather than all pairs. The design should
+determine the comparison family; choosing it after inspecting group means
+creates selection bias.</p>
+<h2 id="fdr-workflow-and-reporting">FDR workflow and reporting</h2>
+<h2 id="choosing-the-error-criterion-from-the-use-case">Choosing the error criterion from the use case</h2>
+<p>Familywise control is a natural target for a small confirmatory family in
+which any false claim could trigger a costly decision, such as several
+co-primary endpoints that determine approval. FDR is often more suitable
+for exploratory screens where the purpose is to create a shortlist for
+independent validation and a limited number of false leads is acceptable.
+Neither method is universally more rigorous: the criteria answer different
+questions. A q=0.05 FDR procedure does not guarantee that no more than 5%
+of a particular realized set of discoveries are false; it controls the
+expected false fraction over repeated applications under its assumptions.</p>
+<p>Expected false positives can be approximated by m0 alpha for m0 true null
+tests under unadjusted testing, but that expectation says nothing about the
+probability any one result is false. If only a small subset of hypotheses
+are truly associated, the positive predictive value may remain modest even
+with a low per-test alpha. This motivates validation and replication in
+addition to multiplicity adjustment. In discovery science, avoid treating
+the adjusted p-value as the final evidence of clinical relevance; assess
+effect size, calibration, reproducibility, and clinical utility.</p>
+<p>When multiple outcomes are correlated, a prespecified composite endpoint
+can reduce the number of tests but changes the estimand and may combine
+components of unequal importance. A hierarchical composite or gatekeeping
+strategy makes that trade-off explicit. Creating a composite after seeing
+which outcomes were significant does not solve multiplicity and can
+produce a difficult-to-interpret endpoint. The clinical question should
+drive endpoint construction before sample size and analysis plans are
+finalized.</p>
+<h2 id="simultaneous-intervals-and-planned-contrasts">Simultaneous intervals and planned contrasts</h2>
+<p>When the aim is to report all pairwise differences among k means, readers
+need intervals that protect the family as well as p-values. Tukey
+simultaneous intervals use the studentized range distribution; each interval
+is wider than a corresponding pointwise 95% interval, but the family has
+approximately 95% coverage under the ANOVA model. For treatment-versus-
+control contrasts, Dunnett intervals use their joint correlation and are
+typically narrower than Tukey intervals because they protect only the
+comparisons actually of interest. This is a gain from defining the
+scientific family in advance, not a loophole to choose a smaller family
+after seeing data.</p>
+<pre><code class="language-r">fit &lt;- aov(outcome ~ arm, data = trial)
+TukeyHSD(fit, &quot;arm&quot;, conf.level = .95)
+</code></pre>
+<p>The function assumes independent errors with common variance for the
+classical one-way ANOVA. If variances differ substantially, use a method
+appropriate for heteroscedastic comparisons (such as Games–Howell) rather
+than applying Tukey mechanically. For a handful of preplanned contrasts,
+define the contrast matrix and use simultaneous inference that matches
+those contrasts. Reporting both unadjusted and adjusted intervals can be
+useful if clearly labeled; readers should not mistake pointwise intervals
+for familywise-protected ones.</p>
+<p>Multiplicity also affects confidence statements across multiple outcomes.
+If a trial claims “at least one secondary endpoint improved” after
+examining ten endpoints, pointwise 95% intervals do not support that
+family-level claim. If the goal is estimation rather than binary decisions,
+showing all effect estimates and pointwise intervals can still be
+informative, provided the selection and multiplicity context is explicit.
+For confirmatory claims, use simultaneous intervals or a prespecified
+testing hierarchy.</p>
+<h3 id="example-what-changes-between-fwer-and-fdr">Example: what changes between FWER and FDR?</h3>
+<p>Consider five ordered p-values 0.001, 0.010, 0.030, 0.070, and 0.20.
+At familywise alpha 0.05, Holm&#39;s first threshold is 0.010, so 0.001 passes;
+the second threshold is 0.0125, so 0.010 also passes; the third is
+0.0167, so the procedure stops. The adjusted p-values for the first three
+are 0.005, 0.040, and 0.090. Under BH at q=0.05, thresholds are
+0.010, 0.020, 0.030, 0.040, and 0.050. The third p-value equals its
+threshold, so BH rejects the first three. The procedures differ because
+they control different error criteria. Rounding matters near thresholds;
+use full precision in computation and state the intended method.</p>
+<pre><code class="language-r">p &lt;- c(.001, .010, .030, .070, .20)
+cbind(raw = p, holm = p.adjust(p, &quot;holm&quot;),
+      BH = p.adjust(p, &quot;BH&quot;))
+</code></pre>
+<p>For BH, adjusted values are obtained by scaling ordered p-values by
+(m/i), taking the cumulative minimum from largest rank to smallest,
+then restoring original order. The first three adjusted BH values here
+are 0.005, 0.025, and 0.050; the remaining values are 0.0875 and 0.20.
+This demonstrates that reporting only whether each raw p-value is below
+0.05 obscures the family-level guarantee.</p>
+<p>In biomarker discovery, FDR control can be paired with independent
+validation. One sensible workflow is to define a family of candidate
+features, control BH q at 0.05, estimate effects with intervals, then
+evaluate shortlisted markers in an independent cohort using a prespecified
+analysis. Report how many hypotheses entered the family, how many passed,
+whether filtering was independent of the test statistic, and how missing
+or low-quality features were handled. Filtering based on the same outcome
+signal can alter calibration; independent filtering based on a covariate
+unrelated to the null test statistic may improve power under specific
+conditions.</p>
+<p>An adjusted p-value should be paired with the raw p-value and effect
+estimate. The BH adjusted value is not the posterior probability that a
+particular finding is false. Rather, the procedure&#39;s guarantee concerns
+the expected false fraction among the selected set, under its assumptions.
+Do not write “there is a 5% chance this biomarker is false” from an FDR
+threshold. Discovery screens prioritize candidates; clinical use requires
+validation, calibration, and evidence of utility.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Holm S. <a href="https://doi.org/10.2307/4615733" target="_blank" rel="noopener noreferrer" class="ext-link">A simple sequentially rejective multiple test procedure</a>. <em>Scandinavian Journal of Statistics</em>. 1979;6(2):65–70.</li>
 <li>Benjamini Y, Hochberg Y. <a href="https://doi.org/10.1111/j.2517-6161.1995.tb02031.x" target="_blank" rel="noopener noreferrer" class="ext-link">Controlling the false discovery rate: a practical and powerful approach to multiple testing</a>. <em>Journal of the Royal Statistical Society: Series B</em>. 1995;57(1):289–300.</li>
 <li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott-Raven.</li>
+<li>Benjamini Y, Yekutieli D. The control of the false discovery rate in multiple testing under dependency. <em>Annals of Statistics</em>. 2001;29(4):1165–1188. <a href="https://doi.org/10.1214/aos/1013699998" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1214/aos/1013699998</a></li>
+<li>Dunnett CW. A multiple comparison procedure for comparing several treatments with a control. <em>Journal of the American Statistical Association</em>. 1955;50(272):1096–1121. <a href="https://doi.org/10.1080/01621459.1955.10501294" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1080/01621459.1955.10501294</a></li>
+<li>Tukey JW. Comparing individual means in the analysis of variance. <em>Biometrics</em>. 1949;5(2):99–114. <a href="https://doi.org/10.2307/3001913" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.2307/3001913</a></li>
 <li>The <a href="/biostatistics-library/inference/p-values-and-significance-levels.html">p-values article</a> discusses interpretation of individual tests.</li>
 </ul>
 

@@ -63,6 +63,106 @@ Both plots tell the same story: a mildly right-skewed distribution with one high
 - Misreading the whisker ends as the minimum and maximum. They are the most extreme *in-fence* values; the true min/max may be further out and are only shown if plotted.
 - Comparing histograms with different bin widths or different y-axis scales (counts vs density) as if they were the same picture.
 
+## Histogram construction and interpretation
+
+A histogram estimates the shape of a numerical distribution by partitioning its support into bins. For bin width h and origin a, bin k covers [a+kh, a+(k+1)h). The count depends on h and a, so two reasonable histograms can appear different. Density height is count divided by n×h; the area of a bar equals its relative frequency and all bar areas sum to one. If widths differ, heights alone no longer represent counts; use area or a density scale.
+
+Common starting rules include Sturges' number of bins, approximately 1+log2(n), and the Freedman–Diaconis width h=2×IQR×n^(−1/3). Sturges can oversmooth large datasets; Freedman–Diaconis adapts to robust spread but can produce very wide bins for small samples. No formula discovers the true distribution. Inspect at several reasonable widths and origins, and compare with an empirical cumulative distribution or raw observations when n is small. A kernel density curve also depends on bandwidth and can hide boundary constraints.
+
+### Worked example: histogram density and bin width
+
+For 100 observations and bin width 2 units, suppose a bin contains 18 observations. Its relative frequency is .18 and density height is 18/(100×2)=.09 per unit; the bar area is 2×.09=.18. If the bin width is changed to 1 while covering the same values, the corresponding count may be around 9 and density remains about .09 if the underlying data are similarly distributed. Comparing raw counts across unequal widths is misleading because taller bars may only reflect narrower bins.
+
+```r
+x <- c(10.8, 11.2, 11.5, 12.0, 12.4, 12.8, 13.1, 13.6, 14.0, 16.9)
+bw <- 2 * IQR(x) / length(x)^(1/3) # Freedman-Diaconis width
+hist(x, breaks = "FD", probability = TRUE,
+     xlab = "Haemoglobin", main = "Distribution with density scale")
+boxplot(x, horizontal = TRUE, xlab = "Haemoglobin")
+```
+
+Base R's `breaks="FD"` chooses a binning based on the range and an algorithm; exact boundaries can vary. The example is tiny, so a rule-based histogram is only exploratory. With few observations, plot the individual points and avoid making strong claims about skew or modes.
+
+## Box plots and their mathematical definitions
+
+A Tukey box plot places the lower and upper hinges near Q1 and Q3, draws a median, and defines IQR=Q3−Q1. The lower and upper fences are Q1−1.5IQR and Q3+1.5IQR. Whiskers reach the most extreme observed values still inside those fences; points outside are shown separately. The fences are not whisker endpoints, not confidence limits, and not a formal outlier test. Some software uses hinges that differ slightly from interpolated sample quartiles for small n.
+
+For the postoperative hemoglobin values in the initial example, Q1=11.5, Q3=13.6, IQR=2.1. Upper fence=13.6+1.5(2.1)=16.75; 16.9 exceeds it by .15. The point deserves source and clinical review, but the flag does not imply error. In a normal population, about 0.7% of observations lie beyond 1.5-IQR fences in either tail combined (because 1.5 IQR is roughly 2.02 SD from the median), so a sufficiently large dataset will contain legitimate flagged observations.
+
+A box plot can compare groups efficiently on a shared axis, but hides sample size, multimodality, gaps, and density. Add jittered points or a violin/raincloud representation when data volume allows, and always label n. For small samples, show every point; the apparent precision of quartile boxes is otherwise deceptive. When groups have dramatically different sample sizes, display n and consider plots that show distribution density without implying equal support.
+
+## Comparing groups without confusing shape and scale
+
+Overlaid or side-by-side histograms should use a common bin origin and width, the same axis scale, and density rather than raw counts when group sizes differ. Faceting is often clearer than transparency overlays. A shift in medians does not guarantee stochastic dominance; distributions can cross. A box plot may show different medians but similar IQRs, or similar medians but different tails. Describe center and spread separately and use a model or estimand-aligned contrast to quantify differences.
+
+For a treatment trial, the raw outcome distribution is useful exploration, but inference may target an adjusted mean, risk, or time-to-event quantity. Inspect model residuals for assumptions rather than demanding that the raw outcome look normal. A skewed raw outcome can yield approximately normal residuals after modeling predictors; conversely, a normal-looking histogram does not ensure homoscedasticity or independence.
+
+## Outliers, transformations, and bounded data
+
+An apparent extreme can arise from data-entry error, unit mismatch, true biological heterogeneity, or a different subpopulation. Check source records, instrument range, units, time point, and eligibility. Do not winsorize or delete solely because a point lies beyond a fence. If analysis is sensitive, report robust estimates or a sensitivity analysis with a justified rule, preserving the primary analysis where the record is valid.
+
+Log transformations can make positive right-skewed values more symmetric, but change the scale. Plot both original and transformed values and explain whether model estimates concern a geometric mean or multiplicative ratio. For proportions bounded by 0 and 1, a histogram's apparent pile-up near boundaries may require beta or binomial modeling rather than Gaussian assumptions. For counts, use integer-aware axes and consider excess zeros or exposure time.
+
+## Practical workflow in R
+
+Use histogram plus box plot, then inspect empirical quantiles and group sizes. Record units and include a rug for modest n. When comparing groups, set shared scales and annotate missingness rather than plotting only complete observations without explanation.
+
+```r
+# dat contains value and arm; keep the same bins and density scale
+bw <- 2 * IQR(dat$value, na.rm = TRUE) /
+  sum(!is.na(dat$value))^(1/3)
+ggplot2::ggplot(dat, ggplot2::aes(value, colour = arm, fill = arm)) +
+  ggplot2::geom_histogram(ggplot2::aes(y = after_stat(density)),
+                          binwidth = bw, position = "identity", alpha = .25) +
+  ggplot2::labs(x = "Outcome (units)", y = "Density")
+```
+
+Overlaid densities can conceal observations where groups overlap; use facets if colors are difficult to distinguish. The bin width should be justified and checked against alternatives. A plot is an exploratory aid, not a test of group equality.
+
+
+## Comparing density, counts, and empirical distributions
+
+A count histogram answers how many observations fall in each interval and is appropriate when sample size is the focus. A relative-frequency histogram scales counts by n; a density histogram additionally divides by bin width so total area is one. If two groups have different n, density is usually better for comparing shape, while a separate annotation gives the group size. A probability density can exceed one when measurements are concentrated in a narrow interval; its area, not height, is probability.
+
+An empirical cumulative distribution function (ECDF) plots the fraction at or below each value and is invariant to bin choice. It shows whether one group's distribution is generally shifted, whether distributions cross, and where quantiles lie. For comparing treatments, an ECDF can reveal tail differences hidden in box plots. It still describes the sample and does not quantify uncertainty without bands or an inferential method.
+
+```r
+plot(ecdf(dat$value[dat$arm == "control"]),
+     xlab = "Outcome (units)", ylab = "Proportion at or below x",
+     main = "Empirical distributions")
+lines(ecdf(dat$value[dat$arm == "active"]), col = 2)
+legend("bottomright", c("Control", "Active"), col = 1:2, lty = 1)
+```
+
+Use common axes and note the number of observed outcomes in each arm. Missing values are omitted by `ecdf`; if missingness differs, show the denominators.
+
+## Skewness, transformations, and choice of summary
+
+Right-skew produces a long upper tail, often seen in length of stay, cost, and biomarkers. Mean>median is a clue but not a formal diagnostic; a mixture can make this ordering misleading. Plot on original units first. A log scale may spread low values and compress high values, revealing multiplicative structure, but zero values require special handling and interpretation changes. Box plots on a log axis can help show several orders of magnitude, while quartile calculations remain on the original scale unless data themselves are transformed.
+
+A box plot's symmetry is not a reliable normality test. Equal whiskers and centered median can occur in nonnormal data, and apparent asymmetry can be sampling noise. For model assumptions, inspect residual plots and Q–Q plots. The aim is to understand data quality and shape, not to choose a test mechanically based on visual normality.
+
+## Jitter and overplotting
+
+When values are rounded, many observations may occupy the same coordinate. A scatter of raw points can hide this multiplicity. Jitter adds small random displacement for display only; it must not alter analysis values. Use transparency and a fixed seed if jitter is generated algorithmically, or use a beeswarm/strip plot that avoids overlap. For large data, hexagonal bins or two-dimensional density plots summarize point concentration, but state that each mark represents multiple observations.
+
+```r
+set.seed(10)
+plot(jitter(as.numeric(dat$arm), amount = .08), dat$value,
+     xaxt = "n", xlab = "Arm", ylab = "Outcome")
+axis(1, at = seq_along(levels(dat$arm)), labels = levels(dat$arm))
+```
+
+This illustrates visual jitter only. Prefer established plotting functions for production figures and keep plotted jitter separate from the model dataset.
+
+## Plot selection and communication
+
+Use a histogram for one-variable shape, side-by-side box/violin or ECDF for group distributions, and raw points for small samples. Avoid three-dimensional effects and truncated axes that exaggerate differences. Label bin width, units, n, and whether y is count, proportion, or density. Outlier points should not be removed from a graph merely to improve appearance; explain any axis break or transformation. The plot should agree with the summary reported in text and tables.
+
+For publication, state whether bins are left-closed/right-open and how observations exactly on boundaries are assigned; this rarely changes broad interpretation but supports reproducibility. A zero-inflated biomarker may require displaying the point mass at zero separately from the positive-value distribution, or using a log scale only for positive measurements. One plot should not force all observations into a misleading continuous shape.
+
+A box plot's flagged points depend on quartile algorithm, sample size, and distribution. A point's scientific relevance depends on measurement validity and clinical context. In a large cohort, many valid measurements will exceed Tukey fences; in a small cohort, a single point can move the quartiles and fences substantially. Report an outlier rule as a screening convention and show values when appropriate, rather than using the label “outlier” as a synonym for error.
+
 ## References and further reading
 
 - Tukey JW. [Exploratory Data Analysis](https://www.worldcat.org/oclc/3058187). Addison-Wesley; 1977.

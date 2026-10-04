@@ -111,6 +111,255 @@ those adjusted pairwise results can be reconstructed.
   can produce false positives; apply Bonferroni, Holm, or Dunn's corrected
   procedure.
 
+## Rank statistic, tie correction, and effect size
+
+Pool all N observations and assign ranks, averaging tied ranks. Let Rj be
+the sum of ranks in group j. The Kruskal–Wallis statistic before tie
+correction is
+\(H=\frac{12}{N(N+1)}\sum_j R_j^2/n_j-3(N+1)\). When there are no ties,
+H is approximately chi-square with k−1 degrees of freedom under the null
+that group distributions are identical. With ties, divide by
+\(C=1-\sum_g(t_g^3-t_g)/(N^3-N)\), where tg is the size of tie group g.
+The correction matters for discrete or ordinal outcomes with many repeated
+values. For small samples, an exact permutation distribution can be more
+reliable than the chi-square approximation.
+
+The null is equality of distributions, not invariably equality of medians.
+If shapes and spreads are similar, a difference in location is a reasonable
+interpretation. If distributions differ in variance or shape, H can reject
+without median differences. Inspect group-specific distributions and
+report the median and IQR, but do not claim the test is specifically a
+median test unless the location-shift assumptions are defensible.
+
+An effect-size summary can be epsilon-squared, often computed as
+\((H-k+1)/(N-k)\), with variants in use; report the exact convention.
+Rank-based pairwise contrasts or probability-of-superiority measures may
+be more interpretable. A significant omnibus H does not identify which
+groups differ; follow-up tests need multiplicity control.
+
+## Worked example and implementation
+
+Imagine pain scores in three independent treatment groups, with n=8 each.
+If pooled ranks sum to 60, 100, and 140 (grand rank total 300; expected
+rank sum per group is 100), then
+\(H=12/[24(25)](60^2/8+100^2/8+140^2/8)-3(25)=8.0\)
+before tie correction. With 2 degrees of freedom, the asymptotic p-value
+is about 0.018. The
+calculation says that the rank distributions differ overall; it does not
+show whether group 1 differs from group 2 or whether the difference is
+clinically meaningful.
+
+```r
+g1 <- c(1, 2, 2, 3, 3, 4, 4, 5)
+g2 <- c(3, 4, 4, 5, 5, 6, 6, 7)
+g3 <- c(4, 5, 6, 6, 7, 7, 8, 9)
+y <- c(g1, g2, g3)
+group <- factor(rep(c("A", "B", "C"), each = 8))
+kruskal.test(y ~ group)
+```
+
+The code uses real individual-level observations and automatically applies
+the tie correction. For sparse ordinal data, use a permutation test that
+reassigns group labels according to the actual randomization scheme.
+If follow-up pairwise comparisons are planned, use a method such as Dunn's
+test with Holm adjustment or pairwise Wilcoxon tests with an explicit
+adjustment. Base R can perform the latter:
+
+```r
+pairwise.wilcox.test(y, group, p.adjust.method = "holm",
+                     exact = FALSE)
+```
+
+This pairwise procedure does not automatically estimate a median
+difference. Provide effect estimates and intervals for the comparisons,
+and avoid interpreting a sequence of rank-test p-values without the
+underlying group distributions.
+
+## Assumptions and alternatives
+
+## Pairwise follow-up and adjusted inference
+
+After a significant omnibus result, identify comparisons that answer the
+study question. Dunn's test compares mean ranks between groups using the
+pooled rank variance; Holm adjustment controls familywise error across
+the chosen family. Pairwise Wilcoxon rank-sum tests are another option,
+but their unadjusted p-values must be adjusted and their estimands are
+pairwise distributional comparisons. If the follow-up is treatment versus
+shared control, a control-focused rank procedure can be more efficient
+than all pairs. Report estimates, intervals, and group summaries, not just
+which pairs pass a threshold.
+
+Permutation inference can calibrate H without relying on the asymptotic
+chi-square approximation. Under random assignment, permute treatment
+labels according to the actual randomization mechanism, recompute H each
+time, and compare the observed statistic with the simulated null
+distribution. If randomization was stratified or clustered, permutations
+must preserve those restrictions. Arbitrarily permuting all labels can
+break the design and yield invalid inference. The permutation test is
+exact only when all allowed assignments are enumerated; Monte Carlo
+permutation approximates the tail probability, with uncertainty depending
+on the replicate count.
+
+```r
+set.seed(19)
+obs <- unname(kruskal.test(y ~ group)$statistic)
+B <- 20000
+perm <- replicate(B, {
+  perm_group <- sample(group)
+  unname(kruskal.test(y ~ perm_group)$statistic)
+})
+(1 + sum(perm >= obs)) / (B + 1)
+```
+
+This unrestricted permutation code is suitable only for independent,
+exchangeable group labels under the null. If observations were blocked or
+cluster-randomized, permute within blocks or at the cluster level. The
+plus-one correction avoids reporting a simulated p-value of zero; Monte
+Carlo standard error near p is approximately \(\sqrt{p(1-p)/B}\).
+
+## Rank effects and clinical interpretation
+
+## Effect-size calculation for the worked study
+
+In the smoking-cessation example, H=12.16, k=3, and N=36. Using the
+common epsilon-squared estimate \((H-k+1)/(N-k)\) gives
+\((12.16-3+1)/(36-3)=10.16/33\approx0.31\). This summarizes the rank
+separation in the sample under that convention; it is not literally the
+proportion of outcome variance explained in original quit-attempt units.
+Bias-corrected alternatives can be negative in small samples and may be
+truncated for presentation, but the formula should be named because
+authors use different rank effect-size definitions. Pairwise stochastic
+dominance or rank-biserial effects can better localize the differences.
+
+The original rank sums also permit a rough location summary. Average
+ranks are 11, 18.5, and 26 for the three groups, compared with the pooled
+grand mean rank 18.5. Group C tends higher in the ordering, but the rank
+sums alone do not reconstruct group medians, IQRs, or pairwise intervals.
+The raw measurements are necessary for those summaries. This distinction
+is important when an article presents only a Kruskal–Wallis H and then
+makes detailed pairwise claims.
+
+## Sample size, ties, and attainable information
+
+## A reproducible analysis report
+
+If the outcome has many zero values, ranks assign an extensive tie at the
+bottom and the test may have little ability to distinguish groups. A
+two-part analysis may be more meaningful: compare any-versus-none and,
+among positive observations, compare amount. This changes the question
+and requires a prespecified multiplicity plan, but can reflect a
+zero-generating clinical process better than one omnibus rank statistic.
+
+For very small randomized groups, a permutation p-value can align directly
+with the assignment mechanism and avoid reliance on the chi-square tail
+approximation. It still tests a sharp null under randomization and does not
+by itself estimate a median shift. If assignment probabilities differ by
+stratum, preserve each stratum's allocation when permuting; otherwise the
+reference distribution no longer represents the actual design.
+
+For ordered severity categories, present a stacked bar plot or cumulative
+proportion plot in addition to medians. Medians can conceal distributional
+changes when most observations occupy a small number of levels. If
+category order is clinically meaningful, a proportional-odds model can
+estimate the odds of being at or above each severity threshold; check the
+proportional-odds assumption rather than assuming a single cumulative OR
+fits all cut points. The rank-sum omnibus result remains a useful
+distributional check, but does not adjust for baseline severity or other
+prognostic factors.
+
+For the smoking-cessation illustration, group medians and IQRs should be
+calculated from raw observations, then presented with the omnibus result
+and an effect measure. The following pattern gives the core summaries and
+the common epsilon-squared estimate from a fitted H statistic:
+
+```r
+aggregate(y, list(group = group), function(z) {
+  c(n = length(z), median = median(z),
+    q1 = unname(quantile(z, .25)), q3 = unname(quantile(z, .75)))
+})
+kw <- kruskal.test(y ~ group)
+H <- unname(kw$statistic)
+k <- nlevels(group)
+N <- length(y)
+epsilon2 <- (H - k + 1) / (N - k)
+c(H = H, df = unname(kw$parameter), p = kw$p.value,
+  epsilon2 = epsilon2)
+```
+
+This is descriptive and uses the same raw data as the test. Small-sample
+epsilon-squared may be negative when H is small; that reflects correction
+for chance and is not a meaningful negative proportion. If truncating at
+zero for presentation, state that convention and preferably report the
+untruncated estimate in supplementary material. A confidence interval for
+rank effect size can be obtained by resampling subjects within groups,
+although small samples and ties can make the bootstrap distribution
+discrete and unstable.
+
+The omnibus test is often used as a gatekeeper before pairwise tests, but
+this is not the only valid testing plan. Preplanned contrasts can be tested
+directly with appropriate multiplicity control even if the omnibus test is
+not significant; a gatekeeping requirement changes the family-wise
+procedure and may cost power. State the hierarchy in the protocol and
+avoid post-hoc rules created after viewing H.
+
+Power for Kruskal–Wallis depends on the alternative distribution, group
+allocation, and probability of ties. Rank tests can be efficient under
+heavy-tailed distributions, but numerous ties reduce the number of
+possible rank arrangements and can make exact p-values coarse. If an
+ordinal scale has only five levels, adding participants does not create
+additional measurement resolution; a cumulative-link model may use the
+ordered categories more directly and allow covariate adjustment.
+
+For planning, simulate outcomes under plausible group distributions,
+including skewness and tie frequencies, then apply the intended test and
+post-hoc plan. A normal-theory ANOVA calculation may not characterize
+power for an ordinal or zero-inflated outcome. If the primary estimand is
+a difference in medians or a probability-of-superiority, plan and analyze
+that target directly. Report assumptions about allocation, effect shape,
+and missingness; “nonparametric” does not mean sample-size-free or
+assumption-free.
+
+For two groups, probability of superiority
+\(P(Y_1>Y_0)+0.5P(tie)\) is an interpretable rank effect; the Mann–Whitney
+article develops it in detail. For more groups, pairwise probabilities
+and rank-biserial effects can describe which distributions differ. These
+effects are not measured in the original outcome units and can be
+invariant to monotone transformations, which is useful for ordinal
+outcomes but limits direct clinical translation. Include medians and IQRs
+and show distributions so the rank contrast remains grounded in the data.
+
+Kruskal–Wallis can reject because one group has a much wider spread, even
+if group medians coincide. For instance, two centered distributions with
+different variances can have unequal pooled rank distributions. A
+significant result then does not imply that one group tends to have higher
+values in a simple location-shift sense. Compare empirical distribution
+functions and quantiles, and consider a scale-sensitive model if spread
+is itself the scientific endpoint.
+
+The test also has limited power for subtle alternatives when the outcome
+is truly Gaussian and the mean is the target; ANOVA uses magnitude
+information that ranks discard. Conversely, ranks can be robust when
+outliers or ordinal scales make mean comparisons inappropriate. The
+choice is a trade-off between robustness and efficiency, not a contest in
+which one method is universally assumption-free.
+
+Independent groups are required. If the same individuals contribute
+several conditions or matched observations, use Friedman test or a
+repeated-measures model rather than Kruskal–Wallis. If there are covariates,
+a simple rank test cannot adjust for them; consider quantile regression,
+cumulative-link ordinal regression, or a model targeting the desired
+contrast. If the outcome is continuous and assumptions for a mean model
+are reasonable, Welch ANOVA can be preferable because it retains the
+mean-difference estimand and handles unequal variances.
+
+The test's robustness to non-normality should not be overstated. It is
+robust to some distributional features because it uses ranks, but loses
+information about distances between values and can have low power when
+normal-model assumptions hold. Ties, different shapes, unequal sample
+sizes, and post-hoc testing all affect behavior. Choose the method from the
+scientific estimand and data-generating design, and report enough
+descriptive information for readers to understand what changed.
+
 ## References and further reading
 
 - Kruskal WH, Wallis WA. [Use of ranks in one-criterion variance analysis](https://doi.org/10.1080/01621459.1952.10483441). *Journal of the American Statistical Association*. 1952;47(260):583–621.

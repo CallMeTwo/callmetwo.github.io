@@ -110,7 +110,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Comparing groups <span class="sep">/</span> Numerical outcomes <span class="sep">/</span> <strong style="color:#273e3b">Mann–Whitney and Wilcoxon tests</strong></div>
         <h1 class="article-title">Mann–Whitney and Wilcoxon tests</h1>
         <p class="article-summary">Nonparametric tests for whether two groups differ in distribution, using ranks instead of raw values.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#mann-whitney-u-as-a-probability-of-superiority-estimator">Mann–Whitney U as a probability-of-superiority estimator</a></li><li class="h2"><a href="#wilcoxon-signed-rank-test-for-paired-data">Wilcoxon signed-rank test for paired data</a></li><li class="h2"><a href="#assumptions-design-and-interpretation">Assumptions, design, and interpretation</a></li><li class="h2"><a href="#null-hypotheses-and-exact-inference">Null hypotheses and exact inference</a></li><li class="h2"><a href="#worked-probability-of-superiority-calculation">Worked probability-of-superiority calculation</a></li><li class="h2"><a href="#choosing-among-rank-tests-and-models">Choosing among rank tests and models</a></li><li class="h2"><a href="#bootstrap-interval-for-probability-of-superiority">Bootstrap interval for probability of superiority</a></li><li class="h2"><a href="#effect-interpretation-with-ties-and-ordinal-scales">Effect interpretation with ties and ordinal scales</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The Mann–Whitney test (independent samples) and the Wilcoxon signed-rank
@@ -200,7 +200,8 @@ z ≈ 2.84 (with continuity correction), two-sided p ≈ 0.005.</li>
 patient&#39;s score exceeds a randomly chosen control&#39;s score about 88% of the
 time.</li>
 </ul>
-<p>The patient group&#39;s distribution lies well above the controls&#39; (p &lt; 0.001),
+<p>The patient group&#39;s distribution lies well above the controls&#39; (two-sided
+p approximately 0.005),
 consistent with higher disease activity. Because the outcome is skewed and
 sample sizes are small, the rank test is more trustworthy here than a
 t-test, which would be sensitive to the upper-tail values.</p>
@@ -228,6 +229,203 @@ integer scores), the standard formulas still work but the effective
 information is lower; check the number of ties and consider whether the
 ordinal scale is carrying enough resolution.</li>
 </ul>
+<h2 id="mann-whitney-u-as-a-probability-of-superiority-estimator">Mann–Whitney U as a probability-of-superiority estimator</h2>
+<p>For independent samples X and Y, the Mann–Whitney statistic can be
+interpreted through all cross-group pairs. Define
+(\theta=P(X&gt;Y)+\tfrac12P(X=Y)). Its sample estimate is the proportion
+of the (n_Xn_Y) cross-group pairs in which X is larger, counting ties as
+half. Under identical distributions, theta is 0.5. A rank-sum statistic
+and U statistic are affine transformations of one another; with no ties,
+the null mean of U is (n_Xn_Y/2) and variance is
+(n_Xn_Y(n_X+n_Y+1)/12). Tie corrections adjust variance because tied
+ranks reduce the number of distinct arrangements.</p>
+<p>Suppose a symptom score is lower after treatment. If theta defined as
+(P(Y_{treat}&gt;Y_{control})+0.5P(tie)) equals 0.35, then a randomly
+selected treated participant has a lower score than a randomly selected
+control participant with probability about 0.65, counting ties evenly.
+This is not a 65% chance an individual patient benefits; it is a pairwise
+population comparison. When distributions have similar shapes and spread,
+a location shift can make the result interpretable as a median shift. If
+shapes differ, significance may reflect distributional differences other
+than medians.</p>
+<pre><code class="language-r">treated &lt;- c(2, 3, 1, 4, 2, 5, 3, 2, 4, 1)
+control &lt;- c(4, 5, 3, 6, 4, 7, 5, 4, 6, 3)
+wilcox.test(treated, control, paired = FALSE,
+            exact = FALSE, conf.int = TRUE)
+</code></pre>
+<p>R&#39;s two-sample <code>wilcox.test</code> uses a rank-sum formulation and may report a
+location-shift estimate and interval under a common-shift assumption; it
+does not directly print the probability-of-superiority estimate. A
+transparent estimator can be calculated by enumerating pairwise
+comparisons:</p>
+<pre><code class="language-r">theta &lt;- mean(outer(treated, control, function(x, y) {
+  (x &gt; y) + 0.5 * (x == y)
+}))
+theta
+</code></pre>
+<p>Interpret direction carefully: in this example, the function defines
+theta as probability the treated score exceeds control. If lower is
+better, a smaller theta indicates favorable treatment. For interval
+estimation, use a bootstrap resampling participants within each independent
+group or a suitable variance estimator; do not bootstrap all pairwise
+comparisons as if they were independent because comparisons share
+participants.</p>
+<h2 id="wilcoxon-signed-rank-test-for-paired-data">Wilcoxon signed-rank test for paired data</h2>
+<p>For paired observations, calculate differences (D_i=X_i-Y_i), remove
+zero differences under the chosen zero-handling convention, rank the
+absolute differences, and sum ranks with positive and negative signs.
+Under a null of a symmetric difference distribution centered at zero,
+positive and negative signs are exchangeable conditional on the magnitudes.
+The signed-rank test is not simply a test that the median difference is
+zero unless symmetry is plausible. If differences are asymmetric, the
+sign test tests the median direction with less power but weaker shape
+assumptions. The paired t test instead targets the mean difference and
+can be more efficient when its assumptions are reasonable.</p>
+<pre><code class="language-r">before &lt;- c(8, 7, 9, 6, 8, 10, 7, 9, 6, 8)
+after  &lt;- c(6, 8, 7, 5, 6,  8, 6, 7, 7, 6)
+wilcox.test(after, before, paired = TRUE,
+            exact = FALSE, conf.int = TRUE)
+</code></pre>
+<p>With ties or zero differences, exact distributions may not be available
+in the same way as in the no-tie case; software may use an approximation
+or report a warning. Document the handling. The Hodges–Lehmann paired
+estimate is the median of Walsh averages of differences and is a useful
+location summary under the signed-rank model, but it is not always equal
+to the sample median difference.</p>
+<h2 id="assumptions-design-and-interpretation">Assumptions, design, and interpretation</h2>
+<h2 id="null-hypotheses-and-exact-inference">Null hypotheses and exact inference</h2>
+<p>The classical null is equality of distributions, under which group labels
+are exchangeable. The Mann–Whitney statistic can also be tested against a
+weaker null of (\theta=0.5), but interpretation and variance estimation
+under alternatives with unequal shapes require care. A test calibrated for
+identical distributions may reject when the probability-of-superiority
+parameter is 0.5 but distributions differ in spread. Robust variance
+estimators or a direct interval for theta are preferable when the sole
+target is stochastic superiority rather than full distribution equality.</p>
+<p>For small samples without ties, exact permutation distributions are
+available by enumerating assignments of the pooled ranks to the two
+groups. With ties, many software implementations cannot use the simple
+exact calculation and switch to asymptotic approximations or conditional
+enumeration. R may warn that exact p-values cannot be computed in the
+presence of ties; setting <code>exact = FALSE</code> requests the normal
+approximation with tie correction. This is not a reason to jitter the
+observed data: artificial perturbation changes ranks and can make results
+depend on arbitrary noise.</p>
+<pre><code class="language-r">small_x &lt;- c(1, 2, 3, 4, 5)
+small_y &lt;- c(6, 7, 8, 9, 10)
+wilcox.test(small_x, small_y, exact = TRUE,
+            alternative = &quot;less&quot;)
+</code></pre>
+<p>Here <code>less</code> means values in x tend to be lower than values in y. If lower
+scores indicate improvement, this direction can represent benefit, but
+that direction must be defined from the data coding and question before
+analysis. One-sided rank tests have the same prespecification requirement
+as one-sided t tests.</p>
+<h2 id="worked-probability-of-superiority-calculation">Worked probability-of-superiority calculation</h2>
+<p>Consider treated scores (lower is better) of 2, 3, 1, 4 and control scores
+of 4, 5, 3, 6. There are 20 cross-arm pairs. Count pairs for which treated
+is lower: treated=1 beats all four controls (4); treated=2 beats all four
+(4); treated=3 is lower than 4,5,6 (3) and ties 3 (half); treated=4 is
+lower than 5,6 (2) and ties 4 (half). Thus favorable probability of
+treated lower, counting ties half, is
+((4+4+3.5+2.5)/20=0.70). This is a pairwise ranking effect, not the
+proportion of patients who improve. Sampling uncertainty must account
+for repeated reuse of each patient across multiple pairwise comparisons.</p>
+<pre><code class="language-r">treated &lt;- c(2, 3, 1, 4)
+control &lt;- c(4, 5, 3, 6)
+prob_treated_lower &lt;- mean(outer(treated, control, function(x, y) {
+  (x &lt; y) + 0.5 * (x == y)
+}))
+prob_treated_lower # 0.70
+</code></pre>
+<p>The two-sided p-value from the rank-sum test does not directly test that
+this estimate equals 0.5 under all unequal-shape alternatives. If theta
+is the primary estimand, report an interval for theta or a rank-biserial
+correlation with a justified variance method. A stratified estimator may
+be preferable if randomization was stratified or if covariate adjustment
+is essential.</p>
+<h2 id="choosing-among-rank-tests-and-models">Choosing among rank tests and models</h2>
+<h2 id="bootstrap-interval-for-probability-of-superiority">Bootstrap interval for probability of superiority</h2>
+<p>When reporting the rank-sum analysis, include the direction of comparison
+and whether ties were counted as half in the stochastic effect. A statement
+such as “theta=0.70 for treated lower than control” is clearer than an
+unlabeled U statistic, whose orientation varies by software and group
+ordering.</p>
+<p>Because each participant contributes to many pairwise comparisons, treating
+the nX×nY comparisons as independent gives an incorrect standard error.
+A nonparametric bootstrap resamples participants within each independent
+group, recomputes theta, and uses the empirical bootstrap distribution for
+an interval. If the study is paired, clustered, stratified, or randomized
+within blocks, resample or permute at the design unit and preserve the
+structure. A percentile interval is simple but can have poor coverage with
+small samples, ties, or a highly skewed sampling distribution; compare
+with an appropriate analytic or BCa method when the estimate matters.</p>
+<pre><code class="language-r">set.seed(2026)
+theta_fun &lt;- function(x, y) {
+  mean(outer(x, y, function(a, b) (a &gt; b) + 0.5 * (a == b)))
+}
+B &lt;- 5000
+boot_theta &lt;- replicate(B, {
+  xb &lt;- sample(treated, length(treated), replace = TRUE)
+  yb &lt;- sample(control, length(control), replace = TRUE)
+  theta_fun(xb, yb)
+})
+quantile(boot_theta, c(.025, .5, .975))
+</code></pre>
+<p>This interval targets probability that a randomly selected treated score
+is higher than control, counting ties halfway. Reverse the inequality if
+lower values indicate benefit, or report both directions clearly. The
+bootstrap is not a substitute for the rank-test p-value under every null;
+it is an interval procedure for an effect estimator. With small samples,
+the empirical support can be coarse, so avoid overinterpreting decimal
+precision in the limits.</p>
+<h2 id="effect-interpretation-with-ties-and-ordinal-scales">Effect interpretation with ties and ordinal scales</h2>
+<p>For ordinal outcomes, ties are not incidental: many participants can share
+the same category. Counting ties as one-half gives theta a probabilistic
+interpretation, while a strict probability P(X&gt;Y) ignores ties and may
+change with category frequency. Report the tie proportion and specify the
+convention. If categories are clinically ordered but distances are not
+equal, rank methods preserve order; an ordinal regression can estimate a
+cumulative odds ratio and adjust covariates if proportional odds is
+reasonable. If that assumption fails, partial proportional-odds or
+multinomial models may be considered, with added complexity and different
+estimands.</p>
+<p>For a continuous endpoint, medians and IQRs help describe skew, but do not
+replace theta or the Hodges–Lehmann shift estimate. The Hodges–Lehmann
+two-sample estimate is the median of all pairwise differences X−Y under a
+common shift model; it is not generally the difference between sample
+medians. When distributions have different shapes, report the probability
+effect and distribution plots rather than forcing a single location-shift
+summary.</p>
+<p>For independent groups, Mann–Whitney uses all pairwise orderings. For
+paired outcomes, Wilcoxon signed-rank uses signs and ranks of within-pair
+differences and relies on symmetry; the sign test uses only direction and
+is more robust but less powerful. Kruskal–Wallis extends rank-sum logic to
+three or more independent groups. Friedman handles blocked or repeated
+measures with ranks within blocks. These tests are not interchangeable;
+select the procedure that follows the assignment and measurement design.</p>
+<p>For ordinal outcomes with covariates, proportional-odds regression can
+estimate a common cumulative odds ratio if the proportional-odds assumption
+is reasonable. For continuous outcomes with skewness, quantile regression
+can target a median difference while adjusting for covariates. A robust
+mean model may preserve the arithmetic mean estimand. Each alternative
+answers a different question. Rank-based inference is useful, but does
+not remove the need to define the outcome contrast precisely.</p>
+<p>Independence applies between participants or pairs, not within each pair.
+Repeated observations cannot be fed into a two-sample rank-sum test as if
+independent. For clustered data, the usual rank variance is invalid unless
+the clustering is modeled or resampling respects clusters. Ordinal scores
+are suitable because ranks use ordering, but extensive ties reduce
+information and require tie-corrected inference. If a score has a small
+number of categories, ordinal regression or a stratified method may answer
+the question more directly.</p>
+<p>The test does not estimate a treatment effect in the native outcome units.
+Report group distributions (medians and IQRs if appropriate), an effect
+measure such as probability of superiority or Hodges–Lehmann shift, and
+an interval. Do not label the Mann–Whitney test a “test of medians” without
+the similar-shape/location-shift assumption. Do not select a rank test
+only because a normality test rejected; consider the estimand, robustness
+of mean methods, and the clinical relevance of a rank-based effect.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Mann HB, Whitney DR. <a href="https://doi.org/10.2307/3001968" target="_blank" rel="noopener noreferrer" class="ext-link">On a test of whether one of two random variables is stochastically larger than the other</a>. <em>The Annals of Mathematical Statistics</em>. 1947;18(1):50–60.</li>

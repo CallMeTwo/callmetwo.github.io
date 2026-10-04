@@ -46,9 +46,259 @@ A clinic measures fasting plasma glucose in 36 newly diagnosed type 2 diabetes p
 - **Combining SEs carelessly.** The SE of a ratio such as a rate ratio is not obtained by dividing the SEs of the numerator and denominator; use a model or the delta method.
 - **Precision without accuracy.** A small SE only says the estimate is reproducible across samples; if the design is biased, every sample consistently lands in the wrong place.
 
+## Estimators, standard errors, and the target population
+
+An estimate has meaning only after naming the target quantity and
+population. A sample mean estimates a population mean under representative
+sampling; a treatment-arm mean difference in a randomized trial estimates
+an average contrast among the trial's target population, subject to the
+chosen handling of intercurrent events and missing data. In a complex
+survey, the unweighted average may estimate the sample rather than the
+population; sampling weights and design-based variance estimation may be
+required. The estimator is the rule that maps data to a value; the standard
+error describes the repeated-sampling spread of that rule under a specified
+design or model.
+
+For a proportion based on k events among n independent Bernoulli outcomes,
+\(\hat p=k/n\) and the plug-in SE is
+\(\sqrt{\hat p(1-\hat p)/n}\). If k=45, n=100, then p-hat=0.45 and SE is
+\(\sqrt{0.45\times0.55/100}=0.04975\). For the mean example, SE is
+2.7/6=0.45. These standard errors differ from the standard deviation of
+individual observations: increasing n decreases the SE but does not
+necessarily reduce population heterogeneity. A standard error is also not
+the standard error of an individual prediction; prediction uncertainty
+includes the residual variation of a new individual.
+
+The independence assumption is a common source of underestimated SEs.
+For exchangeable clusters of mean size m with intraclass correlation rho,
+the approximate variance inflation is the design effect
+\(D=1+(m-1)\rho\). With m=20 and rho=0.05, D=1.95, nearly doubling
+variance and multiplying SE by \(\sqrt{1.95}=1.40\). Repeated measures
+may improve precision when within-person correlation is modeled, because
+baseline information predicts follow-up; treating all measurements as
+independent instead spuriously inflates precision. Robust sandwich SEs
+allow some model variance misspecification but require adequate independent
+clusters and do not fix a biased mean model.
+
+## Standard errors for contrasts and transformed estimates
+
+## Clustered data and effective information
+
+When groups of observations share a context—patients within hospitals,
+students within schools, or repeated records within a person—the independent
+unit is not necessarily the record. If outcomes within clusters have
+intraclass correlation rho, the variance of a mean can be much larger than
+the independent-observation formula suggests. For equal cluster size m,
+the rough design effect is \(1+(m-1)\rho\). With m=30 and rho=0.03, the
+design effect is 1.87, so the SE is multiplied by about 1.37. Even small
+correlation matters when clusters are large. The approximation is for
+intuition; unequal sizes, informative cluster size, and few clusters need
+more careful methods.
+
+Repeated measures differ from simple cluster sampling because within-person
+correlation can improve precision for change or treatment contrasts if
+baseline values predict follow-up. A paired estimator uses the SD of
+within-person differences; if pre-post correlation is strong, this SD can
+be considerably smaller than the separate marginal SDs. However, missing
+follow-up outcomes may break the paired sample and select a nonrepresentative
+subset. A mixed model or GEE may use available repeated observations under
+specified assumptions, but its SE depends on the covariance structure and
+working correlation. State the model and missing-data handling.
+
+For independent means \(\bar x_1-\bar x_0\), variance adds:
+\(SE=\sqrt{s_1^2/n_1+s_0^2/n_0}\). If each arm has SD 15 and n=142,
+the SE is \(\sqrt{225/142+225/142}=1.78\) mmHg. In paired data, the
+estimator is the mean within-person difference and its SE is
+\(s_D/\sqrt n\); it is generally wrong to treat the pre- and post-values
+as independent, since doing so discards their covariance. For a linear
+combination of regression coefficients \(c^T\hat\beta\), variance is
+\(c^T\widehat{Var}(\hat\beta)c\), which includes covariance terms. Merely
+adding coefficient SEs fails when coefficients are correlated.
+
+For a smooth transformation \(g(\hat\theta)\), the delta method approximates
+\(Var[g(\hat\theta)]\approx[g'(\theta)]^2Var(\hat\theta)\). For a ratio,
+the log transformation often yields a more symmetric sampling distribution;
+for a logistic coefficient, \(\exp(\hat\beta)\) is an odds ratio and its
+log-scale SE remains the coefficient's SE. For nonlinear estimands or
+boundary parameters, the delta approximation can be unreliable; profile
+likelihood, bootstrap, or a design-specific method may better represent
+uncertainty.
+
+```r
+# Welch standard error and interval for two independent means
+n1 <- 40; n0 <- 38
+m1 <- 7.1; m0 <- 8.0
+s1 <- 1.8; s0 <- 2.0
+estimate <- m1 - m0
+se <- sqrt(s1^2 / n1 + s0^2 / n0)
+df <- (s1^2/n1 + s0^2/n0)^2 /
+  ((s1^2/n1)^2/(n1-1) + (s0^2/n0)^2/(n0-1))
+c(estimate = estimate, lower = estimate - qt(.975, df) * se,
+  upper = estimate + qt(.975, df) * se, SE = se, df = df)
+```
+
+The estimated difference is −0.9, SE≈0.432, and Welch df≈74.2; its 95%
+interval is approximately −1.76 to −0.04. The interval concerns a mean
+contrast under independent sampling; it does not imply each treated
+patient improves by that amount.
+
+## Precision is not total uncertainty
+
+The conventional SE captures sampling variation conditional on the
+estimator, model, and observed-data process. It does not encompass bias
+from confounding, selection, outcome misclassification, measurement error,
+or model misspecification. Narrow intervals can therefore coexist with
+substantial uncertainty about the causal or transportable interpretation.
+Missing-data methods may yield similar SEs while relying on very different
+assumptions (e.g., missing at random versus missing not at random); perform
+sensitivity analyses when plausible departures could change the result.
+Likewise, a confidence interval is not a prediction interval. When the
+purpose is forecasting for a new patient, include residual variability and
+validate predictions in the intended setting.
+
+## How standard errors are obtained
+
+For maximum-likelihood estimates, the model-based covariance matrix is
+often approximated by the inverse observed information (the negative
+Hessian of the log-likelihood). This estimate relies on a correctly
+specified likelihood and regular large-sample conditions. Sandwich
+estimators replace part of the model-based variance calculation with
+empirical residual variation and can remain consistent if the mean model
+is correct while the variance model is wrong; they do not protect against
+an incorrect mean structure or dependence omitted from the sandwich.
+Small samples and few clusters require corrections or alternative
+methods, since asymptotic normality may be poor.
+
+The nonparametric bootstrap approximates the sampling distribution by
+resampling independent units with replacement, recomputing the estimator
+for each replicate, and examining the resulting distribution. For a
+patient-level independent cohort, sample patients; for cluster-randomized
+data, sample clusters. Resampling individual records inside clusters would
+destroy the dependence pattern. With 2,000 replicates, a percentile interval
+uses the 2.5th and 97.5th percentiles; Monte Carlo error remains and should
+be checked by increasing the replicate count. Bootstrap replicates that
+fail to fit, especially in sparse logistic models, signal instability
+rather than a software nuisance to silently discard.
+
+```r
+set.seed(2026)
+dat <- data.frame(y = c(7.1, 6.8, 8.0, 7.7, 6.9, 8.4, 7.5, 6.6),
+                  group = rep(c("control", "treated"), each = 4))
+boot_diff <- replicate(2000, {
+  id0 <- sample(which(dat$group == "control"), 4, replace = TRUE)
+  id1 <- sample(which(dat$group == "treated"), 4, replace = TRUE)
+  d <- dat[c(id0, id1), ]
+  mean(d$y[d$group == "treated"]) -
+    mean(d$y[d$group == "control"])
+})
+quantile(boot_diff, c(.025, .5, .975))
+```
+
+This deliberately tiny example is for showing mechanics only. With small
+samples, a nonparametric bootstrap may poorly approximate tail behavior;
+it is not automatically superior to a well-justified analytic interval.
+For paired designs, resample pairs; for stratified samples, preserve
+strata. For ratio measures, inspect whether bootstrap replicates are
+undefined or heavily skewed before reporting percentile bounds.
+
+## Choosing and communicating an estimator
+
+### Standard error of a proportion and finite populations
+
+For independent Bernoulli observations, \(\hat p\) has variance
+\(p(1-p)/n\), estimated by substituting \(\hat p\). At p-hat=0.45 and
+n=100, the SE is \(\sqrt{0.2475/100}=0.04975\), about five percentage
+points. If the sample is drawn without replacement from a finite population
+of N=1,000 and n=100, the finite population correction is approximately
+\(\sqrt{(N-n)/(N-1)}=0.949\), modestly reducing SE. This correction is
+appropriate only when inference targets that finite population and the
+sampling design supports it; it is not a generic adjustment for large n.
+For stratified or unequal-probability samples, variance depends on strata,
+weights, and clustering, and software should use the design object rather
+than treating records as an independent simple random sample.
+
+## Monte Carlo uncertainty in computational standard errors
+
+## Sampling distributions and the central limit approximation
+
+The standard error is the SD of an estimator's sampling distribution, not
+necessarily the SD of the raw data. For independent draws with finite
+variance, the central limit theorem often makes the sample mean nearly
+normal as n grows, even when observations themselves are skewed. The rate
+of convergence depends on skewness and tail behavior; a modest n may not
+be enough for a biomarker with extreme right skew or a distribution with
+heavy tails. The familiar t interval is exact under normal sampling and
+often robust in moderate samples, but an apparently large n does not
+justify ignoring outliers, dependence, or a highly influential subgroup.
+
+The standard error of the mean scales as \(1/\sqrt n\), so quadrupling
+sample size halves it. This diminishing return is useful during design:
+reducing an SE from 1 to 0.5 requires four times as many independent
+observations, not twice as many. Better measurement, stratification on
+strong prognostic factors, paired designs, or repeated measures may
+increase efficiency more economically, provided analysis respects the
+design. Conversely, noisy measurements and heterogeneous populations
+increase variance; larger n can narrow uncertainty but does not correct
+systematic measurement error.
+
+### Measurement error and uncertainty
+
+Laboratory assay imprecision contributes to observed outcome variability
+and can therefore increase an SE, but systematic calibration error may
+shift all values and is not represented by the sampling SE. Exposure
+measurement error can attenuate associations or produce more complex bias;
+the conventional regression SE conditional on measured data will not
+reflect uncertainty about the true exposure. Validation subsamples,
+replicate assays, calibration studies, or measurement-error models may be
+needed. Report the distinction between sampling precision and measurement
+accuracy so that an interval is not interpreted as covering uncertainty
+the analysis never modeled.
+
+Bootstrap and simulation methods introduce numerical approximation error
+in addition to sampling uncertainty. With B independent bootstrap
+replicates, the estimated standard error is the sample SD of the B
+replicate estimates. The Monte Carlo error in that estimated SD is roughly
+\(SE/\sqrt{2(B-1)}\) under regularity conditions. For B=2,000 this is
+about 1.6% of the SE; for tail quantiles it can be larger and depends on
+how many replicates fall in the tail. Increase B when intervals are used
+for high-stakes decisions or when limits shift noticeably across random
+seeds. Set and report a seed for reproducibility, but do not mistake a
+fixed seed for scientific validity.
+
+If bootstrap replicates are highly skewed, the standard deviation alone
+does not describe their shape. Plot the replicates, compare percentile and
+BCa intervals if justified, and examine influential observations. A
+jackknife can diagnose influence by omitting each independent unit in
+turn, but it cannot detect bias shared by all observations. For complex
+estimators such as a ratio with a denominator near zero, the sampling
+distribution may be heavy-tailed or undefined; no ordinary symmetric SE
+will summarize that instability adequately.
+
+## References and further reading
+
+Different estimators can target different quantities. A mean is sensitive
+to extreme values but is often the estimand of interest; a median estimates
+the population midpoint and may be more robust to skew, but its SE and
+interval require quantile methods rather than the mean formula. A trimmed
+mean is a distinct estimand. Report which summary was selected and why,
+rather than switching to whichever appears most favorable after seeing
+the distributions. Robust estimation can improve resistance to outliers,
+but does not turn an unrepresentative sample into a representative one.
+
+In reporting, pair the point estimate with its unit, direction, reference
+group, denominator, SE or confidence interval, and target population.
+Present descriptive SDs when describing participant heterogeneity, and
+intervals when communicating uncertainty about population effects. For
+complex models, state the covariance method (model-based, robust, bootstrap,
+or design-based), clustering unit, and any weighting. Rounding estimates
+and interval bounds consistently avoids implying a precision unsupported
+by the data.
+
 ## References and further reading
 
 - Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), recommendations for reporting estimates and standard errors.
 - Altman DG, Machin D, Bryant TN, Gardner MJ, eds. *Statistics with Confidence*. 2nd ed. BMJ Books, 2000.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott-Raven.
 - The [confidence intervals article](/biostatistics-library/inference/confidence-intervals.html) explains how standard errors translate into interval estimates.
+- Efron B, Tibshirani RJ. *An Introduction to the Bootstrap*. Chapman & Hall/CRC, 1993.
+- Lumley T. *Complex Surveys: A Guide to Analysis Using R*. Wiley, 2010.

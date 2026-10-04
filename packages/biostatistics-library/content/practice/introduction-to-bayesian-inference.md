@@ -56,6 +56,109 @@ Bayesian results depend on the likelihood, prior, and model; “the data update 
 
 ## References and further reading
 
+## Posterior distributions and conjugate updating
+
+## Bayesian treatment comparison
+
+## Prior elicitation on interpretable scales
+
+## Hierarchical treatment effects worked concept
+
+Suppose several clinics estimate treatment effects θ_j, modeled as Normal(μ,τ²), with each clinic's estimate approximately Normal(θ_j, SE_j²). A clinic with large SE is pulled more toward μ than a precise clinic. If τ is near zero, effects are similar; if τ is large, pooling is weak. This partial pooling often improves estimates for small clinics but relies on exchangeability. Plot raw and posterior estimates with intervals, and inspect whether clinic characteristics explain systematic differences.
+
+For a sparse clinic with zero events, Bayesian hierarchical modeling can yield finite posterior estimates through pooling and prior regularization. Sensitivity to prior on τ is important: half-normal, half-t, or other priors can imply different heterogeneity. Report prior predictive checks and posterior uncertainty; do not interpret a shrinkage estimate as observed clinic truth.
+
+## Bayesian versus frequentist reporting
+
+## Posterior predictive checks in practice
+
+## Bayesian workflow from question to report
+
+For reproducibility, share model code, data-generating assumptions, priors, sampler settings, diagnostic plots, and posterior summaries. Report effective sample size and \hat R for key parameters and explain any divergences or sensitivity to reparameterization.
+
+## Report posterior claims with context
+
+Bayesian results should include a sensitivity table showing key posterior summaries under alternative prior scales. Sparse data make the prior consequential; readers need to see that dependence directly rather than infer it from the methods label.
+
+Distinguish posterior probability of benefit from probability that a point null is true, and state the direction/threshold defining benefit. Include sensitivity to plausible skeptical and weakly informative priors, especially with few events.
+
+Include prior and posterior predictive plots for key outcomes, document software/package versions, and distinguish posterior uncertainty from sensitivity to model assumptions.
+
+A Bayesian report should state prior distributions on the parameter scale, likelihood, posterior summary, credible interval, model checks, and sensitivity analyses. If claiming 95% probability of benefit, define benefit and explain that probability is conditional on assumptions. For a decision, include clinically important threshold and expected utility when available. Prior predictive plots help readers see whether assumptions were plausible before the data.
+
+Define estimand and likelihood; choose priors with interpretable implications; conduct prior predictive checks; fit model and diagnose computation; check posterior predictive fit; summarize posterior contrasts and decisions; then examine sensitivity to priors and model structure. This workflow avoids treating Bayesian analysis as merely substituting priors into software. Report likelihood, priors, parameterization, convergence diagnostics, posterior summaries, and code/software versions.
+
+If data are sparse, prior influence should be made visible rather than hidden behind a broad label such as “weakly informative.” Plot prior and posterior distributions for key effects and heterogeneity. For hierarchical models, assess prior predictive variation between clinics/studies. For decisions, report probability of clinically meaningful benefit and expected consequences under alternative thresholds.
+
+Generate replicated datasets from posterior draws and compare statistics relevant to the question: event rate by arm, tail behavior, zero-event frequency, cluster variation, or time-to-event distribution. A model can fit the overall mean but fail important subgroup or tail patterns. Posterior predictive p-values are diagnostic summaries, not calibrated frequentist p-values; use graphical comparisons and substantive discrepancies. If the model fails, revise structure and rerun sensitivity analyses rather than relying on a high-level fit number.
+
+## Bayesian credible intervals and repeated-sampling properties
+
+Credible intervals answer posterior probability questions conditional on prior/model; their frequentist coverage can vary across parameter values. In regulated or high-stakes designs, evaluate operating characteristics by simulating repeated trials under null, clinically relevant alternatives, and prior-predictive scenarios. Report posterior decision thresholds and false-positive/power behavior. A Bayesian framework does not remove the need to assess calibration and robustness.
+
+For informative priors based on previous trials, account for publication bias, population differences, and changes in standard care. Discount or robustify borrowing when historical data conflict. Explain whether prior data overlap with current participants; double-counting is invalid.
+
+Bayesian analysis can report posterior probability of benefit and expected utility, while frequentist analysis reports estimate, interval coverage procedure, and p-value. These can complement but not be conflated. A posterior probability depends on prior and likelihood; p-value does not. If a regulatory or clinical decision uses a posterior threshold, justify threshold and evaluate false-positive behavior through simulation. Disclose all priors, likelihood, computational method, convergence diagnostics, and sensitivity analyses.
+
+Translate prior knowledge into outcomes clinicians recognize. For a binary event, ask what baseline event risks and treatment risk ratios are plausible; simulate prior predictive event counts to see implied data. A Normal prior on a log odds ratio may seem weak but can put substantial mass on extreme ORs. For a treatment difference, a skeptical prior centered at zero with SD reflecting plausible effect can regularize sparse evidence; justify its width from clinical thresholds or historical studies.
+
+Borrowing historical control data through a commensurate or robust mixture prior can improve precision if care and eligibility are comparable. If historical data conflict with current controls, robust mixture components should downweight borrowing. Show no-borrowing and alternative-prior analyses. Dynamic borrowing is not a remedy for changes in standard of care or endpoint definition.
+
+## Bayesian decision analysis
+
+Let (U(a,θ)) be utility of action (a) under state θ. The Bayes action maximizes posterior expected utility (E[U(a,θ)\mid y]). Treatment decisions therefore depend on efficacy, harms, costs, and patient preferences, not only whether posterior probability of benefit exceeds 0.95. A decision threshold emerges from relative utilities. Report expected benefit/harm or net benefit across plausible values when utilities are uncertain.
+
+In trial monitoring, posterior probabilities can trigger stop/continue rules, but calibrate operating characteristics by simulation under null and alternative scenarios. Evaluate type-I error, power, expected sample size, and probability of correct decisions. A posterior stopping rule can have different frequentist behavior depending on prior and accrual, so transparency is essential.
+
+For two independent binomial arms, independent Beta priors yield independent Beta posteriors. Draw posterior risks (p_T,p_C), then compute posterior draws of RD, RR, and probability of clinically meaningful benefit. For example, a posterior probability (P(RD<0\mid data)=.97) means 97% of posterior mass favors lower event risk under treatment under the specified model and priors; it is not a 97% chance the treatment works in every patient. The credible interval and absolute magnitude still matter.
+
+```r
+set.seed(7)
+draw_t <- rbeta(50000, 1 + 42, 1 + 458)
+draw_c <- rbeta(50000, 1 + 50, 1 + 450)
+rd <- draw_t - draw_c
+c(prob_benefit = mean(rd < 0),
+  prob_benefit_over_2pct = mean(rd < -.02),
+  quantile(rd, c(.025, .5, .975)))
+```
+
+The numbers are an illustrative example with uniform priors. A skeptical prior centered on no effect or hierarchical borrowing from earlier studies could change results; show prior sensitivity. If data are clustered or stratified, use a model that represents design dependence rather than treating all outcomes as independent Bernoulli trials.
+
+## Hierarchical models and partial pooling
+
+When estimating effects across clinics or studies, hierarchical models allow group-specific effects to vary around a common distribution. Partial pooling shrinks noisy small-group estimates toward the overall mean, while large groups remain closer to their data. This improves prediction when exchangeability is plausible but can conceal genuine systematic differences if the hierarchy is misspecified. Inspect posterior between-group SD, group-level predictors, and posterior predictive distributions. Avoid interpreting shrinkage as proof all groups share one effect.
+
+Prior predictive simulation helps choose priors: simulate outcomes before data and check whether event rates and treatment effects are plausible. Posterior predictive checks compare replicated data with observed patterns such as zero counts, tails, and subgroup variation. Sensitivity analyses should vary priors on both treatment effects and heterogeneity parameters.
+
+Bayesian inference combines a likelihood (p(y\mid\theta)) with a prior (p(\theta)) to produce posterior (p(\theta\mid y)\propto p(y\mid\theta)p(\theta)). For binomial data (Y\sim Binomial(n,p)) with prior (p\sim Beta(a,b)), the posterior is (Beta(a+y,b+n-y)). With 8 events in 100 and a uniform Beta(1,1) prior, posterior is Beta(9,93), with mean (9/102=.088). Its 95% credible interval is obtained from beta quantiles and has a direct probability interpretation conditional on the model and prior.
+
+```r
+y <- 8; n <- 100; a <- 1; b <- 1
+post_a <- a + y; post_b <- b + n - y
+c(mean = post_a / (post_a + post_b),
+  lower = qbeta(.025, post_a, post_b),
+  upper = qbeta(.975, post_a, post_b))
+pbeta(.10, post_a, post_b)  # posterior probability risk is below 10%
+```
+
+Conjugacy is algebraically convenient, not a guarantee that the prior is appropriate. A uniform prior on a probability is not uniform on log-odds; inspect prior implications on clinically meaningful scales. For treatment comparisons, specify priors on baseline risks and relative effects in a way that respects parameterization and plausible ranges.
+
+## Credible intervals, decisions, and prior sensitivity
+
+A 95% posterior credible interval contains 95% posterior probability under the model and prior. A frequentist confidence interval has repeated-sampling coverage, not a posterior probability statement. Bayesian summaries can include posterior mean/median, credible intervals, probability of benefit, probability exceeding a clinically meaningful threshold, and expected utility. Decision-making requires a loss/utility function; a posterior probability alone does not encode consequences of false positives and false negatives.
+
+Prior sensitivity should be assessed by fitting plausible alternatives: weakly informative, skeptical, and evidence-based priors. “Noninformative” priors can be improper, parameterization-sensitive, or influential with sparse data. For hierarchical models, weak priors on variance components can imply unexpectedly large group variation. Prior predictive simulation checks whether data generated from the prior look plausible before observing outcomes; posterior predictive checks assess model fit after observing data.
+
+For a normal mean with known variance, prior θ~N(μ0,τ²) and data mean ̅y~N(θ,σ²/n), posterior precision is (1/τ^2+n/σ^2). The posterior mean is a precision-weighted average of prior mean and sample mean. As n increases, data dominate; with sparse data, prior choice matters. Report the prior parameters and their scale interpretation, not merely the word “weak.”
+
+## Computation and diagnostics
+
+Conjugate models have closed forms; complex models often use Markov chain Monte Carlo. Check multiple chains, trace plots, effective sample size, \hat R, divergences, and sensitivity to parameterization. A converged sampler only indicates computational exploration, not model validity. Posterior predictive checks should target clinically meaningful features, including tails, zero counts, and subgroup variation. For rare events, prior and likelihood may be weakly identified; inspect posterior sensitivity and avoid overconfident claims.
+
+- Gelman A, Carlin JB, Stern HS, et al. *Bayesian Data Analysis*. 3rd ed. CRC Press; 2013.
+- McElreath R. *Statistical Rethinking*. 2nd ed. CRC Press; 2020.
+- Spiegelhalter DJ, Abrams KR, Myles JP. *Bayesian Approaches to Clinical Trials and Health-Care Evaluation*. Wiley; 2004.
+
 - Gelman A, Carlin JB, Stern HS, et al. *Bayesian Data Analysis*, 3rd ed. CRC Press. [Publisher page](https://www.routledge.com/Bayesian-Data-Analysis-Third-Edition/Gelman-Carlin-Stern-Dunson-Vehtari-Rubin/p/book/9781439840955)
 
 - Gelman A, Carlin JB, Stern HS, Dunson DB, Vehtari A, Rubin DB. *Bayesian Data Analysis*. Chapman and Hall/CRC.

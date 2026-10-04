@@ -55,6 +55,100 @@ Round up to 200 per group. With 15% expected loss to follow-up, recruit 200 / 0.
 
 ## References and further reading
 
+## Power is a design property, not an interpretation of results
+
+## Binary outcomes, allocation ratios, and precision
+
+## Dropout inflation and cluster attrition
+
+Inflating analyzable N by (1/(1-r)) handles a fixed expected fraction (r) of independent participant losses, but not differential attrition, cluster loss, or informative missingness. In cluster trials, losing one clinic can remove many participants and change balance; plan cluster-level contingency and consider unequal cluster size. If attrition differs by arm, use arm-specific projections and power under plausible missing-data mechanisms. Recruitment targets should include ineligible screening failures separately from post-enrollment dropout.
+
+## Information fraction and interim monitoring
+
+## Design assurance and Bayesian assurance
+
+### Equivalence sample size implication
+
+For equivalence, the null is that the difference is at or beyond either margin; power concerns placing the full confidence interval within the equivalence bounds when the true difference is near zero. Consequently, equivalence often requires more participants than a superiority test designed to detect a moderate difference. Specify the clinically justified margin before planning, account for expected adherence and assay sensitivity, and use a validated two-one-sided-tests or CI-based calculation. A smaller margin can sharply increase required N but yields stronger evidence of similarity.
+
+Conventional power conditions on fixed nuisance parameters and a fixed alternative. In practice, baseline rate, variance, and true effect are uncertain. Assurance averages power over a distribution for these parameters and can better describe the probability a design succeeds before data are observed. Bayesian assurance integrates over prior uncertainty; frequentist design assurance can average over scenario weights. Results depend on those distributions, so publish assumptions and compare with conventional power. This is particularly useful for small populations, rare diseases, or uncertain event rates.
+
+Recruitment feasibility can also be probabilistic: simulate monthly enrollment rates, site activation, screening failure, and dropout to estimate the chance of reaching target information by a funding deadline. A statistically powered design that cannot accrue its target is not viable. Adaptive sample-size rules can be planned, but adaptation must be included in operating-characteristic simulations and governance documents.
+
+Repeated interim efficacy testing can inflate type-I error. Group-sequential boundaries (O'Brien–Fleming, Pocock, or alpha-spending) allocate the error over information time; they alter critical values and sometimes expected sample size. O'Brien–Fleming boundaries are stringent early and close to the final nominal level, while Pocock boundaries are more even. Futility stopping can be nonbinding or binding, and its definition affects operating characteristics. Plan the number/timing of looks, data maturity, boundary, committee, and effect-estimation adjustment. Early stopping for benefit often overestimates effects, especially for modest trials.
+
+## Event-rate uncertainty and blinded re-estimation
+
+When control event rate is uncertain, power is highly sensitive to it. Simulate low, central, and high event-rate scenarios, recruitment rates, and censoring. Blinded re-estimation can update pooled event incidence or variance without exposing treatment contrast, provided its rule and any maximum sample-size adjustment are prespecified. An unblinded adaptation requires controlled type-I error methods and independent oversight. Report both planned and achieved event counts; a time-based study end can yield fewer events than expected even with full enrollment.
+
+For two independent proportions \(p_1,p_0\) with group sizes \(n_1,n_0\), the standard error under the alternative is approximately \(\sqrt{p_1(1-p_1)/n_1+p_0(1-p_0)/n_0}\). Power calculations use a null-based critical value and alternative distribution; exact and score-based procedures can differ from a simple normal approximation when events are rare. A 1:1 allocation is usually most efficient for equal per-person costs and equal variances, but unequal allocation may be appropriate when one treatment arm is expensive or safety exposure should be limited. For fixed total N, imbalance usually reduces power.
+
+The clinically meaningful difference must be paired with a credible control event rate. If the assumed control risk is 20% but the true risk is 10%, absolute event counts and power may differ substantially. Use blinded sample-size re-estimation based on nuisance parameters (such as pooled event rate or SD) when justified and prespecified; changing the target effect after unblinded interim results compromises error control. For noninferiority, sample size depends on the margin, expected true difference, and one-sided type-I error; a wider margin can make a trial smaller while weakening clinical protection.
+
+## Simulation for complex designs
+
+Analytic formulae become unreliable for adaptive randomization, zero-inflated outcomes, complex longitudinal covariance, competing-risk estimands, multiple co-primary endpoints, or small-cluster designs. Simulation can estimate operating characteristics by repeatedly generating data under plausible scenarios, applying the exact planned randomization and analysis, and recording rejection, bias, coverage, convergence, and stopping. The simulation code should be validated with simple special cases and shared with the protocol.
+
+```r
+set.seed(2026)
+B <- 2000
+reject <- replicate(B, {
+  x <- rnorm(120, mean = 0, sd = 1)
+  y <- rnorm(120, mean = 0.25, sd = 1)
+  t.test(x, y, var.equal = FALSE)$p.value < 0.05
+})
+mean(reject)  # Monte Carlo estimate of power for this simple scenario
+```
+
+Monte Carlo error for an estimated power \(\hat p\) is approximately \(\sqrt{\hat p(1-\hat p)/B}\); at power .80 with B=2,000 it is about .009. Increase replicates when comparing close design options. The example is a teaching demonstration, not a substitute for simulating the intended design, missingness, and prespecified primary analysis.
+
+## Multiplicity and decision-based sample size
+
+Multiple primary endpoints, treatment arms, dose comparisons, interim looks, and subgroup claims create multiplicity. A hierarchical testing strategy, gatekeeping, Holm adjustment, or family-wise alpha allocation can control error; the selected strategy changes power and must be incorporated into sample-size planning. False-discovery-rate control may suit exploratory screening but does not provide the same family-wise guarantee. Clearly identify confirmatory versus exploratory objectives.
+
+In Bayesian designs, sample size can be chosen to meet posterior probability criteria under a prior, but also evaluate frequentist operating characteristics (type-I error and power) across plausible true effects. Decision-theoretic designs can minimize expected loss or maximize expected utility, but require explicit utilities and stakeholder agreement. A small expected sample size under early stopping does not imply a small maximum sample size; budget for the maximum and report the stopping probabilities.
+
+## Precision, feasibility, and interpretation
+
+A design can be adequately powered for a moderate effect yet too imprecise for a rare serious harm or subgroup. Consider co-primary precision goals for safety if they drive decisions. Feasibility parameters include recruitment rate, retention, event incidence, adherence, cluster availability, and data latency. Pilot studies estimate feasibility and instrument behavior more reliably than treatment effects; small pilot effect estimates are noisy and should not be used uncritically for definitive planning.
+
+After the study, compare the observed confidence interval with prespecified clinically important bounds. A nonsignificant finding whose interval excludes meaningful benefit can support lack of a clinically important effect; one with a wide interval remains inconclusive. Do not claim equivalence from failure to reject superiority. Equivalence requires prespecified two-sided margins and confidence-interval containment; noninferiority requires the interval to exclude an unacceptable loss according to the chosen direction and analysis population.
+
+### Cluster and event-driven design effects
+
+If an individually randomized calculation requires 100 participants per arm but randomization is by clinic with average 15 participants and ICC=.03, the equal-size design effect is \(1+14(.03)=1.42\), giving about 142 participants per arm before attrition. Unequal clinic sizes increase the design effect; the number of clinics also constrains reliable estimation and degrees of freedom. Add clusters rather than only increasing people per cluster when feasible. For event-driven survival trials, calculate the number of events needed for the target hazard ratio and power, then project recruitment and follow-up using control survival, accrual duration, dropout, and administrative study end.
+
+For a two-sided log-rank comparison with equal allocation, a common approximation for required events is \(D\approx4(z_{1-\alpha/2}+z_{1-\beta})^2/[\log(HR)]^2\). At HR=.70, alpha=.05 and power=.80, this is about 247 events. This is an event target, not a participant count; low event incidence may require a much larger cohort and longer observation. Verify assumptions with design-specific software or simulation.
+
+Power is the probability that a prespecified test rejects its null under a particular alternative and a fully specified design. It depends on sample size, effect size, outcome variability or event rate, allocation ratio, significance level, dependence, and analysis. “Observed power” computed from the observed effect is largely a transformation of the p-value and adds no useful information; report the effect estimate and confidence interval. A nonsignificant result can be compatible with both no meaningful effect and clinically important benefit or harm.
+
+For two independent means with equal allocation, the standard error of the difference is \(\sigma\sqrt{2/n}\). If \(\sigma=12\), the target difference is 6, two-sided \(\alpha=.05\), and power 80%, then \(n≈2(1.96+.84)^2(144)/36≈63\) per arm. If 15% attrition is expected, randomize about \(63/.85≈75\) per arm. This inflation assumes the attrition is roughly proportional and does not itself repair informative missingness.
+
+```r
+delta <- 6; sd <- 12; alpha <- .05; target_power <- .80
+n <- ceiling(2 * (qnorm(1 - alpha / 2) + qnorm(target_power))^2 * sd^2 / delta^2)
+n_adjusted <- ceiling(n / (1 - .15))
+c(analyzable_per_arm = n, randomize_per_arm = n_adjusted)
+```
+
+The formula assumes normally distributed outcomes or adequate large-sample behavior, equal variance, independent individuals, and no interim alpha spending. For a binary outcome, power depends on both event probabilities and allocation; for survival endpoints, it is often driven primarily by the number of events, with recruitment and follow-up determining how many participants are needed to accrue them. For cluster trials, apply a design effect only as an approximation and ensure enough clusters to estimate between-cluster variation.
+
+## Choosing assumptions and design targets
+
+Choose the minimum clinically important difference in consultation with clinicians, patients, and decision-makers. Use external evidence or pilot data for baseline rates and variability, but avoid an unstable small pilot estimate as the sole input. Explore a range: show how required sample size changes with plausible SD, event rate, loss to follow-up, and effect. Conservative event assumptions may increase sample size, but “conservative” depends on whether the uncertainty concerns feasibility or power. The primary estimand and analysis must match the calculation—for example, a superiority calculation cannot be relabeled a noninferiority design after observing results.
+
+Type-I error and power describe repeated-study operating characteristics under specified assumptions. They are not the probability that the alternative is true or that a significant result is replicated. Multiplicity across primary outcomes, doses, interim looks, or subgroups affects false-positive control and should be planned. A group-sequential design can stop early for benefit, harm, or futility, but requires alpha-spending or equivalent boundaries and may produce biased effect estimates after early stopping. Bayesian designs can target posterior decision probabilities and expected losses, but operating characteristics across scenarios should still be evaluated.
+
+For precision-based planning, specify a desired confidence interval width rather than power against one effect. For estimation studies, this is often more aligned with the aim. For diagnostic sensitivity, sample size is driven by the number with disease; precision in a rare condition may require screening many more participants than the diseased subgroup size suggests. For prevalence, incorporate sampling design and expected prevalence. For prediction models, events-per-parameter rules are inadequate alone; expected overfitting, shrinkage, calibration, and validation sample size matter.
+
+## Reporting and reproducibility
+
+Report the exact formula or software, version, inputs, allocation, sidedness, alpha, target power or precision, assumed event rates/SD, attrition, design effect, and any multiplicity adjustment. Include sensitivity scenarios and distinguish total recruited from analyzable sample size. Preserve code and output. Post hoc sample size justifications based on observed effects are misleading; instead report what effect sizes the interval rules out or remains compatible with. If recruitment falls short, quantify the resulting precision and avoid lowering the clinical threshold after seeing data.
+
+- Chow SC, Shao J, Wang H, Lokhnygina Y. *Sample Size Calculations in Clinical Research*. 3rd ed. Chapman & Hall/CRC; 2017.
+- Julious SA. *Sample Sizes for Clinical Trials*. Chapman & Hall/CRC; 2010.
+- Riley RD, Ensor J, Snell KIE, et al. Calculating the sample size required for developing a clinical prediction model. *BMJ*. 2020;368:m441. https://doi.org/10.1136/bmj.m441
+
 - Chow S, Shao W, Wang H, Lokhnygina Y. *Sample Size Calculations in Clinical Research*. 3rd ed. CRC Press, 2017.
 - [CONSORT 2010 statement](https://doi.org/10.1136/bmj.c332), including transparent reporting of sample-size assumptions.
 - Dupont W, Schuemaker M. *Power and Sample Size Calculation*. CRC Press.

@@ -52,6 +52,111 @@ Reproducibility has several layers: computational reproducibility reruns the sam
 
 ## References and further reading
 
+## A reproducible analysis lifecycle
+
+## Data provenance and validation
+
+## Example project layout
+
+A maintainable structure might include `README.md`, `renv.lock`, `data-raw/` for scripts that acquire data (not sensitive raw records), `R/` for reusable functions, `analysis/` for ordered scripts, `reports/` for rendered outputs, and `outputs/` for derived tables/figures. A Makefile or workflow tool can encode dependencies so a changed source reruns only downstream steps. Avoid files named `final_final2.R`; use version control and tagged releases.
+
+Separate exploratory notebooks from the production analysis and convert validated logic into scripts/functions. Record assumptions in code comments and maintain a data dictionary. Keep generated outputs reproducible and label manual annotations explicitly. If external inputs are unavailable to collaborators, provide synthetic fixtures that exercise the pipeline.
+
+## Code review and analytic validation
+
+## Version control practice
+
+## Reproducible R analysis example
+
+A project can start by reading immutable input, validating schema, transforming via functions, and writing derived outputs to a controlled location. Use `here::here()` or project-relative paths, `targets`/`drake` for dependency graphs, and `renv` for package state. Write tests for critical recodes and derivations; a test should fail when outcome coding unexpectedly changes. Render report in CI from a clean environment and check output for errors and key numerical values.
+
+```r
+stopifnot(!anyDuplicated(dat[c("id", "visit")]))
+stopifnot(all(dat$outcome %in% c(0, 1, NA)))
+dat$event <- as.integer(dat$status == "event")
+saveRDS(dat, here::here("derived", "analysis_data.rds"))
+```
+
+The checks depend on the expected unit of observation and valid outcome coding; tailor them to the data dictionary. Validation code should report exceptions rather than silently coerce malformed values. Sensitive derived files should remain in approved storage and not be committed.
+
+## Reproducibility in regulated clinical work
+
+Clinical analyses may require validated environments, audit trails, access controls, and change control. Reproducible code should be accompanied by review and validation appropriate to intended use. Maintain traceability from source data to derived variables to table cells. Preserve audit logs and analysis dataset snapshots. Public open-source workflows are useful but do not replace applicable data governance and quality systems.
+
+Commit small coherent changes with messages describing analytical intent, not only file names. Use branches for substantial work and code review for primary derivations. Tag a release corresponding to manuscript submission and preserve the repository state. Resolve conflicts by comparing semantics, not blindly taking one side. Never commit raw protected data, credentials, or temporary exports; add repository ignore rules and scan history if sensitive material was accidentally introduced.
+
+For collaborative analysis, maintain issues for assumptions and decisions, document who approved changes, and keep a decision log. Scripts should run in a declared order or workflow graph. Avoid manual dependence on current working directory and interactive object state. A clean render from an empty session is a meaningful check of computational reproducibility.
+
+## Reproducibility limits and replication
+
+## Reproducible reporting pipeline
+
+## Handoff checklist
+
+Use automated checks for key output totals and report rendering, but preserve human review of clinical interpretation and disclosure risk. Archive review approvals and known limitations with each release.
+
+For tables and figures, generate values directly from saved analysis objects and test key counts against source data. Archive report source plus rendered artifact and link both to the data snapshot and code commit. This prevents manually edited results from drifting away from reproducible analysis.
+
+## Provenance metadata
+
+For manuscripts, generate the reported numeric results from the final locked analysis data and include a consistency check against abstract and table values.
+
+Release notes should summarize code, data, and environment changes and identify outputs regenerated for each version.
+
+Review rendered outputs for accidental disclosure of small cells, identifiers, or embedded source data. Include safe synthetic fixtures for code review and document which production inputs require protected access. These steps support reproduction while maintaining governance obligations.
+
+Record input-file checksums, query/extract timestamp, code commit, package lockfile, and report-render time. Provenance metadata helps distinguish real analytic changes from updated source extracts or software behavior. Keep a manifest with each publication release and make data access steps explicit.
+
+Deliver a README with data inputs, access instructions, environment setup, execution order, expected runtime, outputs, and known limitations. Include a license or data-use constraints, contact/ownership, and code version. A new analyst should be able to reproduce key outputs without relying on undocumented knowledge. For long pipelines, provide a small smoke-test dataset and expected output to verify setup quickly.
+
+Archive both source and rendered report with the exact commit and data snapshot. Distinguish a reproducibility package from a public dataset; sensitive data may require secure access approval. Document any step that cannot be automated and why.
+
+Generate manuscript tables and figures from a single analysis dataset and scripted functions. Include assertions that key totals match the CONSORT/STROBE flow and that denominators reconcile. Use unit tests for derived endpoints and snapshot expected summaries for regression checks. Render the full report from a clean process with warnings visible. Record data release ID and code commit in output metadata so results map to exact inputs.
+
+For collaboration, document decisions and assumptions in README or analysis log, review code changes, and archive release artifacts. A container can capture system dependencies, but should be combined with a lockfile and documented data access. Reproducibility includes secure governance: do not expose row-level data in reports, logs, or test fixtures.
+
+Exact reproducibility can fail because of nondeterministic parallel algorithms, floating-point differences, package updates, or changing external resources. Record tolerances for numerical comparison and provide expected output hashes or key checks. Replication with new data tests generalizability, not merely code. Share limitations, unavailable dependencies, and data access requirements so another team can assess what can be reproduced.
+
+Review data transformation code for key uniqueness, missing-value semantics, date/time-zone handling, and unit conversions. Validate derived outcomes against hand-calculated records and independent code for primary endpoints. Compare statistical output with textbook calculations or another package for critical analyses. Review does not replace clinical adjudication: domain experts should confirm endpoint definitions and plausible ranges.
+
+Continuous integration can render reports and run fast checks on each change. Protect secrets in environment managers, never write credentials into notebooks, and inspect HTML outputs for embedded patient-level data. Archive exact code commit and data snapshot used for publication so later package updates do not silently alter results.
+
+Record source system, extraction date, query version, filters, and data dictionary. Use checksums or immutable snapshots to detect source changes. Validate identifiers, dates, ranges, duplicate records, and joins with assertions. For clinical datasets, document whether rows represent people, visits, specimens, or events. Derive analysis variables from source fields in code with unit tests and traceable mappings. Never overwrite raw data; keep correction logs and transformations deterministic.
+
+Example assertions in R can check unique patient-visit keys, permitted values, and expected row counts after joins. Fail loudly when assumptions are violated instead of silently dropping records. Summarize exclusions by reason and compare against the flow diagram. Data cleaning decisions should be reviewed and versioned like analysis code.
+
+## Computational environments and random processes
+
+Package lockfiles support environment restoration but do not guarantee identical results across CPU architectures or system libraries. Record R/Python version, operating system, package versions, locale, timezone, and external software. Set random seeds for bootstrap, imputation, and simulation; for parallel work use reproducible RNG streams and record worker settings. Avoid relying on hidden objects in interactive sessions; render from a fresh process.
+
+## Sharing under governance constraints
+
+For protected or licensed data, make code public only if it contains no identifiers, secrets, or contract-restricted material. Provide synthetic data or a data-access workflow so methods can be inspected without disclosure. Document data-use restrictions and reproducibility limitations explicitly. Reproducibility is improved by transparent code and metadata even when raw data cannot legally be shared.
+
+Reproducibility begins before modeling: preserve a read-only raw-data source, record provenance and permissions, define a data dictionary, and separate raw, intermediate, and analysis-ready data. Use scripts or notebooks to transform data deterministically; avoid manual spreadsheet edits without an auditable log. Store code and metadata under version control, with meaningful commits and tagged analysis releases. Pin package versions with a lockfile and capture system details when results depend on external software or APIs.
+
+```r
+sessionInfo()
+renv::snapshot()  # record package versions for this project
+```
+
+`renv` helps restore an R package library but does not capture operating system libraries, external databases, private data access, or random-number state by itself. Record seeds for stochastic procedures, while recognizing that parallel computations and package changes can affect exact sequences. Keep credentials and protected health information out of repositories and logs; use approved secure storage and role-based access.
+
+## Project structure and automated checks
+
+Organize projects with explicit directories for data, code, outputs, and documentation; use relative paths through a project root rather than machine-specific absolute paths. Define functions for repeated transformations, validate input schemas, and assert row counts and allowed ranges after joins. A join can silently multiply rows if keys are not unique; check key uniqueness before and after joins. Unit tests for deterministic data transformations can catch regressions, while analytic validation compares results with known examples or independent implementations.
+
+Generate tables and figures from analysis objects, not manually retyped values. A single source of truth prevents abstract numbers and manuscript values from diverging. Use literate reports (Quarto/R Markdown) to combine code, methods, and results; render from a clean session to detect hidden state. Preserve output artifacts only when they are meaningful and reproducible; avoid committing large temporary files or derived data with sensitive content.
+
+## Data privacy, collaboration, and handoff
+
+Reproducibility does not require publishing identifiable data. Share code, synthetic examples, data dictionaries, and controlled-access procedures where lawful and ethical. Document data transformations and analysis populations so authorized collaborators can reproduce results in a secure environment. Record software versions, execution date, data snapshot identifier, and known limitations in a README. For collaborative work, code review, issue tracking, branch discipline, and named ownership clarify decisions and reduce undocumented changes.
+
+Before handoff, run the project from a clean environment, verify key output values against the report, inspect warnings, and archive the exact code/data version used. Distinguish computational reproducibility (same data and code reproduce result) from replicability (new data support conclusion). Both are important, but they answer different questions.
+
+- Peng RD. Reproducible research in computational science. *Science*. 2011;334:1226–1227. https://doi.org/10.1126/science.1213847
+- National Academies. *Reproducibility and Replicability in Science*. 2019. https://doi.org/10.17226/25303
+
 - Peng RD. Reproducible research in computational science. *Science*. 2011;334:1226–1227. [doi:10.1126/science.1213847](https://doi.org/10.1126/science.1213847)
 
 - Leisch F, R-Core-Team. *Reproducible Research with R*. Springer.
