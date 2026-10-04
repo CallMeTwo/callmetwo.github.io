@@ -199,9 +199,10 @@ function articleCss() {
   .article-highlight-toolbar button[data-highlight-color="pink"]{background:#f9dce8}
   .article-highlight-toolbar button[data-remove-highlight]{margin-left:4px}
   .article-highlight-toolbar button[hidden]{display:none}
-  .article-body::highlight(reader-highlight-yellow){background-color:#ffe58a;color:#17211b}
-  .article-body::highlight(reader-highlight-blue){background-color:#b9e1ff;color:#17211b}
-  .article-body::highlight(reader-highlight-pink){background-color:#ffc8dc;color:#17211b}
+  ::highlight(reader-highlight-yellow){background-color:#ffe58a;color:#17211b}
+  ::highlight(reader-highlight-blue){background-color:#b9e1ff;color:#17211b}
+  ::highlight(reader-highlight-pink){background-color:#ffc8dc;color:#17211b}
+  body.quick-highlight-mode ::selection{background:#ffe58a;color:#17211b}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}

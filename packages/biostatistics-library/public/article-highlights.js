@@ -12,6 +12,7 @@
   let pending = null
   let selectionTimer = null
   let pointerDown = false
+  let quickSelectionId = null
 
   const controls = document.createElement('div')
   controls.className = 'article-highlight-controls'
@@ -27,10 +28,19 @@
   toolbar.innerHTML = `<span>Highlight:</span>${colors.map(color => `<button type="button" data-highlight-color="${color}" aria-label="Highlight ${color}" title="Highlight ${color}">${color}</button>`).join('')}<button type="button" data-remove-highlight hidden>Remove</button>`
   document.body.append(toolbar)
 
+  document.body.classList.toggle('quick-highlight-mode', quickMode)
+
+  function newId() {
+    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+  }
+
   function readHighlights() {
     try {
       const value = JSON.parse(localStorage.getItem(storageKey) || '[]')
-      return Array.isArray(value) ? value.filter(item => item && typeof item.quote === 'string' && colors.includes(item.color)) : []
+      return Array.isArray(value)
+        ? value.filter(item => item && typeof item.quote === 'string' && colors.includes(item.color))
+          .map(item => ({ ...item, id: item.id || newId() }))
+        : []
     } catch {
       return []
     }
@@ -185,19 +195,36 @@
 
   function updateToolbar() {
     const selection = window.getSelection()
-    if (!selection || selection.isCollapsed || !selection.rangeCount) return hideToolbar()
+    if (!selection || selection.isCollapsed || !selection.rangeCount) {
+      quickSelectionId = null
+      return hideToolbar()
+    }
     const range = selection.getRangeAt(0)
-    if (!article.contains(range.startContainer) || !article.contains(range.endContainer)) return hideToolbar()
-    if ([...article.querySelectorAll('pre, code, mjx-container')].some(node => range.intersectsNode(node))) return hideToolbar()
+    if (!article.contains(range.startContainer) || !article.contains(range.endContainer)) {
+      quickSelectionId = null
+      return hideToolbar()
+    }
+    if ([...article.querySelectorAll('pre, code, mjx-container')].some(node => range.intersectsNode(node))) {
+      quickSelectionId = null
+      return hideToolbar()
+    }
     const anchor = makeAnchor(range)
     if (anchor.quote.length < 2 || anchor.quote.length > 2000) return hideToolbar()
     pending = { range: range.cloneRange(), anchor }
     if (quickMode) {
-      const existingIndex = findExisting(anchor)
-      if (existingIndex === -1) highlights.push({ ...anchor, color: 'yellow' })
-      else highlights.splice(existingIndex, 1)
+      let currentIndex = highlights.findIndex(item => item.id === quickSelectionId)
+      if (currentIndex === -1) {
+        currentIndex = findExisting(anchor)
+        if (currentIndex !== -1) quickSelectionId = highlights[currentIndex].id
+      }
+      if (currentIndex === -1) {
+        const item = { ...anchor, color: 'yellow', id: newId() }
+        highlights.push(item)
+        quickSelectionId = item.id
+      } else {
+        highlights[currentIndex] = { ...highlights[currentIndex], ...anchor, color: 'yellow' }
+      }
       if (saveHighlights()) renderHighlights()
-      selection.removeAllRanges()
       hideToolbar()
       return
     }
@@ -224,12 +251,15 @@
 
   controls.querySelector('[data-clear-highlights]').addEventListener('click', () => {
     highlights = []
+    quickSelectionId = null
     saveHighlights()
     renderHighlights()
   })
 
   controls.querySelector('[data-quick-highlight]').addEventListener('click', () => {
     quickMode = !quickMode
+    document.body.classList.toggle('quick-highlight-mode', quickMode)
+    quickSelectionId = null
     try {
       localStorage.setItem(quickModeKey, String(quickMode))
     } catch {
