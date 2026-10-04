@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A robust method for correlated repeated and clustered outcomes that estimates population-average effects." />
-    <title>Generalized estimating equations · Biostatistics Library</title>
+    <meta name="description" content="Detect meaningful changes in health events or adverse outcomes over time while managing false alerts, delayed data and confirmatory investigation." />
+    <title>Event monitoring and safety surveillance · Biostatistics Library</title>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
   .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
@@ -80,7 +80,7 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Survival &amp; longitudinal data</span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical practice</span>
   </div>
 </nav>
     <div class="article-shell">
@@ -100,121 +100,64 @@
       <a href="../#topic-index" ><span>06</span>Comparing groups</a>
       <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
       <a href="../#topic-index" ><span>08</span>Machine learning &amp; AI for health data</a>
-      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>09</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>09</span>Survival &amp; longitudinal data</a>
       <a href="../#topic-index" ><span>10</span>Clinical research &amp; evidence</a>
-      <a href="../#topic-index" ><span>11</span>Statistical practice</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>11</span>Statistical practice</a>
   </nav>
   <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
-        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Survival &amp; longitudinal data <span class="sep">/</span> Repeated measurements <span class="sep">/</span> <strong style="color:#273e3b">Generalized estimating equations</strong></div>
-        <h1 class="article-title">Generalized estimating equations</h1>
-        <p class="article-summary">A robust method for correlated repeated and clustered outcomes that estimates population-average effects.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical practice <span class="sep">/</span> Monitoring and prediction <span class="sep">/</span> <strong style="color:#273e3b">Event monitoring and safety surveillance</strong></div>
+        <h1 class="article-title">Event monitoring and safety surveillance</h1>
+        <p class="article-summary">Detect meaningful changes in health events or adverse outcomes over time while managing false alerts, delayed data and confirmatory investigation.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#approaches-and-worked-example">Approaches and worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p><strong>Generalized estimating equations (GEE)</strong> extend generalized linear models to
-correlated data — repeated measures on the same subject or outcomes clustered
-within hospitals, schools, or families — by replacing the likelihood with a set
-of moment equations. The model has three pieces: the <strong>mean structure</strong>
-(logit or linear link, as in a GLM), the <strong>variance structure</strong>, and a
-<strong>working correlation structure</strong> describing how a subject&#39;s repeated
-observations depend on each other (independent, exchangeable,
-first-order autoregressive).</p>
-<p>The parameter estimates answer a <strong>population-averaged</strong> question: &quot;what is
-the average effect of the exposure across all subjects?&quot; The key practical
-feature is robustness — with a correct mean model but a <strong>mis-specified
-working correlation</strong>, the coefficient estimates remain consistent and the
-<strong>sandwich (robust) standard errors</strong> remain valid. This makes GEE attractive
-when the true correlation structure is unknown.</p>
+<p><strong>Event monitoring</strong> repeatedly examines incoming counts, rates or reports to identify possible changes that may need action. It includes public-health surveillance for outbreaks, monitoring adverse events after a medical product is introduced, and ongoing quality monitoring in a health system. Surveillance describes systematic data collection, interpretation and communication for action; an alert algorithm is only one component of that system.</p>
+<p>The objective is early detection under uncertainty. A signal means the data warrant review; it does not establish that an exposure caused an event. A useful system defines the event, population, reporting process, baseline, monitoring frequency, alert threshold, and who will verify and act on an alert.</p>
+<p>This is different from <strong>individual risk prediction</strong>. Surveillance asks whether an aggregate process or event rate has changed; prediction estimates a particular person&#39;s probability of an outcome over a defined horizon. See <a href="clinical-event-prediction.html">Clinical event prediction</a>.</p>
 <h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Longitudinal binary outcome</td>
-<td>Does a vaccination reduce the probability of infection across three seasonal follow-ups?</td>
-</tr>
-<tr>
-<td>Clustered counts</td>
-<td>Are antibiotic resistance counts per admission over a year associated with ward-level cleaning compliance?</td>
-</tr>
-<tr>
-<td>Repeated binary data</td>
-<td>Which factors predict repeated falls across quarterly home visits?</td>
-</tr>
-</tbody></table>
-<p>Choose GEE when you want the <strong>average</strong> treatment or exposure effect in the population,
-the outcome is binary or count (a GLM family), or you prefer not to commit to a subject-specific distribution.</p>
+<ul>
+<li>Detect an increase in disease, injury, or adverse-event counts earlier than routine periodic summaries.</li>
+<li>Monitor a clinical process against an expected range, such as infection rates or device failures.</li>
+<li>Evaluate the performance of an event-based or indicator-based surveillance system, including timeliness, sensitivity and positive predictive value of alerts.</li>
+</ul>
 <h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
-<li><strong>Correct specification of the mean model</strong> is essential; unlike the
-covariance structure, a wrong mean model biases the estimates.</li>
-<li>The working correlation structure need not be correct for valid inference,
-but a poor choice reduces <strong>efficiency</strong> — wider standard errors, fewer
-events detected for the same sample.</li>
-<li>GEE handles <strong>missing data as complete cases by default</strong> in most
-implementations; unlike mixed models it does not naturally exploit the
-likelihood for missing-at-random data, so attrition can bias results.</li>
-<li>With a small number of clusters, the sandwich variance can be
-anti-conservative; small-sample corrections are needed.</li>
-<li>Inference is about the population average, not about any individual
-subject; do not quote a GEE coefficient as an individual-level prediction.</li>
+<li><strong>Stable reporting process:</strong> changes in test availability, definitions, care seeking, reporting completeness, or coding may generate apparent signals.</li>
+<li><strong>Expected counts must fit context:</strong> baseline rates can vary by season, day of week, geography, age, exposure volume and recent outbreaks. Adjust expected counts for relevant denominators and known patterns.</li>
+<li><strong>Repeated looks create false alarms:</strong> examining data continuously increases the chance of at least one random alert. Thresholds must be calibrated for monitoring frequency, number of streams and acceptable false-alert burden.</li>
+<li><strong>Detection trade-offs:</strong> stricter thresholds reduce false alarms but may delay detection or miss modest increases. Assess delay and sensitivity under plausible outbreak scenarios, not just historical fit.</li>
+<li><strong>Dependence and clustering:</strong> serial correlation, spatial spillover and multiple related streams affect calibration. A method designed for independent normal observations may be unsuitable for sparse Poisson counts.</li>
+<li><strong>Data delay and revision:</strong> reports arrive late and may be backfilled. Use nowcasting or delay adjustment where appropriate; distinguish provisional from finalized counts.</li>
+<li><strong>A signal is not a causal conclusion:</strong> clinical review, epidemiologic investigation, and sometimes confirmatory testing are needed before response.</li>
 </ul>
-<h2 id="worked-example">Worked example</h2>
-<p>In a cohort of 300 elderly residents followed for a year with quarterly
-assessments (1,200 person-observations), researchers ask whether a new
-balancing programme reduces the odds of falls between visits. A GEE with a
-logit link and exchangeable working correlation gives, for programme
-participation, an odds ratio of 0.62 (95% CI 0.47 to 0.82, robust SE):
-participating residents had, on average across the population, 38% lower odds
-of falling in a given quarter, independent of their own previous fall history.
-The exchangeable structure assumed equal correlation between any pair of a
-person&#39;s visits; even if the true correlation decays with time (autoregressive
-would be closer), the coefficient and its robust SE remain valid — only
-efficiency is at stake.</p>
+<h2 id="approaches-and-worked-example">Approaches and worked example</h2>
+<p>Common methods include Shewhart control charts for relatively abrupt large changes, exponentially weighted moving average (EWMA) charts for persistent modest shifts, and cumulative sum (CUSUM) charts that accumulate evidence over time. For count data, Poisson or negative-binomial models can account for changing expected volumes, with control limits or sequential likelihood methods built around the expected rate. Event-based surveillance also uses structured triage of unstructured reports; statistical thresholds alone cannot assess credibility or public-health importance.</p>
+<p>Suppose a regional network monitors weekly emergency visits for a respiratory syndrome. The expected count is 120 visits per week, adjusted for season, holidays and reporting completeness. If this week&#39;s count is 165, a naive alert at “more than 120” would fire frequently even under ordinary random variation. Instead, the network can predefine a count model and alert rule, evaluate its false-alert rate against historical data and simulated increases, and route a signal to an epidemiologist for assessment of location, laboratory findings, data quality and severity.</p>
+<p>For a medical product safety system, a sequential comparison may monitor exposed and comparator person-time for a prespecified adverse event while controlling the sequential error rate. The comparison group, risk window, event validation and confounding adjustment matter as much as the signal statistic. Signals should be followed by clinical case review and appropriately designed confirmatory studies.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
-<li><strong>Population-averaged versus subject-specific</strong>: a GEE odds ratio and a
-mixed-model (logistic random-effects) odds ratio for the same data can
-differ numerically, even with the same mean model; the GEE ratio describes
-the marginal, across-the-population association. Do not mix the two
-estimands in one sentence.</li>
-<li>Trusting the <strong>model-based</strong> standard errors that come with some GEE
-software defaults: the valid ones are the robust/sandwich versions —
-verify which was printed.</li>
-<li>Treating a poor working-correlation choice as an error: it affects
-efficiency, not validity of the robust SE, as long as the mean model is
-right and clusters are reasonably sized.</li>
-<li>Applying GEE to data with only one or two observations per subject while
-treating the subject as a cluster — the correlation estimate is then
-unstable; consider modelling the clustering factor directly instead.</li>
+<li>Publish the alert definition, baseline period, denominator, monitoring cadence and alert handling process before relying on it.</li>
+<li>Report operational performance: sensitivity, false alerts per period or stream, detection delay, positive predictive value and completeness/timeliness of data, with uncertainty.</li>
+<li>Repeatedly changing thresholds after seeing signals undermines interpretability. If a system is recalibrated, document the change and evaluate the revised operating characteristics.</li>
+<li>Do not confuse a count increase with a rate increase when population size or exposure volume has changed.</li>
+<li>Avoid “alert fatigue” by routing alerts to people who can investigate and by tracking whether actions followed and whether the signal was verified.</li>
+<li>In comparative safety surveillance, a disproportional reporting ratio or spontaneous-report signal cannot estimate incidence without an appropriate denominator and design.</li>
 </ul>
-<p>GEE targets a population-averaged mean, which generally differs from a subject-specific effect in a nonlinear model such as logistic regression. The sandwich variance is asymptotically robust to a misspecified working correlation when the mean model is correct and the number of independent clusters is sufficiently large; with few clusters, ordinary sandwich intervals can be too narrow. Consider small-sample corrections or cluster-level methods, and report the number and size distribution of clusters. GEE handles within-cluster correlation, not confounding caused by cluster assignment or informative cluster size.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>Liang KY, Zeger SL. Longitudinal data analysis using generalized linear models. <em>Biometrika</em>. 1986;73:13–22. <a href="https://doi.org/10.1093/biomet/73.1.13" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1093/biomet/73.1.13</a></p>
-</li>
-<li><p>Diggle P, Heagerty P, Liang K, Zeger S. <em>Analysis of Longitudinal Data</em>.
-Oxford University Press.</p>
-</li>
-<li><p>Liang K, Zeger S. Longitudinal data analysis using generalized estimating
-equations. <em>Biometrics</em> 1986;42:1056-1070.</p>
-</li>
-<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
-</li>
+<li>CDC. <a href="https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson5/section1.html" target="_blank" rel="noopener noreferrer" class="ext-link">Principles of Epidemiology: Public Health Surveillance</a>.</li>
+<li>CDC. <a href="https://www.cdc.gov/mmwr/preview/mmwrhtml/su6103a3.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Lexicon, definitions, and conceptual framework for public health surveillance</a>. <em>MMWR</em>. 2012.</li>
+<li>Crawley AW, Mercy K, Shivji S, et al. An indicator framework for the monitoring and evaluation of event-based surveillance systems. <em>Lancet Glob Health</em>. 2024;12:e707–e711. <a href="https://doi.org/10.1016/S2214-109X(24)00034-2" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1016/S2214-109X(24)00034-2</a>.</li>
+<li>Fricker RD Jr. <em>Introduction to Statistical Methods for Biosurveillance</em>. Cambridge University Press; 2013. <a href="https://doi.org/10.1017/CBO9781139014096" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1017/CBO9781139014096</a>.</li>
 </ul>
-<p><em>The &quot;Mixed-effects models&quot; article develops the subject-specific
-counterpart to the population-averaged perspective used here.</em></p>
+<p><em>Interrupted time-series designs are one approach to evaluating interventions that may change aggregate health trends.</em></p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">
-          <a href="../survival/mixed-effects-models.html"><span>← Previous article</span>Mixed-effects models</a>
-          <a href="../survival/time-series-analysis-in-health-research.html" style="text-align:right"><span>Next article →</span>Time-series analysis in health research</a>
+          <a href="../practice/reporting-and-interpreting-results.html"><span>← Previous article</span>Reporting and interpreting results</a>
+          <a href="../practice/clinical-event-prediction.html" style="text-align:right"><span>Next article →</span>Clinical event prediction</a>
         </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>

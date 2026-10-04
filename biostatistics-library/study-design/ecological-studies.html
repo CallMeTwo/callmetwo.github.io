@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting." />
-    <title>Model validation and overfitting · Biostatistics Library</title>
+    <meta name="description" content="Population-level designs for studying group exposures and outcomes, with attention to aggregation, ecological bias, and multilevel alternatives." />
+    <title>Ecological studies · Biostatistics Library</title>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
   .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
@@ -80,7 +80,7 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Study design &amp; sampling</span>
   </div>
 </nav>
     <div class="article-shell">
@@ -95,10 +95,10 @@
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
-      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>04</span>Study design &amp; sampling</a>
       <a href="../#topic-index" ><span>05</span>Statistical inference</a>
       <a href="../#topic-index" ><span>06</span>Comparing groups</a>
-      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
       <a href="../#topic-index" ><span>08</span>Machine learning &amp; AI for health data</a>
       <a href="../#topic-index" ><span>09</span>Survival &amp; longitudinal data</a>
       <a href="../#topic-index" ><span>10</span>Clinical research &amp; evidence</a>
@@ -107,77 +107,52 @@
   <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
-        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Working with models <span class="sep">/</span> <strong style="color:#273e3b">Model validation and overfitting</strong></div>
-        <h1 class="article-title">Model validation and overfitting</h1>
-        <p class="article-summary">How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting.</p>
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Population and non-randomized designs <span class="sep">/</span> <strong style="color:#273e3b">Ecological studies</strong></div>
+        <h1 class="article-title">Ecological studies</h1>
+        <p class="article-summary">Population-level designs for studying group exposures and outcomes, with attention to aggregation, ecological bias, and multilevel alternatives.</p>
         <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>A regression model fitted to a dataset will always fit that dataset well — and increasingly well the more predictors you add. <em>Overfitting</em> is the failure mode in which the model captures random noise specific to the sample, so its <em>apparent</em> performance (e.g. R², AUC) is much better than its performance on new patients. Validation is the set of techniques that estimate how the model will actually perform in new data, and shrinkage is what overfitting does to a model: its coefficient estimates tend to be too large in magnitude, and its calibration (predicted vs observed probabilities) tends to be worse than it looks internally.</p>
-<p>The standard ladder of validation is: <strong>optimism</strong> (no validation — the model&#39;s own fit, always too optimistic), <strong>internal validation</strong> (bootstrap resampling or k-fold cross-validation on the same data), <strong>temporal validation</strong> (apply the model to patients followed later in the same cohort), and <strong>external validation</strong> (apply it to a genuinely independent dataset, ideally from a different site). For a model with k fitted coefficients, the classic shortcut for the expected overfitting of R² is the shrinkage estimate: adjusted R² ≈ 1 − (1 − R²)(n − 1)/(n − k − 1). With n = 150 and k = 15, a development R² of 0.30 shrinks to about 1 − (0.70)(149/134) ≈ 0.20 — one-fifth of the variance, not three-tenths.</p>
+<p>An <strong>ecological study</strong> uses groups rather than people as the units of analysis. Groups may be countries, districts, hospitals, schools, or calendar periods. Researchers compare group-level exposure summaries (such as average air pollution or vaccination coverage) with group-level outcomes (such as mortality rates). These designs are useful when the exposure is inherently contextual, when policy is assigned to groups, or when individual data are unavailable.</p>
+<p>The group association is a real population-level quantity, but it does not automatically describe an individual-level association. A correlation between district deprivation and district mortality does not establish that the more deprived individuals in each district are the people who died. That leap is the <strong>ecological fallacy</strong>. The reverse error also occurs: an individual-level association need not predict the effect of a group policy, because context and composition can act differently.</p>
+<p>Aggregation loses information about within-group exposure and outcome variation, the joint distribution of individual exposure and confounders, and sometimes the timing or distribution of exposure. Ecological bias is therefore not fixed by simply adding more groups. It can arise even with perfectly measured group averages.</p>
 <h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Risk score development</td>
-<td>Does this 12-week readmission model still rank patients correctly at the next site?</td>
-</tr>
-<tr>
-<td>Biomarker panel</td>
-<td>Is the panel&#39;s AUC in 200 patients likely to survive replication?</td>
-</tr>
-<tr>
-<td>Model comparison</td>
-<td>Which of two scoring rules predicts outcome better in <em>new</em> patients?</td>
-</tr>
-<tr>
-<td>Regulatory / guideline work</td>
-<td>Does the published model&#39;s calibration hold in our hospital&#39;s population?</td>
-</tr>
-</tbody></table>
-<p>Validation is required whenever a model is used for prediction (not just inference) — every clinical risk score, nomogram or ML model — and the more predictive claims are made, the more rigorous the validation must be: development-only performance is a minimum for an honest external test, not a promise of it.</p>
+<p>Use an ecological design when the question itself concerns places, institutions, or policies—for example, whether districts with higher heat exposure have higher heat-related mortality—or when the exposure is only defined at group level. Repeated group observations can assess changes around policy adoption; geographic comparisons can describe spatial patterns and generate hypotheses. Ecological comparisons are often efficient for initial surveillance and hypothesis generation.</p>
+<p>If the intended conclusion concerns individuals, prefer linked individual-level data or a multilevel design. A contextual exposure can still be analyzed at group level alongside individual outcomes, but the model should retain individual records and represent the clustering and contextual variables explicitly.</p>
 <h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
-<li><strong>Sample size relative to complexity</strong>: the events-per-variable (EPV) heuristic (≥ 10 outcome events per predictor, often ≥ 20 for reliable prediction) is a guard against overfitting, not a law; small samples with many predictors guarantee optimistic performance estimates.</li>
-<li><strong>Applicability</strong>: external validation tests performance <em>in a new population</em>; if the new population differs substantially (different case mix, outcome prevalence, measurement methods), the model may be inapplicable rather than merely imperfect.</li>
-<li><strong>Bootstrap assumptions</strong>: the .632+ bootstrap (Efron) and k-fold CV estimate optimism under the assumption that the new data come from the same population; they do not protect against population shift.</li>
-<li><strong>Stability of the data-generating process</strong>: a model validated on 2010–2015 data may fail after a care pathway change in 2020; temporal validity can decay.</li>
-<li><strong>What is being validated</strong>: discrimination (AUC, calibration slope) and calibration (intercept, slope) are distinct; a model can discriminate well while being miscalibrated, and vice versa.</li>
+<li><strong>Correct unit and target:</strong> State whether the estimand is a group-level association, a contextual effect, or an individual causal effect. These are different questions.</li>
+<li><strong>Confounding:</strong> Group-level socioeconomic, demographic, health-system, and environmental factors may confound comparisons. Group means alone cannot generally recover unobserved within-group confounding.</li>
+<li><strong>Aggregation and ecological bias:</strong> A group exposure-outcome relationship can differ in magnitude or direction from the individual relationship. Aggregate data usually cannot identify the individual cross-classification needed to resolve this.</li>
+<li><strong>Measurement and denominator:</strong> Rates require appropriate population denominators and comparable case ascertainment. Small-area rates may be unstable; age-standardization can improve comparability but does not remove all confounding.</li>
+<li><strong>Spatial and temporal dependence:</strong> Neighboring areas and adjacent time periods are often correlated. Ordinary regression standard errors can be too small if dependence is ignored; spatial structure, clustering, and serial correlation may need modeling.</li>
+<li><strong>Boundary and scale choices:</strong> Results can change with geographic units or time windows (the modifiable areal unit problem). Report how boundaries and aggregation periods were selected.</li>
+<li><strong>Causal interpretation:</strong> Ecological designs do not randomize exposure. A group-level association alone rarely supports causal conclusions without a credible design and explicit assumptions.</li>
 </ul>
 <h2 id="worked-example">Worked example</h2>
-<p>A team builds a logistic model predicting 30-day readmission from 12 predictors in 900 patients (215 readmissions). The development AUC is 0.79 and R² (Hosmer–Lemeshow-type) looks excellent. A 10-fold cross-validation gives AUC 0.71 — an optimism of 0.08. The calibration slope from the bootstrap is 0.72, indicating coefficients are about 28% too large. The team shrinks the model (ridge penalty) and re-estimates: AUC 0.72, slope 0.85. Two independent hospitals then apply the shrunk model: AUC 0.69 and 0.71, calibration slope 0.90 and 0.94. The honest claim is &quot;AUC about 0.7, reasonably well calibrated, externally validated in two sites&quot; — not &quot;AUC 0.79&quot;. Had the unshrunk model been deployed, its predicted probabilities would have been systematically too extreme: patients it labelled 25% risk would have observed risk closer to 19%.</p>
+<p>Suppose 20 districts have average annual fine-particle pollution and age-standardized cardiovascular mortality rates. A regression estimates 1.8 additional deaths per 100,000 per year for each 5 µg/m³ higher district-average pollution (95% CI 0.4 to 3.2).</p>
+<p>This is an estimated <strong>between-district association</strong>. It does not mean that an individual exposed to 5 µg/m³ more pollution has 1.8 additional deaths per 100,000. Districts also differ in income, smoking, access to care, migration, and pollution measurement. Age-standardization addresses age composition only; it does not control those other differences. An individual-level cohort with residential exposure estimates, confounders, and a multilevel model could address a different, person-level question while accounting for district clustering. Even that design would require causal assumptions and careful exposure measurement.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
-<li>Reporting the development AUC or R² as if it were the expected real-world performance is the single most common error; always pair it with a cross-validated or externally validated estimate.</li>
-<li>A &quot;non-significant&quot; difference between two models&#39; AUCs means the data cannot distinguish them — it does not prove they are equally good, and it is not a license to pick by convenience and report the winner&#39;s optimistic number.</li>
-<li>Good discrimination (AUC) does not mean the model is clinically useful: compare the model&#39;s predictions to a baseline using decision-curve analysis or net reclassification, and check calibration in the risk range where decisions are actually made.</li>
-<li>Adding predictors until the cross-validated metric stops improving is a defensible stopping rule; adding predictors until the <em>development</em> metric stops improving is how overfitted models are built.</li>
-<li>External validation with a small external sample has its own wide CIs; a single external AUC of 0.68 with n = 120 may be compatible with a true AUC of 0.62–0.74 — report the CI.</li>
+<li>Do not translate a group-level slope into an individual risk ratio or individual treatment effect.</li>
+<li>Do not treat age-standardization or a large number of areas as protection against ecological bias.</li>
+<li>Separate <strong>composition</strong> (who lives in an area) from <strong>context</strong> (features of the area that affect residents). Aggregate summaries often combine the two.</li>
+<li>For policy evaluations, define the intervention at the level where it is assigned and account for time trends, concurrent policies, and spillovers.</li>
+<li>When individual records are available, multilevel regression can separate within- and between-group associations by including group means and individual deviations. It does not magically recover information that was never measured, and it still depends on model specification and confounder control.</li>
+<li>Present maps and correlations as descriptive evidence unless the design supports a causal claim.</li>
 </ul>
-<p>For binary prediction models, report calibration as well as discrimination. The Brier score averages squared prediction errors and reflects both; calibration plots should include uncertainty and avoid overinterpreting sparse risk ranges. Internal validation must repeat every data-driven step inside each resample, including imputation, feature selection, and tuning, or optimism remains. External validation assesses transportability; report calibration slope and intercept and consider recalibration before refitting. AUC alone is insensitive to whether predicted risks are clinically useful, so decision-curve net benefit can complement performance measures when thresholds correspond to real decisions.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). <em>Annals of Internal Medicine</em>. 2015;162:55–63. <a href="https://doi.org/10.7326/M14-0697" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.7326/M14-0697</a></p>
-</li>
-<li><p>Vickers AJ, Elkin EB. &quot;Decision curve analysis: a novel method for evaluating prediction models.&quot; <em>Med Decis Making</em> 2006.</p>
-</li>
-<li><p>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>The companion <a href="model-assumptions-and-diagnostics.html">model assumptions and diagnostics article</a> covers checks that should precede validation.</p>
-</li>
+<li>Wakefield J. <a href="https://doi.org/10.1146/annurev.publhealth.29.020907.090821" target="_blank" rel="noopener noreferrer" class="ext-link">Ecologic studies revisited</a>. <em>Annual Review of Public Health</em>. 2008;29:75–90.</li>
+<li>Greenland S, Robins J. <a href="https://doi.org/10.1093/oxfordjournals.aje.a117069" target="_blank" rel="noopener noreferrer" class="ext-link">Invited commentary: ecologic studies—biases, misconceptions, and counterexamples</a>. <em>American Journal of Epidemiology</em>. 1994;139(8):747–760.</li>
+<li>Robinson WS. <a href="https://doi.org/10.2307/2087176" target="_blank" rel="noopener noreferrer" class="ext-link">Ecological correlations and the behavior of individuals</a>. <em>American Sociological Review</em>. 1950;15(3):351–357.</li>
+<li>The library&#39;s <a href="cross-sectional-studies.html">cross-sectional studies article</a> introduces group and individual snapshots; <a href="bias-and-confounding.html">bias and confounding</a> reviews confounding in observational comparisons.</li>
 </ul>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">
-          <a href="../regression/interaction-and-effect-modification.html"><span>← Previous article</span>Interaction and effect modification</a>
-          <a href="../machine-learning/introduction-to-machine-learning-for-health-data.html" style="text-align:right"><span>Next article →</span>Introduction to machine learning for health data</a>
+          <a href="../study-design/randomized-controlled-trials.html"><span>← Previous article</span>Randomized controlled trials</a>
+          <a href="../study-design/non-randomized-intervention-studies.html" style="text-align:right"><span>Next article →</span>Non-randomized intervention studies</a>
         </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>

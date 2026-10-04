@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting." />
-    <title>Model validation and overfitting · Biostatistics Library</title>
+    <meta name="description" content="How to estimate intervention effects when assignment is not randomized, using explicit causal questions and quasi-experimental designs." />
+    <title>Non-randomized intervention studies · Biostatistics Library</title>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
   .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
@@ -80,7 +80,7 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Study design &amp; sampling</span>
   </div>
 </nav>
     <div class="article-shell">
@@ -95,10 +95,10 @@
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
-      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>04</span>Study design &amp; sampling</a>
       <a href="../#topic-index" ><span>05</span>Statistical inference</a>
       <a href="../#topic-index" ><span>06</span>Comparing groups</a>
-      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
       <a href="../#topic-index" ><span>08</span>Machine learning &amp; AI for health data</a>
       <a href="../#topic-index" ><span>09</span>Survival &amp; longitudinal data</a>
       <a href="../#topic-index" ><span>10</span>Clinical research &amp; evidence</a>
@@ -107,77 +107,89 @@
   <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
-        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Working with models <span class="sep">/</span> <strong style="color:#273e3b">Model validation and overfitting</strong></div>
-        <h1 class="article-title">Model validation and overfitting</h1>
-        <p class="article-summary">How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting.</p>
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Population and non-randomized designs <span class="sep">/</span> <strong style="color:#273e3b">Non-randomized intervention studies</strong></div>
+        <h1 class="article-title">Non-randomized intervention studies</h1>
+        <p class="article-summary">How to estimate intervention effects when assignment is not randomized, using explicit causal questions and quasi-experimental designs.</p>
         <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>A regression model fitted to a dataset will always fit that dataset well — and increasingly well the more predictors you add. <em>Overfitting</em> is the failure mode in which the model captures random noise specific to the sample, so its <em>apparent</em> performance (e.g. R², AUC) is much better than its performance on new patients. Validation is the set of techniques that estimate how the model will actually perform in new data, and shrinkage is what overfitting does to a model: its coefficient estimates tend to be too large in magnitude, and its calibration (predicted vs observed probabilities) tends to be worse than it looks internally.</p>
-<p>The standard ladder of validation is: <strong>optimism</strong> (no validation — the model&#39;s own fit, always too optimistic), <strong>internal validation</strong> (bootstrap resampling or k-fold cross-validation on the same data), <strong>temporal validation</strong> (apply the model to patients followed later in the same cohort), and <strong>external validation</strong> (apply it to a genuinely independent dataset, ideally from a different site). For a model with k fitted coefficients, the classic shortcut for the expected overfitting of R² is the shrinkage estimate: adjusted R² ≈ 1 − (1 − R²)(n − 1)/(n − k − 1). With n = 150 and k = 15, a development R² of 0.30 shrinks to about 1 − (0.70)(149/134) ≈ 0.20 — one-fifth of the variance, not three-tenths.</p>
+<p>A <strong>non-randomized intervention study</strong> evaluates an intervention whose assignment is determined by clinicians, patients, institutions, policy, or logistics rather than chance. Examples include a new discharge program introduced at selected hospitals, a law implemented in some regions, or a treatment chosen according to clinical severity. These studies may be prospective or retrospective and may include comparison groups and repeated measurements.</p>
+<p>Because the intervention groups can differ before treatment, an observed outcome difference mixes the intervention effect with <strong>selection and confounding</strong>. Statistical adjustment can help only for measured, adequately modeled factors. A useful starting point is to specify the target question as if a trial could be run: eligible population, treatment strategies, assignment time, follow-up, outcome, and causal contrast. This target-trial framing helps avoid immortal-time bias, misaligned eligibility and treatment assignment, and inappropriate comparator selection.</p>
+<p><strong>Quasi-experimental designs</strong> strengthen causal inference by exploiting a policy threshold, rollout timing, comparison series, or other assignment mechanism. They do not remove assumptions; they make the identifying assumptions more explicit and sometimes more plausible.</p>
 <h2 id="when-to-use-it">When to use it</h2>
+<p>Use these designs when randomization is infeasible, unethical, or unavailable, or when evaluating real-world policies and service changes. Common approaches include:</p>
 <table>
 <thead>
 <tr>
-<th>Setting</th>
-<th>Example question</th>
+<th>Design</th>
+<th>Core comparison</th>
+<th>Key identifying idea</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Risk score development</td>
-<td>Does this 12-week readmission model still rank patients correctly at the next site?</td>
+<td>Difference-in-differences</td>
+<td>Change in treated units versus change in comparison units</td>
+<td>In the absence of intervention, average outcome trends would have been parallel</td>
 </tr>
 <tr>
-<td>Biomarker panel</td>
-<td>Is the panel&#39;s AUC in 200 patients likely to survive replication?</td>
+<td>Interrupted time series</td>
+<td>Outcome level and trend before versus after intervention</td>
+<td>No coincident event or change in measurement explains the post-intervention shift</td>
 </tr>
 <tr>
-<td>Model comparison</td>
-<td>Which of two scoring rules predicts outcome better in <em>new</em> patients?</td>
+<td>Regression discontinuity</td>
+<td>Units just above versus below an assignment cutoff</td>
+<td>Near the cutoff, potential outcomes vary smoothly and the cutoff is not manipulated</td>
 </tr>
 <tr>
-<td>Regulatory / guideline work</td>
-<td>Does the published model&#39;s calibration hold in our hospital&#39;s population?</td>
+<td>Instrumental variables</td>
+<td>Outcome differences induced by an instrument</td>
+<td>Instrument affects treatment, is independent of potential outcomes, and affects outcome only through treatment (plus design-specific assumptions)</td>
+</tr>
+<tr>
+<td>Propensity score weighting or matching</td>
+<td>Outcomes among measured-covariate comparable groups</td>
+<td>Conditional exchangeability, positivity, consistency, and correct enough estimation</td>
 </tr>
 </tbody></table>
-<p>Validation is required whenever a model is used for prediction (not just inference) — every clinical risk score, nomogram or ML model — and the more predictive claims are made, the more rigorous the validation must be: development-only performance is a minimum for an honest external test, not a promise of it.</p>
+<p>When treatment starts at different times across places, the analysis must account for treatment timing and potentially different effects by cohort and time since adoption. A simple two-way fixed-effects coefficient can be misleading under staggered adoption and heterogeneous effects.</p>
 <h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
-<li><strong>Sample size relative to complexity</strong>: the events-per-variable (EPV) heuristic (≥ 10 outcome events per predictor, often ≥ 20 for reliable prediction) is a guard against overfitting, not a law; small samples with many predictors guarantee optimistic performance estimates.</li>
-<li><strong>Applicability</strong>: external validation tests performance <em>in a new population</em>; if the new population differs substantially (different case mix, outcome prevalence, measurement methods), the model may be inapplicable rather than merely imperfect.</li>
-<li><strong>Bootstrap assumptions</strong>: the .632+ bootstrap (Efron) and k-fold CV estimate optimism under the assumption that the new data come from the same population; they do not protect against population shift.</li>
-<li><strong>Stability of the data-generating process</strong>: a model validated on 2010–2015 data may fail after a care pathway change in 2020; temporal validity can decay.</li>
-<li><strong>What is being validated</strong>: discrimination (AUC, calibration slope) and calibration (intercept, slope) are distinct; a model can discriminate well while being miscalibrated, and vice versa.</li>
+<li><strong>Exchangeability / no unmeasured confounding:</strong> Conditional on measured covariates or the quasi-experimental design, treatment assignment is independent of relevant potential outcomes. This cannot generally be verified from observed data alone.</li>
+<li><strong>Consistency and well-defined treatment:</strong> “Intervention” must represent sufficiently clear strategies. Different versions, uptake, and co-interventions can make the causal contrast ambiguous.</li>
+<li><strong>Positivity:</strong> For covariate patterns in the target population, there must be a realistic chance of receiving each strategy. Extreme propensity weights signal weak overlap and unstable extrapolation.</li>
+<li><strong>Difference-in-differences:</strong> Parallel trends concerns the untreated potential outcomes, not merely similar observed baseline levels. Similar pre-trends are supportive but cannot prove future parallel trends. Anticipation, spillovers, changing group composition, or concurrent policies can violate the design.</li>
+<li><strong>Interrupted time series:</strong> Enough observations are needed before and after; seasonality, autocorrelation, secular trends, and concurrent events must be modeled. A single before-after contrast is not a robust time-series analysis.</li>
+<li><strong>Regression discontinuity:</strong> The assignment rule must be enforced around a known cutoff; inspect manipulation and covariate continuity. The effect is local to units near that cutoff.</li>
+<li><strong>Instrumental variables:</strong> The exclusion restriction is especially demanding and usually not testable directly. The estimate often applies to compliers, not every patient.</li>
+<li><strong>Outcome and follow-up:</strong> Differential outcome ascertainment, loss to follow-up, and competing events can bias estimates even when the assignment design is credible.</li>
 </ul>
 <h2 id="worked-example">Worked example</h2>
-<p>A team builds a logistic model predicting 30-day readmission from 12 predictors in 900 patients (215 readmissions). The development AUC is 0.79 and R² (Hosmer–Lemeshow-type) looks excellent. A 10-fold cross-validation gives AUC 0.71 — an optimism of 0.08. The calibration slope from the bootstrap is 0.72, indicating coefficients are about 28% too large. The team shrinks the model (ridge penalty) and re-estimates: AUC 0.72, slope 0.85. Two independent hospitals then apply the shrunk model: AUC 0.69 and 0.71, calibration slope 0.90 and 0.94. The honest claim is &quot;AUC about 0.7, reasonably well calibrated, externally validated in two sites&quot; — not &quot;AUC 0.79&quot;. Had the unshrunk model been deployed, its predicted probabilities would have been systematically too extreme: patients it labelled 25% risk would have observed risk closer to 19%.</p>
+<p>A health system introduces a pharmacist-led discharge service at 8 hospitals. Eight similar hospitals do not introduce it during the same period. Thirty-day readmission falls from 18% to 14% in intervention hospitals and from 16% to 15% in comparison hospitals.</p>
+<p>The unadjusted difference-in-differences estimate is:</p>
+<p><code>(14% − 18%) − (15% − 16%) = −4% − (−1%) = −3 percentage points.</code></p>
+<p>This estimate says readmission declined 3 percentage points more in the intervention hospitals, under the parallel-trends and other assumptions. It is not automatically causal: the service may have been introduced in hospitals already improving faster, or another discharge policy may have changed at the same time. Several pre-intervention periods, a prespecified comparison group, case-mix trends, implementation timing, and negative-control outcomes can help assess credibility. The standard error must reflect hospital-level assignment; treating every patient as independent would overstate precision.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
-<li>Reporting the development AUC or R² as if it were the expected real-world performance is the single most common error; always pair it with a cross-validated or externally validated estimate.</li>
-<li>A &quot;non-significant&quot; difference between two models&#39; AUCs means the data cannot distinguish them — it does not prove they are equally good, and it is not a license to pick by convenience and report the winner&#39;s optimistic number.</li>
-<li>Good discrimination (AUC) does not mean the model is clinically useful: compare the model&#39;s predictions to a baseline using decision-curve analysis or net reclassification, and check calibration in the risk range where decisions are actually made.</li>
-<li>Adding predictors until the cross-validated metric stops improving is a defensible stopping rule; adding predictors until the <em>development</em> metric stops improving is how overfitted models are built.</li>
-<li>External validation with a small external sample has its own wide CIs; a single external AUC of 0.68 with n = 120 may be compatible with a true AUC of 0.62–0.74 — report the CI.</li>
+<li>Label the estimate as causal only when the design&#39;s assumptions are credible, not because a regression adjusted for many covariates.</li>
+<li>Draw a causal diagram or write the assignment process in words before choosing adjustment variables. Adjusting for mediators or colliders can introduce bias.</li>
+<li>Avoid “significant pre-trend test = parallel trends.” Such tests can have low power; substantively assess pre-intervention trajectories and use sensitivity analysis.</li>
+<li>Do not compare a post-intervention group with a historically convenient control without addressing secular change and composition.</li>
+<li>Report the target population, treatment strategies, estimand, assumptions, diagnostics, and sensitivity analyses. If assumptions are weak, present the finding as an association and explain what would change the conclusion.</li>
+<li>For staggered adoption, select methods suited to treatment timing and heterogeneous effects rather than relying automatically on a conventional two-way fixed-effects model.</li>
 </ul>
-<p>For binary prediction models, report calibration as well as discrimination. The Brier score averages squared prediction errors and reflects both; calibration plots should include uncertainty and avoid overinterpreting sparse risk ranges. Internal validation must repeat every data-driven step inside each resample, including imputation, feature selection, and tuning, or optimism remains. External validation assesses transportability; report calibration slope and intercept and consider recalibration before refitting. AUC alone is insensitive to whether predicted risks are clinically useful, so decision-curve net benefit can complement performance measures when thresholds correspond to real decisions.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). <em>Annals of Internal Medicine</em>. 2015;162:55–63. <a href="https://doi.org/10.7326/M14-0697" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.7326/M14-0697</a></p>
-</li>
-<li><p>Vickers AJ, Elkin EB. &quot;Decision curve analysis: a novel method for evaluating prediction models.&quot; <em>Med Decis Making</em> 2006.</p>
-</li>
-<li><p>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>The companion <a href="model-assumptions-and-diagnostics.html">model assumptions and diagnostics article</a> covers checks that should precede validation.</p>
-</li>
+<li>Hernán MA, Wang W, Leaf DE. <a href="https://doi.org/10.1001/jama.2022.21383" target="_blank" rel="noopener noreferrer" class="ext-link">Target trial emulation: a framework for causal inference from observational data</a>. <em>JAMA</em>. 2022;328(24):2446–2447.</li>
+<li>Hernán MA, Robins JM. <a href="https://doi.org/10.1097/EDE.0000000000000477" target="_blank" rel="noopener noreferrer" class="ext-link">Using big data to emulate a target trial when a randomized trial is not available</a>. <em>Epidemiology</em>. 2016;27(3):335–338.</li>
+<li>Zeldow B, Hatfield LA. <a href="https://doi.org/10.1111/1475-6773.13666" target="_blank" rel="noopener noreferrer" class="ext-link">Confounding and regression adjustment in difference-in-differences studies</a>. <em>Health Services Research</em>. 2021;56(5):932–941.</li>
+<li>The library&#39;s <a href="bias-and-confounding.html">bias and confounding article</a> reviews confounding and adjustment; <a href="randomized-controlled-trials.html">randomized controlled trials</a> describes the design benchmark these approaches seek to approximate.</li>
 </ul>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">
-          <a href="../regression/interaction-and-effect-modification.html"><span>← Previous article</span>Interaction and effect modification</a>
-          <a href="../machine-learning/introduction-to-machine-learning-for-health-data.html" style="text-align:right"><span>Next article →</span>Introduction to machine learning for health data</a>
+          <a href="../study-design/ecological-studies.html"><span>← Previous article</span>Ecological studies</a>
+          <a href="../study-design/sampling-methods.html" style="text-align:right"><span>Next article →</span>Sampling methods</a>
         </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Evaluate whether a health questionnaire, scale, device or rating method measures its intended construct with adequate consistency and precision." />
+    <title>Validity, reliability and validation of measurement tools · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
+  .article-body p{margin:0 0 16px}
+  .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body a:hover{border-bottom-color:var(--teal)}
+  .article-body a.ext-link::after{content:'🌐';font-size:11px;margin-left:3px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Foundations</span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>86</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Machine learning &amp; AI for health data</a>
+      <a href="../#topic-index" ><span>09</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>10</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" ><span>11</span>Statistical practice</a>
+  </nav>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Measurement and instruments <span class="sep">/</span> <strong style="color:#273e3b">Validity, reliability and validation of measurement tools</strong></div>
+        <h1 class="article-title">Validity, reliability and validation of measurement tools</h1>
+        <p class="article-summary">Evaluate whether a health questionnaire, scale, device or rating method measures its intended construct with adequate consistency and precision.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#choosing-the-evidence">Choosing the evidence</a></li><li class="h3"><a href="#content-construct-and-criterion-validity">Content, construct and criterion validity</a></li><li class="h3"><a href="#reliability-agreement-and-measurement-error">Reliability, agreement and measurement error</a></li><li class="h3"><a href="#responsiveness-and-interpretability">Responsiveness and interpretability</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#worked-example-a-fatigue-questionnaire">Worked example: a fatigue questionnaire</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <article class="article-body">
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
+<p>A measurement tool can be a patient questionnaire, clinician rating scale, laboratory assay, imaging protocol, or wearable sensor. Before using its scores to compare groups, track change, or guide care, ask whether the tool is appropriate for the <strong>construct</strong>, population, language, setting and intended decision.</p>
+<p>Validity is not a permanent stamp attached to an instrument. It concerns whether evidence supports a particular interpretation and use of its scores. Reliability concerns consistency when the underlying state is stable. Measurement error concerns how much observed scores vary beyond meaningful differences. Responsiveness is the ability to detect meaningful change. A tool can be highly reliable yet consistently measure the wrong construct.</p>
+<h2 id="choosing-the-evidence">Choosing the evidence</h2>
+<h3 id="content-construct-and-criterion-validity">Content, construct and criterion validity</h3>
+<ul>
+<li><strong>Content validity:</strong> are items relevant to the construct, comprehensive enough to cover it, and understandable to the target population? Patient interviews and expert review can help; a high coefficient alpha cannot repair missing or confusing content.</li>
+<li><strong>Construct validity:</strong> do scores behave as expected for the theoretical construct? Evidence may include factor structure (structural validity), prespecified relationships with related or distinct measures, known-group comparisons, and measurement invariance across groups or languages. State hypotheses in advance where possible.</li>
+<li><strong>Criterion validity:</strong> does a score agree with a credible reference standard? This applies only when such a standard exists. For many subjective constructs such as fatigue or quality of life, there is no unquestionable gold standard, so criterion validity may not be the right claim.</li>
+</ul>
+<p>Translation and cultural adaptation require more than literal translation. Cognitive interviews, review of item relevance and comprehensibility, and testing for differential item functioning or measurement invariance can reveal whether the same score means the same thing across groups.</p>
+<h3 id="reliability-agreement-and-measurement-error">Reliability, agreement and measurement error</h3>
+<p>Reliability may be assessed by test-retest stability, inter-rater consistency, or internal consistency of a scale. The statistic must match the design: an intraclass correlation coefficient (ICC) for suitable continuous ratings, weighted kappa for ordinal ratings, or a model-based reliability estimate for more complex designs. Report the ICC form and whether it measures consistency or absolute agreement.</p>
+<p>Correlation is not agreement. Two methods may rank people similarly while one reads systematically higher. For methods intended to be interchangeable, examine mean differences and limits of agreement (for example, Bland–Altman analysis), including whether disagreement changes across the measurement range.</p>
+<p>Reliability is relative to heterogeneity in the sample: an ICC can be high in a diverse sample and lower in a homogeneous one even when the absolute measurement error is unchanged. Therefore also quantify measurement error in the scale&#39;s units where possible, such as the standard error of measurement and smallest detectable change, and compare it with a clinically important change.</p>
+<p>Internal consistency (often coefficient alpha) is meaningful only when items are intended to reflect a sufficiently coherent construct and structural assumptions are reasonable. A large alpha can result from redundant items; it does not demonstrate unidimensionality, validity or test-retest stability.</p>
+<h3 id="responsiveness-and-interpretability">Responsiveness and interpretability</h3>
+<p>Responsiveness is the ability to detect change in the construct over time. Evaluate it with a design in which change is expected, prespecify hypotheses about relationships or known groups, and account for measurement error. A statistically significant mean change alone does not prove that a tool can distinguish meaningful individual change. Interpretability—such as score distributions, floor/ceiling effects, and a minimally important change—is essential for use even though it is not itself a measurement property.</p>
+<h2 id="when-to-use-it">When to use it</h2>
+<p>Evaluate measurement properties when selecting an existing tool, adapting it to another language or population, changing mode of administration, comparing raters or devices, or deciding whether observed changes are meaningful. The appropriate evidence depends on whether the intended task is group-level research, individual monitoring, screening, or a high-stakes clinical decision.</p>
+<h2 id="worked-example-a-fatigue-questionnaire">Worked example: a fatigue questionnaire</h2>
+<p>A clinic wants to use a 10-item fatigue score (0–40) in adults receiving cancer treatment. First, interviews with patients should establish that the items cover relevant fatigue experiences and are understandable during treatment. A factor analysis can examine whether a total score is supported by the item structure. The team can prespecify that scores should correlate more strongly with another fatigue measure than with an unrelated construct, while recognizing neither questionnaire is necessarily a gold standard.</p>
+<p>For test-retest reliability, stable patients complete the tool twice over an interval long enough to reduce simple recall but short enough that true fatigue is unlikely to change. If the ICC is 0.88, that suggests good relative reproducibility in this sample, but it does not by itself show that a 2-point change in one patient is real. Estimate measurement error in score units and compare the detectable change with a patient-anchored minimally important change. Follow patients expected to improve to evaluate responsiveness and check floor or ceiling effects.</p>
+<p>If the tool is adapted into another language, repeat relevant content and construct evaluations in that population and test cross-cultural validity. Evidence from the original language does not automatically transfer.</p>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
+<ul>
+<li>Avoid saying a tool is simply “validated.” State the population, setting, score interpretation and intended use supported by evidence.</li>
+<li>Do not confuse reliability with validity, correlation with agreement, or internal consistency with test-retest reliability.</li>
+<li>A reference standard may be imperfect or unavailable. Describe its limitations and avoid claiming criterion validity when no defensible criterion exists.</li>
+<li>A nonsignificant test-retest difference is not proof of agreement. Report estimates and confidence intervals for reliability and error.</li>
+<li>A responsiveness statistic based only on effect size can be misleading; change should be interpreted against prespecified hypotheses, measurement error and meaningful change.</li>
+<li>Do not assume properties carry over to new languages, modes, ages, disease severity, or clinical settings.</li>
+</ul>
+<h2 id="references-and-further-reading">References and further reading</h2>
+<ul>
+<li>Mokkink LB, Terwee CB, Patrick DL, et al. The COSMIN study reached international consensus on taxonomy, terminology, and definitions of measurement properties for health-related patient-reported outcomes. <em>J Clin Epidemiol</em>. 2010;63:737–745. <a href="https://doi.org/10.1016/j.jclinepi.2010.02.006" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1016/j.jclinepi.2010.02.006</a>.</li>
+<li>Gagnier JJ, Lai J, Mokkink LB, Terwee CB. COSMIN reporting guideline for studies on measurement properties of patient-reported outcome measures. <em>Qual Life Res</em>. 2021;30:2197–2218. <a href="https://doi.org/10.1007/s11136-021-02822-4" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1007/s11136-021-02822-4</a>.</li>
+<li>COSMIN. <a href="https://www.cosmin.nl/tools/guideline-selecting-proms/" target="_blank" rel="noopener noreferrer" class="ext-link">Guidelines for selecting outcome measurement instruments</a>.</li>
+<li>Bland JM, Altman DG. Statistical methods for assessing agreement between two methods of clinical measurement. <em>Lancet</em>. 1986;1:307–310. <a href="https://doi.org/10.1016/S0140-6736(86)90837-8" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1016/S0140-6736(86)90837-8</a>.</li>
+</ul>
+<p><em>See also <a href="../describing-data/scatter-plots-and-relationships.html">Scatter plots and relationships</a> for correlation and agreement context.</em></p>
+
+        </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../foundations/data-quality-and-coding.html"><span>← Previous article</span>Data quality and coding</a>
+          <a href="../describing-data/mean-median-and-mode.html" style="text-align:right"><span>Next article →</span>Mean, median and mode</a>
+        </nav>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub 🌐</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Develop and evaluate models that estimate an individual's probability of a diagnostic or future clinical event for a defined population and time horizon." />
+    <title>Clinical event prediction · Biostatistics Library</title>
+    <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+  .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
+  .article-page *{box-sizing:border-box}
+  .article-page body{margin:0}
+  .article-page a{color:var(--teal)}
+  .article-page :focus-visible{outline:3px solid #b37b29;outline-offset:4px}
+  .article-shell{display:grid;grid-template-columns:254px minmax(0,1fr);max-width:1440px;margin:auto}
+  .article-sidebar{padding:38px 24px;border-right:1px solid var(--line);position:sticky;top:60px;align-self:start;height:calc(100dvh - 60px);overflow-y:auto}
+  .article-brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-size:15px;line-height:1.5;color:#273e3b;margin-bottom:42px}
+  .article-brand strong{font-weight:700}
+  .article-brand-icon{position:relative;display:grid;place-items:center;width:43px;height:48px;border:1px solid #b7cdc2;border-radius:3px 9px 9px 3px;background:#edf3ec;font:27px Georgia,serif;color:var(--teal);flex-shrink:0}
+  .article-brand-icon span{position:absolute;font:11px Georgia,serif;bottom:5px;right:6px}
+  .article-nav-label{font-size:10px;letter-spacing:1.7px;color:var(--muted);margin:0 10px 14px;font-weight:700}
+  .article-overview{display:flex;justify-content:space-between;background:#e8f0eb;padding:12px;border-radius:5px;text-decoration:none;font-size:13px;font-weight:700;color:#273e3b}
+  .article-sections{display:grid;gap:3px;margin-top:12px}
+  .article-sections a{display:flex;align-items:baseline;gap:10px;font-size:12px;line-height:1.6;color:#536660;padding:9px 10px;text-decoration:none;border-radius:4px}
+  .article-sections a span{color:#89968f;font-size:10px;font-variant-numeric:tabular-nums}
+  .article-sections a:hover{color:var(--teal);background:#edf3ef}
+  .article-note-side{margin:35px 10px 0;border-top:1px solid var(--line);padding-top:22px;font-size:11px;font-weight:600}
+  .article-note-side p{color:var(--muted);font-weight:400;line-height:1.8}
+  .article-dot{display:inline-block;background:#78a388;width:6px;height:6px;border-radius:50%;margin-right:5px}
+  .article-main{padding:48px clamp(24px,4vw,64px) 24px;min-width:0}
+  .article-breadcrumb{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:14px}
+  .article-breadcrumb a{color:var(--teal);text-decoration:none}
+  .article-breadcrumb .sep{color:#bcc8bf}
+  .article-title{font:400 clamp(30px,3.4vw,44px)/1.2 'Libre Caslon Text',Georgia,serif;letter-spacing:-1.2px;margin:0 0 14px;color:#203f37}
+  .article-summary{font-size:14px;line-height:1.85;color:var(--muted);margin:0 0 34px;padding-bottom:26px;border-bottom:1px solid var(--line)}
+  .article-body{max-width:72ch;font-size:15px;line-height:1.85}
+  .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
+  .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
+  .article-body p{margin:0 0 16px}
+  .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body a:hover{border-bottom-color:var(--teal)}
+  .article-body a.ext-link::after{content:'🌐';font-size:11px;margin-left:3px}
+  .article-body ul,.article-body ol{margin:0 0 16px;padding-left:24px}
+  .article-body li{margin-bottom:7px}
+  .article-body li::marker{color:#78a388}
+  .article-body blockquote{margin:0 0 16px;padding:10px 18px;border-left:3px solid #b7cdc2;background:#f0f4ef;border-radius:0 5px 5px 0;color:#4c615b}
+  .article-body blockquote p:last-child{margin-bottom:0}
+  .article-body table{border-collapse:collapse;width:100%;margin:0 0 20px;font-size:14px}
+  .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+  .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
+  .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
+  .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
+  .article-body img{max-width:100%;border-radius:6px}
+  .article-body hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+  .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
+  .article-footer a{text-decoration:none}
+  .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
+  @media (max-width:720px){
+    .article-shell{display:block}
+    .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
+    .article-brand{margin:0 0 16px;font-size:13px}
+    .article-nav-label,.article-sections,.article-note-side{display:none}
+    .article-main{padding:30px 20px 24px}
+    .article-title{font-size:32px}
+  }</style>
+  </head>
+  <body class="article-page">
+    <nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
+  <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
+    <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span>
+    <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical practice</span>
+  </div>
+</nav>
+    <div class="article-shell">
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
+    <span>Biostatistics<br><strong>Library</strong></span>
+  </a>
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>86</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
+      <a href="../#topic-index" ><span>01</span>Foundations</a>
+      <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
+      <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
+      <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
+      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" ><span>06</span>Comparing groups</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>08</span>Machine learning &amp; AI for health data</a>
+      <a href="../#topic-index" ><span>09</span>Survival &amp; longitudinal data</a>
+      <a href="../#topic-index" ><span>10</span>Clinical research &amp; evidence</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>11</span>Statistical practice</a>
+  </nav>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
+</aside>
+      <main class="article-main">
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical practice <span class="sep">/</span> Monitoring and prediction <span class="sep">/</span> <strong style="color:#273e3b">Clinical event prediction</strong></div>
+        <h1 class="article-title">Clinical event prediction</h1>
+        <p class="article-summary">Develop and evaluate models that estimate an individual's probability of a diagnostic or future clinical event for a defined population and time horizon.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example-30-day-readmission-risk">Worked example: 30-day readmission risk</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <article class="article-body">
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
+<p>A <strong>clinical prediction model</strong> combines patient characteristics, symptoms, tests or other predictors to estimate an outcome for an individual. A diagnostic model estimates whether a condition is currently present; a prognostic model estimates a future event. Prognostic predictions need a clearly stated <strong>time horizon</strong>: for example, 30-day readmission, 5-year cardiovascular risk, or time to relapse.</p>
+<p>Prediction is not the same as explaining causes. A predictor can improve forecasts without being causal, and a causal risk factor need not improve useful prediction. Individual risk prediction also differs from aggregate event surveillance, which asks whether an event rate or process has changed over time.</p>
+<p>Good prediction requires more than a high area under the ROC curve. <strong>Discrimination</strong> describes how well predictions rank people with and without the event. <strong>Calibration</strong> compares predicted probabilities with observed event frequency. Clinical usefulness additionally depends on decisions, consequences and thresholds.</p>
+<h2 id="when-to-use-it">When to use it</h2>
+<p>Use a model when it will support a defined decision at a defined point in care, such as offering confirmatory testing, prioritizing follow-up, or discussing preventive treatment. Specify the target population, setting, predictors available at decision time, outcome definition, prediction horizon, and intended action before fitting a model.</p>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
+<ul>
+<li><strong>Outcome and horizon:</strong> a model for a 1-year event is not automatically valid for 5-year risk. For survival outcomes, account for censoring; for competing risks (for example, non-cardiovascular death before cardiovascular disease), estimate the cumulative incidence of the target event rather than treating competing events as ordinary loss to follow-up.</li>
+<li><strong>Predictor timing and leakage:</strong> use only information available when the prediction is made. Post-outcome variables or information recorded after the decision create leakage and implausibly optimistic performance.</li>
+<li><strong>Overfitting:</strong> too many candidate predictors, univariable screening, stepwise selection and small event counts can exaggerate performance. Use prespecified modeling, shrinkage or penalization and internal validation, commonly bootstrap or cross-validation that repeats the full modeling process.</li>
+<li><strong>Validation:</strong> internal validation estimates optimism in the development data; it does not establish transportability. External validation in other times, places or settings should assess calibration and discrimination. Updating may be needed when case mix or baseline event rates change.</li>
+<li><strong>Calibration matters:</strong> a model can rank patients well but systematically overpredict or underpredict absolute risk. Calibration-in-the-large, calibration slope and plots across clinically relevant risk ranges are useful complements to discrimination.</li>
+<li><strong>Class imbalance and missing data:</strong> accuracy can look high when events are rare. State how missing predictors were handled and evaluate performance at the intended prevalence and setting.</li>
+<li><strong>Decision thresholds:</strong> thresholds depend on benefits and harms of action and patient preferences. A probability cutoff is not universally optimal. Decision-curve analysis can compare net benefit with treat-all and treat-none strategies across plausible thresholds, but relies on a decision context and does not replace impact evaluation.</li>
+<li><strong>Fairness and implementation:</strong> performance can differ across subgroups; assess calibration and errors in relevant groups, data quality, access, and consequences. A validated model may still fail when workflow or treatment changes.</li>
+</ul>
+<h2 id="worked-example-30-day-readmission-risk">Worked example: 30-day readmission risk</h2>
+<p>A hospital wants to identify adults discharged after heart-failure admission who may benefit from a follow-up call within 48 hours. Define the prediction time as discharge, predictors as information available by discharge, and outcome as unplanned readmission within 30 days. If death before readmission is common, decide whether the target is readmission before death (competing-risk cumulative incidence) or a composite of readmission or death; these are different outcomes.</p>
+<p>Suppose an internally validated model has a c-statistic of 0.72. This means a randomly selected patient who is readmitted tends to receive a higher score than one who is not, about 72% of comparable pairs (with usual handling of ties). It does not mean that 72% of predicted probabilities are correct. On external validation, predicted risk averages 18% but observed risk is 12%, showing overprediction; the model needs recalibration or redevelopment before threshold-based deployment.</p>
+<p>If a 20% threshold triggers a care-management call, decision-curve analysis can estimate net benefit across thresholds and compare the model with calling everyone or no one. At a 20% threshold, the implied harm-to-benefit trade-off is encoded in the threshold itself; the clinical team should verify that this trade-off is acceptable. Finally, evaluate whether using the model actually changes care and patient outcomes in the intended workflow.</p>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
+<ul>
+<li>Report absolute risks with horizon, not just a score or rank. A “high-risk” label without a stated outcome and time window is ambiguous.</li>
+<li>Do not report only AUC/c-statistic. Include calibration and uncertainty; use clinically meaningful risk groups only when justified.</li>
+<li>A random train/test split wastes data in small samples and can still yield unstable performance. Bootstrap or cross-validation with all preprocessing and selection nested inside validation is generally more efficient for internal validation.</li>
+<li>Do not choose a cutoff by maximizing sensitivity plus specificity unless that trade-off matches the actual decision consequences.</li>
+<li>External validation should use a separate, relevant population and a prespecified evaluation plan. If recalibration is performed, report validation before and after updating distinctly.</li>
+<li>Association, performance and clinical impact are separate: an accurate risk estimate does not prove that acting on it improves health.</li>
+</ul>
+<h2 id="references-and-further-reading">References and further reading</h2>
+<ul>
+<li>Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD): the TRIPOD statement. <em>BMJ</em>. 2015;350:g7594. <a href="https://doi.org/10.1136/bmj.g7594" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1136/bmj.g7594</a>.</li>
+<li>Moons KGM, Wolff RF, Riley RD, et al. PROBAST: a tool to assess risk of bias and applicability of prediction model studies. <em>Ann Intern Med</em>. 2019;170:51–58. <a href="https://doi.org/10.7326/M18-1376" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.7326/M18-1376</a>.</li>
+<li>Vickers AJ, Elkin EB. Decision curve analysis: a novel method for evaluating prediction models. <em>Med Decis Making</em>. 2006;26:565–574. <a href="https://doi.org/10.1177/0272989X06295361" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1177/0272989X06295361</a>.</li>
+<li>Steyerberg EW. <em>Clinical Prediction Models</em>. 2nd ed. Springer; 2019. <a href="https://doi.org/10.1007/978-3-030-16399-0" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1007/978-3-030-16399-0</a>.</li>
+<li>Gerds TA, Andersen PK, Kattan MW. Calibration plots for risk prediction models in the presence of competing risks. <em>Stat Med</em>. 2014;33:3191–3203. <a href="https://doi.org/10.1002/sim.6152" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1002/sim.6152</a>.</li>
+</ul>
+<p><em>For prediction model reporting and machine-learning risk-of-bias assessment, see the official <a href="https://www.tripod-statement.org/" target="_blank" rel="noopener noreferrer" class="ext-link">TRIPOD statement</a> and <a href="https://www.probast.org/" target="_blank" rel="noopener noreferrer" class="ext-link">PROBAST resources</a>.</em></p>
+
+        </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../practice/event-monitoring-and-safety-surveillance.html"><span>← Previous article</span>Event monitoring and safety surveillance</a>
+          <span></span>
+        </nav>
+        <footer class="article-footer">
+          <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
+          <a href="/">Back to Web Projects Hub 🌐</a>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

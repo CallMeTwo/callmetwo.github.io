@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A robust method for correlated repeated and clustered outcomes that estimates population-average effects." />
-    <title>Generalized estimating equations · Biostatistics Library</title>
+    <meta name="description" content="Study how health outcomes vary across both place and time, accounting for spatial dependence, changing populations and scale." />
+    <title>Spatiotemporal analysis · Biostatistics Library</title>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
   .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
@@ -107,114 +107,57 @@
   <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
-        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Survival &amp; longitudinal data <span class="sep">/</span> Repeated measurements <span class="sep">/</span> <strong style="color:#273e3b">Generalized estimating equations</strong></div>
-        <h1 class="article-title">Generalized estimating equations</h1>
-        <p class="article-summary">A robust method for correlated repeated and clustered outcomes that estimates population-average effects.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Survival &amp; longitudinal data <span class="sep">/</span> Temporal and spatial data <span class="sep">/</span> <strong style="color:#273e3b">Spatiotemporal analysis</strong></div>
+        <h1 class="article-title">Spatiotemporal analysis</h1>
+        <p class="article-summary">Study how health outcomes vary across both place and time, accounting for spatial dependence, changing populations and scale.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example-weekly-dengue-by-district">Worked example: weekly dengue by district</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p><strong>Generalized estimating equations (GEE)</strong> extend generalized linear models to
-correlated data — repeated measures on the same subject or outcomes clustered
-within hospitals, schools, or families — by replacing the likelihood with a set
-of moment equations. The model has three pieces: the <strong>mean structure</strong>
-(logit or linear link, as in a GLM), the <strong>variance structure</strong>, and a
-<strong>working correlation structure</strong> describing how a subject&#39;s repeated
-observations depend on each other (independent, exchangeable,
-first-order autoregressive).</p>
-<p>The parameter estimates answer a <strong>population-averaged</strong> question: &quot;what is
-the average effect of the exposure across all subjects?&quot; The key practical
-feature is robustness — with a correct mean model but a <strong>mis-specified
-working correlation</strong>, the coefficient estimates remain consistent and the
-<strong>sandwich (robust) standard errors</strong> remain valid. This makes GEE attractive
-when the true correlation structure is unknown.</p>
+<p><strong>Spatiotemporal analysis</strong> studies a health outcome indexed by both location and time: for example, weekly dengue cases across districts, or annual asthma admissions around changing pollution sources. Place may be represented as points (individual residences or facility locations), continuous surfaces (modeled pollution), or areas such as districts. The choice changes what a model can estimate.</p>
+<p>Data near one another in space or time are often dependent. Nearby districts can share climate, health services, and population movement; neighboring weeks share ongoing transmission and reporting delays. Spatial and temporal dependence can make ordinary independent-observation standard errors unreliable and can expose unmodeled structure. Models may use spatial random effects, temporal terms, and space-time interactions, but the model should follow the scientific question and data resolution.</p>
+<p>Spatiotemporal analysis is related to time-series analysis, which emphasizes ordered temporal measurements, and to ecological studies, which analyze group-level data. Aggregated district associations do not automatically describe individual risks: this is the ecological fallacy.</p>
 <h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Longitudinal binary outcome</td>
-<td>Does a vaccination reduce the probability of infection across three seasonal follow-ups?</td>
-</tr>
-<tr>
-<td>Clustered counts</td>
-<td>Are antibiotic resistance counts per admission over a year associated with ward-level cleaning compliance?</td>
-</tr>
-<tr>
-<td>Repeated binary data</td>
-<td>Which factors predict repeated falls across quarterly home visits?</td>
-</tr>
-</tbody></table>
-<p>Choose GEE when you want the <strong>average</strong> treatment or exposure effect in the population,
-the outcome is binary or count (a GLM family), or you prefer not to commit to a subject-specific distribution.</p>
+<ul>
+<li>Map and compare disease burden while accounting for different population sizes.</li>
+<li>Estimate geographic variation in exposure or health outcome over time.</li>
+<li>Identify where and when a cluster may have emerged, as a signal for investigation.</li>
+<li>Assess whether trends differ across areas or change after a place-specific intervention.</li>
+</ul>
 <h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
-<li><strong>Correct specification of the mean model</strong> is essential; unlike the
-covariance structure, a wrong mean model biases the estimates.</li>
-<li>The working correlation structure need not be correct for valid inference,
-but a poor choice reduces <strong>efficiency</strong> — wider standard errors, fewer
-events detected for the same sample.</li>
-<li>GEE handles <strong>missing data as complete cases by default</strong> in most
-implementations; unlike mixed models it does not naturally exploit the
-likelihood for missing-at-random data, so attrition can bias results.</li>
-<li>With a small number of clusters, the sandwich variance can be
-anti-conservative; small-sample corrections are needed.</li>
-<li>Inference is about the population average, not about any individual
-subject; do not quote a GEE coefficient as an individual-level prediction.</li>
+<li><strong>The geographic unit is part of the question.</strong> District boundaries, grid size, and time aggregation affect summary rates and apparent clusters. The modifiable areal unit problem (MAUP) refers to findings that change when areal units are regrouped or redrawn. Repeat analyses using defensible alternative scales where feasible.</li>
+<li><strong>Spatial dependence must be considered.</strong> A map of high values can arise from chance, population density, or spatially patterned confounding. Spatial autocorrelation means nearby observations are more similar than expected under independence; it can concern the outcome, covariates, or residuals.</li>
+<li><strong>Population denominators and movement matter.</strong> Counts are not risks when populations differ. Residence may not represent exposure location, and commuting, migration, referral patterns and care access can cross boundaries.</li>
+<li><strong>Exposure and outcome surfaces are uncertain.</strong> Geocoding error, interpolation, changing boundaries, under-reporting, and temporal mismatch can blur or bias apparent associations.</li>
+<li><strong>Ecological inference has limits.</strong> If only area averages are available, one cannot infer that individuals exposed to a higher area average have the observed individual risk. Individual-level covariates or multilevel designs may reduce, but not automatically eliminate, ecological bias.</li>
+<li><strong>Hotspot discovery is exploratory.</strong> Repeatedly searching across many locations and time windows creates false alarms. Account for multiplicity or validate signals in independent data and treat maps as hypotheses, not proof of causal sources.</li>
+<li><strong>Small-area estimates are unstable.</strong> Shrinkage or partial pooling can improve precision but pulls estimates toward a model-based mean. Display uncertainty alongside mapped estimates.</li>
 </ul>
-<h2 id="worked-example">Worked example</h2>
-<p>In a cohort of 300 elderly residents followed for a year with quarterly
-assessments (1,200 person-observations), researchers ask whether a new
-balancing programme reduces the odds of falls between visits. A GEE with a
-logit link and exchangeable working correlation gives, for programme
-participation, an odds ratio of 0.62 (95% CI 0.47 to 0.82, robust SE):
-participating residents had, on average across the population, 38% lower odds
-of falling in a given quarter, independent of their own previous fall history.
-The exchangeable structure assumed equal correlation between any pair of a
-person&#39;s visits; even if the true correlation decays with time (autoregressive
-would be closer), the coefficient and its robust SE remain valid — only
-efficiency is at stake.</p>
+<h2 id="worked-example-weekly-dengue-by-district">Worked example: weekly dengue by district</h2>
+<p>A health department records dengue cases weekly in 30 districts for three years. District populations vary greatly, and neighboring districts share weather and travel links. A first step is to plot weekly counts and rates (with denominators), map missingness and reporting delays, and examine whether crude patterns track population size or surveillance intensity.</p>
+<p>One possible count model is a Poisson or negative-binomial regression with log population as an offset, calendar-time terms for seasonality and trend, measured covariates such as rainfall, and spatial and temporal random effects. A spatial effect can partially pool noisy district rates toward values informed by connected districts; a temporal effect can model adjacent-week similarity. A space-time interaction allows district-specific departures from the overall temporal pattern. These terms do not magically remove confounding: they encode assumptions about how effects vary and borrow information across units.</p>
+<p>Suppose the estimated rate ratio associated with higher rainfall is 1.18 (95% interval 1.05–1.32). This is an adjusted area-time association under the chosen model, not proof that rainfall increased each resident&#39;s individual risk by 18%. Investigators should assess model fit, residual spatial and temporal dependence, alternative lag choices, and sensitivity to district boundaries or reporting changes.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
-<li><strong>Population-averaged versus subject-specific</strong>: a GEE odds ratio and a
-mixed-model (logistic random-effects) odds ratio for the same data can
-differ numerically, even with the same mean model; the GEE ratio describes
-the marginal, across-the-population association. Do not mix the two
-estimands in one sentence.</li>
-<li>Trusting the <strong>model-based</strong> standard errors that come with some GEE
-software defaults: the valid ones are the robust/sandwich versions —
-verify which was printed.</li>
-<li>Treating a poor working-correlation choice as an error: it affects
-efficiency, not validity of the robust SE, as long as the mean model is
-right and clusters are reasonably sized.</li>
-<li>Applying GEE to data with only one or two observations per subject while
-treating the subject as a cluster — the correlation estimate is then
-unstable; consider modelling the clustering factor directly instead.</li>
+<li>Distinguish a <strong>count</strong>, <strong>rate</strong>, <strong>risk</strong>, and <strong>standardized ratio</strong>; always state the denominator and population at risk.</li>
+<li>Do not read a smoothed map as observed truth. Show raw data or sample size and uncertainty as well as modeled estimates.</li>
+<li>Spatially correlated predictors can make separate effects hard to identify. A smooth spatial adjustment may absorb some exposure variation; coefficients can become unstable.</li>
+<li>Temporal aggregation can conceal short outbreaks, while fine intervals produce sparse noisy counts. State the spatial and temporal resolution and justify it.</li>
+<li>A cluster is a pattern conditional on the analysis method and search window. Detection does not identify a cause and is not equivalent to individual-level prediction.</li>
+<li>Protect privacy: precise addresses and rare outcomes can identify individuals. Aggregate or perturb locations when appropriate and consider disclosure risk before mapping.</li>
 </ul>
-<p>GEE targets a population-averaged mean, which generally differs from a subject-specific effect in a nonlinear model such as logistic regression. The sandwich variance is asymptotically robust to a misspecified working correlation when the mean model is correct and the number of independent clusters is sufficiently large; with few clusters, ordinary sandwich intervals can be too narrow. Consider small-sample corrections or cluster-level methods, and report the number and size distribution of clusters. GEE handles within-cluster correlation, not confounding caused by cluster assignment or informative cluster size.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>Liang KY, Zeger SL. Longitudinal data analysis using generalized linear models. <em>Biometrika</em>. 1986;73:13–22. <a href="https://doi.org/10.1093/biomet/73.1.13" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1093/biomet/73.1.13</a></p>
-</li>
-<li><p>Diggle P, Heagerty P, Liang K, Zeger S. <em>Analysis of Longitudinal Data</em>.
-Oxford University Press.</p>
-</li>
-<li><p>Liang K, Zeger S. Longitudinal data analysis using generalized estimating
-equations. <em>Biometrics</em> 1986;42:1056-1070.</p>
-</li>
-<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
-</li>
+<li>Wakefield J. Ecologic studies revisited. <em>Annu Rev Public Health</em>. 2008;29:75–90. <a href="https://doi.org/10.1146/annurev.publhealth.29.020907.090821" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1146/annurev.publhealth.29.020907.090821</a>.</li>
+<li>Elliott P, Wartenberg D. Spatial epidemiology: current approaches and future challenges. <em>Environ Health Perspect</em>. 2004;112:998–1006. <a href="https://doi.org/10.1289/ehp.6735" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1289/ehp.6735</a>.</li>
+<li>Auchincloss AH, Gebreab SY, Mair C, Diez Roux AV. A review of spatial methods in epidemiology, 2000–2010. <em>Annu Rev Public Health</em>. 2012;33:107–122. <a href="https://doi.org/10.1146/annurev-publhealth-031811-124655" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1146/annurev-publhealth-031811-124655</a>.</li>
 </ul>
-<p><em>The &quot;Mixed-effects models&quot; article develops the subject-specific
-counterpart to the population-averaged perspective used here.</em></p>
+<p><em>For a discussion of correlation and association, see <a href="../describing-data/scatter-plots-and-relationships.html">Scatter plots and relationships</a>.</em></p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">
-          <a href="../survival/mixed-effects-models.html"><span>← Previous article</span>Mixed-effects models</a>
-          <a href="../survival/time-series-analysis-in-health-research.html" style="text-align:right"><span>Next article →</span>Time-series analysis in health research</a>
+          <a href="../survival/time-series-analysis-in-health-research.html"><span>← Previous article</span>Time-series analysis in health research</a>
+          <a href="../clinical-research/risk-ratios-and-odds-ratios.html" style="text-align:right"><span>Next article →</span>Risk ratios and odds ratios</a>
         </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>

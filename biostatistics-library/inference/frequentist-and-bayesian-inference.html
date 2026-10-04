@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting." />
-    <title>Model validation and overfitting · Biostatistics Library</title>
+    <meta name="description" content="Two coherent frameworks for quantifying uncertainty, with different probability interpretations, assumptions, and decision summaries." />
+    <title>Frequentist and Bayesian inference · Biostatistics Library</title>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
   .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
@@ -80,7 +80,7 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical inference</span>
   </div>
 </nav>
     <div class="article-shell">
@@ -96,9 +96,9 @@
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
       <a href="../#topic-index" ><span>04</span>Study design &amp; sampling</a>
-      <a href="../#topic-index" ><span>05</span>Statistical inference</a>
+      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>05</span>Statistical inference</a>
       <a href="../#topic-index" ><span>06</span>Comparing groups</a>
-      <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>07</span>Correlation &amp; regression</a>
+      <a href="../#topic-index" ><span>07</span>Correlation &amp; regression</a>
       <a href="../#topic-index" ><span>08</span>Machine learning &amp; AI for health data</a>
       <a href="../#topic-index" ><span>09</span>Survival &amp; longitudinal data</a>
       <a href="../#topic-index" ><span>10</span>Clinical research &amp; evidence</a>
@@ -107,77 +107,53 @@
   <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
-        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Working with models <span class="sep">/</span> <strong style="color:#273e3b">Model validation and overfitting</strong></div>
-        <h1 class="article-title">Model validation and overfitting</h1>
-        <p class="article-summary">How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting.</p>
+        <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Inference frameworks <span class="sep">/</span> <strong style="color:#273e3b">Frequentist and Bayesian inference</strong></div>
+        <h1 class="article-title">Frequentist and Bayesian inference</h1>
+        <p class="article-summary">Two coherent frameworks for quantifying uncertainty, with different probability interpretations, assumptions, and decision summaries.</p>
         <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
-<p>A regression model fitted to a dataset will always fit that dataset well — and increasingly well the more predictors you add. <em>Overfitting</em> is the failure mode in which the model captures random noise specific to the sample, so its <em>apparent</em> performance (e.g. R², AUC) is much better than its performance on new patients. Validation is the set of techniques that estimate how the model will actually perform in new data, and shrinkage is what overfitting does to a model: its coefficient estimates tend to be too large in magnitude, and its calibration (predicted vs observed probabilities) tends to be worse than it looks internally.</p>
-<p>The standard ladder of validation is: <strong>optimism</strong> (no validation — the model&#39;s own fit, always too optimistic), <strong>internal validation</strong> (bootstrap resampling or k-fold cross-validation on the same data), <strong>temporal validation</strong> (apply the model to patients followed later in the same cohort), and <strong>external validation</strong> (apply it to a genuinely independent dataset, ideally from a different site). For a model with k fitted coefficients, the classic shortcut for the expected overfitting of R² is the shrinkage estimate: adjusted R² ≈ 1 − (1 − R²)(n − 1)/(n − k − 1). With n = 150 and k = 15, a development R² of 0.30 shrinks to about 1 − (0.70)(149/134) ≈ 0.20 — one-fifth of the variance, not three-tenths.</p>
+<p>Frequentist and Bayesian methods are frameworks for learning from data. Both can use probability models, likelihoods, covariates, and prior scientific knowledge, but they attach probability to different things.</p>
+<p>In a <strong>frequentist</strong> analysis, the unknown parameter is fixed and the data are random under repeated sampling. A 95% confidence procedure is designed so that, over repeated samples under the model, 95% of intervals constructed by that procedure contain the fixed parameter. After one interval is observed, the parameter is not assigned a 95% probability of lying inside it. A p-value is the probability, assuming the null model and specified analysis, of data at least as incompatible with that model as those observed; it is not the probability the null hypothesis is true.</p>
+<p>In a <strong>Bayesian</strong> analysis, unknown parameters are represented with probability distributions. A prior distribution expresses uncertainty before the current data; the likelihood updates it to a posterior distribution: <code>posterior ∝ likelihood × prior</code>. A 95% credible interval contains 95% of posterior probability under the model and prior. This probability statement is conditional on the chosen model and prior, whose influence should be examined and reported.</p>
+<p>Neither framework is automatically objective, assumption-free, or appropriate for every question. Frequentist methods also require modeling choices; Bayesian methods can provide direct probability statements but depend on prior and model specification.</p>
 <h2 id="when-to-use-it">When to use it</h2>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Example question</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Risk score development</td>
-<td>Does this 12-week readmission model still rank patients correctly at the next site?</td>
-</tr>
-<tr>
-<td>Biomarker panel</td>
-<td>Is the panel&#39;s AUC in 200 patients likely to survive replication?</td>
-</tr>
-<tr>
-<td>Model comparison</td>
-<td>Which of two scoring rules predicts outcome better in <em>new</em> patients?</td>
-</tr>
-<tr>
-<td>Regulatory / guideline work</td>
-<td>Does the published model&#39;s calibration hold in our hospital&#39;s population?</td>
-</tr>
-</tbody></table>
-<p>Validation is required whenever a model is used for prediction (not just inference) — every clinical risk score, nomogram or ML model — and the more predictive claims are made, the more rigorous the validation must be: development-only performance is a minimum for an honest external test, not a promise of it.</p>
+<p>Frequentist confidence intervals and tests are common when long-run operating characteristics, prespecified type I error, and established regulatory procedures are central. Bayesian inference is useful when decisions require probabilities about effect sizes, when prior evidence can be transparently incorporated, or when hierarchical modeling and adaptive decisions are natural. Either approach can support estimation, prediction, or decisions; choice should follow the scientific question, data structure, and decision context rather than a blanket preference.</p>
+<p>Bayesian analyses are not synonymous with adaptive trials, and frequentist analyses are not limited to null-hypothesis tests. Bayesian models can be used in fixed designs, and frequentist estimation can focus on intervals and practical effect sizes.</p>
 <h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
-<li><strong>Sample size relative to complexity</strong>: the events-per-variable (EPV) heuristic (≥ 10 outcome events per predictor, often ≥ 20 for reliable prediction) is a guard against overfitting, not a law; small samples with many predictors guarantee optimistic performance estimates.</li>
-<li><strong>Applicability</strong>: external validation tests performance <em>in a new population</em>; if the new population differs substantially (different case mix, outcome prevalence, measurement methods), the model may be inapplicable rather than merely imperfect.</li>
-<li><strong>Bootstrap assumptions</strong>: the .632+ bootstrap (Efron) and k-fold CV estimate optimism under the assumption that the new data come from the same population; they do not protect against population shift.</li>
-<li><strong>Stability of the data-generating process</strong>: a model validated on 2010–2015 data may fail after a care pathway change in 2020; temporal validity can decay.</li>
-<li><strong>What is being validated</strong>: discrimination (AUC, calibration slope) and calibration (intercept, slope) are distinct; a model can discriminate well while being miscalibrated, and vice versa.</li>
+<li><strong>Model and data quality:</strong> Both approaches depend on correct enough outcome, sampling, and missing-data models. A sophisticated framework cannot repair biased measurement or selection.</li>
+<li><strong>Prior sensitivity:</strong> With sparse data, the prior can strongly influence the posterior. Justify informative priors from relevant evidence, show prior-to-posterior updates, and examine plausible alternatives. “Noninformative” priors are not universally noninformative and can behave poorly for some parameters.</li>
+<li><strong>Frequentist operating characteristics:</strong> Error rates and coverage are properties under repeated use and the specified sampling model. A 5% type I error rate is not a 5% probability that a particular result is false.</li>
+<li><strong>Interval interpretation:</strong> Confidence and credible intervals may look numerically similar but answer different probability questions. Neither interval alone determines clinical importance.</li>
+<li><strong>Decision context:</strong> A posterior probability such as <code>P(effect &gt; clinically important margin | data)</code> is not itself a decision; utilities, harms, costs, and thresholds still matter. Frequentist decisions also require a loss or policy context beyond a p-value.</li>
+<li><strong>Selective analysis:</strong> Unreported outcome switching, optional stopping, multiplicity, and publication bias can distort results in either framework. Bayesian updating does not automatically make arbitrary data-dependent analyses harmless for every decision or model.</li>
+<li><strong>Prior-data conflict:</strong> A prior that conflicts with current evidence can produce a misleadingly precise or awkward posterior. Check predictive implications and report conflict diagnostics.</li>
 </ul>
 <h2 id="worked-example">Worked example</h2>
-<p>A team builds a logistic model predicting 30-day readmission from 12 predictors in 900 patients (215 readmissions). The development AUC is 0.79 and R² (Hosmer–Lemeshow-type) looks excellent. A 10-fold cross-validation gives AUC 0.71 — an optimism of 0.08. The calibration slope from the bootstrap is 0.72, indicating coefficients are about 28% too large. The team shrinks the model (ridge penalty) and re-estimates: AUC 0.72, slope 0.85. Two independent hospitals then apply the shrunk model: AUC 0.69 and 0.71, calibration slope 0.90 and 0.94. The honest claim is &quot;AUC about 0.7, reasonably well calibrated, externally validated in two sites&quot; — not &quot;AUC 0.79&quot;. Had the unshrunk model been deployed, its predicted probabilities would have been systematically too extreme: patients it labelled 25% risk would have observed risk closer to 19%.</p>
+<p>Suppose a randomized trial estimates a treatment effect on a symptom scale as a mean improvement of 3 points, with standard error 1.5 points. In a simplified normal model, a frequentist 95% confidence interval is <code>3 ± 1.96 × 1.5</code>, or approximately <code>0.06 to 5.94</code> points. Under the model, the interval procedure has 95% long-run coverage. It does not mean there is a 95% probability that this particular interval contains the fixed true effect.</p>
+<p>For illustration, use a normal prior centered at 0 with SD 4 points and a normal likelihood with estimate 3 and SE 1.5. The posterior variance is <code>1 / (1/16 + 1/2.25) ≈ 1.973</code>, so posterior SD is about 1.405. The posterior mean is <code>(1.973 / 2.25) × 3 ≈ 2.63</code> points, and an approximate 95% credible interval is <code>−0.12 to 5.38</code>. The posterior probability that the benefit exceeds 1 point is about 88% under this prior and model. A more skeptical prior would lower that probability; a weak prior would bring it closer to the data-only estimate. This illustrates why the prior belongs in the report and sensitivity analysis.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
-<li>Reporting the development AUC or R² as if it were the expected real-world performance is the single most common error; always pair it with a cross-validated or externally validated estimate.</li>
-<li>A &quot;non-significant&quot; difference between two models&#39; AUCs means the data cannot distinguish them — it does not prove they are equally good, and it is not a license to pick by convenience and report the winner&#39;s optimistic number.</li>
-<li>Good discrimination (AUC) does not mean the model is clinically useful: compare the model&#39;s predictions to a baseline using decision-curve analysis or net reclassification, and check calibration in the risk range where decisions are actually made.</li>
-<li>Adding predictors until the cross-validated metric stops improving is a defensible stopping rule; adding predictors until the <em>development</em> metric stops improving is how overfitted models are built.</li>
-<li>External validation with a small external sample has its own wide CIs; a single external AUC of 0.68 with n = 120 may be compatible with a true AUC of 0.62–0.74 — report the CI.</li>
+<li>Avoid saying that a p-value is the probability the null is true, or that a confidence interval gives a probability distribution for the fixed parameter.</li>
+<li>Do not call a Bayesian posterior “the probability the result is true” without stating the model, prior, and parameter event being evaluated.</li>
+<li>Compare methods using the same estimand and outcome scale. Different estimates may reflect different priors, likelihoods, or models rather than a fundamental framework dispute.</li>
+<li>Statistical evidence is not the same as evidence of clinical importance. State a clinically meaningful effect or decision threshold when possible.</li>
+<li>When reporting a Bayesian model, provide prior rationale, posterior summaries, computation and convergence checks, and sensitivity analyses. For a frequentist analysis, state the sampling model, estimand, interval procedure, and any multiplicity or sequential design.</li>
+<li>Avoid caricatures: frequentist analysis can incorporate design knowledge and Bayesian analysis can be prespecified with strict error control for a given decision problem.</li>
 </ul>
-<p>For binary prediction models, report calibration as well as discrimination. The Brier score averages squared prediction errors and reflects both; calibration plots should include uncertainty and avoid overinterpreting sparse risk ranges. Internal validation must repeat every data-driven step inside each resample, including imputation, feature selection, and tuning, or optimism remains. External validation assesses transportability; report calibration slope and intercept and consider recalibration before refitting. AUC alone is insensitive to whether predicted risks are clinically useful, so decision-curve net benefit can complement performance measures when thresholds correspond to real decisions.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li><p>Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). <em>Annals of Internal Medicine</em>. 2015;162:55–63. <a href="https://doi.org/10.7326/M14-0697" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.7326/M14-0697</a></p>
-</li>
-<li><p>Vickers AJ, Elkin EB. &quot;Decision curve analysis: a novel method for evaluating prediction models.&quot; <em>Med Decis Making</em> 2006.</p>
-</li>
-<li><p>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</p>
-</li>
-<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
-</li>
-<li><p>The companion <a href="model-assumptions-and-diagnostics.html">model assumptions and diagnostics article</a> covers checks that should precede validation.</p>
-</li>
+<li>Wasserstein RL, Schirm AL, Lazar NA. <a href="https://doi.org/10.1080/00031305.2019.1583913" target="_blank" rel="noopener noreferrer" class="ext-link">Moving to a world beyond “p &lt; 0.05”</a>. <em>The American Statistician</em>. 2019;73(sup1):1–19.</li>
+<li>U.S. Food and Drug Administration. <a href="https://www.fda.gov/regulatory-information/search-fda-guidance-documents/guidance-use-bayesian-statistics-medical-device-clinical-trials" target="_blank" rel="noopener noreferrer" class="ext-link">Guidance for the Use of Bayesian Statistics in Medical Device Clinical Trials</a>. 2010.</li>
+<li>Greenland S, Senn SJ, Rothman KJ, et al. <a href="https://doi.org/10.1007/s10654-016-0149-3" target="_blank" rel="noopener noreferrer" class="ext-link">Statistical tests, P values, confidence intervals, and power: a guide to misinterpretations</a>. <em>European Journal of Epidemiology</em>. 2016;31:337–350.</li>
+<li>The library&#39;s <a href="../practice/introduction-to-bayesian-inference.html">introduction to Bayesian inference</a>, <a href="p-values-and-significance-levels.html">p-values and significance levels</a>, and <a href="confidence-intervals.html">confidence intervals</a> cover these tools in more detail.</li>
 </ul>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">
-          <a href="../regression/interaction-and-effect-modification.html"><span>← Previous article</span>Interaction and effect modification</a>
-          <a href="../machine-learning/introduction-to-machine-learning-for-health-data.html" style="text-align:right"><span>Next article →</span>Introduction to machine learning for health data</a>
+          <a href="../inference/multiple-testing.html"><span>← Previous article</span>Multiple testing</a>
+          <a href="../comparisons/independent-and-paired-t-tests.html" style="text-align:right"><span>Next article →</span>Independent and paired t-tests</a>
         </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
