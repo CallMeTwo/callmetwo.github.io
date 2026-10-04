@@ -162,7 +162,11 @@
     }
     if (!matches.length) return null
     matches.sort((a, b) => b.score - a.score)
-    if (matches.length > 1 && matches[0].score === matches[1].score && matches[0].score < 8) return null
+    if (matches.length > 1 && matches[0].score === matches[1].score) {
+      const positioned = matches.find(match => match.start === item.startOffset && match.end === item.endOffset)
+      if (positioned && (matches[0].score < 8 || positioned.score === matches[0].score)) return rangeFromOffsets(map, positioned.start, positioned.end)
+      if (matches[0].score < 8) return null
+    }
     return rangeFromOffsets(map, matches[0].start, matches[0].end)
   }
 
@@ -196,11 +200,22 @@
     const after = document.createRange()
     after.selectNodeContents(article)
     after.setStart(range.endContainer, range.endOffset)
-    return {
-      quote: normalize(range.toString()),
+    const quote = normalize(range.toString())
+    const map = makeTextMap()
+    const rawStart = map.starts.findIndex(point => point.node === range.startContainer && point.offset === range.startOffset)
+    const rawEnd = map.ends.findIndex(point => point.node === range.endContainer && point.offset === range.endOffset) + 1
+    const selectedText = rawStart >= 0 && rawEnd > rawStart ? map.text.slice(rawStart, rawEnd) : ''
+    const quoteOffset = selectedText.indexOf(quote)
+    const anchor = {
+      quote,
       prefix: normalize(before.toString()).slice(-80),
       suffix: normalize(after.toString()).slice(0, 80),
     }
+    if (quoteOffset >= 0) {
+      anchor.startOffset = rawStart + quoteOffset
+      anchor.endOffset = anchor.startOffset + quote.length
+    }
+    return anchor
   }
 
   function findExisting(anchor) {
@@ -229,7 +244,7 @@
       return hideToolbar()
     }
     const anchor = makeAnchor(range)
-    if (anchor.quote.length < 2 || anchor.quote.length > 2000) return hideToolbar()
+    if (!anchor.quote.length || anchor.quote.length > 2000) return hideToolbar()
     pending = { range: range.cloneRange(), anchor }
     if (quickMode) {
       let currentIndex = highlights.findIndex(item => item.id === quickSelectionId)
