@@ -11,7 +11,7 @@ The target interpretation depends on the model and link. In a linear mixed model
 
 ## Separate within-person and between-person variation
 
-For continuous outcome (Y_{ij}) measured for person (i) at time (j), a random-intercept model is \(Y_{ij}=\beta_0+\beta_1t_{ij}+b_{0i}+\epsilon_{ij}\), with (b_{0i}\sim N(0,\sigma_b^2)\) and residual \(\epsilon_{ij}\sim N(0,\sigma^2)\). The random intercept captures stable differences between people; repeated measurements from the same person are correlated through shared (b_{0i}).
+For continuous outcome \(Y_{ij}\) measured for person \(i\) at time \(j\), a random-intercept model is \(Y_{ij}=\beta_0+\beta_1t_{ij}+b_{0i}+\epsilon_{ij}\), with \(b_{0i}\sim N(0,\sigma_b^2)\) and residual \(\epsilon_{ij}\sim N(0,\sigma^2)\). The random intercept captures stable differences between people; repeated measurements from the same person are correlated through shared \(b_{0i}\).
 
 The intraclass correlation in this simple model is \(\sigma_b^2/(\sigma_b^2+\sigma^2)\), the proportion of total variance attributable to between-person differences. If \(\sigma_b^2=16\) and residual variance is 9, ICC is 16/25=0.64; two measurements from the same person are strongly correlated. This affects standard errors and the information gained from repeated visits.
 

@@ -32,7 +32,7 @@ Cluster sampling selects groups—clinics, schools, villages—then observes som
 Sampling with unequal probabilities is useful for rare outcomes, high-priority subpopulations, or units expected to yield more information. The Horvitz–Thompson estimator of a finite-population total is
 
 \[
-\widehat{T}_{HT}=\sum_{i\in s}rac{y_i}{\pi_i},
+\widehat{T}_{HT}=\sum_{i\in s}\frac{y_i}{\pi_i},
 \]
 
 where \(\pi_i\) is unit i’s inclusion probability. When the population size is known, divide by N for a mean. A ratio or Hájek estimator divides the weighted total by the sum of weights; it is often more stable but has small-sample bias. The sampling design—not a rule that weights must sum to a particular number—determines the estimator and its variance.

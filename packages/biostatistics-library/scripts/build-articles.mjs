@@ -182,6 +182,8 @@ function articleCss() {
   .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
   .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
   .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body mjx-container[jax="CHTML"]{font-size:1.04em}
+  .article-body mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:4px 0 10px}
   .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
   .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
   .article-body img{max-width:100%;border-radius:6px}
@@ -211,6 +213,18 @@ function pageHtml({ title, summary, breadcrumb, sectionId, sectionTitle, tocHtml
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="${description}" />
     <title>${esc(title)} · Biostatistics Library</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\\\(', '\\\\)']],
+          displayMath: [['\\\\[', '\\\\]']],
+          packages: { '[+]': ['ams'] },
+        },
+        options: { ignoreHtmlClass: 'tex2jax_ignore', processHtmlClass: 'tex2jax_process' },
+        chtml: { matchFontHeight: false },
+      }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
     <style>${articleCss()}</style>
   </head>
   <body class="article-page">

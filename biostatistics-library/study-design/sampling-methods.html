@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="How to choose a subset of a population so that the inferences drawn from it are valid, unbiased, and appropriately precise." />
     <title>Sampling methods · Biostatistics Library</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']],
+          packages: { '[+]': ['ams'] },
+        },
+        options: { ignoreHtmlClass: 'tex2jax_ignore', processHtmlClass: 'tex2jax_process' },
+        chtml: { matchFontHeight: false },
+      }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
   .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
@@ -56,6 +68,8 @@
   .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
   .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
   .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body mjx-container[jax="CHTML"]{font-size:1.04em}
+  .article-body mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:4px 0 10px}
   .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
   .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
   .article-body img{max-width:100%;border-radius:6px}
@@ -128,7 +142,7 @@
 <p>Cluster sampling selects groups—clinics, schools, villages—then observes some or all members inside sampled groups. It reduces travel and listing costs, but people in a shared cluster often resemble one another. In a multistage design, sample primary units first and then select people within those units. A design with many clusters and few people per cluster is often more informative than one with few clusters and many people in each, though the cost structure and estimand matter.</p>
 <p>Sampling with unequal probabilities is useful for rare outcomes, high-priority subpopulations, or units expected to yield more information. The Horvitz–Thompson estimator of a finite-population total is</p>
 <p>[
-\widehat{T}<em>{HT}=\sum</em>{i\in s}rac{y_i}{\pi_i},
+\widehat{T}<em>{HT}=\sum</em>{i\in s}\frac{y_i}{\pi_i},
 ]</p>
 <p>where (\pi_i) is unit i’s inclusion probability. When the population size is known, divide by N for a mean. A ratio or Hájek estimator divides the weighted total by the sum of weights; it is often more stable but has small-sample bias. The sampling design—not a rule that weights must sum to a particular number—determines the estimator and its variance.</p>
 <h2 id="worked-allocation-precision-cost-and-subgroup-goals">Worked allocation: precision, cost, and subgroup goals</h2>

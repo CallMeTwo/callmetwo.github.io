@@ -39,7 +39,7 @@ The approximate test is appropriate with ties or moderate-to-large samples; `exa
 
 ## Worked example and interval interpretation
 
-In a sample of 40 patients, Pearson (r=0.45) between baseline inflammation marker and length of stay. A Fisher z transform (z=\tfrac12\log[(1+r)/(1-r)]\) gives (z=0.485), standard error (1/\sqrt{n-3}=0.164). The 95% interval on z-scale is 0.164 to 0.806; transforming back gives correlation interval approximately 0.16 to 0.67. The estimate suggests a positive linear association, but uncertainty is substantial.
+In a sample of 40 patients, Pearson's correlation is \(r=0.45\) between baseline inflammation marker and length of stay. A Fisher z transform, \(z=\tfrac12\log[(1+r)/(1-r)]\), gives \(z=0.485\), with standard error \(1/\sqrt{n-3}=0.164\). The 95% interval on the z scale is 0.164 to 0.806; transforming back gives a correlation interval of approximately 0.16 to 0.67. The estimate suggests a positive linear association, but uncertainty is substantial.
 
 An interval excluding zero is evidence against zero population linear correlation under the assumed sampling model; it does not show the relationship is clinically useful. The relation may be driven by age or disease severity. Fit a regression with prespecified confounders if adjustment is required, and report adjusted slopes or partial correlations with clear assumptions.
 

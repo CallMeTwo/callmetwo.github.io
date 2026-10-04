@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Population-level designs for studying group exposures and outcomes, with attention to aggregation, ecological bias, and multilevel alternatives." />
     <title>Ecological studies · Biostatistics Library</title>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)']],
+          displayMath: [['\\[', '\\]']],
+          packages: { '[+]': ['ams'] },
+        },
+        options: { ignoreHtmlClass: 'tex2jax_ignore', processHtmlClass: 'tex2jax_process' },
+        chtml: { matchFontHeight: false },
+      }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
     <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
   .article-page{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;min-height:100vh;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df}
@@ -56,6 +68,8 @@
   .article-body th,.article-body td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
   .article-body th{background:#edf3ed;font-weight:600;color:#34594c}
   .article-body code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef3ee;border:1px solid #dde5df;border-radius:4px;padding:1px 6px;color:#33584c}
+  .article-body mjx-container[jax="CHTML"]{font-size:1.04em}
+  .article-body mjx-container[display="true"]{max-width:100%;overflow-x:auto;overflow-y:hidden;padding:4px 0 10px}
   .article-body pre{background:#203f37;color:#dcebe2;padding:18px;border-radius:6px;overflow-x:auto;margin:0 0 20px}
   .article-body pre code{background:none;border:0;padding:0;color:inherit;font-size:13px}
   .article-body img{max-width:100%;border-radius:6px}
@@ -121,7 +135,7 @@
 <p>An area-level estimand might be the change in age-standardized admission rate under a policy regime compared with the rate that would have occurred without it. A compositional estimand might compare places with different population distributions. A contextual estimand might examine whether features of the place affect all residents regardless of their individual characteristics. These are distinct. A group-level coefficient should not be translated into an individual treatment effect unless the design and data identify that effect.</p>
 <p>The choice of geographic unit should reflect how the exposure is assigned, measured, and used. A school district may fit an education policy, while a watershed may fit environmental contamination. Administrative convenience alone is a weak rationale. Make boundaries stable over time when possible and document changes. If the target is all residents rather than an average place, decide how area populations enter the estimand; equal weighting of areas and population weighting answer different questions.</p>
 <h2 id="what-aggregation-hides">What aggregation hides</h2>
-<p>Suppose two districts have the same average exposure but different exposure distributions. If risk is nonlinear in exposure, their expected outcomes can differ even when average exposure is identical. Mathematically, (f(E[X|G])) need not equal (E[f(X)|G]). Differences in age, occupation, income, baseline health, access to care, or diagnostic practices can similarly shape group rates. Aggregate adjustment only controls measured group-level variables; it does not reveal the unobserved joint relationships among individuals.</p>
+<p>Suppose two districts have the same average exposure but different exposure distributions. If risk is nonlinear in exposure, their expected outcomes can differ even when average exposure is identical. Mathematically, (f(E[X\mid G])) need not equal (E[f(X)\mid G]). Differences in age, occupation, income, baseline health, access to care, or diagnostic practices can similarly shape group rates. Aggregate adjustment only controls measured group-level variables; it does not reveal the unobserved joint relationships among individuals.</p>
 <p>The classic ecological fallacy occurs when a relation between group summaries is incorrectly attributed to individuals. Its mirror-image error also matters: a weak between-area association does not rule out a strong individual association. Within-area and between-area effects can differ in magnitude or direction, a pattern sometimes called Simpson&#39;s paradox. Neither direction can be inferred from aggregate slopes alone.</p>
 <p>Ecological data can sometimes identify useful bounds on individual associations from known margins, such as the number exposed and the total number with disease in each group. Usually those bounds are wide. A single point estimate of an individual effect then requires additional data or assumptions. If individual inference is essential, seek linked records, survey microdata, or a multilevel cohort. If such data are unavailable, present the group-level estimand honestly and, where useful, report bounds or sensitivity analyses rather than implying that a model recovers missing cross-tabulations.</p>
 <h2 id="assemble-comparable-group-level-measures">Assemble comparable group-level measures</h2>
@@ -134,7 +148,7 @@
 <p>[
 Y_i \sim \text{Poisson}(E_i\lambda_i), \qquad \log(E[Y_i])=\log(E_i)+\beta_0+\beta_1X_i+\boldsymbol{\gamma}^{T}Z_i,
 ]</p>
-<p>where (E_i) is the denominator or expected count, (X_i) is exposure, and (Z_i) contains prespecified group covariates. Then β₁ is a log rate ratio per stated exposure increment, conditional on included covariates. It is not automatically a causal effect. If count variability exceeds the Poisson assumption, standard errors may be too small; assess overdispersion and consider quasi-Poisson, negative-binomial, or hierarchical approaches.</p>
+<p>where (E_i) is the denominator or expected count, (X_i) is exposure, and (Z_i) contains prespecified group covariates. Then (\beta_1) is a log rate ratio per stated exposure increment, conditional on included covariates. It is not automatically a causal effect. If count variability exceeds the Poisson assumption, standard errors may be too small; assess overdispersion and consider quasi-Poisson, negative-binomial, or hierarchical approaches.</p>
 <pre><code class="language-r"># One row per district: events, person_years, pm25, deprivation
 fit &lt;- glm(events ~ I(pm25 / 5) + deprivation + offset(log(person_years)),
            family = poisson(), data = district)
@@ -144,7 +158,11 @@ exp(cbind(rate_ratio = coef(fit), confint(fit)))
 <p>For area-period panels, account for common secular trends, seasonality, repeated observations, and area-specific dependence. A model with area and time fixed effects estimates changes within areas over time, but does not automatically control for time-varying confounding. Repeated rows do not create independent information equal to their count. Use an uncertainty method aligned with the level at which exposure is assigned and the dependence structure; when there are few areas, standard cluster-robust asymptotics may be unreliable.</p>
 <p>Spatial smoothing and hierarchical models can stabilize small-area estimates by partial pooling. They estimate a smoothed surface under a model; they do not convert sparse observations into exact local truth. Show raw counts or rates next to modeled estimates, report uncertainty, and explain the neighborhood structure or prior that induces smoothing. For dashboards, stability flags can deter overinterpretation of the noisiest areas.</p>
 <h2 id="worked-policy-illustration-what-the-slope-says">Worked policy illustration: what the slope says</h2>
-<p>Suppose a cross-section of 40 districts has a fitted association of 1.8 additional deaths per 100,000 residents for every 5 µg/m³ higher annual pollution, with standard error 0.71. A normal 95% interval is (1.8\pm1.96(0.71)=0.41) to (3.19). In this model, districts with higher mean pollution tend to have higher mortality after the stated group-level adjustment. The interval describes sampling uncertainty conditional on the model; it does not quantify uncertainty from unmeasured confounding, exposure error, boundary choice, or the ecological identification problem.</p>
+<p>Suppose a cross-section of 40 districts has a fitted association of 1.8 additional deaths per 100,000 residents for every 5 µg/m³ higher annual pollution, with standard error 0.71. The normal-approximation 95% confidence interval is</p>
+<p>[
+1.8 \pm 1.96(0.71) = (0.41,\ 3.19).
+]</p>
+<p>In this model, districts with higher mean pollution tend to have higher mortality after the stated group-level adjustment. The interval describes sampling uncertainty conditional on the model; it does not quantify uncertainty from unmeasured confounding, exposure error, boundary choice, or the ecological identification problem.</p>
 <p>Adding thousands of residents to each district can improve the precision of each district&#39;s rate, but the exposure slope still has only 40 independent area units in this cross-sectional analysis. More individuals do not substitute for more independent groups. A model that weights districts by population also changes the implicit target toward the average resident&#39;s district; equal weighting describes the average district. Explain which summary policy-makers need, and compare both only if they answer legitimate distinct questions.</p>
 <pre><code class="language-r">fit &lt;- lm(death_rate ~ pm25 + deprivation + urbanicity, data = district)
 coef(summary(fit))[&quot;pm25&quot;, ]

@@ -19,7 +19,7 @@ The choice of geographic unit should reflect how the exposure is assigned, measu
 
 ## What aggregation hides
 
-Suppose two districts have the same average exposure but different exposure distributions. If risk is nonlinear in exposure, their expected outcomes can differ even when average exposure is identical. Mathematically, (f(E[X|G])) need not equal (E[f(X)|G]). Differences in age, occupation, income, baseline health, access to care, or diagnostic practices can similarly shape group rates. Aggregate adjustment only controls measured group-level variables; it does not reveal the unobserved joint relationships among individuals.
+Suppose two districts have the same average exposure but different exposure distributions. If risk is nonlinear in exposure, their expected outcomes can differ even when average exposure is identical. Mathematically, \(f(E[X\mid G])\) need not equal \(E[f(X)\mid G]\). Differences in age, occupation, income, baseline health, access to care, or diagnostic practices can similarly shape group rates. Aggregate adjustment only controls measured group-level variables; it does not reveal the unobserved joint relationships among individuals.
 
 The classic ecological fallacy occurs when a relation between group summaries is incorrectly attributed to individuals. Its mirror-image error also matters: a weak between-area association does not rule out a strong individual association. Within-area and between-area effects can differ in magnitude or direction, a pattern sometimes called Simpson's paradox. Neither direction can be inferred from aggregate slopes alone.
 
@@ -43,7 +43,7 @@ When outcome counts arise over different amounts of person-time or population, c
 Y_i \sim \text{Poisson}(E_i\lambda_i), \qquad \log(E[Y_i])=\log(E_i)+\beta_0+\beta_1X_i+\boldsymbol{\gamma}^{T}Z_i,
 \]
 
-where (E_i) is the denominator or expected count, (X_i) is exposure, and (Z_i) contains prespecified group covariates. Then β₁ is a log rate ratio per stated exposure increment, conditional on included covariates. It is not automatically a causal effect. If count variability exceeds the Poisson assumption, standard errors may be too small; assess overdispersion and consider quasi-Poisson, negative-binomial, or hierarchical approaches.
+where \(E_i\) is the denominator or expected count, \(X_i\) is exposure, and \(Z_i\) contains prespecified group covariates. Then \(\beta_1\) is a log rate ratio per stated exposure increment, conditional on included covariates. It is not automatically a causal effect. If count variability exceeds the Poisson assumption, standard errors may be too small; assess overdispersion and consider quasi-Poisson, negative-binomial, or hierarchical approaches.
 
 ```r
 # One row per district: events, person_years, pm25, deprivation
@@ -60,7 +60,13 @@ Spatial smoothing and hierarchical models can stabilize small-area estimates by 
 
 ## Worked policy illustration: what the slope says
 
-Suppose a cross-section of 40 districts has a fitted association of 1.8 additional deaths per 100,000 residents for every 5 µg/m³ higher annual pollution, with standard error 0.71. A normal 95% interval is (1.8\pm1.96(0.71)=0.41\) to (3.19). In this model, districts with higher mean pollution tend to have higher mortality after the stated group-level adjustment. The interval describes sampling uncertainty conditional on the model; it does not quantify uncertainty from unmeasured confounding, exposure error, boundary choice, or the ecological identification problem.
+Suppose a cross-section of 40 districts has a fitted association of 1.8 additional deaths per 100,000 residents for every 5 µg/m³ higher annual pollution, with standard error 0.71. The normal-approximation 95% confidence interval is
+
+\[
+1.8 \pm 1.96(0.71) = (0.41,\ 3.19).
+\]
+
+In this model, districts with higher mean pollution tend to have higher mortality after the stated group-level adjustment. The interval describes sampling uncertainty conditional on the model; it does not quantify uncertainty from unmeasured confounding, exposure error, boundary choice, or the ecological identification problem.
 
 Adding thousands of residents to each district can improve the precision of each district's rate, but the exposure slope still has only 40 independent area units in this cross-sectional analysis. More individuals do not substitute for more independent groups. A model that weights districts by population also changes the implicit target toward the average resident's district; equal weighting describes the average district. Explain which summary policy-makers need, and compare both only if they answer legitimate distinct questions.
 

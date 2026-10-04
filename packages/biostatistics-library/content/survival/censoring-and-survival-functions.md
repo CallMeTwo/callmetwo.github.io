@@ -11,7 +11,7 @@ Correct analysis begins with a clear time origin, event definition, and censorin
 
 ## Represent each participant's follow-up
 
-For a single event type with right censoring, record observed time (T_i=\min(T_i^*,C_i)) and event indicator \(\delta_i=I(T_i^*\le C_i)\), where (T_i^*) is true event time and (C_i) censoring time. If \(\delta_i=1\), the event occurred at (T_i\); if 0, the participant was event-free through (T_i\) and may experience the event later. Do not code censoring as “no event ever.”
+For a single event type with right censoring, record observed time \(T_i=\min(T_i^*,C_i)\) and event indicator \(\delta_i=I(T_i^*\le C_i)\), where \(T_i^*\) is true event time and \(C_i\) censoring time. If \(\delta_i=1\), the event occurred at \(T_i\); if 0, the participant was event-free through \(T_i\) and may experience the event later. Do not code censoring as “no event ever.”
 
 The time origin and eligibility criteria must align. In a post-discharge study, starting follow-up at admission while including only patients discharged alive can create immortal-time bias because participants had to survive to discharge. Delayed entry (left truncation) handles participants who become observable after time zero by including them in risk sets only after entry. For a recurrent event, first-event survival analysis discards later events; recurrent-event methods may better address the question.
 
