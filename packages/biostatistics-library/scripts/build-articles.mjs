@@ -164,8 +164,9 @@ function articleCss() {
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
   .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
   .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
-  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
-  .article-toc li.h3{margin-left:18px}
+  .article-toc ol{margin:0;padding-left:2rem;list-style-position:outside;font-size:12px;line-height:1.9}
+  .article-toc li::marker{font-variant-numeric:tabular-nums;color:#667975}
+  .article-toc li.h3{margin-left:0}
   .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
