@@ -116,14 +116,15 @@
 carry, in four ascending levels:</p>
 <ul>
 <li><strong>Nominal</strong> — categories with no order (blood group, sex, hospital site).
-Only counting per category is valid.</li>
+Summarise with counts and proportions; models can use indicator variables
+without implying a numeric order.</li>
 <li><strong>Ordinal</strong> — ordered categories with unequal or unknown spacing (NYHA
 class I–IV, pain mild/moderate/severe). Ranking is valid; arithmetic is not.</li>
 <li><strong>Interval</strong> — ordered, equal-spaced values with no true zero (Celsius
 temperature, IQ, dates). Differences are meaningful; ratios are not (20°C
 is not twice as hot as 10°C).</li>
 <li><strong>Ratio</strong> — interval plus a true zero, so ratios are meaningful (weight,
-blood pressure, concentrations, time, counts).</li>
+blood pressure, concentrations, durations, counts).</li>
 </ul>
 <p>The level is not a property of the quantity but of the <em>scale chosen to record
 it</em>: weight is a ratio scale in kilograms but ordinal if recorded only as
@@ -183,17 +184,18 @@ instruments, where the scale is assigned per item rather than per
 questionnaire.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>A heart-failure clinic records, for 120 patients, NYHA class (ordinal), body
-weight (ratio) and serum sodium (interval). NYHA class III is the mode (45
-patients, 37.5%); the class distribution is best summarised by the mode and
-the proportion in III–IV. Median weight is 78 kg (IQR 70–86); because weight
-is ratio-scale, a geometric mean is legitimate. Serum sodium has a mean of
-138 mmol/L (SD 3.1); a coefficient of variation is a relative-precision
-device, not a physical ratio, because mmol/L has no true zero in the way
-weight does.</p>
+weight (ratio) and serum sodium concentration (ratio). NYHA class III is the
+mode (45 patients, 37.5%); the class distribution is best summarised by the
+mode and the proportion in III–IV. Median weight is 78 kg (IQR 70–86); a
+geometric mean is meaningful for positive values when a multiplicative summary
+is useful. Serum sodium has a mean of 138 mmol/L (SD 3.1); concentration has a
+meaningful zero, so ratios are defined, though the coefficient of variation is
+not necessarily the clinically most useful summary.</p>
 <p>The point: the same 120 patients support a mode and proportions for the
-ordinal variable, medians and IQR (or means and SDs if roughly symmetric) for
-the numeric variables, and no analysis is admissible that reaches past the
-structure the recorded scale provides.</p>
+ordinal variable and medians and IQR (or means and SDs if roughly symmetric)
+for numeric variables. The recorded scale constrains interpretation, but it
+does not alone dictate a statistical method: distribution, design, estimand
+and model assumptions matter too.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Computing a mean on ordinal data and reporting it as a &quot;score&quot;.</strong> A mean
@@ -213,8 +215,8 @@ analysis impossible even if the raw value existed in the lab report.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
 <li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
-<li>The topic map&#39;s <em>Describing data</em> section pairs each scale with the
-appropriate summaries and plots (article planned).</li>
+<li>The <em>Describing data</em> articles in this library pair scales with appropriate
+summaries and plots.</li>
 </ul>
 
         </article>

@@ -41,7 +41,11 @@ Interpretation: the same clinical question, asked decades apart, produced opposi
 - Reading an older review as current: check the search date and any subsequent updates before basing a decision on it.
 - Assuming the review's included studies answer the exact question your patient raises; if eligibility criteria excluded, say, comorbid kidney disease, the conclusion may not transfer to a patient with it — the protocol's criteria define the answer's scope.
 
+Define eligibility and outcomes before searching, and publish a protocol where feasible. A complete search is reproducible only when databases, platforms, dates, full strategies, language restrictions, and supplementary sources are reported. Duplicate independent screening and extraction reduce errors; resolve disagreement by a documented process. Risk-of-bias assessment is study- and outcome-specific, and certainty of evidence is not the same as statistical significance or the pooled estimate. PRISMA improves reporting transparency but does not guarantee that the review methods are unbiased.
+
 ## References and further reading
+
+- Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. *BMJ*. 2021;372:n71. [doi:10.1136/bmj.n71](https://doi.org/10.1136/bmj.n71)
 
 - Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, et al. *Cochrane Handbook for Systematic Reviews of Interventions*, 2nd edn. Wiley-Blackwell.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.

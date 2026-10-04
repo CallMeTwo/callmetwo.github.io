@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Exploring distributions <span class="sep">/</span> <strong style="color:#273e3b">Frequency tables</strong></div>
         <h1 class="article-title">Frequency tables</h1>
         <p class="article-summary">Counts, proportions and two-way cross-tabulations as the starting point for summarising categorical clinical data.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#denominators-missingness-and-uncertainty">Denominators, missingness and uncertainty</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Before any test or model, categorical data — vital status, adverse event grade, blood group, treatment arm, response yes/no — must be summarised. The <strong>frequency table</strong> lists each category with its count and proportion. Proportions should always be given with the denominator: &quot;48/120 (40%) had nausea&quot; is informative; &quot;40% had nausea&quot; is not.</p>
@@ -157,6 +157,16 @@
 <li>A two-way table describes association, not causation; a striking pattern may be confounded by a variable not in the table (age is the classic).</li>
 <li>With many categories or sparse cells the table becomes unreadable and downstream tests lose validity; chi-squared approximations need reasonably large expected cell counts (rule of thumb: at least 5 per cell).</li>
 </ul>
+<h3 id="denominators-missingness-and-uncertainty">Denominators, missingness and uncertainty</h3>
+<p>Choose the denominator from the question and design. In a randomized trial,
+the event proportion is often events divided by participants assigned to that
+arm; in a person-time analysis, events are divided by accumulated time at risk.
+These answer different questions and should not share the label “rate” without
+definition. State how many participants lack the outcome and whether each row
+uses all randomized people, those with an observed result, or another analysis
+set. A proportion is also an estimate: for small samples, report a confidence
+interval using a suitable binomial method (for example, Wilson or exact), since
+the Wald interval can extend below zero or above one.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>In a two-arm trial, nausea was recorded at day 28:</p>
 <table>
@@ -201,11 +211,19 @@
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Greenland S, Rothman K, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
-<li>Agresti A. <em>Categorical Data Analysis</em>. John Wiley &amp; Sons.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li><p>CDC. <a href="https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson3/section2.html" target="_blank" rel="noopener noreferrer" class="ext-link">Principles of Epidemiology: rates and denominators</a>.</p>
+</li>
+<li><p>Agresti A. <a href="https://doi.org/10.1002/0470114754" target="_blank" rel="noopener noreferrer" class="ext-link">An Introduction to Categorical Data Analysis</a>. Wiley.</p>
+</li>
+<li><p>Greenland S, Rothman K, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</p>
+</li>
+<li><p>Agresti A. <em>Categorical Data Analysis</em>. John Wiley &amp; Sons.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
 </ul>
-<p><em>The &quot;Hypothesis testing for categorical data&quot; topic develops the chi-squared and Fisher&#39;s exact tests built on these tables (article planned).</em></p>
+<p>The <em>Probability</em> articles in this library explain the chance models behind
+proportions and two-way tables.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

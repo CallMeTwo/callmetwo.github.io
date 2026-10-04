@@ -157,12 +157,13 @@
 <li>A small p-value on an added predictor can coexist with a large change in the main predictor&#39;s coefficient — that is confounding, and the adjusted (post-change) coefficient is the one to report.</li>
 <li>Do not select predictors by fishing for significance one at a time; this inflates false positives and gives an optimistic R².</li>
 </ul>
+<p>The coefficient in a multiple regression is a conditional contrast: expected outcome difference for a one-unit predictor change with the listed covariates held fixed. It is not automatically a causal effect. If the objective is causal, define the intervention and estimand and justify adjustment from the causal structure; controlling for mediators or colliders can introduce bias. For prediction, do not interpret conditional coefficients as independent importance rankings when predictors are correlated. Report units, coding and a confidence interval, inspect nonlinear terms, and avoid predictions outside the observed covariate range.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li><em>The companion article &quot;Model assumptions and diagnostics&quot; covers how to check linearity, residual spread and influential points (article planned).</em></li>
+<li>The companion <a href="model-assumptions-and-diagnostics.html">model assumptions and diagnostics article</a> covers checks for linearity, residual spread and influential points.</li>
 </ul>
 
         </article>

@@ -309,7 +309,10 @@ async function main() {
     for (const [, href] of bodyHtml.matchAll(/<a\s+[^>]*href="([^"]+)"/g)) {
       if (/^(?:https?:|mailto:|#|\/\/)/i.test(href) || !/\.html(?:#.*)?$/.test(href)) continue
       const linkPath = decodeURIComponent(href.split('#')[0]).replace(/\.html$/, '.md')
-      const target = relative(contentDir, resolve(dirname(file), linkPath)).replace(/\\/g, '/')
+      if (linkPath.startsWith('/') && !linkPath.startsWith('/biostatistics-library/')) continue
+      const target = (linkPath.startsWith('/biostatistics-library/')
+        ? linkPath.slice('/biostatistics-library/'.length)
+        : relative(contentDir, resolve(dirname(file), linkPath))).replace(/\\/g, '/')
       if (!contentByPath.has(target.replace(/\.md$/, ''))) fail(`Broken internal article link "${href}" in ${rel}: no published article at ${target}.`)
     }
 

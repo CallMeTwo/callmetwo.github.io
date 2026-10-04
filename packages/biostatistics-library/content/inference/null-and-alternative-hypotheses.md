@@ -43,5 +43,6 @@ A non-inferiority trial compares a new oral anticoagulant with warfarin for stro
 ## References and further reading
 
 - Chow SC, Lu J, Jiang H. *Design and Analysis of Clinical Trials*. Wiley.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- The topic map's "Statistical inference" section develops hypothesis testing in detail (article planned).
+- Wasserstein RL, Lazar NA. [The ASA's statement on p-values: context, process, and purpose](https://doi.org/10.1080/00031305.2016.1154108). *The American Statistician*. 2016;70(2):129–133.
+- Piaggio G, Elbourne DR, Pocock SJ, Evans SJW, Altman DG. [Reporting of noninferiority and equivalence randomized trials](https://doi.org/10.1001/jama.2012.87802). *JAMA*. 2012;308(24):2594–2604.
+- The [p-values article](/biostatistics-library/inference/p-values-and-significance-levels.html) explains how test results are quantified.

@@ -9,14 +9,15 @@ The **scale of measurement** classifies a variable by the structure its values
 carry, in four ascending levels:
 
 - **Nominal** — categories with no order (blood group, sex, hospital site).
-  Only counting per category is valid.
+  Summarise with counts and proportions; models can use indicator variables
+  without implying a numeric order.
 - **Ordinal** — ordered categories with unequal or unknown spacing (NYHA
   class I–IV, pain mild/moderate/severe). Ranking is valid; arithmetic is not.
 - **Interval** — ordered, equal-spaced values with no true zero (Celsius
   temperature, IQ, dates). Differences are meaningful; ratios are not (20°C
   is not twice as hot as 10°C).
 - **Ratio** — interval plus a true zero, so ratios are meaningful (weight,
-  blood pressure, concentrations, time, counts).
+  blood pressure, concentrations, durations, counts).
 
 The level is not a property of the quantity but of the *scale chosen to record
 it*: weight is a ratio scale in kilograms but ordinal if recorded only as
@@ -65,18 +66,19 @@ questionnaire.
 ## Worked example
 
 A heart-failure clinic records, for 120 patients, NYHA class (ordinal), body
-weight (ratio) and serum sodium (interval). NYHA class III is the mode (45
-patients, 37.5%); the class distribution is best summarised by the mode and
-the proportion in III–IV. Median weight is 78 kg (IQR 70–86); because weight
-is ratio-scale, a geometric mean is legitimate. Serum sodium has a mean of
-138 mmol/L (SD 3.1); a coefficient of variation is a relative-precision
-device, not a physical ratio, because mmol/L has no true zero in the way
-weight does.
+weight (ratio) and serum sodium concentration (ratio). NYHA class III is the
+mode (45 patients, 37.5%); the class distribution is best summarised by the
+mode and the proportion in III–IV. Median weight is 78 kg (IQR 70–86); a
+geometric mean is meaningful for positive values when a multiplicative summary
+is useful. Serum sodium has a mean of 138 mmol/L (SD 3.1); concentration has a
+meaningful zero, so ratios are defined, though the coefficient of variation is
+not necessarily the clinically most useful summary.
 
 The point: the same 120 patients support a mode and proportions for the
-ordinal variable, medians and IQR (or means and SDs if roughly symmetric) for
-the numeric variables, and no analysis is admissible that reaches past the
-structure the recorded scale provides.
+ordinal variable and medians and IQR (or means and SDs if roughly symmetric)
+for numeric variables. The recorded scale constrains interpretation, but it
+does not alone dictate a statistical method: distribution, design, estimand
+and model assumptions matter too.
 
 ## Interpretation and common pitfalls
 
@@ -97,5 +99,5 @@ structure the recorded scale provides.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland JM, Altman DG. *Statistics with Confidence*. BMJ Books.
 - Agresti A. *Categorical Data Analysis*. Wiley.
-- The topic map's *Describing data* section pairs each scale with the
-  appropriate summaries and plots (article planned).
+- The *Describing data* articles in this library pair scales with appropriate
+  summaries and plots.

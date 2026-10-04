@@ -39,9 +39,11 @@ A hospital team wants to predict admission systolic blood pressure from age and 
 - A small p-value on an added predictor can coexist with a large change in the main predictor's coefficient — that is confounding, and the adjusted (post-change) coefficient is the one to report.
 - Do not select predictors by fishing for significance one at a time; this inflates false positives and gives an optimistic R².
 
+The coefficient in a multiple regression is a conditional contrast: expected outcome difference for a one-unit predictor change with the listed covariates held fixed. It is not automatically a causal effect. If the objective is causal, define the intervention and estimand and justify adjustment from the causal structure; controlling for mediators or colliders can introduce bias. For prediction, do not interpret conditional coefficients as independent importance rankings when predictors are correlated. Report units, coding and a confidence interval, inspect nonlinear terms, and avoid predictions outside the observed covariate range.
+
 ## References and further reading
 
 - Fox J. *Applied Regression Analysis and Generalized Linear Models*. SAGE.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- *The companion article "Model assumptions and diagnostics" covers how to check linearity, residual spread and influential points (article planned).*
+- The companion [model assumptions and diagnostics article](model-assumptions-and-diagnostics.html) covers checks for linearity, residual spread and influential points.

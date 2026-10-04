@@ -78,6 +78,8 @@ the signal.
   visits you measured; predicted values past the last visit assume the
   trajectory continues as modelled.
 
+Random intercepts and slopes induce a covariance pattern through the distribution of latent subject effects; they are not merely a way to “account for repeated measures.” Likelihood-based mixed models can use incomplete outcome trajectories under a missing-at-random assumption conditional on included variables and the observed history. This does not justify ignoring predictors of missingness or dropout. Random-effects normality and covariance assumptions can affect inference, and a population-average estimand may call for GEE instead. Include time-by-treatment interactions when the treatment contrast can evolve, and use planned contrasts to make the comparison at meaningful visits explicit.
+
 ## References and further reading
 
 - Pinheiro J, Bates D. *Mixed-Effects Models in S and S-PLUS*. Springer.

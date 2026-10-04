@@ -51,6 +51,7 @@ Holm recovers biomarker 2 at no additional FWER cost. Without any correction, 2 
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Holm S. [A simple sequentially rejective multiple test procedure](https://doi.org/10.2307/4615733). *Scandinavian Journal of Statistics*. 1979;6(2):65–70.
+- Benjamini Y, Hochberg Y. [Controlling the false discovery rate: a practical and powerful approach to multiple testing](https://doi.org/10.1111/j.2517-6161.1995.tb02031.x). *Journal of the Royal Statistical Society: Series B*. 1995;57(1):289–300.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott-Raven.
-- The topic map's "Statistical inference" section develops hypothesis testing in detail (article planned).
+- The [p-values article](/biostatistics-library/inference/p-values-and-significance-levels.html) discusses interpretation of individual tests.

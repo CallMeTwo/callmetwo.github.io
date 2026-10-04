@@ -55,9 +55,10 @@ Round up to 200 per group. With 15% expected loss to follow-up, recruit 200 / 0.
 
 ## References and further reading
 
-- Chow S, Shao W, Wang H, Lokhnygina Y. *Sample Size Calculations in Clinical Research*. CRC Press.
+- Chow S, Shao W, Wang H, Lokhnygina Y. *Sample Size Calculations in Clinical Research*. 3rd ed. CRC Press, 2017.
+- [CONSORT 2010 statement](https://doi.org/10.1136/bmj.c332), including transparent reporting of sample-size assumptions.
 - Dupont W, Schuemaker M. *Power and Sample Size Calculation*. CRC Press.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland M. *An Introduction to Medical Statistics*. Oxford University Press.
 
-*The planned "Randomized controlled trials" article in this library covers how the sample size feeds into the trial's design and analysis plan.*
+The [randomized controlled trials article](/biostatistics-library/study-design/randomized-controlled-trials.html) discusses how the sample-size assumptions connect to a trial's design and analysis plan.

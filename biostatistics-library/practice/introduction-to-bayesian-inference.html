@@ -155,9 +155,9 @@
 <li><strong>MCMC output must be diagnosed.</strong> Correlated chains, poor mixing, or non-convergence silently corrupt the posterior summary. Check convergence (e.g. R-hat near 1) and effective sample size before trusting any number.</li>
 </ul>
 <h2 id="worked-example">Worked example</h2>
-<p>A phase II trial tests a new drug for a rare cancer: 12 of 40 patients (30%) achieved a durable response. Earlier literature puts the historical response rate of the best standard at roughly 15%.</p>
-<p>Put a Beta(6, 34) prior (mean ≈ 0.15, reflecting about 200 historical patients) on the response probability, combine it with the 12/40 data, and the posterior is Beta(18, 42) with mean ≈ 0.30. From MCMC draws, the 95% credible interval for the new drug&#39;s response rate is about (0.16, 0.45), and the posterior probability that the response rate exceeds the historical 15% is ≈ 0.99.</p>
-<p>The interpretation a Bayesian can state that a frequentist interval cannot: &quot;Given the data and the historical evidence, there is about a 99% chance the new drug&#39;s response rate is higher than the standard&#39;s 15%.&quot;</p>
+<p>A phase II single-arm trial tests a new drug for a rare cancer: 12 of 40 patients achieved a durable response. Suppose a Beta(6, 34) prior, with mean 0.15 and effective prior sample size 40, represents historical information about the response rate. This prior treats the historical benchmark as uncertain evidence; it is not equivalent to a randomized concurrent control.</p>
+<p>With a binomial likelihood, conjugacy gives a Beta(18, 62) posterior: add 12 responses and 28 nonresponses to the prior parameters. Its mean is 18/80 = 0.225, its 95% equal-tail credible interval is approximately 0.141 to 0.322, and the posterior probability that the response rate exceeds 0.15 is about 0.96.</p>
+<p>Under this specified model and prior, one can say there is about a 96% posterior probability that the response rate exceeds the 15% benchmark. The uncertainty in the benchmark itself is not modeled here; a formal comparison should model both groups and account for differences between historical and current patients.</p>
 <p>If the decision is whether to proceed to a phase III trial, the framework extends naturally: compute the posterior probability that the response rate exceeds a pre-agreed threshold (say 25%), and pre-specify that a probability above 80% triggers continuation. That turns a fuzzy &quot;is it promising?&quot; discussion into a number tied to a declared decision rule.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
@@ -166,13 +166,19 @@
 <li><strong>Always report the prior</strong> — the prior, the likelihood/model, and the software so the posterior is reproducible and auditable.</li>
 <li><strong>Do not read a posterior probability of a hypothesis directly from a point estimate</strong> — to compare hypotheses you need prior model probabilities and the full posterior predictive, not a hand-wavy &quot;p-value translation.&quot;</li>
 </ul>
+<p>Bayesian results depend on the likelihood, prior, and model; “the data update the prior” does not make a weakly identified analysis objective. Show prior distributions on the parameter scale, justify their plausible range, and perform prior and posterior predictive checks. For a treatment effect, report posterior quantities tied to a decision (for example, P(benefit exceeds a prespecified clinically important threshold)), not only whether a credible interval excludes zero. With hierarchical models, partial pooling can stabilize small groups, but subgroup posteriors remain sensitive to the model and prior when data are sparse. MCMC convergence diagnostics are necessary computational checks, not evidence that the scientific model is correct.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Gelman A, Carlin JB, Stern HS, Dunson DB, Vehtari A, Rubin DB. <em>Bayesian Data Analysis</em>. Chapman and Hall/CRC.</li>
-<li>Hoff PD. <em>A First Course in Bayesian Statistical Methods</em>. Springer.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li><p>Gelman A, Carlin JB, Stern HS, et al. <em>Bayesian Data Analysis</em>, 3rd ed. CRC Press. <a href="https://www.routledge.com/Bayesian-Data-Analysis-Third-Edition/Gelman-Carlin-Stern-Dunson-Vehtari-Rubin/p/book/9781439840955" target="_blank" rel="noopener noreferrer" class="ext-link">Publisher page</a></p>
+</li>
+<li><p>Gelman A, Carlin JB, Stern HS, Dunson DB, Vehtari A, Rubin DB. <em>Bayesian Data Analysis</em>. Chapman and Hall/CRC.</p>
+</li>
+<li><p>Hoff PD. <em>A First Course in Bayesian Statistical Methods</em>. Springer.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
 </ul>
-<p><em>The topic map&#39;s &quot;Statistical inference&quot; section covers the frequentist baseline this contrasts with (article planned).</em></p>
+<p>The <a href="../inference/confidence-intervals.html">confidence intervals article</a> develops a key frequentist counterpart.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

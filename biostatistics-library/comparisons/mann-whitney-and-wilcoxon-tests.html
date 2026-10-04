@@ -190,11 +190,11 @@ test.</li>
 <p>In 10 patients with rheumatoid arthritis and 10 age-matched controls, a
 skewed disease-activity score (median 12, IQR 8–19 in patients; median 3,
 IQR 1–5 in controls) was recorded. Pooling and ranking all 20 values, the
-rank sum for the patient group is W = 186.</p>
+rank sum for the patient group is W = 143.</p>
 <ul>
 <li>Under the null the expected rank sum is 10 × (20 + 1) / 2 = 105.</li>
-<li>Using the normal approximation with tie correction, z ≈ 3.4, two-sided
-p &lt; 0.001.</li>
+<li>With no ties, U = W − 10×11/2 = 88 and the normal approximation gives
+z ≈ 2.84 (with continuity correction), two-sided p ≈ 0.005.</li>
 <li>The stochastic effect size P(patient &gt; control) = 0.88: a randomly chosen
 patient&#39;s score exceeds a randomly chosen control&#39;s score about 88% of the
 time.</li>
@@ -204,10 +204,12 @@ consistent with higher disease activity. Because the outcome is skewed and
 sample sizes are small, the rank test is more trustworthy here than a
 t-test, which would be sensitive to the upper-tail values.</p>
 <p><strong>Paired variant.</strong> In 9 COPD patients, an 8-point breathlessness scale was
-measured before and after 6 weeks of pulmonary rehab. The signed-rank sum of
-positive (improved) differences is 36 of a possible 45; the signed-rank test
-gives p = 0.036. Breathlessness improved consistently within patients,
-though the improvement was not uniform across all 9.</p>
+measured before and after 6 weeks of pulmonary rehab. Assuming nine nonzero
+differences with distinct absolute magnitudes, the signed-rank sum in the
+improvement direction is 40 of a possible 45. The exact two-sided signed-rank
+p-value is about 0.039. This is evidence of a directional within-patient
+change under the test assumptions; the small sample still leaves the magnitude
+of improvement imprecise.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>This is not a &quot;test of medians.&quot;</strong> The null is identical distributions.
@@ -227,12 +229,13 @@ ordinal scale is carrying enough resolution.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Mann HB, Whitney DR. <a href="https://doi.org/10.2307/3001968" target="_blank" rel="noopener noreferrer" class="ext-link">On a test of whether one of two random variables is stochastically larger than the other</a>. <em>The Annals of Mathematical Statistics</em>. 1947;18(1):50–60.</li>
+<li>Wilcoxon F. <a href="https://doi.org/10.1214/aoms/1177730491" target="_blank" rel="noopener noreferrer" class="ext-link">Individual comparisons by ranking methods</a>. <em>Biometrics Bulletin</em>. 1945;1(6):80–83.</li>
+<li>Lang TA, Altman DG. <a href="https://www.equator-network.org/reporting-guidelines/sampl/" target="_blank" rel="noopener noreferrer" class="ext-link">The SAMPL guidelines</a>, statistical reporting guidance.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis
 and Other Advanced Topics</em>. Brooks/Cole.</li>
 <li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
-<li>The topic map&#39;s &quot;Kruskal–Wallis test&quot; article extends the rank approach
-to three or more groups.</li>
+<li>The <a href="/biostatistics-library/comparisons/kruskal-wallis-test.html">Kruskal–Wallis article</a> extends the rank approach to three or more groups.</li>
 </ul>
 
         </article>

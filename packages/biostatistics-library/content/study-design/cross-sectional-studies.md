@@ -38,7 +38,7 @@ Cross-sectional data also supply prior probabilities for diagnostic-accuracy stu
 
 A health screening examined 1,200 adults aged 40–75 in one city district. Ninety-six of them had diabetes. Among the 96 diabetics, 41 reported regular physical activity; among the 1,104 non-diabetics, 512 did.
 
-- Diabetes prevalence = 96 / 1,200 = 8.0% (95% CI by the normal approximation for a proportion: 6.6%–9.7%).
+- Diabetes prevalence = 96 / 1,200 = 8.0% (95% CI by the normal approximation for a proportion: about 6.5%–9.5%).
 - Cross-sectional odds ratio for diabetes, regular vs irregular activity = (41 × 592) / (55 × 512) ≈ 0.86 (95% CI ≈ 0.59–1.26).
 
 The point estimate is near 1 and the interval includes 1, so regular activity shows no detectable cross-sectional association with diabetes in this survey — and the design cannot say whether inactivity, if anything, preceded the diabetes, since both were measured on the same day.
@@ -53,8 +53,9 @@ The point estimate is near 1 and the interval includes 1, so regular activity sh
 
 ## References and further reading
 
-- Rothman K, Greenland S, Lash TL. *Modern Epidemiology*. Lippincott Williams & Wilkins.
+- [STROBE Statement](https://www.strobe-statement.org/), reporting guidance for cross-sectional and other observational studies.
+- Rothman KJ, Greenland S, Lash TL, eds. *Modern Epidemiology*. 3rd ed. Lippincott Williams & Wilkins, 2008.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
 
-*The planned "Sampling methods" article in this library covers how a survey sample is turned into an unbiased population estimate.*
+The [sampling methods article](/biostatistics-library/study-design/sampling-methods.html) explains how survey design, nonresponse, and weighting affect population estimates.

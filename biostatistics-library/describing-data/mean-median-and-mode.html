@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Descriptive statistics <span class="sep">/</span> <strong style="color:#273e3b">Mean, median and mode</strong></div>
         <h1 class="article-title">Mean, median and mode</h1>
         <p class="article-summary">Three complementary measures of central tendency and when each one is the right summary for a clinical variable.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#robust-alternatives-and-the-target-summary">Robust alternatives and the target summary</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Every dataset needs a single number that represents its centre, and biostatistics offers three. The <strong>mean</strong> is the sum of all values divided by the number of observations: mean = (x1 + x2 + ... + xn) / n. Because it uses every value, it is the most efficient summary for symmetric data and the basis of most parametric tests. The <strong>median</strong> is the middle value once the data are ordered; with an even number of observations it is the average of the two central values. It depends only on position, so extreme values cannot move it. The <strong>mode</strong> is the most frequently occurring value — the natural summary for discrete counts (number of comorbidities, number of readmissions) and the only sensible &quot;centre&quot; for nominal categories (most common blood group).</p>
@@ -163,6 +163,16 @@
 <li>Group differences in the mean or median can be driven by a few patients; always report the spread (SD or IQR) alongside the centre.</li>
 <li>With small samples all three are noisy estimates of population parameters; the mean&#39;s sampling variability is the standard-error topic of the inference section.</li>
 </ul>
+<h3 id="robust-alternatives-and-the-target-summary">Robust alternatives and the target summary</h3>
+<p>The arithmetic mean is the target for questions such as average resource use
+per patient, even when the distribution is skewed; a median alone then answers
+a different question. Conversely, the median describes the 50th percentile
+and is often more representative of a typical stay. For positive, strongly
+right-skewed outcomes, a geometric mean can summarize multiplicative
+variation, but it requires a stated log scale and is not the arithmetic
+average. A trimmed mean reduces sensitivity to extremes, but the trimming
+fraction changes the estimand and should be prespecified. Pair a centre with a
+spread and inspect the distribution when shape matters.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>Fifteen patients with acute coronary syndrome had ICU stays (days) of: 1, 1, 2, 2, 2, 3, 3, 4, 5, 5, 6, 8, 9, 12, 30. The sum is 93, so the mean is 93/15 = 6.2 days; the median is the 8th ordered value, 4 days; the mode is 2 days.</p>
 <p>One 30-day stay inflates the mean to 6.2 days, well above the central bulk of stays, whereas the median of 4 days sits where most patients actually are. Deleting the outlier drops the mean to (93 − 30)/14 = 4.5 days, showing how strongly the mean reacts to a single observation. The appropriate report is &quot;median 4 days (IQR 2–8 days)&quot;, with the mean added only if a mean-based quantity such as total bed-days is needed.</p>
@@ -175,11 +185,19 @@
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
+<li><p>Bland JM, Altman DG. <a href="https://doi.org/10.1136/bmj.310.6977.713" target="_blank" rel="noopener noreferrer" class="ext-link">The mean, the median and the skew</a>. <em>BMJ</em>. 1995.</p>
+</li>
+<li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Measures of location</a>.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</p>
+</li>
 </ul>
-<p><em>The topic map&#39;s &quot;Statistical inference&quot; section develops standard errors and sampling variability in detail (article planned).</em></p>
+<p>The sampling-distribution article in this library develops standard errors
+and sampling variability.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

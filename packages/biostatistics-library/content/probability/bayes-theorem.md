@@ -43,6 +43,18 @@ test), is the negative predictive value (NPV).
 - The theorem is exact; all error comes from the input estimates and from the
   population assumptions behind them.
 
+### Odds form and likelihood ratios
+
+Bayes' rule can also be written as posterior odds = prior odds × likelihood
+ratio. For a positive result, LR+ = sensitivity/(1−specificity); for a
+negative result, LR− = (1−sensitivity)/specificity. This form makes sequential
+updating transparent: multiply odds by each test's likelihood ratio only when
+tests are conditionally independent given disease status, or when a joint
+model supplies the appropriate combined likelihood. Test performance can
+also change with disease severity and setting, so likelihood ratios estimated
+in a case-control sample should not be assumed to transfer unchanged to
+screening.
+
 ## Worked example
 
 A blood test screens for a disease with 1% prevalence, 95% sensitivity, and 99%
@@ -75,9 +87,12 @@ prevalence is 20%, PPV jumps to (0.95 × 0.20)/(0.95 × 0.20 + 0.01 × 0.80) ≈
 
 ## References and further reading
 
+- Deeks JJ, Altman DG. [Diagnostic tests 4: likelihood ratios](https://doi.org/10.1136/bmj.329.7458.168). *BMJ*. 2004.
+- Altman DG, Bland JM. [Diagnostic tests 2: predictive values](https://doi.org/10.1136/bmj.309.6947.102). *BMJ*. 1994.
+
 - Bland JM, Altman DG. *Medical Statistics: A Companion Guide*. Nelson.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 
-*The "Conditional probability and independence" article in this library covers
-the underlying probability calculus (article planned).*
+The [conditional probability article](conditional-probability-and-independence.html)
+covers the underlying probability calculus.

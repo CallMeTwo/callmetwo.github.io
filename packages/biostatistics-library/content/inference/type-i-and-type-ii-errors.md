@@ -45,5 +45,6 @@ A trial aims to detect a 5 mmHg difference in systolic blood pressure between tw
 ## References and further reading
 
 - Dupont WD, Schuemaker L. *Statistical Power for Clinical Trials*. Marcel Dekker.
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- The topic map's "Statistical inference" section develops hypothesis testing in detail (article planned).
+- Wasserstein RL, Lazar NA. [The ASA's statement on p-values: context, process, and purpose](https://doi.org/10.1080/00031305.2016.1154108). *The American Statistician*. 2016;70(2):129–133.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), basic statistical reporting in biomedical journals.
+- The [p-values article](/biostatistics-library/inference/p-values-and-significance-levels.html) explains the evidence summary and its limitations.

@@ -37,10 +37,12 @@ clearly paired data, wastes information or misstates the uncertainty.
 | Matched controls | Does a biomarker differ between cases and age-, sex- and site-matched controls? |
 | Contralateral comparison | Is function better in the treated limb than in the untreated limb of the same patient? |
 
-Use the independent version when the groups are different people (or
-clusters), and the paired version when each subject or matched set produces
-both measurements. If you have more than two groups, use one-way ANOVA
-instead of a series of t-tests.
+Use the independent version when the groups contain different people, and the
+paired version when each subject or matched set produces both measurements.
+If treatment was assigned by cluster or several observations come from each
+cluster, account for that dependence with a cluster-level analysis or an
+appropriate model; a plain t-test on individuals is not enough. If you have
+more than two groups, use one-way ANOVA instead of a series of t-tests.
 
 ## Assumptions and limitations
 
@@ -48,11 +50,13 @@ instead of a series of t-tests.
   this is violated by clustered sampling (several patients from the same
   clinic, family members) or by analysing repeated measurements as if they
   were independent.
-- **Approximate normality of the outcome** — with small samples (roughly
-  n < 20 per group), strong skewness or outliers make the t-test
-  unreliable; for large n the central limit theorem makes it robust. For the
-  paired test it is the *differences* that should be plausibly normal, which
-  is often easier to satisfy than the raw measurements.
+- **Normality and influential observations** — with small samples, strong
+  skewness or influential outliers can make t-based inference unreliable;
+  sample size alone does not determine a safe cutoff. For the paired test it
+  is the *within-pair differences* that should be plausibly normal. Inspect
+  plots and the study design; for larger samples, the sampling distribution
+  of the mean is often less sensitive to moderate non-normality, but extreme
+  tails and dependence still matter.
 - **Equal variances** — the classical Student two-sample t-test assumes equal
   group variances. Welch's t-test, which does not, is the safer default in
   most software and is preferred unless you have a good reason otherwise.
@@ -80,10 +84,18 @@ The treatment lowered diastolic BP by about 6 mmHg on average (95% CI 4.3 to
 differences — the before and after values are never compared as two separate
 groups, which would have been wrong.
 
-**Independent example.** In a parallel placebo group (n = 8) the mean
-reduction was 1.5 mmHg (SD 2.2). Welch's t-test gives
-t = (6.0 − 1.5) / sqrt(2.0²/8 + 2.2²/8) = 4.5 / 1.05 = 4.3, p < 0.001: the
-new drug reduces BP more than placebo does.
+**Independent example.** In a separate parallel-group trial, 8 patients per
+arm have individual BP reductions with mean 6.0 mmHg (SD 2.0) on the new drug
+and 1.5 mmHg (SD 2.2) on placebo. These are SDs of individual changes within
+each independent arm; the SD 2.0 above was calculated from paired changes in
+the separate before-and-after example and is not automatically transferable.
+Welch's standard error is sqrt(2.0²/8 + 2.2²/8) = 1.05 mmHg, so
+t = (6.0 − 1.5)/1.05 = 4.28 with approximately 13.8 degrees of freedom
+(two-sided p ≈ 0.0008). Using the corresponding t critical value (about 2.15),
+the 95% CI for the difference in mean reductions is about 2.24 to 6.76 mmHg.
+This comparison supports a larger average reduction on the drug in this
+illustrative sample; it is a different estimand and design from the paired
+within-arm test above.
 
 ## Interpretation and common pitfalls
 
@@ -102,6 +114,6 @@ new drug reduces BP more than placebo does.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- Chow S, Lu J, Jehessel M. *Design and Analysis of Clinical Trials*. Wiley.
-- Bland J, Altman D. *Statistics with Confidence*. BMJ Books.
+- Welch BL. [The generalization of Student's problem when several different population variances are involved](https://doi.org/10.1093/biomet/34.1-2.28). *Biometrika*. 1947;34(1–2):28–35.
+- Altman DG, Machin D, Bryant TN, Gardner MJ, eds. *Statistics with Confidence*. 2nd ed. BMJ Books, 2000.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), basic statistical reporting in biomedical journals.

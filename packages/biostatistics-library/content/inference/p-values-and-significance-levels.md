@@ -42,6 +42,8 @@ A trial randomises 80 patients per arm to an antihypertensive or to placebo. Ove
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Wasserstein RL, Lazar NA. [The ASA's statement on p-values: context, process, and purpose](https://doi.org/10.1080/00031305.2016.1154108). *The American Statistician*. 2016;70(2):129–133.
+- Greenland S, Senn SJ, Rothman KJ, et al. [Statistical tests, P values, confidence intervals, and power: a guide to misinterpretations](https://doi.org/10.1007/s10654-016-0149-3). *European Journal of Epidemiology*. 2016;31:337–350.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), basic statistical reporting in biomedical journals.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott-Raven.
-- The topic map's "Statistical inference" section develops hypothesis testing in detail (article planned).
+- The [null and alternative hypotheses article](/biostatistics-library/inference/null-and-alternative-hypotheses.html) describes the hypotheses that p-values evaluate.

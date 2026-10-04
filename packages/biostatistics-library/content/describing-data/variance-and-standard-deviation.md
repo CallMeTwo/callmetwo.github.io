@@ -37,6 +37,17 @@ The SD is the correct companion to the mean (mean, SD). When the data are skewed
 - Variance is additive for independent quantities (the property behind ANOVA and measurement-error models), but that additivity does not extend to means of ratios or to correlated within-patient repeats.
 - The squared-deviation construction also means two datasets with the same SD can have very different shapes; the SD is one summary, not a description.
 
+### Variance, pooled spread and precision
+
+The unbiased sample variance uses n−1 because the sample mean is estimated
+from the same observations; deviations around that fitted mean have only n−1
+independent degrees of freedom. When combining independent groups, the pooled
+variance is a degrees-of-freedom-weighted average of group variances:
+Σ(nⱼ−1)sⱼ² / Σ(nⱼ−1), not the arithmetic average of SDs. For a mean difference
+between independent groups, Var(x̄₁−x̄₂) = σ₁²/n₁ + σ₂²/n₂; with paired
+measurements, calculate the SD of within-person differences instead. These
+formulas expose why a study's design and unit of analysis matter to precision.
+
 ## Worked example
 
 Eight postoperative patients had systolic blood pressures (mmHg) of 118, 124, 130, 122, 135, 128, 121, 132. The mean is 1010/8 = 126.25 mmHg. Squared deviations from the mean are 68.06, 5.06, 14.06, 18.06, 76.56, 3.06, 27.56 and 33.06, summing to 245.5. The sample variance is 245.5/7 ≈ 35.07 mmHg² and the SD is sqrt(35.07) ≈ 5.9 mmHg.
@@ -53,8 +64,12 @@ So the group summary is 126.3 (5.9) mmHg. If the readings were near-normal, abou
 
 ## References and further reading
 
+- NIST/SEMATECH. [Measures of scale](https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm).
+- Bland JM, Altman DG. [Statistics notes: measurement error](https://doi.org/10.1136/bmj.313.7059.744). *BMJ*. 1996.
+
 - Bland M, Altman DG. *Statistics with Confidence*. BMJ Books. (See also their "Statistics notes: measures of spread", BMJ 1996.)
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
 
-*The "Quantiles and the interquartile range" article in this library covers the spread measure used when the SD is inappropriate (article planned).*
+The [quantiles and interquartile range article](quantiles-and-the-interquartile-range.html)
+covers a spread measure used when the SD is inappropriate.

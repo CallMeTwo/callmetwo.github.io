@@ -23,7 +23,7 @@ The standard checklist, and the diagnostic that reveals each failure:
 - **Linearity** — mean of Y changes linearly with each continuous predictor. Check: residual-vs-fitted plot and residual-vs-predictor plots; a smooth (lowess) through the residuals should be flat. A curved trend → add a quadratic term, spline, or transform.
 - **Independence** — residuals uncorrelated across subjects. Check: plot residuals in the order data were collected (e.g. visit date); an autocorrelation pattern → use mixed models or GEE. This is the assumption no plot of fitted values can catch, because it is a property of the *design*.
 - **Homoscedasticity** — residual spread constant across fitted values. Check: residual-vs-fitted plot; a fan or cone shape (e.g. SD of lab values growing with mean) → use robust (sandwich) standard errors, a variance-stabilising transform such as log(Y), or weighted regression.
-- **Normality of residuals** — matters mostly for p-values and CIs with small n. Check: Q–Q plot of residuals against normal quantiles; mild skew is usually harmless with n > 30–40, but heavy tails warrant robust SEs.
+- **Normality of residuals** — for ordinary least squares this supports exact small-sample t and F inference, not unbiasedness of the slope. Check a Q–Q plot; there is no universal sample-size cutoff at which non-normality becomes harmless. Robust or bootstrap inference may help for some departures, but neither corrects a misspecified mean or dependence.
 - **Influential points** — one observation driving the fit. Check: Cook's distance (commonly flagging d > 4/n), leverage values (hᵢ > 2k/n, where k is the number of parameters), and the change in coefficients on case deletion. A point can be influential without being an outlier in Y.
 
 ## Worked example
@@ -37,6 +37,8 @@ A team fits a linear model of postoperative pain score (0–10) on age, BMI and 
 - Checking only the residual-vs-fitted plot misses independence violations and predictor-specific nonlinearity; each key continuous predictor deserves its own residual plot.
 - Diagnostics on the *final* model after stepwise selection can look deceptively clean; fit the diagnostics to the model you actually intend to report, and remember that selected models overstate R².
 - Robust standard errors fix heteroscedasticity inference but do not fix a badly misspecified mean; the linear fit may still be wrong.
+
+Diagnostics are model-specific. For linear regression, non-normal errors do not bias ordinary least-squares slopes by themselves; normality primarily supports exact small-sample t and F inference, while heteroscedasticity can invalidate conventional standard errors. Sandwich standard errors address the latter asymptotically but do not repair a wrong conditional mean, dependence, or extrapolation. In logistic and count models inspect calibration, influential observations, functional form on the link scale, and overdispersion where relevant; a generic residual cutoff is not a universal decision rule. Predefine sensitivity analyses and show whether conclusions depend on influential records rather than deleting them automatically.
 
 ## References and further reading
 

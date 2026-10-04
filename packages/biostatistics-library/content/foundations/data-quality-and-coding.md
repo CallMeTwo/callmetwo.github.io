@@ -63,6 +63,18 @@ The process breaks down when data are locked before checks are complete, when
 the raw record is no longer available to resolve a discrepancy, or when
 coding is left to a single untrained person without a documented scheme.
 
+### Missingness mechanisms and sensitivity analysis
+
+MCAR means missingness is unrelated to observed or unobserved data; MAR means
+it may depend on observed information after conditioning on variables in the
+analysis; MNAR allows dependence on the unobserved value itself. These are
+assumptions about the missingness process and cannot generally be diagnosed
+from observed data alone. Compare missingness by arm, site, visit and measured
+prognostic factors. Multiple imputation under MAR should include outcome
+predictors, auxiliary variables and design features, and conclusions should
+be tested under plausible departures from MAR. A missingness indicator is not
+generally a substitute for modelling missingness.
+
 ## Worked example
 
 A trial database holds 2,400 blood-pressure readings. Quality checks find 192
@@ -97,9 +109,12 @@ work — determined a change in analytic strategy, not just a cleaning footnote.
 
 ## References and further reading
 
+- Sterne JAC et al. [Multiple imputation for missing data in epidemiological and clinical research](https://doi.org/10.1136/bmj.b2393). *BMJ*. 2009.
+- ICH. [E9(R1): Estimands and sensitivity analysis in clinical trials](https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf).
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland JM, Altman DG. *Statistics with Confidence*. BMJ Books.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott
   Williams & Wilkins.
-- The topic map's *Missing data* section covers imputation methods and the
-  missingness mechanisms in depth (article planned).
+- ICH E9(R1) gives guidance on aligning missing-data sensitivity analyses
+  with the treatment effect of interest.

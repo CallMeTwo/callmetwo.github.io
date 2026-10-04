@@ -77,7 +77,11 @@ standard error and could miss the effect.
   every visit, which can be a biased subset; model-based methods use all
   available measurements under a stated missingness assumption.
 
+Choose the estimand before selecting the covariance model: a treatment-by-time contrast at week 12, an average difference over follow-up, and a trajectory difference are distinct questions. A baseline-adjusted follow-up analysis can be more efficient than analyzing change scores in a randomized trial when baseline predicts outcome; the approach should be prespecified and aligned with the estimand. For informative dropout, standard likelihood or GEE analyses do not automatically remove bias. Include sensitivity analyses under plausible departures from missing-at-random, and report visit-specific sample sizes and the missing-data strategy.
+
 ## References and further reading
+
+- Vickers AJ, Altman DG. Analysing controlled trials with baseline and follow up measurements. *BMJ*. 2001;323:1123–1124. [doi:10.1136/bmj.323.7321.1123](https://doi.org/10.1136/bmj.323.7321.1123)
 
 - Dupont WD, Schuemaker M. *Design and Analysis of Clinical Research*.
   Lippincott Williams & Wilkins.

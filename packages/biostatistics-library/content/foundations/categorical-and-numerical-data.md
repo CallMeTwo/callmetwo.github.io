@@ -55,6 +55,18 @@ The classification breaks down for mixed variables ("number of comorbidities,
 into a few binned values — at which point the original numeric variable must
 be recovered if still available.
 
+### Choosing a model, not just a summary
+
+Data type narrows the options, but design and estimand finish the choice. For
+a binary outcome, logistic regression models log odds; with a common outcome,
+the odds ratio can be appreciably farther from 1 than the risk ratio. A
+binomial model can target risks directly. Count outcomes may use Poisson
+regression with log person-time as an offset; if counts vary more than the
+Poisson model allows because of clustering or patient heterogeneity, a
+negative-binomial model may be preferable. Repeated outcomes from one patient
+need methods that account for within-person dependence. Preserve the original
+measurement and state the target effect before selecting a model.
+
 ## Worked example
 
 A stroke registry records, for 500 patients, thrombolysis (yes/no) and time
@@ -86,8 +98,11 @@ number to report.
 
 ## References and further reading
 
+- Agresti A. [An Introduction to Categorical Data Analysis](https://doi.org/10.1002/0470114754). Wiley.
+- UCLA Institute for Digital Research and Education. [Choosing a statistical test](https://stats.oarc.ucla.edu/other/mult-pkg/whatstat/).
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland JM, Altman DG. *Statistics with Confidence*. BMJ Books.
 - Agresti A. *Categorical Data Analysis*. Wiley.
-- The topic map's *Describing data* section covers choosing summaries and
-  plots for each variable type (article planned).
+- The *Describing data* articles in this library cover summaries and plots
+  matched to variable type.

@@ -55,6 +55,19 @@ population at both points. Missing data within the sample is a second,
 separate problem, but it compounds the first — the effective sample may differ
 from the sample in exactly the way the population question cares about.
 
+### Design-based inference and nonresponse
+
+In probability sampling, each sampled unit has a known inclusion probability
+πᵢ. When these probabilities differ, an unweighted estimate may not represent
+the target population; design weights are typically related to 1/πᵢ, and
+variance calculations must also reflect stratification and clustering. A
+response rate alone does not determine nonresponse bias: the bias depends on
+how response relates to the outcome after accounting for observed information.
+Define the target population, eligibility period, frame and nonresponse
+strategy before analysis. Randomization in a trial supports an internal
+treatment comparison, but does not guarantee that results transport to every
+population of interest.
+
 ## Worked example
 
 A hospital wants the infection rate among all 1,420 ICU admissions in a year.
@@ -86,9 +99,12 @@ the assumption that the register frame covers all ICU admissions.
 
 ## References and further reading
 
+- CDC. [Principles of Epidemiology: rates and appropriate denominators](https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson3/section2.html).
+- STROBE Initiative. [Checklist for reporting observational studies](https://www.strobe-statement.org/checklists/).
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and
   Other Advanced Topics*. Brooks/Cole.
 - Bland JM, Altman DG. *Statistics with Confidence*. BMJ Books.
-- The topic map's *Sampling and study design* section covers probability
-  sampling methods in detail (article planned).
+- The *Sampling methods* topic in this library covers probability sampling
+  methods in detail.

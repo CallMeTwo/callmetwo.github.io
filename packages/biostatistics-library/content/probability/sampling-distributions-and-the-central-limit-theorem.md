@@ -45,6 +45,19 @@ not a fixed truth.
   be skewed, bimodal, or count-like; the distribution of the mean is what
   becomes normal.
 
+### When the CLT approximation is and is not enough
+
+For independent observations with finite variance, the CLT gives an
+asymptotic approximation, not a universal sample-size cutoff. Strong skew,
+heavy tails, rare binary outcomes and influential observations can require
+much larger samples. For a sample proportion, the normal approximation needs
+both expected successes np and failures n(1−p) to be adequate; exact or score
+intervals behave better near 0 or 1. With clustered observations, the relevant
+uncertainty includes the design effect; with serial correlation, the nominal n
+overstates independent information. A bootstrap can estimate sampling
+uncertainty for some statistics, but it still requires a resampling scheme
+that respects the study design and cannot fix biased sampling.
+
 ## Worked example
 
 In a diabetes clinic, HbA1c values are somewhat right-skewed, with population
@@ -81,9 +94,12 @@ of n, so quadrupling n is needed to halve the uncertainty again.
 
 ## References and further reading
 
+- NIST/SEMATECH. [Normal distribution and central limit theorem](https://www.itl.nist.gov/div898/handbook/eda/section3/eda3661.htm).
+- Rice JA. *Mathematical Statistics and Data Analysis*. 3rd ed. Cengage Learning; 2006.
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland JM, Altman DG. *Medical Statistics: A Companion Guide*. Nelson.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
 
-*The topic map's "Statistical inference" section develops hypothesis testing and
-confidence intervals in detail (article planned).*
+The articles on estimation and confidence intervals in this library build on
+these sampling-distribution ideas.

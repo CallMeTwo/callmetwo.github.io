@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Descriptive statistics <span class="sep">/</span> <strong style="color:#273e3b">Variance and standard deviation</strong></div>
         <h1 class="article-title">Variance and standard deviation</h1>
         <p class="article-summary">Measures of spread around the mean: how to calculate them, why the denominator is n-1, and how the SD differs from the standard error.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#variance-pooled-spread-and-precision">Variance, pooled spread and precision</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Central tendency alone is a poor description of clinical data: two wards can share the same mean systolic blood pressure with very different clinical meaning if one is tightly clustered and the other wildly variable. The <strong>variance</strong> is the average of the squared deviations from the mean, and the <strong>standard deviation (SD)</strong> is its square root, which returns the measure to the original units. For a sample, the standard unbiased formula is s² = Σ(xi − x̄)² / (n − 1), with s = sqrt(s²).</p>
@@ -163,6 +163,15 @@
 <li>Variance is additive for independent quantities (the property behind ANOVA and measurement-error models), but that additivity does not extend to means of ratios or to correlated within-patient repeats.</li>
 <li>The squared-deviation construction also means two datasets with the same SD can have very different shapes; the SD is one summary, not a description.</li>
 </ul>
+<h3 id="variance-pooled-spread-and-precision">Variance, pooled spread and precision</h3>
+<p>The unbiased sample variance uses n−1 because the sample mean is estimated
+from the same observations; deviations around that fitted mean have only n−1
+independent degrees of freedom. When combining independent groups, the pooled
+variance is a degrees-of-freedom-weighted average of group variances:
+Σ(nⱼ−1)sⱼ² / Σ(nⱼ−1), not the arithmetic average of SDs. For a mean difference
+between independent groups, Var(x̄₁−x̄₂) = σ₁²/n₁ + σ₂²/n₂; with paired
+measurements, calculate the SD of within-person differences instead. These
+formulas expose why a study&#39;s design and unit of analysis matter to precision.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>Eight postoperative patients had systolic blood pressures (mmHg) of 118, 124, 130, 122, 135, 128, 121, 132. The mean is 1010/8 = 126.25 mmHg. Squared deviations from the mean are 68.06, 5.06, 14.06, 18.06, 76.56, 3.06, 27.56 and 33.06, summing to 245.5. The sample variance is 245.5/7 ≈ 35.07 mmHg² and the SD is sqrt(35.07) ≈ 5.9 mmHg.</p>
 <p>So the group summary is 126.3 (5.9) mmHg. If the readings were near-normal, about 95% would fall within 126.3 ± 2×5.9 ≈ 114–138 mmHg, consistent with the observed range of 118–135. Note the distinction the numbers make: the SD (5.9 mmHg) describes patient-to-patient spread, while the SE = 5.9/sqrt(8) ≈ 2.1 mmHg describes how precisely this sample mean estimates the true group mean — a smaller number that belongs in an inference, not in a baseline table.</p>
@@ -176,11 +185,19 @@
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books. (See also their &quot;Statistics notes: measures of spread&quot;, BMJ 1996.)</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
+<li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda356.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Measures of scale</a>.</p>
+</li>
+<li><p>Bland JM, Altman DG. <a href="https://doi.org/10.1136/bmj.313.7059.744" target="_blank" rel="noopener noreferrer" class="ext-link">Statistics notes: measurement error</a>. <em>BMJ</em>. 1996.</p>
+</li>
+<li><p>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books. (See also their &quot;Statistics notes: measures of spread&quot;, BMJ 1996.)</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</p>
+</li>
 </ul>
-<p><em>The &quot;Quantiles and the interquartile range&quot; article in this library covers the spread measure used when the SD is inappropriate (article planned).</em></p>
+<p>The <a href="quantiles-and-the-interquartile-range.html">quantiles and interquartile range article</a>
+covers a spread measure used when the SD is inappropriate.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

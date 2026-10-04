@@ -33,6 +33,18 @@ Reporting counts and percentages together is a journal standard, because small n
 - A two-way table describes association, not causation; a striking pattern may be confounded by a variable not in the table (age is the classic).
 - With many categories or sparse cells the table becomes unreadable and downstream tests lose validity; chi-squared approximations need reasonably large expected cell counts (rule of thumb: at least 5 per cell).
 
+### Denominators, missingness and uncertainty
+
+Choose the denominator from the question and design. In a randomized trial,
+the event proportion is often events divided by participants assigned to that
+arm; in a person-time analysis, events are divided by accumulated time at risk.
+These answer different questions and should not share the label “rate” without
+definition. State how many participants lack the outcome and whether each row
+uses all randomized people, those with an observed result, or another analysis
+set. A proportion is also an estimate: for small samples, report a confidence
+interval using a suitable binomial method (for example, Wilson or exact), since
+the Wald interval can extend below zero or above one.
+
 ## Worked example
 
 In a two-arm trial, nausea was recorded at day 28:
@@ -54,8 +66,12 @@ The row percentages (24% vs 12%) are the clinically meaningful comparison: nause
 
 ## References and further reading
 
+- CDC. [Principles of Epidemiology: rates and denominators](https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson3/section2.html).
+- Agresti A. [An Introduction to Categorical Data Analysis](https://doi.org/10.1002/0470114754). Wiley.
+
 - Greenland S, Rothman K, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
 - Agresti A. *Categorical Data Analysis*. John Wiley & Sons.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 
-*The "Hypothesis testing for categorical data" topic develops the chi-squared and Fisher's exact tests built on these tables (article planned).*
+The *Probability* articles in this library explain the chance models behind
+proportions and two-way tables.

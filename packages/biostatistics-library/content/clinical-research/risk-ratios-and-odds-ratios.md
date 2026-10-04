@@ -56,9 +56,13 @@ Interpretation: statin-treated patients have a 40% lower relative risk of a coro
 - Choosing OR versus RR by habit rather than design: the logistic-regression OR is convenient, but when risks are estimable, risk ratios (or risk differences) are usually easier for clinicians to act on.
 - Back-calculating an exposed-group risk from an OR in a trial: the OR identifies the ratio of odds, and converting it back to a risk requires knowing the baseline risk, which the OR alone does not provide.
 
+Risk ratios compare probabilities over a specified follow-up period; odds ratios compare p/(1−p). In case-control sampling, the exposure odds ratio is identifiable under standard sampling assumptions, but absolute risk and a risk ratio generally are not available without external incidence or sampling information. For common outcomes, consider reporting standardized risks and risk differences alongside odds ratios. Odds ratios are also non-collapsible: an adjusted OR can differ from a crude OR even without confounding, so coefficient change alone is not proof that confounding was controlled. Name the reference group and time horizon.
+
 ## References and further reading
+
+- Greenland S, Robins JM, Pearl J. Confounding and collapsibility in causal inference. *Statistical Science*. 1999;14:29–46. [doi:10.1214/ss/1009211805](https://doi.org/10.1214/ss/1009211805)
 
 - Greenland S, Rothman KJ, Lachin JM. "Measures of Occurrence and Effect." In Rothman KJ, Greenland S, Lash TL (eds), *Modern Epidemiology*. Lippincott Williams & Wilkins.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Collett D. *Modelling Binary Data*. CRC Press.
-- The library's "Effect sizes" topic develops interpretation of relative versus absolute effects in detail (article planned).
+- The [effect sizes article](../inference/effect-sizes.html) develops interpretation of relative versus absolute effects.

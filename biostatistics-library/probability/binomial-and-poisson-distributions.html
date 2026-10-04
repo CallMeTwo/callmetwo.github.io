@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Common distributions <span class="sep">/</span> <strong style="color:#273e3b">Binomial and Poisson distributions</strong></div>
         <h1 class="article-title">Binomial and Poisson distributions</h1>
         <p class="article-summary">Probability models for counts of events — fixed cohorts (binomial) and rare events over time (Poisson) — and when one approximates the other.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#counts-rates-and-model-checking">Counts, rates and model checking</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>binomial distribution</strong> models the count X of &quot;successes&quot; (events) among a
@@ -163,6 +163,17 @@ then appropriate.</li>
 (events per patient-days, per person-years) and the exposure time must be
 recorded for each subject.</li>
 </ul>
+<h3 id="counts-rates-and-model-checking">Counts, rates and model checking</h3>
+<p>The binomial denominator is a fixed number of eligible independent trials; its
+parameter p is a probability, not a rate. A Poisson rate model allows unequal
+follow-up by adding log person-time as an offset, so exp(β) represents a rate
+ratio. The Poisson assumption equates conditional mean and variance; observed
+overdispersion can arise from unmeasured risk heterogeneity, clustering or
+serial dependence. Check residual variation and exposure definitions before
+interpreting a narrow model-based interval. If the event probability varies
+between patients, a beta-binomial or random-effects model may address extra
+binomial variation more directly than treating each trial as having one common
+p.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>A clinic plans to screen 400 patients for a condition with true prevalence
 p = 0.02. X ~ Binomial(400, 0.02), so the expected number of positives is
@@ -194,13 +205,19 @@ opportunities.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</li>
-<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda366j.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Poisson distribution</a>.</p>
+</li>
+<li><p>Cameron AC, Trivedi PK. <a href="https://doi.org/10.1017/CBO9780511814365" target="_blank" rel="noopener noreferrer" class="ext-link">Regression Analysis of Count Data</a>. Cambridge University Press.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</p>
+</li>
+<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
 </ul>
-<p><em>The &quot;Sampling distributions and the central limit theorem&quot; article in this
-library explains why counts and proportions become normal for large n (article
-planned).</em></p>
+<p>The <a href="sampling-distributions-and-the-central-limit-theorem.html">sampling distributions article</a>
+discusses when normal approximations to counts and proportions are useful.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

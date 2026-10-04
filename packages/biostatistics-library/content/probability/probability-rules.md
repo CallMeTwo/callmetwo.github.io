@@ -46,6 +46,18 @@ the arithmetic.
 - The rules combine probabilities exactly, but the inputs still carry sampling
   uncertainty — a "15%" computed from a small study is an estimate.
 
+### Time-to-event risks and repeated opportunities
+
+The multiplication rule is especially useful when a clinical outcome requires
+several sequential stages. If survival through stage two is conditional on
+surviving stage one, multiply P(survive stage one) by P(survive stage two | survive
+stage one); the second probability must use the survivors as its denominator.
+For repeated independent opportunities with event probability p, the chance
+of at least one event in n opportunities is 1−(1−p)ⁿ. This formula fails when
+risks change over time or opportunities are dependent, as often occurs when
+patients become more susceptible after an earlier event. For varying hazards,
+survival analysis models the changing instantaneous event rate instead.
+
 ## Worked example
 
 In a 100-patient ICU cohort, 10 patients (10%) developed ventilator-associated
@@ -76,8 +88,11 @@ in either phase.
 
 ## References and further reading
 
+- CDC. [Principles of Epidemiology: probability and rates](https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson3/section2.html).
+- Rosner B. [Fundamentals of Biostatistics](https://www.cengage.com/c/fundamentals-of-biostatistics-9e-rosner/).
+
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Biostatistics*. Pearson.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 
-*The topic map's "Conditional probability" article develops the multiplication
-rule with conditioning in detail (article planned).*
+The [conditional probability article](conditional-probability-and-independence.html)
+develops the multiplication rule in detail.

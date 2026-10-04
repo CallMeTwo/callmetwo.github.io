@@ -75,7 +75,12 @@ remains superior throughout follow-up.
   estimates in that group unstable; check the at-risk table before
   interpreting differences at long times.
 
+The log-rank test compares entire event-time distributions and is most powerful under proportional hazards; crossing curves can yield a small or misleadingly uninformative global contrast despite clinically important time-varying differences. It does not estimate an effect size. Pair it with survival probabilities at prespecified times or restricted mean survival time (RMST), and state the horizon for RMST. Numbers at risk are essential because tail estimates may be based on very few individuals; confidence bands widen as risk sets shrink.
+
 ## References and further reading
+
+- Peto R, Peto J. Asymptotically efficient rank invariant test procedures. *Journal of the Royal Statistical Society: Series A*. 1972;135:185–207. [doi:10.2307/2344317](https://doi.org/10.2307/2344317)
+- Royston P, Parmar MKB. Restricted mean survival time: an alternative to the hazard ratio for the design and analysis of randomized trials with a time-to-event outcome. *BMC Medical Research Methodology*. 2013;13:152. [doi:10.1186/1471-2288-13-152](https://doi.org/10.1186/1471-2288-13-152)
 
 - Klein JP, Moeschberger ML. *Survival Analysis: A Self-Learning Text*.
   Springer.

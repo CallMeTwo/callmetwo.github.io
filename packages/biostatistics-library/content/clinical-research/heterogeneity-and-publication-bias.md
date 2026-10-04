@@ -38,7 +38,11 @@ Separately, a funnel plot of the seven trials is noticeably asymmetric: the smal
 - Taking a symmetric-looking funnel plot as proof there is no publication bias, especially with only a handful of studies where the plot has no statistical power.
 - Reporting a significant fixed-effects result while ignoring a significant Q test, i.e. quoting the precise-looking estimate that the data say you should not trust.
 
+With k studies, Cochran's Q has low power to detect heterogeneity when k is small and can flag trivial dispersion when k is large. I² describes the proportion of observed variability attributed to between-study heterogeneity under its model; it is not the magnitude of clinical inconsistency and should not be read without the effect scale and τ². A prediction interval estimates the range of effects in settings like those studied, subject to model assumptions, and is often more useful for transportability. Funnel-plot asymmetry is not synonymous with publication bias: small-study effects, chance, and outcome or methodological differences can also produce asymmetry. Tests for asymmetry are unreliable with few studies.
+
 ## References and further reading
+
+- Higgins JPT, Thompson SG, Deeks JJ, Altman DG. Measuring inconsistency in meta-analyses. *BMJ*. 2003;327:557–560. [doi:10.1136/bmj.327.7414.557](https://doi.org/10.1136/bmj.327.7414.557)
 
 - Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, et al. *Cochrane Handbook for Systematic Reviews of Interventions*, 2nd edn. Wiley-Blackwell.
 - Bland M, Altman DG. "Some methods and software for assessing scale of heterogeneity in meta-analysis." *Statistics in Medicine*. 1996.

@@ -98,8 +98,8 @@ means with 95% CIs, not just the F statistic.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), guidance on reporting statistical analyses and estimates.
+- Maxwell SE, Delaney HD, Kelley K. *Designing Experiments and Analyzing Data: A Model Comparison Perspective*. 3rd ed. Routledge, 2018.
 - Chow S, Lu J, Jehessel M. *Design and Analysis of Clinical Trials*. Wiley.
 - Bland J, Altman D. *Statistics with Confidence*. BMJ Books.
-- The topic map's "Multiple testing" section develops post-hoc correction
-  in detail (article planned).
+- The [multiple-testing article](/biostatistics-library/inference/multiple-testing.html) explains family-wise error control for post-hoc contrasts.

@@ -45,6 +45,19 @@ Poisson models even though the underlying process is binomial at its core.
   (events per patient-days, per person-years) and the exposure time must be
   recorded for each subject.
 
+### Counts, rates and model checking
+
+The binomial denominator is a fixed number of eligible independent trials; its
+parameter p is a probability, not a rate. A Poisson rate model allows unequal
+follow-up by adding log person-time as an offset, so exp(β) represents a rate
+ratio. The Poisson assumption equates conditional mean and variance; observed
+overdispersion can arise from unmeasured risk heterogeneity, clustering or
+serial dependence. Check residual variation and exposure definitions before
+interpreting a narrow model-based interval. If the event probability varies
+between patients, a beta-binomial or random-effects model may address extra
+binomial variation more directly than treating each trial as having one common
+p.
+
 ## Worked example
 
 A clinic plans to screen 400 patients for a condition with true prevalence
@@ -80,10 +93,12 @@ automatic alarm.
 
 ## References and further reading
 
+- NIST/SEMATECH. [Poisson distribution](https://www.itl.nist.gov/div898/handbook/eda/section3/eda366j.htm).
+- Cameron AC, Trivedi PK. [Regression Analysis of Count Data](https://doi.org/10.1017/CBO9780511814365). Cambridge University Press.
+
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Biostatistics*. Pearson.
 - Agresti A. *Categorical Data Analysis*. Wiley.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 
-*The "Sampling distributions and the central limit theorem" article in this
-library explains why counts and proportions become normal for large n (article
-planned).*
+The [sampling distributions article](sampling-distributions-and-the-central-limit-theorem.html)
+discusses when normal approximations to counts and proportions are useful.

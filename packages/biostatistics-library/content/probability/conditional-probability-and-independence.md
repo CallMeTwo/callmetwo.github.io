@@ -41,6 +41,20 @@ quantify.
 - Very small conditioning sets (e.g. "given the patient is a 97-year-old smoker
   with CKD stage 4") make estimates unstable even when mathematically valid.
 
+### Confounding, stratification and causal interpretation
+
+An overall conditional probability can differ from the within-stratum
+probabilities because the groups have different mixes of baseline risk. This
+is the arithmetic behind Simpson's paradox; it is not evidence that one of
+the tables is wrong. Stratifying on a genuine pre-exposure confounder can
+clarify an association, but conditioning on a collider (a common effect of
+exposure and outcome causes) can create a spurious association. Therefore,
+choose adjustment variables from the causal question and time order, not just
+from which covariates change a crude estimate. In a randomized trial,
+independence of assigned treatment and baseline prognosis is a design
+property in expectation, while chance imbalances remain possible in a finite
+sample.
+
 ## Worked example
 
 A hospital tracked readmission within 30 days. Of 400 discharged patients on a
@@ -74,9 +88,12 @@ association may not reflect the programme itself.
 
 ## References and further reading
 
+- Hernán MA, Robins JM. [Causal Inference: What If](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/). Chapman & Hall/CRC; 2020.
+- Greenland S, Pearl J, Robins JM. [Causal diagrams for epidemiologic research](https://doi.org/10.1097/00001648-199901000-00008). *Epidemiology*. 1999.
+
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland JM, Altman DG. *Medical Statistics: A Companion Guide*. Nelson.
 
-*The "Bayes' theorem" article in this library shows how conditioning updates
-beliefs with test results (article planned).*
+The [Bayes' theorem article](bayes-theorem.html) shows how conditioning updates
+beliefs with test results.

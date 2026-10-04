@@ -48,6 +48,7 @@ A clinic measures fasting plasma glucose in 36 newly diagnosed type 2 diabetes p
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), recommendations for reporting estimates and standard errors.
+- Altman DG, Machin D, Bryant TN, Gardner MJ, eds. *Statistics with Confidence*. 2nd ed. BMJ Books, 2000.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott-Raven.
-- The topic map's "Statistical inference" section develops confidence intervals built on the standard error (article planned).
+- The [confidence intervals article](/biostatistics-library/inference/confidence-intervals.html) explains how standard errors translate into interval estimates.

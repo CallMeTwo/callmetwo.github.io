@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Exploring distributions <span class="sep">/</span> <strong style="color:#273e3b">Scatter plots and relationships</strong></div>
         <h1 class="article-title">Scatter plots and relationships</h1>
         <p class="article-summary">Plotting two continuous variables together to judge the direction, strength, form and outliers of an association.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#correlation-regression-and-agreement-answer-different-questions">Correlation, regression and agreement answer different questions</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>scatter plot</strong> pairs each subject&#39;s value of one continuous variable (x, horizontal axis) with their value of a second (y, vertical axis), one point per subject. It is the first thing to draw whenever a question involves two continuous measures — dose and response, BMI and blood pressure, creatinine clearance and drug dose — because it shows what no single number can: the direction (positive or negative), the strength (tight or loose) and the form (linear or curved) of the relationship, plus any individual points that look anomalous.</p>
@@ -162,6 +162,16 @@
 <li>A single influential point can swing r dramatically; compute r with and without suspected outliers before trusting either.</li>
 <li>Both variables should be measured on continuous (or at least interval) scales for Pearson r; for mixed or ordinal data the rank correlation is safer, and for binary × continuous data the question is usually better posed as a group comparison.</li>
 </ul>
+<h3 id="correlation-regression-and-agreement-answer-different-questions">Correlation, regression and agreement answer different questions</h3>
+<p>Correlation is unitless and symmetric: it describes linear co-movement, not
+the expected change in an outcome per unit of exposure. A regression slope
+has units and depends on which variable is assigned as outcome. For Pearson
+correlation, one influential observation or restricted range can dominate the
+result; inspect residuals and the scatter before relying on a p-value. In
+method comparison, plot paired differences against paired means and examine
+their average and limits of agreement; proportional bias may require
+transformation or regression-based agreement methods. Repeated pairs from the
+same patient require methods that account for within-person dependence.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>Five patients had BMI (kg/m²) and systolic blood pressure (mmHg) of (21, 120), (23, 124), (25, 126), (27, 138), (29, 142). The means are x̄ = 25 and ȳ = 130. Deviation products: (−4)(−10) = 40, (−2)(−6) = 12, (0)(−4) = 0, (2)(8) = 16, (4)(12) = 48, summing to 116. The sums of squared deviations are Σ(xi − x̄)² = 40 and Σ(yi − ȳ)² = 360, so r = 116 / sqrt(40 × 360) = 116 / 120 ≈ 0.97.</p>
 <p>The scatter is a tight upward line, so the number confirms a strong positive linear association: higher BMI accompanies higher systolic pressure in this sample. Two cautions attach: with only five points the confidence interval around r is wide and one patient could move it substantially, and the association is observational — it says nothing about whether weight causes the pressure rise.</p>
@@ -176,11 +186,19 @@
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. Sage.</li>
+<li><p>Bland JM, Altman DG. <a href="https://doi.org/10.1016/S0140-6736(86)90837-8" target="_blank" rel="noopener noreferrer" class="ext-link">Statistical methods for assessing agreement between two methods of clinical measurement</a>. <em>Lancet</em>. 1986.</p>
+</li>
+<li><p>Schober P, Boer C, Schwarte LA. <a href="https://doi.org/10.1213/ANE.0000000000002864" target="_blank" rel="noopener noreferrer" class="ext-link">Correlation coefficients: appropriate use and interpretation</a>. <em>Anesth Analg</em>. 2018.</p>
+</li>
+<li><p>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. Sage.</p>
+</li>
 </ul>
-<p><em>The &quot;Statistical inference&quot; section of the topic map develops confidence intervals for correlation and regression (article planned).</em></p>
+<p>Confidence intervals for regression and association are developed in the
+library&#39;s inference articles.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

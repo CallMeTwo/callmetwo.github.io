@@ -157,12 +157,19 @@
 <li>Do not use Poisson regression as a shortcut for a binary outcome with a &quot;large denominator&quot;; the models answer different questions (rare-event approximation only).</li>
 <li>For recurrent events, an ordinary Poisson model on the total count ignores within-subject correlation; use a GEE/mixed model with a log link and report the design effect.</li>
 </ul>
+<p>Use an exposure offset when subjects contribute different person-time: log E(Yᵢ) = Xᵢβ + log(Tᵢ), so exp(β) compares rates per unit time. The offset coefficient is fixed at one; it is not an estimated predictor. Poisson variance equidispersion is a distributional assumption, and robust standard errors can protect inference against some variance misspecification but do not change the fitted mean. Negative-binomial regression models extra-Poisson variation; zero inflation should be used only when a distinct structural-zero process is substantively plausible, not simply because the sample has many zeros. Check residual patterns and predicted counts, and report the time or exposure denominator.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li><em>The topic map&#39;s &quot;Survival analysis&quot; section covers time-to-first-event modelling (article planned).</em></li>
+<li><p>Cameron AC, Trivedi PK. Regression-based tests for overdispersion in the Poisson model. <em>Journal of Econometrics</em>. 1990;46:347–364. <a href="https://doi.org/10.1016/0304-4076(90)90014-K" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1016/0304-4076(90)90014-K</a></p>
+</li>
+<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>The <a href="../survival/cox-proportional-hazards-model.html">Cox proportional hazards article</a> covers regression for time-to-first-event outcomes.</p>
+</li>
 </ul>
 
         </article>

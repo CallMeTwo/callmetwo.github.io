@@ -42,6 +42,7 @@ In a single-arm study, 45 of 100 patients on a statin had their LDL lowered by a
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Altman DG, Machin D, Bryant TN, Gardner MJ, eds. *Statistics with Confidence: Confidence Intervals and Statistical Guidelines*. 2nd ed. BMJ Books, 2000.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), recommendations for reporting estimates and uncertainty.
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott-Raven.
-- The topic map's "Statistical inference" section develops estimation and uncertainty in detail (article planned).
+- The [point estimates and standard errors article](/biostatistics-library/inference/point-estimates-and-standard-errors.html) explains the sampling uncertainty that determines interval width.

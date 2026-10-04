@@ -49,6 +49,8 @@ Interpretation: each trial alone is suggestive but imprecise; pooled, they yield
 - Reading the pooled diamond as the effect in *your* population: the estimate reflects the studies included, so applicability still has to be judged separately.
 - Ignoring the forest plot's weights: the pooled number is driven by the few large studies, so it can look very different from a simple average of the trial RRs.
 
+Fixed-effect and random-effects models answer different questions. A fixed-effect summary assumes a common underlying effect (with differences arising from sampling error); a random-effects model estimates a mean of a distribution of effects and adds between-study variance τ². The random-effects mean is not a universal treatment effect, and a prediction interval can reveal uncertainty for a new setting. Avoid choosing the model solely from a heterogeneity p-value. Prespecify clinically plausible effect measures, explore sources of heterogeneity cautiously, and account for dependent estimates when studies report multiple outcomes or time points.
+
 ## References and further reading
 
 - Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, et al. *Cochrane Handbook for Systematic Reviews of Interventions*, 2nd edn. Wiley-Blackwell.

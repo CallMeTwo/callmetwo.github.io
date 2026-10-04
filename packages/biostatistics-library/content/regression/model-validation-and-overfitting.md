@@ -40,9 +40,13 @@ A team builds a logistic model predicting 30-day readmission from 12 predictors 
 - Adding predictors until the cross-validated metric stops improving is a defensible stopping rule; adding predictors until the *development* metric stops improving is how overfitted models are built.
 - External validation with a small external sample has its own wide CIs; a single external AUC of 0.68 with n = 120 may be compatible with a true AUC of 0.62–0.74 — report the CI.
 
+For binary prediction models, report calibration as well as discrimination. The Brier score averages squared prediction errors and reflects both; calibration plots should include uncertainty and avoid overinterpreting sparse risk ranges. Internal validation must repeat every data-driven step inside each resample, including imputation, feature selection, and tuning, or optimism remains. External validation assesses transportability; report calibration slope and intercept and consider recalibration before refitting. AUC alone is insensitive to whether predicted risks are clinically useful, so decision-curve net benefit can complement performance measures when thresholds correspond to real decisions.
+
 ## References and further reading
+
+- Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). *Annals of Internal Medicine*. 2015;162:55–63. [doi:10.7326/M14-0697](https://doi.org/10.7326/M14-0697)
 
 - Vickers AJ, Elkin EB. "Decision curve analysis: a novel method for evaluating prediction models." *Med Decis Making* 2006.
 - Fox J. *Applied Regression Analysis and Generalized Linear Models*. SAGE.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- *The companion article "Model assumptions and diagnostics" covers the checks that should precede validation (article planned).*
+- The companion [model assumptions and diagnostics article](model-assumptions-and-diagnostics.html) covers checks that should precede validation.

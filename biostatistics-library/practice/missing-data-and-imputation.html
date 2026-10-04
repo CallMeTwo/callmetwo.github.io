@@ -165,13 +165,19 @@
 <li><strong>Report the missingness pattern, not just the fraction</strong> — &quot;15% missing&quot; tells a reader nothing; describe which variables, in which strata, and the evidence for the mechanism.</li>
 <li><strong>Do not treat imputed values as real measurements</strong> — derived quantities (ratios, composites) must be computed within each imputed dataset, not after pooling.</li>
 </ul>
+<p>Multiple imputation is valid under a correctly specified imputation model and a missing-at-random assumption conditional on included observed data; MAR cannot be verified from observed data alone. Include analysis variables, outcome, auxiliary predictors of missingness, and design features in imputation, and make the imputation model congenial to the analysis (including interactions or nonlinearities when needed). Pool estimates and within/between-imputation variance with Rubin&#39;s rules; do not average p-values. Complete-case analysis can be unbiased in special cases but often loses precision and may select a different population. Add a sensitivity analysis for plausible missing-not-at-random departures, such as delta-adjusted imputation.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>van Buuren S. <em>Flexible Imputation of Missing Data</em>. CRC Press.</li>
-<li>Rubin DB. <em>Multiple Imputation for Nonresponse in Surveys</em>. Wiley.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li><p>Sterne JAC, White IR, Carlin JB, et al. Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. <em>BMJ</em>. 2009;338:b2393. <a href="https://doi.org/10.1136/bmj.b2393" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1136/bmj.b2393</a></p>
+</li>
+<li><p>van Buuren S. <em>Flexible Imputation of Missing Data</em>. CRC Press.</p>
+</li>
+<li><p>Rubin DB. <em>Multiple Imputation for Nonresponse in Surveys</em>. Wiley.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
 </ul>
-<p><em>The topic map&#39;s &quot;Sample size and study design&quot; section covers planning for expected missingness upfront (article planned).</em></p>
+<p>The <a href="../study-design/sample-size-and-statistical-power.html">sample size and statistical power article</a> discusses planning for expected missingness and its effect on precision.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

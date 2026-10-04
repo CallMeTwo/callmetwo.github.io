@@ -196,19 +196,19 @@ exploring all pairs post hoc without correction.</li>
 count-like outcome, range 0–14) was recorded.</p>
 <ul>
 <li>Group A (counselling only): ranks sum R1 = 132</li>
-<li>Group B (nicotine patch): ranks sum R2 = 186</li>
-<li>Group C (combination therapy): ranks sum R3 = 252</li>
+<li>Group B (nicotine patch): ranks sum R2 = 222</li>
+<li>Group C (combination therapy): ranks sum R3 = 312</li>
 </ul>
-<p>H = (12 / (36 × 37)) × (132²/12 + 186²/12 + 252²/12) − 3 × 37
-  = (12/1332) × (1452 + 2883 + 5292) − 111
-  = (0.00901) × 9627 − 111
-  = 86.7 − 111 = 25.7 (illustrative; exact value depends on tie correction)</p>
-<p>With 2 degrees of freedom, H = 25.7 gives p &lt; 0.001. The three strategies
-do not all produce the same distribution of quit attempts. Dunn&#39;s test with
-Holm adjustment separates group C from both A and B (p &lt; 0.01 for each),
-while A and B do not differ (p = 0.31). Combination therapy is associated
-with a markedly higher number of quit attempts at 6 months than either
-single strategy.</p>
+<p>H = (12 / (36 × 37)) × (132²/12 + 222²/12 + 312²/12) − 3 × 37
+  = (12/1332) × (1452 + 4107 + 8112) − 111
+  = (12/1332) × 13671 − 111
+  ≈ 123.16 − 111 = 12.16 (before any tie correction)</p>
+<p>With 2 degrees of freedom, H = 12.16 gives an asymptotic p-value of about
+0.0023. The rank sums suggest that observations in group C tend to be higher,
+but the omnibus result alone does not establish which pairs differ. A
+prespecified Dunn comparison with Holm adjustment would be needed for those
+claims; the rank sums here are illustrative rather than raw data from which
+those adjusted pairwise results can be reconstructed.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Significant H ≠ all pairs differ.</strong> With k = 4 groups, one elevated
@@ -229,12 +229,13 @@ procedure.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li>Kruskal WH, Wallis WA. <a href="https://doi.org/10.1080/01621459.1952.10483441" target="_blank" rel="noopener noreferrer" class="ext-link">Use of ranks in one-criterion variance analysis</a>. <em>Journal of the American Statistical Association</em>. 1952;47(260):583–621.</li>
+<li>Dunn OJ. <a href="https://doi.org/10.1080/00401706.1964.10490181" target="_blank" rel="noopener noreferrer" class="ext-link">Multiple comparisons using rank sums</a>. <em>Technometrics</em>. 1964;6(3):241–252.</li>
+<li>Lang TA, Altman DG. <a href="https://www.equator-network.org/reporting-guidelines/sampl/" target="_blank" rel="noopener noreferrer" class="ext-link">The SAMPL guidelines</a>, statistical reporting guidance.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis
 and Other Advanced Topics</em>. Brooks/Cole.</li>
 <li>Bland J, Altman D. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>The topic map&#39;s &quot;Mann–Whitney and Wilcoxon tests&quot; article covers the
-two-group counterpart of this test.</li>
+<li>The <a href="/biostatistics-library/comparisons/mann-whitney-and-wilcoxon-tests.html">Mann–Whitney and Wilcoxon article</a> covers the two-group counterpart.</li>
 </ul>
 
         </article>

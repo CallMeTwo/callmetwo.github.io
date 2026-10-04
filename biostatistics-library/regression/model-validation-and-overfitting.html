@@ -158,12 +158,19 @@
 <li>Adding predictors until the cross-validated metric stops improving is a defensible stopping rule; adding predictors until the <em>development</em> metric stops improving is how overfitted models are built.</li>
 <li>External validation with a small external sample has its own wide CIs; a single external AUC of 0.68 with n = 120 may be compatible with a true AUC of 0.62–0.74 — report the CI.</li>
 </ul>
+<p>For binary prediction models, report calibration as well as discrimination. The Brier score averages squared prediction errors and reflects both; calibration plots should include uncertainty and avoid overinterpreting sparse risk ranges. Internal validation must repeat every data-driven step inside each resample, including imputation, feature selection, and tuning, or optimism remains. External validation assesses transportability; report calibration slope and intercept and consider recalibration before refitting. AUC alone is insensitive to whether predicted risks are clinically useful, so decision-curve net benefit can complement performance measures when thresholds correspond to real decisions.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Vickers AJ, Elkin EB. &quot;Decision curve analysis: a novel method for evaluating prediction models.&quot; <em>Med Decis Making</em> 2006.</li>
-<li>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li><em>The companion article &quot;Model assumptions and diagnostics&quot; covers the checks that should precede validation (article planned).</em></li>
+<li><p>Collins GS, Reitsma JB, Altman DG, Moons KGM. Transparent reporting of a multivariable prediction model for individual prognosis or diagnosis (TRIPOD). <em>Annals of Internal Medicine</em>. 2015;162:55–63. <a href="https://doi.org/10.7326/M14-0697" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.7326/M14-0697</a></p>
+</li>
+<li><p>Vickers AJ, Elkin EB. &quot;Decision curve analysis: a novel method for evaluating prediction models.&quot; <em>Med Decis Making</em> 2006.</p>
+</li>
+<li><p>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>The companion <a href="model-assumptions-and-diagnostics.html">model assumptions and diagnostics article</a> covers checks that should precede validation.</p>
+</li>
 </ul>
 
         </article>

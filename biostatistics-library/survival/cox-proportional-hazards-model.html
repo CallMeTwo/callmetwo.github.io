@@ -191,12 +191,18 @@ summary of the whole follow-up.</li>
 estimated with its own uncertainty; naive point predictions should carry
 that caveat.</li>
 </ul>
+<p>The partial likelihood estimates relative hazards without specifying the baseline hazard, but absolute survival predictions require estimating that baseline and are conditional on the model being transportable. Assess proportional hazards using scaled Schoenfeld residuals and time-by-covariate patterns; a significant test alone is not the diagnosis. If an effect changes over time, report time-specific effects or a flexible time-varying coefficient, or use restricted mean survival time through a clinically chosen horizon. For non-proportional treatment effects, a single hazard ratio may obscure benefit and harm patterns and is not a risk ratio.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Klein JP, Moeschberger ML. <em>Survival Analysis: A Self-Learning Text</em>.
-Springer.</li>
-<li>Collett D. <em>Modelling Survival Data in Medical Research</em>. Chapman &amp; Hall/CRC.</li>
-<li>Fox J, Weisberg S. <em>An R Companion to Applied Regression</em>. Sage.</li>
+<li><p>Schoenfeld D. Partial residuals for the proportional hazards regression model. <em>Biometrika</em>. 1982;69:239–241. <a href="https://doi.org/10.1093/biomet/69.1.239" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1093/biomet/69.1.239</a></p>
+</li>
+<li><p>Klein JP, Moeschberger ML. <em>Survival Analysis: A Self-Learning Text</em>.
+Springer.</p>
+</li>
+<li><p>Collett D. <em>Modelling Survival Data in Medical Research</em>. Chapman &amp; Hall/CRC.</p>
+</li>
+<li><p>Fox J, Weisberg S. <em>An R Companion to Applied Regression</em>. Sage.</p>
+</li>
 </ul>
 <p><em>The &quot;Censoring and survival functions&quot; article covers the non-parametric
 building blocks used in the survival examples here.</em></p>

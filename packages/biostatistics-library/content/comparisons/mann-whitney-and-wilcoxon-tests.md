@@ -74,11 +74,11 @@ Neither test reports a difference in medians or means; report the medians
 In 10 patients with rheumatoid arthritis and 10 age-matched controls, a
 skewed disease-activity score (median 12, IQR 8–19 in patients; median 3,
 IQR 1–5 in controls) was recorded. Pooling and ranking all 20 values, the
-rank sum for the patient group is W = 186.
+rank sum for the patient group is W = 143.
 
 - Under the null the expected rank sum is 10 × (20 + 1) / 2 = 105.
-- Using the normal approximation with tie correction, z ≈ 3.4, two-sided
-  p < 0.001.
+- With no ties, U = W − 10×11/2 = 88 and the normal approximation gives
+  z ≈ 2.84 (with continuity correction), two-sided p ≈ 0.005.
 - The stochastic effect size P(patient > control) = 0.88: a randomly chosen
   patient's score exceeds a randomly chosen control's score about 88% of the
   time.
@@ -89,10 +89,12 @@ sample sizes are small, the rank test is more trustworthy here than a
 t-test, which would be sensitive to the upper-tail values.
 
 **Paired variant.** In 9 COPD patients, an 8-point breathlessness scale was
-measured before and after 6 weeks of pulmonary rehab. The signed-rank sum of
-positive (improved) differences is 36 of a possible 45; the signed-rank test
-gives p = 0.036. Breathlessness improved consistently within patients,
-though the improvement was not uniform across all 9.
+measured before and after 6 weeks of pulmonary rehab. Assuming nine nonzero
+differences with distinct absolute magnitudes, the signed-rank sum in the
+improvement direction is 40 of a possible 45. The exact two-sided signed-rank
+p-value is about 0.039. This is evidence of a directional within-patient
+change under the test assumptions; the small sample still leaves the magnitude
+of improvement imprecise.
 
 ## Interpretation and common pitfalls
 
@@ -113,9 +115,10 @@ though the improvement was not uniform across all 9.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Mann HB, Whitney DR. [On a test of whether one of two random variables is stochastically larger than the other](https://doi.org/10.2307/3001968). *The Annals of Mathematical Statistics*. 1947;18(1):50–60.
+- Wilcoxon F. [Individual comparisons by ranking methods](https://doi.org/10.1214/aoms/1177730491). *Biometrics Bulletin*. 1945;1(6):80–83.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), statistical reporting guidance.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
   and Other Advanced Topics*. Brooks/Cole.
 - Agresti A. *Categorical Data Analysis*. Wiley.
-- The topic map's "Kruskal–Wallis test" article extends the rank approach
-  to three or more groups.
+- The [Kruskal–Wallis article](/biostatistics-library/comparisons/kruskal-wallis-test.html) extends the rank approach to three or more groups.

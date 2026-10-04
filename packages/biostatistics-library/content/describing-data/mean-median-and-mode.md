@@ -38,6 +38,18 @@ The choice of centre follows the scale and the shape:
 - Group differences in the mean or median can be driven by a few patients; always report the spread (SD or IQR) alongside the centre.
 - With small samples all three are noisy estimates of population parameters; the mean's sampling variability is the standard-error topic of the inference section.
 
+### Robust alternatives and the target summary
+
+The arithmetic mean is the target for questions such as average resource use
+per patient, even when the distribution is skewed; a median alone then answers
+a different question. Conversely, the median describes the 50th percentile
+and is often more representative of a typical stay. For positive, strongly
+right-skewed outcomes, a geometric mean can summarize multiplicative
+variation, but it requires a stated log scale and is not the arithmetic
+average. A trimmed mean reduces sensitivity to extremes, but the trimming
+fraction changes the estimand and should be prespecified. Pair a centre with a
+spread and inspect the distribution when shape matters.
+
 ## Worked example
 
 Fifteen patients with acute coronary syndrome had ICU stays (days) of: 1, 1, 2, 2, 2, 3, 3, 4, 5, 5, 6, 8, 9, 12, 30. The sum is 93, so the mean is 93/15 = 6.2 days; the median is the 8th ordered value, 4 days; the mode is 2 days.
@@ -53,8 +65,12 @@ One 30-day stay inflates the mean to 6.2 days, well above the central bulk of st
 
 ## References and further reading
 
+- Bland JM, Altman DG. [The mean, the median and the skew](https://doi.org/10.1136/bmj.310.6977.713). *BMJ*. 1995.
+- NIST/SEMATECH. [Measures of location](https://www.itl.nist.gov/div898/handbook/eda/section3/eda351.htm).
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland M, Altman DG. *Statistics with Confidence*. BMJ Books.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
 
-*The topic map's "Statistical inference" section develops standard errors and sampling variability in detail (article planned).*
+The sampling-distribution article in this library develops standard errors
+and sampling variability.

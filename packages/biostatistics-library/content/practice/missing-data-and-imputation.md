@@ -50,10 +50,14 @@ A sensitivity analysis should accompany this: for instance, a tipping-point anal
 - **Report the missingness pattern, not just the fraction** — "15% missing" tells a reader nothing; describe which variables, in which strata, and the evidence for the mechanism.
 - **Do not treat imputed values as real measurements** — derived quantities (ratios, composites) must be computed within each imputed dataset, not after pooling.
 
+Multiple imputation is valid under a correctly specified imputation model and a missing-at-random assumption conditional on included observed data; MAR cannot be verified from observed data alone. Include analysis variables, outcome, auxiliary predictors of missingness, and design features in imputation, and make the imputation model congenial to the analysis (including interactions or nonlinearities when needed). Pool estimates and within/between-imputation variance with Rubin's rules; do not average p-values. Complete-case analysis can be unbiased in special cases but often loses precision and may select a different population. Add a sensitivity analysis for plausible missing-not-at-random departures, such as delta-adjusted imputation.
+
 ## References and further reading
+
+- Sterne JAC, White IR, Carlin JB, et al. Multiple imputation for missing data in epidemiological and clinical research: potential and pitfalls. *BMJ*. 2009;338:b2393. [doi:10.1136/bmj.b2393](https://doi.org/10.1136/bmj.b2393)
 
 - van Buuren S. *Flexible Imputation of Missing Data*. CRC Press.
 - Rubin DB. *Multiple Imputation for Nonresponse in Surveys*. Wiley.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 
-*The topic map's "Sample size and study design" section covers planning for expected missingness upfront (article planned).*
+The [sample size and statistical power article](../study-design/sample-size-and-statistical-power.html) discusses planning for expected missingness and its effect on precision.

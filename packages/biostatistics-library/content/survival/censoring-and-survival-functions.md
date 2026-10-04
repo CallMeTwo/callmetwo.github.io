@@ -7,10 +7,11 @@ summary: How censored observations are handled in time-to-event data, and what t
 
 Time-to-event data measure how long patients live, stay disease-free, or remain
 free of a complication. In almost every real study, some patients are still
-event-free when the study ends, are lost to follow-up, or experience a
-competing event. These patients have not had the event of interest, but we do
-not know when they would have had it. Their follow-up times are **censored**
-rather than informative.
+event-free when the study ends or are lost to follow-up. Their event times are
+**right-censored**: we know they remained event-free through their last contact,
+but not what happened afterward. A competing event (such as death before
+recurrence) is observed and may prevent the event of interest; it is not
+ordinary censoring when estimating cumulative incidence.
 
 The two central objects are the **survival function** S(t), the probability of
 surviving (remaining event-free) beyond time t, and the **hazard function**
@@ -73,6 +74,8 @@ after the 12-month mark without data we do not have.
   test (the log-rank test) and report effect estimates, not just p-values.
 - Reporting "survival" when the event is something undesirable (recurrence,
   death) without defining the endpoint clearly confuses readers.
+
+Kaplan–Meier estimation relies on independent, non-informative right censoring: conditional on modeled information, those censored at a given time should have the same subsequent event prospects as those still observed. Loss to follow-up related to prognosis can violate this condition. If censoring differs by measured predictors, inverse-probability-of-censoring weighting may help under a correctly specified censoring model and positivity; it does not solve unmeasured informative censoring. Death can also be a competing event rather than censoring when the target is cumulative incidence of another event. State the time origin, event definition, censoring rule, and numbers at risk.
 
 ## References and further reading
 

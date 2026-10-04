@@ -78,7 +78,11 @@ efficiency is at stake.
   treating the subject as a cluster — the correlation estimate is then
   unstable; consider modelling the clustering factor directly instead.
 
+GEE targets a population-averaged mean, which generally differs from a subject-specific effect in a nonlinear model such as logistic regression. The sandwich variance is asymptotically robust to a misspecified working correlation when the mean model is correct and the number of independent clusters is sufficiently large; with few clusters, ordinary sandwich intervals can be too narrow. Consider small-sample corrections or cluster-level methods, and report the number and size distribution of clusters. GEE handles within-cluster correlation, not confounding caused by cluster assignment or informative cluster size.
+
 ## References and further reading
+
+- Liang KY, Zeger SL. Longitudinal data analysis using generalized linear models. *Biometrika*. 1986;73:13–22. [doi:10.1093/biomet/73.1.13](https://doi.org/10.1093/biomet/73.1.13)
 
 - Diggle P, Heagerty P, Liang K, Zeger S. *Analysis of Longitudinal Data*.
   Oxford University Press.

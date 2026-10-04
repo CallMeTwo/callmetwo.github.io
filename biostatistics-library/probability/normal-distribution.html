@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Common distributions <span class="sep">/</span> <strong style="color:#273e3b">Normal distribution</strong></div>
         <h1 class="article-title">Normal distribution</h1>
         <p class="article-summary">The symmetric bell-shaped distribution, its role in reference ranges and z-scores, and how to check whether data deserve it.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#reference-intervals-are-not-confidence-intervals">Reference intervals are not confidence intervals</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>normal (Gaussian) distribution</strong> with mean μ and standard deviation σ is the
@@ -168,6 +168,18 @@ transformation often restores approximate normality.</li>
 result) is different from using it for a <em>distribution of sample means</em> — the
 latter is covered by the central limit theorem and is far more forgiving.</li>
 </ul>
+<h3 id="reference-intervals-are-not-confidence-intervals">Reference intervals are not confidence intervals</h3>
+<p>A central 95% reference interval describes the middle 95% of values in a
+defined reference population; it does not mean that 95% of patients are
+healthy or that values outside it are necessarily diseased. A confidence
+interval for the population mean instead quantifies uncertainty in an
+estimated parameter. In laboratory practice, reference intervals are often
+estimated from a selected healthy sample using the 2.5th and 97.5th
+percentiles; the mean ± 1.96 SD shortcut requires an approximately normal
+distribution. Partitioning by age or sex may be needed when distributions
+differ, but subgroup intervals need enough observations. For bounded or
+strongly skewed measures, use methods suited to their distribution rather than
+forcing a normal model.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>In a clinic population, systolic blood pressure has mean μ = 120 mmHg and
 standard deviation σ = 15 mmHg, approximately normally distributed.</p>
@@ -200,13 +212,20 @@ group being compared against.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</li>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</li>
+<li><p>CLSI. <a href="https://clsi.org/standards/products/method-evaluation/documents/ep28/" target="_blank" rel="noopener noreferrer" class="ext-link">EP28: Defining, establishing, and verifying reference intervals in the clinical laboratory</a>.</p>
+</li>
+<li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/normprpl.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Normal probability plot</a>.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</p>
+</li>
 </ul>
-<p><em>The &quot;Sampling distributions and the central limit theorem&quot; article in this
-library explains why sample means are normal even when individual values are not
-(article planned).</em></p>
+<p>The <a href="sampling-distributions-and-the-central-limit-theorem.html">sampling distributions article</a>
+explains why sample means can be approximately normal even when individual
+values are not.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

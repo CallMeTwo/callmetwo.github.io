@@ -78,20 +78,20 @@ A study randomised 36 patients to three smoking-cessation strategies
 count-like outcome, range 0–14) was recorded.
 
 - Group A (counselling only): ranks sum R1 = 132
-- Group B (nicotine patch): ranks sum R2 = 186
-- Group C (combination therapy): ranks sum R3 = 252
+- Group B (nicotine patch): ranks sum R2 = 222
+- Group C (combination therapy): ranks sum R3 = 312
 
-H = (12 / (36 × 37)) × (132²/12 + 186²/12 + 252²/12) − 3 × 37
-  = (12/1332) × (1452 + 2883 + 5292) − 111
-  = (0.00901) × 9627 − 111
-  = 86.7 − 111 = 25.7 (illustrative; exact value depends on tie correction)
+H = (12 / (36 × 37)) × (132²/12 + 222²/12 + 312²/12) − 3 × 37
+  = (12/1332) × (1452 + 4107 + 8112) − 111
+  = (12/1332) × 13671 − 111
+  ≈ 123.16 − 111 = 12.16 (before any tie correction)
 
-With 2 degrees of freedom, H = 25.7 gives p < 0.001. The three strategies
-do not all produce the same distribution of quit attempts. Dunn's test with
-Holm adjustment separates group C from both A and B (p < 0.01 for each),
-while A and B do not differ (p = 0.31). Combination therapy is associated
-with a markedly higher number of quit attempts at 6 months than either
-single strategy.
+With 2 degrees of freedom, H = 12.16 gives an asymptotic p-value of about
+0.0023. The rank sums suggest that observations in group C tend to be higher,
+but the omnibus result alone does not establish which pairs differ. A
+prespecified Dunn comparison with Holm adjustment would be needed for those
+claims; the rank sums here are illustrative rather than raw data from which
+those adjusted pairwise results can be reconstructed.
 
 ## Interpretation and common pitfalls
 
@@ -113,9 +113,10 @@ single strategy.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Kruskal WH, Wallis WA. [Use of ranks in one-criterion variance analysis](https://doi.org/10.1080/01621459.1952.10483441). *Journal of the American Statistical Association*. 1952;47(260):583–621.
+- Dunn OJ. [Multiple comparisons using rank sums](https://doi.org/10.1080/00401706.1964.10490181). *Technometrics*. 1964;6(3):241–252.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), statistical reporting guidance.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
   and Other Advanced Topics*. Brooks/Cole.
 - Bland J, Altman D. *Statistics with Confidence*. BMJ Books.
-- The topic map's "Mann–Whitney and Wilcoxon tests" article covers the
-  two-group counterpart of this test.
+- The [Mann–Whitney and Wilcoxon article](/biostatistics-library/comparisons/mann-whitney-and-wilcoxon-tests.html) covers the two-group counterpart.

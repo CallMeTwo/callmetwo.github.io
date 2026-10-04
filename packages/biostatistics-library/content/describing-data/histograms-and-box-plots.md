@@ -35,9 +35,20 @@ Reading a histogram is a three-step routine: (1) centre — where is the mass; (
 - Overlapping boxes do not prove distributions are equal, and non-overlapping ones do not prove a significant difference; plots motivate the test, they do not replace it.
 - Both plots describe one sample; they say nothing about how stable the shape is across samples, which is what the inference section's sampling variability covers.
 
+### Reading plots with the measurement process in mind
+
+For unequal-width bins, bar area—not height—should represent frequency; plot
+density so comparisons remain meaningful. If groups have different sample
+sizes, raw-count histograms can make the larger group look more variable; use
+density or relative frequency and display each group's n. The 1.5×IQR fences
+are descriptive flags, not confidence limits or tests. For small groups,
+overlay individual observations because quartiles can conceal multimodality
+and sparse clusters. Check unusual points against units, instrument limits and
+source records before deciding whether they are errors.
+
 ## Worked example
 
-Ten patients had postoperative haemoglobin (g/L) of 10.8, 11.2, 11.5, 12.0, 12.4, 12.8, 13.1, 13.6, 14.0, 16.9. A histogram with 1 g/L bins gives: 11–12: 3, 12–13: 4, 13–14: 2, 16–17: 1 — a right tail with a conspicuous gap between 14 and 17.
+Ten patients had postoperative haemoglobin (g/L) of 10.8, 11.2, 11.5, 12.0, 12.4, 12.8, 13.1, 13.6, 14.0, 16.9. Using left-closed 1 g/L bins, counts are: [10,11): 1, [11,12): 2, [12,13): 3, [13,14): 2, [14,15): 1, [15,16): 0, [16,17): 1 — a right tail with a gap between 15 and 16.
 
 The box plot five-number summary: median = (12.4 + 12.8)/2 = 12.6; Q1 = 11.5; Q3 = 13.6; IQR = 2.1. The whisker fences are 11.5 − 3.15 = 8.35 and 13.6 + 3.15 = 16.75, so the 16.9 g/L value sits just beyond the upper fence and is drawn as an individual point. The report would read: "median 12.6 (IQR 11.5–13.6) g/L, with one value (16.9 g/L) beyond the upper Tukey fence" — a single patient worth a clinical look rather than an automatic deletion.
 
@@ -54,8 +65,12 @@ Both plots tell the same story: a mildly right-skewed distribution with one high
 
 ## References and further reading
 
+- Tukey JW. [Exploratory Data Analysis](https://www.worldcat.org/oclc/3058187). Addison-Wesley; 1977.
+- NIST/SEMATECH. [Histogram](https://www.itl.nist.gov/div898/handbook/eda/section3/histogra.htm) and [box plot](https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm) guidance.
+
 - Bland M, Altman DG. *Statistics with Confidence*. BMJ Books.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
 
-*The "Quantiles and the interquartile range" article in this library defines the five-number summary used by the box plot (article planned).*
+The [quantiles and interquartile range article](quantiles-and-the-interquartile-range.html)
+defines the five-number summary used by the box plot.

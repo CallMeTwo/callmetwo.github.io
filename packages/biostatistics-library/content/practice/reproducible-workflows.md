@@ -48,10 +48,14 @@ A collaborator six months later clones the repo, runs `renv::restore()`, execute
 - **Forgetting the seed (or using a different one per run)** — any stochastic step without a recorded seed makes the reported standard error or split non-replayable.
 - **Editing figures by hand** — regenerating a figure from code and then nudging the legend in a drawing tool means the published figure is no longer what the code produces.
 
+Reproducibility has several layers: computational reproducibility reruns the same analysis, while independent replication asks whether new data support the conclusion. A seed alone may not guarantee bit-for-bit results across software versions, hardware, parallel algorithms, or nondeterministic libraries; record versions, environment, and data provenance, and state the expected reproducibility level. Keep personally identifiable data and credentials out of version control, use access controls and approved storage, and document any transformations that cannot be shared. A container or lockfile makes dependencies easier to reconstruct but does not preserve data access or guarantee future availability.
+
 ## References and further reading
+
+- Peng RD. Reproducible research in computational science. *Science*. 2011;334:1226–1227. [doi:10.1126/science.1213847](https://doi.org/10.1126/science.1213847)
 
 - Leisch F, R-Core-Team. *Reproducible Research with R*. Springer.
 - Wickham H, Grolemund G. *R for Data Science*. O'Reilly Media.
 - Bland M. *Statistics in Practice: A Guide to the Statistical Methods in Medicine and the Health Sciences*. Chapman and Hall.
 
-*The topic map's "Study design" section covers the upstream data-capture decisions that a reproducible pipeline inherits (article planned).*
+The [sampling methods article](../study-design/sampling-methods.html) discusses upstream data-collection choices that a reproducible pipeline inherits.

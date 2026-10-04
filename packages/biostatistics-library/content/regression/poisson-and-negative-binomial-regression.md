@@ -39,9 +39,13 @@ A cohort of 4,000 patients with inflammatory bowel disease contributes 9,800 per
 - Do not use Poisson regression as a shortcut for a binary outcome with a "large denominator"; the models answer different questions (rare-event approximation only).
 - For recurrent events, an ordinary Poisson model on the total count ignores within-subject correlation; use a GEE/mixed model with a log link and report the design effect.
 
+Use an exposure offset when subjects contribute different person-time: log E(Yᵢ) = Xᵢβ + log(Tᵢ), so exp(β) compares rates per unit time. The offset coefficient is fixed at one; it is not an estimated predictor. Poisson variance equidispersion is a distributional assumption, and robust standard errors can protect inference against some variance misspecification but do not change the fitted mean. Negative-binomial regression models extra-Poisson variation; zero inflation should be used only when a distinct structural-zero process is substantively plausible, not simply because the sample has many zeros. Check residual patterns and predicted counts, and report the time or exposure denominator.
+
 ## References and further reading
+
+- Cameron AC, Trivedi PK. Regression-based tests for overdispersion in the Poisson model. *Journal of Econometrics*. 1990;46:347–364. [doi:10.1016/0304-4076(90)90014-K](https://doi.org/10.1016/0304-4076(90)90014-K)
 
 - Agresti A. *Categorical Data Analysis*. Wiley.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
-- *The topic map's "Survival analysis" section covers time-to-first-event modelling (article planned).*
+- The [Cox proportional hazards article](../survival/cox-proportional-hazards-model.html) covers regression for time-to-first-event outcomes.

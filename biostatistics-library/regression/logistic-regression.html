@@ -145,11 +145,11 @@
 <li><strong>Linearity on the logit scale</strong>: the log-odds must change linearly with each continuous predictor; a curved relationship (e.g. U-shaped risk by age) biases the OR.</li>
 <li><strong>Independence</strong>: one observation per subject; repeated measures or clustered patients require generalised estimating equations or mixed models.</li>
 <li><strong>No severe multicollinearity</strong> among predictors, as in any linear-model family.</li>
-<li><strong>Sufficient events</strong>: a rule of thumb is at least 10 outcome events per fitted coefficient (often stricter for prediction models), or the maximum-likelihood estimates become unstable and overfit.</li>
+<li><strong>Sufficient information</strong>: a fixed “10 events per variable” threshold is not a guarantee of stability. Needed sample size depends on event proportion, number and distribution of candidate parameters, expected model fit, and shrinkage target; sparse data can cause overfitting or separation even above the heuristic.</li>
 <li><strong>OR ≠ risk ratio</strong>: when the outcome is common (prevalence &gt; 10–20%), the OR overstates the risk ratio in both directions; a rare outcome (incidence &lt; 10%) makes OR ≈ RR.</li>
 </ul>
 <h2 id="worked-example">Worked example</h2>
-<p>A registry of 1,200 myocardial infarction patients models in-hospital death with age (per 10 years) and Killip class (&gt;1 vs 1). Maximum likelihood gives: logit(death) = −2.00 + 0.25·(age/10) + 0.95·(Killip &gt; 1). For a 70-year-old in Killip class I: logit = −2.00 + 0.50 = −1.50, so p = 1/(1 + e^1.5) ≈ 0.18, i.e. an estimated 18% mortality. Upgrading to Killip class II adds 0.95 to the logit: p = 1/(1 + e^0.55) ≈ 0.58. The exponentiated Killip coefficient is e^0.95 = 2.59 (95% CI e^0.53 to e^1.37, i.e. 1.70 to 3.95): Killip class &gt;1 multiplies the odds of death by about 2.6 at any given age — roughly tripling, not merely adding, the probability (18% to 58%), which is why the OR and the absolute risks must be reported together.</p>
+<p>A registry of 1,200 myocardial infarction patients models in-hospital death with age (per 10 years) and Killip class (&gt;1 vs 1). Suppose maximum likelihood gives: logit(death) = −2.00 + 0.25·(age/10) + 0.95·(Killip &gt; 1). For a 70-year-old in Killip class I: logit = −2.00 + 0.50 = −1.50, so p = 1/(1 + e^1.5) ≈ 0.18, an estimated 18% mortality. Upgrading to Killip class &gt;1 adds 0.95 to the logit: p = 1/(1 + e^0.55) ≈ 0.37. The exponentiated Killip coefficient is e^0.95 = 2.59 (suppose its 95% CI is 1.70 to 3.95): at the same age, Killip class &gt;1 multiplies the odds by about 2.6; in this example the estimated probability rises from 18% to 37%. This illustrates why odds ratios and absolute risks answer different questions and should be reported together.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>The OR is a ratio of <em>odds</em>, not of probabilities: an OR of 2 does not mean &quot;twice as likely&quot; when the baseline probability is anything but small.</li>
@@ -157,13 +157,21 @@
 <li>A &quot;non-significant&quot; adjusted OR can still be an important finding (wide CI) or a sign of residual confounding; examine the CI and the change from the crude OR, not just the p-value.</li>
 <li>Do not interpret the intercept as a clinically meaningful baseline risk unless the reference values of all predictors are realistic (e.g. age = 0).</li>
 </ul>
+<p>For prediction, distinguish discrimination from calibration: an AUC can be acceptable while predicted probabilities are systematically too high. Report calibration-in-the-large and a calibration plot, and validate the entire modeling process (including variable selection and tuning) with resampling. When separation occurs, ordinary maximum-likelihood estimates can diverge; Firth penalized likelihood is one option, while exact or weakly informative Bayesian methods may suit particular designs. These methods do not make a sparse dataset informative, so show uncertainty and avoid interpreting unstable subgroup estimates.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
-<li>Menard S. <em>Applied Logistic Regression</em>. SAGE.</li>
-<li>Collett D. <em>Modelling Binary Data</em>. Chapman &amp; Hall/CRC.</li>
-<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
-<li><em>The topic map&#39;s &quot;Count and rate outcomes&quot; section covers Poisson and negative binomial regression (article planned).</em></li>
+<li><p>Heinze G, Schemper M. A solution to the problem of separation in logistic regression. <em>Statistics in Medicine</em>. 2002;21:2409–2419. <a href="https://doi.org/10.1002/sim.1047" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1002/sim.1047</a></p>
+</li>
+<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
+</li>
+<li><p>Menard S. <em>Applied Logistic Regression</em>. SAGE.</p>
+</li>
+<li><p>Collett D. <em>Modelling Binary Data</em>. Chapman &amp; Hall/CRC.</p>
+</li>
+<li><p>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</p>
+</li>
+<li><p>The <a href="poisson-and-negative-binomial-regression.html">Poisson and negative binomial regression article</a> covers count and rate outcomes.</p>
+</li>
 </ul>
 
         </article>

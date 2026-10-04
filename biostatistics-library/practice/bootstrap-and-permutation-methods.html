@@ -160,13 +160,19 @@
 <li><strong>Permutation tests test a different null than the model</strong> — the permutation p-value addresses the sharp null of zero effect; it does not estimate the size or uncertainty of the effect.</li>
 <li><strong>Set a seed and report B</strong> — resampling results are random; record the random seed, the number of replications, and the interval type (percentile vs BCa) so the analysis is reproducible.</li>
 </ul>
+<p>Bootstrap resampling approximates sampling variability by resampling observational units with replacement; it must preserve the design (for example, resample clusters for cluster-randomized or clustered data). The ordinary percentile interval can perform poorly for biased or skewed estimators, so BCa or studentized intervals may be preferable when justified. Permutation inference is exact under an exchangeability or randomization argument: in a randomized trial, permute according to the actual assignment scheme, not arbitrarily across participants. Neither method repairs confounding, measurement error, or a nonrepresentative sample.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Efron B, Tibshirani RJ. <em>An Introduction to the Bootstrap</em>. Chapman and Hall.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Collett D. <em>Modelling Survival Data in Medical Research</em>. Chapman and Hall/CRC.</li>
+<li><p>Efron B. Bootstrap methods: another look at the jackknife. <em>The Annals of Statistics</em>. 1979;7:1–26. <a href="https://doi.org/10.1214/aos/1176344552" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1214/aos/1176344552</a></p>
+</li>
+<li><p>Efron B, Tibshirani RJ. <em>An Introduction to the Bootstrap</em>. Chapman and Hall.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Collett D. <em>Modelling Survival Data in Medical Research</em>. Chapman and Hall/CRC.</p>
+</li>
 </ul>
-<p><em>The topic map&#39;s &quot;Statistical inference&quot; section covers the frequentist framework these methods sit inside (article planned).</em></p>
+<p>The <a href="../inference/confidence-intervals.html">confidence intervals article</a> explains how resampling can support interval estimation.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

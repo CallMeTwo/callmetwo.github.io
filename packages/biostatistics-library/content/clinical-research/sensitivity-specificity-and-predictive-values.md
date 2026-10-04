@@ -53,7 +53,11 @@ If the target population has a lower 2% prevalence, PPV falls to 8 / (8 + 176) �
 - Confusing test characteristics with post-test probability — sensitivity is not the probability that a positive result is true; that is the PPV.
 - Comparing two tests by their sum of sensitivity and specificity, or by "accuracy," in a lopsided population where most people are healthy (or sick); accuracy can be deceptively high and tells you little about the errors that matter.
 
+Sensitivity and specificity are conditional on disease status and can still vary across clinical settings because case severity, comorbidities, and control selection affect the tested spectrum. Predictive values additionally depend directly on prevalence: for sensitivity Se, specificity Sp, and prevalence π, PPV = Seπ/[Seπ + (1−Sp)(1−π)]. For example, with Se=0.95, Sp=0.90, and prevalence 1%, PPV is about 8.8%, despite high sensitivity and specificity. Validate thresholds in a representative target population and report indeterminate results and missing tests rather than silently excluding them.
+
 ## References and further reading
+
+- Leeflang MMG, Rutjes AWS, Reitsma JB, Hooft L, Bossuyt PMM. Variation of a test's sensitivity and specificity with disease prevalence. *CMAJ*. 2013;185:E537–E544. [doi:10.1503/cmaj.121286](https://doi.org/10.1503/cmaj.121286)
 
 - Bland M, Altman DG. *Statistics with Confidence*. BNP Books.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.

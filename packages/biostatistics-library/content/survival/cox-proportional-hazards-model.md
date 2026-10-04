@@ -76,7 +76,11 @@ than the comorbidity effect.
   estimated with its own uncertainty; naive point predictions should carry
   that caveat.
 
+The partial likelihood estimates relative hazards without specifying the baseline hazard, but absolute survival predictions require estimating that baseline and are conditional on the model being transportable. Assess proportional hazards using scaled Schoenfeld residuals and time-by-covariate patterns; a significant test alone is not the diagnosis. If an effect changes over time, report time-specific effects or a flexible time-varying coefficient, or use restricted mean survival time through a clinically chosen horizon. For non-proportional treatment effects, a single hazard ratio may obscure benefit and harm patterns and is not a risk ratio.
+
 ## References and further reading
+
+- Schoenfeld D. Partial residuals for the proportional hazards regression model. *Biometrika*. 1982;69:239–241. [doi:10.1093/biomet/69.1.239](https://doi.org/10.1093/biomet/69.1.239)
 
 - Klein JP, Moeschberger ML. *Survival Analysis: A Self-Learning Text*.
   Springer.

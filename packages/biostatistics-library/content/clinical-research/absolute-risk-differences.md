@@ -53,6 +53,8 @@ Interpretation: the relative framing (17% reduction) and the absolute framing (0
 - Mixing ARD with incidence rates or different follow-up windows; the difference is only valid when both risks are cumulative over the same period.
 - Reporting the ARD as a stable constant: it is an estimate with its own sampling variability, and small studies of rare outcomes give ARD intervals wide enough to span both harm and benefit.
 
+In randomized studies, calculate the risk difference from the same population, outcome definition, and follow-up horizon in each arm. A risk difference of −0.002 corresponds to two fewer events per 1,000 over that horizon; its reciprocal gives an NNT of 500 only when the absolute difference is beneficial and the follow-up period is specified. Confidence intervals can cross zero, making reciprocal NNT intervals discontinuous and requiring careful presentation (often as benefit and harm regions). In observational studies, a crude difference is not necessarily causal; standardization or another justified adjustment targets a marginal contrast under assumptions such as exchangeability and positivity.
+
 ## References and further reading
 
 - Greenland S, Rothman KJ, Lachin JM. "Measures of Occurrence and Effect." In Rothman KJ, Greenland S, Lash TL (eds), *Modern Epidemiology*. Lippincott Williams & Wilkins.

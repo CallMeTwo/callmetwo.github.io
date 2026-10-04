@@ -39,9 +39,11 @@ In a study of 200 adults, a laboratory compares a new point-of-care HbA1c analys
 - Restricting the range of one variable (e.g. studying only patients with BMI 22–28) attenuates r; correlations from different samples are not directly comparable.
 - Do not choose Spearman "to be safe" whenever the scatterplot looks linear — Pearson is more powerful in that case.
 
+Correlation measures association, not agreement or causal effect. For repeated measurements or paired devices, use an agreement framework (for example, a Bland–Altman plot with limits of agreement) and define acceptable clinical limits in advance. Pearson's r is sensitive to outliers and measures linear association; Spearman's rho measures rank association and can be near zero for a strong U-shaped relation. Plot the paired observations, report the interval estimate, and account for clustering when observations are not independent. A narrow confidence interval around correlation does not remove confounding or establish that changing one variable changes the other.
+
 ## References and further reading
 
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and Other Advanced Topics*. Brooks/Cole.
 - Bland JM, Altman DG. "Statistical methods for assessing agreement between two methods of clinical measurement." *BMJ* 1986.
-- *The topic map's "Statistical inference" section develops hypothesis testing and confidence intervals in detail (article planned).*
+- The [confidence intervals article](../inference/confidence-intervals.html) discusses uncertainty intervals for association estimates.

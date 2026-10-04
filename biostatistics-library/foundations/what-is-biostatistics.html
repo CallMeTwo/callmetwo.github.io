@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Getting started <span class="sep">/</span> <strong style="color:#273e3b">What is biostatistics?</strong></div>
         <h1 class="article-title">What is biostatistics?</h1>
         <p class="article-summary">The branch of statistics applied to biological and medical research — turning messy data into trustworthy evidence.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#design-estimand-and-analysis-belong-together">Design, estimand and analysis belong together</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p><a href="https://en.wikipedia.org/wiki/Biostatistics" target="_blank" rel="noopener noreferrer" class="ext-link">Biostatistics</a> (also
@@ -165,6 +165,16 @@ them. Common pitfalls that statistics alone cannot fix:</p>
 <li><strong>Overinterpretation</strong> — reading causation into an observational
 association, or treating a p-value of 0.06 as &quot;nearly significant&quot;.</li>
 </ul>
+<h3 id="design-estimand-and-analysis-belong-together">Design, estimand and analysis belong together</h3>
+<p>Start with a target population and a question that specifies the comparison,
+outcome and time horizon. The design determines what can be learned: random
+allocation can support a causal treatment contrast under appropriate conduct
+and follow-up, while an observational association requires attention to
+confounding and selection. Before seeing outcomes, an analysis plan should
+state the primary estimand, outcome scale, missing-data approach, subgroup
+analyses and sensitivity checks. Reporting an effect estimate with a
+confidence interval shows its magnitude and precision; neither a small p-value
+nor a complex model repairs poor measurement or a misaligned design.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>Suppose a trial randomises 200 patients to a new drug and 200 to placebo.
 After one year, 18 of 200 in the drug group and 30 of 200 in the placebo
@@ -183,12 +193,20 @@ of no effect.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis
-and Other Advanced Topics</em>. Brooks/Cole.</li>
-<li>See also: the <a href="../inference/confidence-intervals.html">Confidence intervals</a>
-article in the <em>Statistical inference</em> section, and the
-<a href="https://en.wikipedia.org/wiki/Biostatistics" target="_blank" rel="noopener noreferrer" class="ext-link">Biostatistics entry on Wikipedia</a>.</li>
+<li><p>National Academies. <a href="https://doi.org/10.17226/25303" target="_blank" rel="noopener noreferrer" class="ext-link">Reproducibility and Replicability in Science</a>. 2019.</p>
+</li>
+<li><p>STROBE Initiative. <a href="https://www.strobe-statement.org/" target="_blank" rel="noopener noreferrer" class="ext-link">Reporting guidance for observational studies</a>.</p>
+</li>
+<li><p>CONSORT. <a href="https://doi.org/10.1136/bmj-2024-081123" target="_blank" rel="noopener noreferrer" class="ext-link">CONSORT 2025 statement</a>. <em>BMJ</em>. 2025.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis
+and Other Advanced Topics</em>. Brooks/Cole.</p>
+</li>
+<li><p>See also: the <a href="../inference/confidence-intervals.html">Confidence intervals</a>
+article in the <em>Statistical inference</em> section.</p>
+</li>
 </ul>
 
         </article>

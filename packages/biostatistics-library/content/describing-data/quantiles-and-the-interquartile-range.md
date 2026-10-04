@@ -34,6 +34,18 @@ Unlike the mean and SD, the quartiles and IQR are **resistant**: shifting a few 
 - Tukey's 1.5×IQR fences are a screening heuristic, not a test of abnormality; in a small or skewed sample, values beyond the fence can be entirely expected and legitimate.
 - Percentiles are order statistics of the sample, not properties of a fitted model: two samples from the same population can give noticeably different P95s.
 
+### Estimating and comparing quantiles
+
+Sample quantiles are order-statistic estimates, and software conventions
+interpolate differently between adjacent ordered values. For a reproducible
+report, specify the algorithm when exact quartile values matter and use the
+same method across groups. A confidence interval for a population quantile
+can be built from binomial order-statistic theory; it is often wide in the
+tails unless the sample is large. In survival data, ordinary sample
+percentiles are inappropriate when some participants are censored before the
+quantile is reached; Kaplan–Meier methods estimate time quantiles while
+accounting for censoring under independent censoring assumptions.
+
 ## Worked example
 
 Eleven patients with suspected hypercholesterolaemia had total cholesterol (mmol/L) of 3.8, 4.1, 4.4, 4.6, 4.9, 5.2, 5.5, 5.8, 6.2, 6.9, 8.4. The median (6th value) is 5.2; the median of the lower five values is Q1 = 4.4 and the median of the upper five is Q3 = 5.8, so the IQR is 5.8 − 4.4 = 1.4 mmol/L. Equivalently, 50% of patients had cholesterol below 5.2 and 75% below 5.8 mmol/L — the reading a clinician most often wants.
@@ -50,8 +62,12 @@ Tukey's fences are 4.4 − 1.5×1.4 = 2.3 and 5.8 + 1.5×1.4 = 7.9. The 8.4 mmol
 
 ## References and further reading
 
+- NIST/SEMATECH. [Quantiles](https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm).
+- Hyndman RJ, Fan Y. [Sample quantiles in statistical packages](https://doi.org/10.1080/00031305.1996.10473566). *The American Statistician*. 1996.
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland M, Altman DG. *Statistics with Confidence*. BMJ Books.
 - Greenland S, Rothman K, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
 
-*The "Histograms and box plots" article in this library shows these quantities plotted (article planned).*
+The [histograms and box plots article](histograms-and-box-plots.html) shows
+these quantities graphically.

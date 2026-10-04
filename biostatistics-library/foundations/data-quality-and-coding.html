@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Understanding variables <span class="sep">/</span> <strong style="color:#273e3b">Data quality and coding</strong></div>
         <h1 class="article-title">Data quality and coding</h1>
         <p class="article-summary">Coding turns raw answers into analyzable values; data quality work finds and fixes the errors, gaps and inconsistencies before any inference.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#missingness-mechanisms-and-sensitivity-analysis">Missingness mechanisms and sensitivity analysis</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p><strong>Data coding</strong> translates raw readings and free-text answers into structured
@@ -182,6 +182,16 @@ sources measure the same quantity on the same scale.</li>
 <p>The process breaks down when data are locked before checks are complete, when
 the raw record is no longer available to resolve a discrepancy, or when
 coding is left to a single untrained person without a documented scheme.</p>
+<h3 id="missingness-mechanisms-and-sensitivity-analysis">Missingness mechanisms and sensitivity analysis</h3>
+<p>MCAR means missingness is unrelated to observed or unobserved data; MAR means
+it may depend on observed information after conditioning on variables in the
+analysis; MNAR allows dependence on the unobserved value itself. These are
+assumptions about the missingness process and cannot generally be diagnosed
+from observed data alone. Compare missingness by arm, site, visit and measured
+prognostic factors. Multiple imputation under MAR should include outcome
+predictors, auxiliary variables and design features, and conclusions should
+be tested under plausible departures from MAR. A missingness indicator is not
+generally a substitute for modelling missingness.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>A trial database holds 2,400 blood-pressure readings. Quality checks find 192
 readings (8.0%) with a missing diastolic value, 6 with systolic &gt; 250, and 11
@@ -213,12 +223,20 @@ the far more expensive path.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott
-Williams &amp; Wilkins.</li>
-<li>The topic map&#39;s <em>Missing data</em> section covers imputation methods and the
-missingness mechanisms in depth (article planned).</li>
+<li><p>Sterne JAC et al. <a href="https://doi.org/10.1136/bmj.b2393" target="_blank" rel="noopener noreferrer" class="ext-link">Multiple imputation for missing data in epidemiological and clinical research</a>. <em>BMJ</em>. 2009.</p>
+</li>
+<li><p>ICH. <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf" target="_blank" rel="noopener noreferrer" class="ext-link">E9(R1): Estimands and sensitivity analysis in clinical trials</a>.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
+</li>
+<li><p>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott
+Williams &amp; Wilkins.</p>
+</li>
+<li><p>ICH E9(R1) gives guidance on aligning missing-data sensitivity analyses
+with the treatment effect of interest.</p>
+</li>
 </ul>
 
         </article>

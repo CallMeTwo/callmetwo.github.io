@@ -29,23 +29,23 @@ A **sample** is the subset of a population from which data are actually collecte
 - **Response rate.** A high non-response rate, particularly if related to the outcome (sick people are less likely to attend a screening), introduces selection bias regardless of the sampling method.
 - **Intra-class correlation (ICC) in cluster sampling.** Individuals within the same cluster tend to be more similar to each other than to individuals in other clusters; the effective sample size is smaller than the raw count, and standard errors must be adjusted.
 - **Stratification must be on a variable related to the outcome.** Stratifying by a variable unrelated to the outcome adds cost and complexity without reducing variance.
-- **Non-probability samples** cannot support population-level inference; they are acceptable for pilot studies, qualitative work, or when the research question is explicitly limited to the sampled group.
+- **Non-probability samples** do not justify design-based population estimates on their own. Generalising beyond the sample requires explicit assumptions about selection and outcomes, often with adjustment or external population data; convenience samples can still be useful for feasibility work or descriptive questions about participants themselves.
 
 ## Worked example
 
-A hospital wants to estimate the mean HbA1c of its adult diabetic outpatients. The practice has 4,000 registered diabetic adults: 1,200 aged 18–40, 2,000 aged 41–60, 1,800 aged 61+.
+A hospital wants to estimate mean HbA1c among its adult diabetic outpatients. Its sampling frame has 5,000 registered adults: 1,200 aged 18–40, 2,000 aged 41–60, and 1,800 aged 61+.
 
 Using **stratified sampling** with proportional allocation and a desired total sample of 400:
 
-- 18–40: n = 400 × 1,200/4,000 = 120
-- 41–60: n = 400 × 2,000/4,000 = 200
-- 61+: n = 400 × 1,800/4,000 = 180
+- 18–40: n = 400 × 1,200/5,000 = 96
+- 41–60: n = 400 × 2,000/5,000 = 160
+- 61+: n = 400 × 1,800/5,000 = 144
 
-A random sample of 120, 200, and 180 patients is drawn from each stratum. Suppose the mean HbA1c is 7.4% (SD 1.1) in the 18–40 group, 8.1% (SD 1.3) in the 41–60 group, and 8.5% (SD 1.4) in the 61+ group.
+A random sample of 96, 160, and 144 patients is drawn from the respective strata. Suppose the mean HbA1c is 7.4% (SD 1.1) in the 18–40 group, 8.1% (SD 1.3) in the 41–60 group, and 8.5% (SD 1.4) in the 61+ group.
 
-Stratified mean = (120/400 × 7.4) + (200/400 × 8.1) + (180/400 × 8.5) = 2.22 + 4.05 + 3.825 = **8.1%**.
+Stratified mean = (96/400 × 7.4) + (160/400 × 8.1) + (144/400 × 8.5) = 1.776 + 3.240 + 3.060 = **8.08%**.
 
-The standard error of the stratified mean is smaller than it would be for a simple random sample of 400 because the between-stratum variance is large; stratification on age (strongly related to HbA1c) improves precision.
+Using these illustrative SDs and ignoring finite-population corrections, the estimated SE is sqrt[(0.24² × 1.1²/96) + (0.40² × 1.3²/160) + (0.36² × 1.4²/144)] ≈ 0.065 percentage points. Proportional allocation gives each person the same selection probability, so the weighted mean equals the sample mean here. Stratification can improve precision when strata are internally more homogeneous than the whole population; the gain is not automatic and should be evaluated with a design-based variance estimator.
 
 ## Interpretation and common pitfalls
 
@@ -61,4 +61,4 @@ The standard error of the stratified mean is smaller than it would be for a simp
 - Bland M. *An Introduction to Medical Statistics*. Oxford University Press.
 - Lohr L. *Sampling: Design and Analysis*. Wiley.
 
-*The planned "Bias and confounding" article in this library covers how selection bias — including sampling-related bias — distorts study results.*
+The [bias and confounding article](/biostatistics-library/study-design/bias-and-confounding.html) explains how selection bias, including sampling-related bias, distorts results.

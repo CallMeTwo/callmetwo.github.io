@@ -165,13 +165,19 @@
 <li><strong>Forgetting the seed (or using a different one per run)</strong> — any stochastic step without a recorded seed makes the reported standard error or split non-replayable.</li>
 <li><strong>Editing figures by hand</strong> — regenerating a figure from code and then nudging the legend in a drawing tool means the published figure is no longer what the code produces.</li>
 </ul>
+<p>Reproducibility has several layers: computational reproducibility reruns the same analysis, while independent replication asks whether new data support the conclusion. A seed alone may not guarantee bit-for-bit results across software versions, hardware, parallel algorithms, or nondeterministic libraries; record versions, environment, and data provenance, and state the expected reproducibility level. Keep personally identifiable data and credentials out of version control, use access controls and approved storage, and document any transformations that cannot be shared. A container or lockfile makes dependencies easier to reconstruct but does not preserve data access or guarantee future availability.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Leisch F, R-Core-Team. <em>Reproducible Research with R</em>. Springer.</li>
-<li>Wickham H, Grolemund G. <em>R for Data Science</em>. O&#39;Reilly Media.</li>
-<li>Bland M. <em>Statistics in Practice: A Guide to the Statistical Methods in Medicine and the Health Sciences</em>. Chapman and Hall.</li>
+<li><p>Peng RD. Reproducible research in computational science. <em>Science</em>. 2011;334:1226–1227. <a href="https://doi.org/10.1126/science.1213847" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1126/science.1213847</a></p>
+</li>
+<li><p>Leisch F, R-Core-Team. <em>Reproducible Research with R</em>. Springer.</p>
+</li>
+<li><p>Wickham H, Grolemund G. <em>R for Data Science</em>. O&#39;Reilly Media.</p>
+</li>
+<li><p>Bland M. <em>Statistics in Practice: A Guide to the Statistical Methods in Medicine and the Health Sciences</em>. Chapman and Hall.</p>
+</li>
 </ul>
-<p><em>The topic map&#39;s &quot;Study design&quot; section covers the upstream data-capture decisions that a reproducible pipeline inherits (article planned).</em></p>
+<p>The <a href="../study-design/sampling-methods.html">sampling methods article</a> discusses upstream data-collection choices that a reproducible pipeline inherits.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

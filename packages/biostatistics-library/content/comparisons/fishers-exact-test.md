@@ -58,9 +58,12 @@ is:
 | Treated | 2 | 4 | 6 |
 | Control | 0 | 6 | 6 |
 
-The chi-square test would have an expected count of 0 in one cell, so it is
-inappropriate. Fisher's exact test gives a one-sided p-value of about 0.073 and
-a two-sided p-value of about 0.13. There is a hint of an association but not
+The chi-square test has expected counts of 1 in each rash cell, so its
+large-sample approximation is unreliable. Conditional on the margins, Fisher's
+exact test gives a one-sided p-value of about 0.227 and a common probability-
+ordered two-sided p-value of about 0.455. Two-sided exact p-values can depend
+on the convention used to order tables, so identify the software when exact
+results matter. There is a hint of an association but not
 enough evidence at the 0.05 level — a reminder that with only 12 patients the
 study is underpowered to detect anything but a very large effect.
 
@@ -80,8 +83,8 @@ study is underpowered to detect anything but a very large effect.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Agresti A. *An Introduction to Categorical Data Analysis*. 3rd ed. Wiley, 2018.
+- Fisher RA. *The Design of Experiments*. Oliver and Boyd, 1935.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
   and Other Advanced Topics*. Brooks/Cole.
-- The topic map's *Comparing groups* section contrasts this with the chi-square
-  test for larger samples (article planned).
+- The [chi-square test article](/biostatistics-library/comparisons/chi-square-test.html) describes the large-sample counterpart.

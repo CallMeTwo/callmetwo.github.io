@@ -142,7 +142,7 @@
 <p>Add an interaction term when there is a substantive hypothesis or a strong prior signal of modification — not as a default. When the modifier is a continuous variable (e.g. age), consider whether the effect is plausibly linear in it or whether a categorical stratum (or spline) is more honest.</p>
 <h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
-<li><strong>Power</strong>: interaction terms are harder to detect than main effects — often requiring 3–4× the sample size for the same power, because the contrast is between two effects, each with its own error.</li>
+<li><strong>Power</strong>: interaction tests are often imprecise because they estimate a contrast between effects. There is no universal sample-size multiplier: power depends on exposure and modifier distributions, event rate or outcome variance, effect scale, and the interaction magnitude. Plan around a clinically meaningful interaction and report its interval.</li>
 <li><strong>Scale dependence</strong>: a &quot;non-significant&quot; interaction in logistic regression (log-odds scale) can coexist with a significant one on the risk-difference scale, and vice versa; state the scale explicitly.</li>
 <li><strong>Model specification</strong>: for continuous modifiers the product term assumes the modification is linear in the modifier; check by stratified estimates at several values.</li>
 <li><strong>Collinearity</strong>: the product term is correlated with its components; centring the continuous variables before forming X·Z makes the main-effect coefficients interpretable and slightly stabilises estimation.</li>
@@ -158,12 +158,19 @@
 <li>In logistic regression, testing for interaction by comparing nested models (with and without the product term) via a likelihood-ratio test is the standard approach; do not rely on the Wald p-value of the product term alone when n is small.</li>
 <li>Centring continuous predictors before forming a product term is cosmetic for the interaction estimate but important for the interpretability of the main effects; document it.</li>
 </ul>
+<p>For a binary outcome, additive interaction has direct public-health meaning: compare risks under the joint exposure states. With risk ratios, the relative excess risk due to interaction is RERI = RR11 − RR10 − RR01 + 1; RERI = 0 denotes no additive interaction under this measure. This is not interchangeable with a product-term test on the logistic (multiplicative odds) scale. Estimate stratum-specific risks or standardized contrasts with confidence intervals, and name the target scale before testing. In trials, subgroup estimates are often imprecise; formal interaction tests and prespecified hypotheses are more informative than comparing whether each subgroup&#39;s p-value crosses 0.05.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
-<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
-<li>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</li>
-<li><em>The companion article &quot;Simple and multiple linear regression&quot; covers the base model in which interaction terms are added (article planned).</em></li>
+<li><p>Knol MJ, VanderWeele TJ. Recommendations for presenting analyses of effect modification and interaction. <em>International Journal of Epidemiology</em>. 2012;41:514–520. <a href="https://doi.org/10.1093/ije/dyr218" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1093/ije/dyr218</a></p>
+</li>
+<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
+</li>
+<li><p>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</p>
+</li>
+<li><p>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</p>
+</li>
+<li><p>The companion <a href="simple-and-multiple-linear-regression.html">linear regression article</a> covers the base model to which interaction terms are added.</p>
+</li>
 </ul>
 
         </article>

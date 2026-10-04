@@ -52,10 +52,14 @@ At unblinding, 14% of 12-week values are missing. Because the SAP already mandat
 - **Pre-specifying everything is not the goal** — the SAP locks the primary and confirmatory analyses; it should leave honest room for genuinely new exploratory questions, clearly labelled as such.
 - **The SAP should be written with the data in hand, not before it** — the covariate list, the handling of missing data, and the multiplicity design should reflect what is actually feasible, which is why the lock comes late in the timeline, not at protocol start.
 
+An estimand makes the treatment question explicit through population, treatment conditions, outcome, handling of intercurrent events, and population-level summary. The analysis method should estimate that quantity; ITT is an important analysis principle but does not by itself specify how treatment discontinuation, rescue therapy, or death enters the estimand. Lock the SAP before unblinding to comparative outcomes, retain version history, and describe deviations with timing and rationale. A SAP should specify sensitivity analyses for key assumptions (especially missing data), multiplicity strategy, and analysis populations rather than naming a method only at a high level.
+
 ## References and further reading
+
+- ICH E9(R1). Addendum on estimands and sensitivity analysis in clinical trials. [Official guideline](https://www.ema.europa.eu/en/documents/scientific-guideline/ich-e9-r1-addendum-estimands-sensitivity-analysis-clinical-trials-guideline-statistical-principles-clinical-trials-step-5_en.pdf)
 
 - Chow SC, Shao J, Wang H, Lokhnygina Y. *Sample Size Calculations in Clinical Research*. Chapman and Hall/CRC.
 - ICH E9(R1). *Statistical Principles for Clinical Trials* (estimators and estimands).
 - Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott Williams & Wilkins.
 
-*The topic map's "Study design" section covers the trial protocol that the SAP complements (article planned).*
+The [randomized controlled trials article](../study-design/randomized-controlled-trials.html) covers the trial protocol that a SAP complements.

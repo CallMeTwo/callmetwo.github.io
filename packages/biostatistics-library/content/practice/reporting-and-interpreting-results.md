@@ -46,11 +46,18 @@ The correct interpretation is layered. First, the *effect*: vaccinated patients 
 - **Cherry-picking significant subgroup or secondary endpoints** as if they were the primary analysis; the guideline (and the SAP) exist to prevent exactly this.
 - **Conflating statistical and clinical significance** — a highly significant 1-point blood-pressure change may be clinically trivial, while a borderline 15-point change may be transformative; both require the effect size in context, not just the p.
 
+Reporting recommendations change over time: use the current design-specific checklist (CONSORT 2025 for randomized trials, STROBE for observational studies, STARD for diagnostic accuracy, and TRIPOD+AI for prediction models using regression or machine learning). A checklist supports completeness; it neither certifies low risk of bias nor substitutes for protocol/SAP access. Report denominators, missingness, analysis populations, effect scale, precision, and deviations from planned methods. Interpret intervals against a clinically meaningful threshold where one is defined, and avoid treating a 95% confidence interval as a 95% probability statement about the fixed parameter.
+
 ## References and further reading
+
+- CONSORT 2025. [BMJ 2025;389:e081123](https://doi.org/10.1136/bmj-2024-081123)
+- STROBE Statement. [The Lancet 2007;370:1453–1457](https://doi.org/10.1016/S0140-6736(07)61602-X)
+- Bossuyt PM, Reitsma JB, Bruns DE, et al. STARD 2015. [BMJ 2015;351:h5527](https://doi.org/10.1136/bmj.h5527)
+- Collins GS, Moons KGM, Dhiman P, et al. TRIPOD+AI statement. *BMJ*. 2024;385:e078378. [doi:10.1136/bmj-2023-078378](https://doi.org/10.1136/bmj-2023-078378)
 
 - Altman DG, Schulz KF, Moher D. *The CONSORT Statement: Revised Recommendations for Reporting Parallel Group Randomised Trials*. BMJ.
 - von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP. *The STROBE Statement: Strengthening the Reporting of Observational Studies in Epidemiology*.
 - Bland M. *Statistics in Practice: A Guide to the Statistical Methods in Medicine and the Health Sciences*. Chapman and Hall.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 
-*The topic map's "Statistical inference" section develops the confidence-interval logic used throughout (article planned).*
+The [confidence intervals article](../inference/confidence-intervals.html) develops the interval interpretation used throughout.

@@ -54,8 +54,10 @@ Both point to a strong association; the OR of 6.0 is a reasonable approximation 
 
 ## References and further reading
 
-- Rothman K, Greenland S, Lash TL. *Modern Epidemiology*. Lippincott Williams & Wilkins.
+- [STROBE Statement](https://www.strobe-statement.org/), reporting guidance for cohort, case-control, and cross-sectional studies.
+- Hernán MA, Robins JM. [*Causal Inference: What If*](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/). Chapman & Hall/CRC, 2020.
+- Rothman KJ, Greenland S, Lash TL, eds. *Modern Epidemiology*. 3rd ed. Lippincott Williams & Wilkins, 2008.
 - Klein J, Moeschberger M. *Survival Analysis: A Self-Learning Text*. Springer.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 
-*The planned "Bias and confounding" article in this library develops selection, information, and confounding bias in detail.*
+The [bias and confounding article](/biostatistics-library/study-design/bias-and-confounding.html) develops selection, information, and confounding bias in detail.

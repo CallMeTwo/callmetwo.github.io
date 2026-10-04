@@ -63,6 +63,18 @@ so small the sampling distribution is coarse, or when the data are a complete
 census of a finite population — in which case there is no sampling uncertainty
 about that population, only about further extrapolation.
 
+### Estimand, estimator and standard error
+
+An estimand states the population quantity sought, including the population,
+outcome, handling of events after treatment and summary measure. An estimator
+is the rule applied to data; the estimate is the realized value. This matters
+when discontinuation or death changes what a follow-up measurement means. The
+usual SE formula s/√n assumes independent observations. In a cluster sample,
+precision depends on both the number of clinics and within-clinic similarity;
+many patients from only a few clinics can add much less information than the
+same number spread across more clinics. A narrow confidence interval quantifies
+sampling uncertainty under the model, not bias or measurement error.
+
 ## Worked example
 
 A clinic measures HbA1c in a random sample of 340 adults with type 2 diabetes:
@@ -96,9 +108,12 @@ papers.
 
 ## References and further reading
 
+- ICH. [E9(R1): Estimands and sensitivity analysis in clinical trials](https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf).
+- Greenland S et al. [Statistical tests, P values, confidence intervals, and power](https://doi.org/10.1007/s10654-016-0149-3). *Eur J Epidemiol*. 2016.
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis and
   Other Advanced Topics*. Brooks/Cole.
 - Bland JM, Altman DG. *Statistics with Confidence*. BMJ Books.
-- The topic map's *Estimation and confidence intervals* section develops how
-  statistics are turned into bounds on parameters (article planned).
+- The sampling-distribution article in this library explains how repeated
+  sampling determines standard errors and interval estimates.

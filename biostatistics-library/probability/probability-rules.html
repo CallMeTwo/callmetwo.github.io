@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Probability essentials <span class="sep">/</span> <strong style="color:#273e3b">Probability rules</strong></div>
         <h1 class="article-title">Probability rules</h1>
         <p class="article-summary">How to combine event probabilities using the complement, the addition rule, and the multiplication rule in clinical settings.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#time-to-event-risks-and-repeated-opportunities">Time-to-event risks and repeated opportunities</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Probability is the language of uncertainty in medicine: it assigns a number between
@@ -167,6 +167,16 @@ sharing a cause (e.g. both linked to frailty) are usually dependent.</li>
 <li>The rules combine probabilities exactly, but the inputs still carry sampling
 uncertainty — a &quot;15%&quot; computed from a small study is an estimate.</li>
 </ul>
+<h3 id="time-to-event-risks-and-repeated-opportunities">Time-to-event risks and repeated opportunities</h3>
+<p>The multiplication rule is especially useful when a clinical outcome requires
+several sequential stages. If survival through stage two is conditional on
+surviving stage one, multiply P(survive stage one) by P(survive stage two | survive
+stage one); the second probability must use the survivors as its denominator.
+For repeated independent opportunities with event probability p, the chance
+of at least one event in n opportunities is 1−(1−p)ⁿ. This formula fails when
+risks change over time or opportunities are dependent, as often occurs when
+patients become more susceptible after an earlier event. For varying hazards,
+survival analysis models the changing instantaneous event rate instead.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>In a 100-patient ICU cohort, 10 patients (10%) developed ventilator-associated
 pneumonia (VAP), 8 (8%) developed a catheter-related bloodstream infection
@@ -193,11 +203,17 @@ occur; if a clinical question really means &quot;exactly one&quot;, subtract bot
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li><p>CDC. <a href="https://archive.cdc.gov/www_cdc_gov/csels/dsepd/ss1978/lesson3/section2.html" target="_blank" rel="noopener noreferrer" class="ext-link">Principles of Epidemiology: probability and rates</a>.</p>
+</li>
+<li><p>Rosner B. <a href="https://www.cengage.com/c/fundamentals-of-biostatistics-9e-rosner/" target="_blank" rel="noopener noreferrer" class="ext-link">Fundamentals of Biostatistics</a>.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
 </ul>
-<p><em>The topic map&#39;s &quot;Conditional probability&quot; article develops the multiplication
-rule with conditioning in detail (article planned).</em></p>
+<p>The <a href="conditional-probability-and-independence.html">conditional probability article</a>
+develops the multiplication rule in detail.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

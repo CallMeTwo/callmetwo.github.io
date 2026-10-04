@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Getting started <span class="sep">/</span> <strong style="color:#273e3b">Parameters and statistics</strong></div>
         <h1 class="article-title">Parameters and statistics</h1>
         <p class="article-summary">A parameter is a fixed population quantity; a statistic is the number computed from a sample that estimates it.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#estimand-estimator-and-standard-error">Estimand, estimator and standard error</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>parameter</strong> is a fixed, usually unknown, numerical quantity describing a
@@ -198,6 +198,16 @@ it as a population fact (&quot;the mean age of patients with X is 62&quot;), whe
 so small the sampling distribution is coarse, or when the data are a complete
 census of a finite population — in which case there is no sampling uncertainty
 about that population, only about further extrapolation.</p>
+<h3 id="estimand-estimator-and-standard-error">Estimand, estimator and standard error</h3>
+<p>An estimand states the population quantity sought, including the population,
+outcome, handling of events after treatment and summary measure. An estimator
+is the rule applied to data; the estimate is the realized value. This matters
+when discontinuation or death changes what a follow-up measurement means. The
+usual SE formula s/√n assumes independent observations. In a cluster sample,
+precision depends on both the number of clinics and within-clinic similarity;
+many patients from only a few clinics can add much less information than the
+same number spread across more clinics. A narrow confidence interval quantifies
+sampling uncertainty under the model, not bias or measurement error.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>A clinic measures HbA1c in a random sample of 340 adults with type 2 diabetes:
 sample mean 7.9%, sample standard deviation s = 1.8%. The standard error of
@@ -228,12 +238,20 @@ population&#39;s, no matter how large the sample.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and
-Other Advanced Topics</em>. Brooks/Cole.</li>
-<li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>The topic map&#39;s <em>Estimation and confidence intervals</em> section develops how
-statistics are turned into bounds on parameters (article planned).</li>
+<li><p>ICH. <a href="https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf" target="_blank" rel="noopener noreferrer" class="ext-link">E9(R1): Estimands and sensitivity analysis in clinical trials</a>.</p>
+</li>
+<li><p>Greenland S et al. <a href="https://doi.org/10.1007/s10654-016-0149-3" target="_blank" rel="noopener noreferrer" class="ext-link">Statistical tests, P values, confidence intervals, and power</a>. <em>Eur J Epidemiol</em>. 2016.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and
+Other Advanced Topics</em>. Brooks/Cole.</p>
+</li>
+<li><p>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
+</li>
+<li><p>The sampling-distribution article in this library explains how repeated
+sampling determines standard errors and interval estimates.</p>
+</li>
 </ul>
 
         </article>

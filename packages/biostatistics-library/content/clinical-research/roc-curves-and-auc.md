@@ -48,7 +48,11 @@ Interpretation: troponin ranks most MI patients above non-MI patients (AUC 0.89)
 - Reading a single point on the curve as "typical" performance; each point is one specific threshold, and the study's threshold is not necessarily yours.
 - Using the AUC as the only evaluation of a predictive model: a model with AUC 0.8 that is badly miscalibrated (predicts 80% when the true probability is 30%) can still be a poor basis for individual clinical decisions, even though its ranking is good.
 
+The AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case (with ties handled conventionally). It measures ranking, not calibration, clinical benefit, or performance at a chosen threshold. Compare AUCs on paired participants with methods that account for correlated ROC curves, and report confidence intervals. For clinical use, show sensitivity and specificity at prespecified thresholds and evaluate consequences across threshold probabilities, for example with decision-curve analysis. Case-control sampling can estimate ROC characteristics under appropriate spectrum assumptions, but does not provide predictive values or population calibration without prevalence information.
+
 ## References and further reading
+
+- DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated receiver operating characteristic curves. *Biometrics*. 1988;44:837–845. [doi:10.2307/2531595](https://doi.org/10.2307/2531595)
 
 - Vickers AJ, Elkin EB. "Understanding the area under the receiver operating characteristic curve." *BMC Medical Informatics and Decision Making*. 2006.
 - Bland M, Altman DG. *Statistics with Confidence*. BNP Books.

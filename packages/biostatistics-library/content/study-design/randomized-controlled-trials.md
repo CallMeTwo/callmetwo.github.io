@@ -39,7 +39,7 @@ A double-blind RCT randomised 500 patients with stage 2 hypertension to a new dr
 - New drug group: mean change −18.4 mmHg, SD 9.2, n = 248 (2 withdrawn).
 - Standard therapy group: mean change −12.1 mmHg, SD 8.9, n = 246 (4 withdrawn).
 
-Difference = −6.3 mmHg. Pooled SD = sqrt((9.2² + 8.9²)/2) ≈ 9.05. SE = 9.05 × sqrt(1/248 + 1/246) ≈ 0.81. 95% CI = −6.3 ± 1.96 × 0.81 = **−7.9 to −4.7 mmHg**. The 95% CI is [−7.9, −4.7] mmHg, which excludes 0, so the difference is statistically significant at the 0.05 level. Because the whole interval lies below −5 mmHg, the result is also clinically meaningful, not just statistically so: the data support a genuine, worthwhile superiority of the new drug at 12 weeks. The two withdrawals and four dropouts (1.6%) are too few to have changed the conclusion, and they were handled by keeping all participants in their original randomised group (ITT).
+Difference = −6.3 mmHg. Pooled SD = sqrt((9.2² + 8.9²)/2) ≈ 9.05. SE = 9.05 × sqrt(1/248 + 1/246) ≈ 0.81. 95% CI = −6.3 ± 1.96 × 0.81 = **−7.9 to −4.7 mmHg**. The interval excludes 0, supporting a difference in mean change at the 0.05 level under this complete-case model. Clinical importance depends on a threshold set in advance; if 5 mmHg is the threshold, this interval includes effects smaller than 5 mmHg, so the analysis does not establish that the benefit exceeds that amount. The summaries include 494 of 500 randomized participants. Assigning participants to their randomized group defines the ITT estimand but does not provide missing outcomes; the analysis must state how missing data were handled and assess sensitivity to those assumptions. The small amount of missing data may limit its impact, but counts alone do not demonstrate this.
 
 ## Interpretation and common pitfalls
 
@@ -52,9 +52,12 @@ Difference = −6.3 mmHg. Pooled SD = sqrt((9.2² + 8.9²)/2) ≈ 9.05. SE = 9.0
 
 ## References and further reading
 
+- Schulz KF, Altman DG, Moher D, for the CONSORT Group. [CONSORT 2010 statement](https://doi.org/10.1136/bmj.c332). *BMJ*. 2010;340:c332.
+- [ICH E9(R1): Estimands and Sensitivity Analysis in Clinical Trials](https://www.ich.org/page/efficacy-guidelines), guidance on defining treatment effects and handling intercurrent events.
+- [Cochrane Handbook, Chapter 8: Assessing risk of bias in a randomized trial](https://training.cochrane.org/handbook/current/chapter-08).
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Chow S, Lu W, Jiang H. *Sample Size Calculations in Clinical Research*. CRC Press.
 - Agresti A. *Categorical Data Analysis*. Wiley.
 - Higgins J, Thomas J, Chandler J, Cumpston M, Li T. *Cochrane Handbook for Systematic Reviews of Interventions*. Wiley.
 
-*The planned "Bias and confounding" article in this library covers how residual confounding and information bias can affect even a well-designed RCT.*
+The [bias and confounding article](/biostatistics-library/study-design/bias-and-confounding.html) explains how post-randomization deviations, missingness, and outcome measurement can still affect trial results.

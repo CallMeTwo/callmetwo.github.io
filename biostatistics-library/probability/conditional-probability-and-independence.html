@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Probability essentials <span class="sep">/</span> <strong style="color:#273e3b">Conditional probability and independence</strong></div>
         <h1 class="article-title">Conditional probability and independence</h1>
         <p class="article-summary">Probability of one event given another, how to test independence from a two-way table, and why conditioning changes the risk you see.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#confounding-stratification-and-causal-interpretation">Confounding, stratification and causal interpretation</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>conditional probability</strong> answers: <em>among those for whom B is known to be
@@ -162,6 +162,18 @@ treatment assignment being independent of prognosis without randomisation).</li>
 <li>Very small conditioning sets (e.g. &quot;given the patient is a 97-year-old smoker
 with CKD stage 4&quot;) make estimates unstable even when mathematically valid.</li>
 </ul>
+<h3 id="confounding-stratification-and-causal-interpretation">Confounding, stratification and causal interpretation</h3>
+<p>An overall conditional probability can differ from the within-stratum
+probabilities because the groups have different mixes of baseline risk. This
+is the arithmetic behind Simpson&#39;s paradox; it is not evidence that one of
+the tables is wrong. Stratifying on a genuine pre-exposure confounder can
+clarify an association, but conditioning on a collider (a common effect of
+exposure and outcome causes) can create a spurious association. Therefore,
+choose adjustment variables from the causal question and time order, not just
+from which covariates change a crude estimate. In a randomized trial,
+independence of assigned treatment and baseline prognosis is a design
+property in expectation, while chance imbalances remain possible in a finite
+sample.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>A hospital tracked readmission within 30 days. Of 400 discharged patients on a
 pharmacist follow-up programme, 120 were readmitted; of 1000 patients without it,
@@ -193,12 +205,19 @@ writing the wrong one reverses the whole interpretation.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</li>
+<li><p>Hernán MA, Robins JM. <a href="https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/" target="_blank" rel="noopener noreferrer" class="ext-link">Causal Inference: What If</a>. Chapman &amp; Hall/CRC; 2020.</p>
+</li>
+<li><p>Greenland S, Pearl J, Robins JM. <a href="https://doi.org/10.1097/00001648-199901000-00008" target="_blank" rel="noopener noreferrer" class="ext-link">Causal diagrams for epidemiologic research</a>. <em>Epidemiology</em>. 1999.</p>
+</li>
+<li><p>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</p>
+</li>
 </ul>
-<p><em>The &quot;Bayes&#39; theorem&quot; article in this library shows how conditioning updates
-beliefs with test results (article planned).</em></p>
+<p>The <a href="bayes-theorem.html">Bayes&#39; theorem article</a> shows how conditioning updates
+beliefs with test results.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

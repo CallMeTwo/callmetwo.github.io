@@ -42,7 +42,7 @@ Stratifying by smoking (a confounder: coffee drinkers are more likely to smoke, 
 | Smoker | 160 / 840 | 20 / 980 | 9.3 |
 | Non-smoker | 8 / 992 | 8 / 992 | 1.0 |
 
-Within each stratum the association is modest (and the smoker stratum is dominated by smoking itself). The crude OR of 6.5 is largely confounded: it mostly reflects the fact that heavy coffee drinkers are also more likely to be smokers. This is the classic demonstration that a strong crude association can be almost entirely explained by a single confounder.
+The stratum-specific ORs are 9.3 among smokers and 1.0 among non-smokers. Thus this constructed table does **not** show a crude association explained away by smoking: the Mantel–Haenszel common OR is about 6.7, close to the crude OR of 6.5. Instead, it illustrates why one should inspect stratum-specific effects before reporting a single adjusted estimate: the association differs sharply across strata, which could represent effect modification, sparse-data instability, or a deliberately simplified teaching example. A confounder can change a crude estimate, but its presence and magnitude should be assessed with causal knowledge and estimates, not inferred from whether a variable reaches statistical significance.
 
 ## Interpretation and common pitfalls
 
@@ -53,9 +53,11 @@ Within each stratum the association is modest (and the smoker stratum is dominat
 
 ## References and further reading
 
-- Rothman K, Greenland S, Lash TL. *Modern Epidemiology*. Lippincott Williams & Wilkins.
+- Hernán MA, Robins JM. [*Causal Inference: What If*](https://www.hsph.harvard.edu/miguel-hernan/causal-inference-book/). Chapman & Hall/CRC, 2020.
+- [STROBE Statement](https://www.strobe-statement.org/), reporting guidance for observational epidemiology.
+- Rothman KJ, Greenland S, Lash TL, eds. *Modern Epidemiology*. 3rd ed. Lippincott Williams & Wilkins, 2008.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Fox J. *Applied Regression Analysis and Generalized Linear Models*. SAGE Publications.
 - Hernán M, Robins J. *Causal Inference: What If*. Chapman & Hall/CRC.
 
-*The planned "Cohort and case-control studies" article in this library covers how control selection and follow-up introduce specific selection biases.*
+The [cohort and case-control article](/biostatistics-library/study-design/cohort-and-case-control-studies.html) covers how control selection and follow-up introduce specific selection biases.

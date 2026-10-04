@@ -35,6 +35,18 @@ A scatter plot is also the first look for *form*: before any regression, check w
 - A single influential point can swing r dramatically; compute r with and without suspected outliers before trusting either.
 - Both variables should be measured on continuous (or at least interval) scales for Pearson r; for mixed or ordinal data the rank correlation is safer, and for binary × continuous data the question is usually better posed as a group comparison.
 
+### Correlation, regression and agreement answer different questions
+
+Correlation is unitless and symmetric: it describes linear co-movement, not
+the expected change in an outcome per unit of exposure. A regression slope
+has units and depends on which variable is assigned as outcome. For Pearson
+correlation, one influential observation or restricted range can dominate the
+result; inspect residuals and the scatter before relying on a p-value. In
+method comparison, plot paired differences against paired means and examine
+their average and limits of agreement; proportional bias may require
+transformation or regression-based agreement methods. Repeated pairs from the
+same patient require methods that account for within-person dependence.
+
 ## Worked example
 
 Five patients had BMI (kg/m²) and systolic blood pressure (mmHg) of (21, 120), (23, 124), (25, 126), (27, 138), (29, 142). The means are x̄ = 25 and ȳ = 130. Deviation products: (−4)(−10) = 40, (−2)(−6) = 12, (0)(−4) = 0, (2)(8) = 16, (4)(12) = 48, summing to 116. The sums of squared deviations are Σ(xi − x̄)² = 40 and Σ(yi − ȳ)² = 360, so r = 116 / sqrt(40 × 360) = 116 / 120 ≈ 0.97.
@@ -53,8 +65,12 @@ If a sixth patient were added at (31, 122) — high BMI, low pressure — the sa
 
 ## References and further reading
 
+- Bland JM, Altman DG. [Statistical methods for assessing agreement between two methods of clinical measurement](https://doi.org/10.1016/S0140-6736(86)90837-8). *Lancet*. 1986.
+- Schober P, Boer C, Schwarte LA. [Correlation coefficients: appropriate use and interpretation](https://doi.org/10.1213/ANE.0000000000002864). *Anesth Analg*. 2018.
+
 - Bland M, Altman DG. *Statistics with Confidence*. BMJ Books.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Fox J. *Applied Regression Analysis and Generalized Linear Models*. Sage.
 
-*The "Statistical inference" section of the topic map develops confidence intervals for correlation and regression (article planned).*
+Confidence intervals for regression and association are developed in the
+library's inference articles.

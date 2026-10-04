@@ -45,6 +45,18 @@ them. Common pitfalls that statistics alone cannot fix:
 - **Overinterpretation** — reading causation into an observational
   association, or treating a p-value of 0.06 as "nearly significant".
 
+### Design, estimand and analysis belong together
+
+Start with a target population and a question that specifies the comparison,
+outcome and time horizon. The design determines what can be learned: random
+allocation can support a causal treatment contrast under appropriate conduct
+and follow-up, while an observational association requires attention to
+confounding and selection. Before seeing outcomes, an analysis plan should
+state the primary estimand, outcome scale, missing-data approach, subgroup
+analyses and sensitivity checks. Reporting an effect estimate with a
+confidence interval shows its magnitude and precision; neither a small p-value
+nor a complex model repairs poor measurement or a misaligned design.
+
 ## Worked example
 
 Suppose a trial randomises 200 patients to a new drug and 200 to placebo.
@@ -65,9 +77,12 @@ clinical importance.
 
 ## References and further reading
 
+- National Academies. [Reproducibility and Replicability in Science](https://doi.org/10.17226/25303). 2019.
+- STROBE Initiative. [Reporting guidance for observational studies](https://www.strobe-statement.org/).
+- CONSORT. [CONSORT 2025 statement](https://doi.org/10.1136/bmj-2024-081123). *BMJ*. 2025.
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
   and Other Advanced Topics*. Brooks/Cole.
 - See also: the [Confidence intervals](../inference/confidence-intervals.html)
-  article in the *Statistical inference* section, and the
-  [Biostatistics entry on Wikipedia](https://en.wikipedia.org/wiki/Biostatistics).
+  article in the *Statistical inference* section.

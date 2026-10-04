@@ -49,6 +49,7 @@ A trial randomises 500 patients with acute coronary syndrome to an intensive ant
 
 ## References and further reading
 
-- Greenland S, Rothman KJ, Lachin JM. *Modern Epidemiology*. Lippincott-Raven.
+- Cochrane. [Handbook, Chapter 6: Choosing effect measures and computing estimates of effect](https://training.cochrane.org/handbook/current/chapter-06).
+- Altman DG, Andersen PK. [Calculating the number needed to treat for trials where the outcome is time to an event](https://doi.org/10.1136/bmj.319.7223.1492). *BMJ*. 1999;319:1492–1495.
 - Agresti A. *Categorical Data Analysis*. Wiley.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.

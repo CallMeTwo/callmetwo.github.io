@@ -46,10 +46,14 @@ The bootstrap serves a complementary role in the same study: resample the 22 pat
 - **Permutation tests test a different null than the model** — the permutation p-value addresses the sharp null of zero effect; it does not estimate the size or uncertainty of the effect.
 - **Set a seed and report B** — resampling results are random; record the random seed, the number of replications, and the interval type (percentile vs BCa) so the analysis is reproducible.
 
+Bootstrap resampling approximates sampling variability by resampling observational units with replacement; it must preserve the design (for example, resample clusters for cluster-randomized or clustered data). The ordinary percentile interval can perform poorly for biased or skewed estimators, so BCa or studentized intervals may be preferable when justified. Permutation inference is exact under an exchangeability or randomization argument: in a randomized trial, permute according to the actual assignment scheme, not arbitrarily across participants. Neither method repairs confounding, measurement error, or a nonrepresentative sample.
+
 ## References and further reading
+
+- Efron B. Bootstrap methods: another look at the jackknife. *The Annals of Statistics*. 1979;7:1–26. [doi:10.1214/aos/1176344552](https://doi.org/10.1214/aos/1176344552)
 
 - Efron B, Tibshirani RJ. *An Introduction to the Bootstrap*. Chapman and Hall.
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Collett D. *Modelling Survival Data in Medical Research*. Chapman and Hall/CRC.
 
-*The topic map's "Statistical inference" section covers the frequentist framework these methods sit inside (article planned).*
+The [confidence intervals article](../inference/confidence-intervals.html) explains how resampling can support interval estimation.

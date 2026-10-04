@@ -59,7 +59,7 @@ Among cases, 160 were smokers; among controls, 40 were smokers. The table is:
 
 If smoking and cancer were independent, the expected number of smokers among
 cases would be (200 × 200) / 300 ≈ 133. The observed 160 is well above that. The
-chi-square statistic is about 58 on 1 degree of freedom, giving a p-value far
+Pearson chi-square statistic is 48 on 1 degree of freedom, giving a p-value far
 below 0.001 — strong evidence of an association. The odds ratio
 (160×60)/(40×40) = 6.0 quantifies it: cases had about six times the odds of
 having smoked compared with controls.
@@ -78,8 +78,8 @@ having smoked compared with controls.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- Agresti A. *An Introduction to Categorical Data Analysis*. 3rd ed. Wiley, 2018.
+- Lang TA, Altman DG. [The SAMPL guidelines](https://www.equator-network.org/reporting-guidelines/sampl/), statistical reporting guidance.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
   and Other Advanced Topics*. Brooks/Cole.
-- The topic map's *Comparing groups* section contrasts this with Fisher's exact
-  test for small samples (article planned).
+- The [Fisher's exact test article](/biostatistics-library/comparisons/fishers-exact-test.html) covers inference for sparse 2×2 tables.

@@ -56,14 +56,17 @@ test would be wrong because it treats paired observations as independent.
 
 ## Worked example
 
-In 250 patients with hypertension, 120 had a blood pressure above target before
-a medication change and 95 did. After six months, 70 of the 120 who were
+In 215 patients with hypertension, 120 had a blood pressure above target before
+a medication change and 95 were at target. After six months, 70 of the 120 who were
 previously above target were still above target (a = 70) and 50 fell to target
 (b = 50); of the 95 who were at target, 15 went above target (c = 15) and 80
 stayed at target (d = 80). The discordant pairs are b = 50 and c = 15. McNemar's
 statistic is (50 - 15)^2 / (50 + 15) = 1225 / 65 ≈ 18.8, giving a p-value well
-below 0.001: far more patients improved than worsened, so the proportion above
-target fell significantly after the change.
+below 0.001: far more patients moved from above target to at target than the
+reverse. The marginal proportion above target changed from 120/215 = 55.8% to
+85/215 = 39.5%, a decrease of 16.3 percentage points. This before-and-after
+association alone does not establish that the medication change caused the
+improvement; secular changes and co-interventions remain possible.
 
 ## Interpretation and common pitfalls
 
@@ -79,7 +82,7 @@ target fell significantly after the change.
 
 ## References and further reading
 
-- Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
+- McNemar Q. [Note on the sampling error of the difference between correlated proportions or percentages](https://doi.org/10.1007/BF02295996). *Psychometrika*. 1947;12:153–157.
+- Agresti A. *An Introduction to Categorical Data Analysis*. 3rd ed. Wiley, 2018.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Regression Analysis
   and Other Advanced Topics*. Brooks/Cole.
-- Bland J, Altman D. "Some methods of clinical data analysis." *BMJ*. 2003.

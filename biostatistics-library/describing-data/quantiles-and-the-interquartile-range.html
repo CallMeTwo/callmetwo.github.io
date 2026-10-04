@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Descriptive statistics <span class="sep">/</span> <strong style="color:#273e3b">Quantiles and the interquartile range</strong></div>
         <h1 class="article-title">Quantiles and the interquartile range</h1>
         <p class="article-summary">Percentiles, quartiles and the IQR as robust summaries of position and spread, plus Tukey fences for outlier screening.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#estimating-and-comparing-quantiles">Estimating and comparing quantiles</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>quantile</strong> cuts a distribution into equal-probability pieces: the p-th quantile is the value below which a proportion p of observations falls. The 50th percentile (p = 0.5) is the median; the 25th and 75th percentiles are the first and third quartiles (Q1, Q3); the 95th percentile (P95) is the value exceeded by only 5% of the sample. The <strong>interquartile range (IQR)</strong> is Q3 − Q1, the width of the box containing the middle 50% of the data.</p>
@@ -162,6 +162,16 @@
 <li>Tukey&#39;s 1.5×IQR fences are a screening heuristic, not a test of abnormality; in a small or skewed sample, values beyond the fence can be entirely expected and legitimate.</li>
 <li>Percentiles are order statistics of the sample, not properties of a fitted model: two samples from the same population can give noticeably different P95s.</li>
 </ul>
+<h3 id="estimating-and-comparing-quantiles">Estimating and comparing quantiles</h3>
+<p>Sample quantiles are order-statistic estimates, and software conventions
+interpolate differently between adjacent ordered values. For a reproducible
+report, specify the algorithm when exact quartile values matter and use the
+same method across groups. A confidence interval for a population quantile
+can be built from binomial order-statistic theory; it is often wide in the
+tails unless the sample is large. In survival data, ordinary sample
+percentiles are inappropriate when some participants are censored before the
+quantile is reached; Kaplan–Meier methods estimate time quantiles while
+accounting for censoring under independent censoring assumptions.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>Eleven patients with suspected hypercholesterolaemia had total cholesterol (mmol/L) of 3.8, 4.1, 4.4, 4.6, 4.9, 5.2, 5.5, 5.8, 6.2, 6.9, 8.4. The median (6th value) is 5.2; the median of the lower five values is Q1 = 4.4 and the median of the upper five is Q3 = 5.8, so the IQR is 5.8 − 4.4 = 1.4 mmol/L. Equivalently, 50% of patients had cholesterol below 5.2 and 75% below 5.8 mmol/L — the reading a clinician most often wants.</p>
 <p>Tukey&#39;s fences are 4.4 − 1.5×1.4 = 2.3 and 5.8 + 1.5×1.4 = 7.9. The 8.4 mmol/L result lies above the upper fence and is flagged for review — worth checking for an acute-phase illness, a lab artefact, or a genuinely different patient, rather than deleting automatically. The summary &quot;median 5.2 (IQR 4.4–5.8) mmol/L&quot; tells a more faithful story than the mean of 5.4, which is pulled upward by the single high value. Note that with 11 values the &quot;exclusive halves&quot; method is used here (drop the median, take the median of each remaining half); inclusive methods give slightly different Q1/Q3 — another reason to state the method.</p>
@@ -175,11 +185,19 @@
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>Greenland S, Rothman K, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
+<li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda352.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Quantiles</a>.</p>
+</li>
+<li><p>Hyndman RJ, Fan Y. <a href="https://doi.org/10.1080/00031305.1996.10473566" target="_blank" rel="noopener noreferrer" class="ext-link">Sample quantiles in statistical packages</a>. <em>The American Statistician</em>. 1996.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
+</li>
+<li><p>Greenland S, Rothman K, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</p>
+</li>
 </ul>
-<p><em>The &quot;Histograms and box plots&quot; article in this library shows these quantities plotted (article planned).</em></p>
+<p>The <a href="histograms-and-box-plots.html">histograms and box plots article</a> shows
+these quantities graphically.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

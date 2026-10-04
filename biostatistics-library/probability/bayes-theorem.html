@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Probability essentials <span class="sep">/</span> <strong style="color:#273e3b">Bayes’ theorem</strong></div>
         <h1 class="article-title">Bayes’ theorem</h1>
         <p class="article-summary">How to update the probability of disease after a test result using prevalence, sensitivity, and specificity.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#odds-form-and-likelihood-ratios">Odds form and likelihood ratios</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Bayes&#39; theorem converts what you knew <em>before</em> a test (the <strong>prior</strong> or pre-test
@@ -161,6 +161,16 @@ true disease state; using the same assay twice does not halve the error rate.</l
 <li>The theorem is exact; all error comes from the input estimates and from the
 population assumptions behind them.</li>
 </ul>
+<h3 id="odds-form-and-likelihood-ratios">Odds form and likelihood ratios</h3>
+<p>Bayes&#39; rule can also be written as posterior odds = prior odds × likelihood
+ratio. For a positive result, LR+ = sensitivity/(1−specificity); for a
+negative result, LR− = (1−sensitivity)/specificity. This form makes sequential
+updating transparent: multiply odds by each test&#39;s likelihood ratio only when
+tests are conditionally independent given disease status, or when a joint
+model supplies the appropriate combined likelihood. Test performance can
+also change with disease severity and setting, so likelihood ratios estimated
+in a case-control sample should not be assumed to transfer unchanged to
+screening.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>A blood test screens for a disease with 1% prevalence, 95% sensitivity, and 99%
 specificity. In 10,000 screened people:</p>
@@ -191,12 +201,19 @@ changes; update the prior accordingly.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</li>
-<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
+<li><p>Deeks JJ, Altman DG. <a href="https://doi.org/10.1136/bmj.329.7458.168" target="_blank" rel="noopener noreferrer" class="ext-link">Diagnostic tests 4: likelihood ratios</a>. <em>BMJ</em>. 2004.</p>
+</li>
+<li><p>Altman DG, Bland JM. <a href="https://doi.org/10.1136/bmj.309.6947.102" target="_blank" rel="noopener noreferrer" class="ext-link">Diagnostic tests 2: predictive values</a>. <em>BMJ</em>. 1994.</p>
+</li>
+<li><p>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</p>
+</li>
+<li><p>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
 </ul>
-<p><em>The &quot;Conditional probability and independence&quot; article in this library covers
-the underlying probability calculus (article planned).</em></p>
+<p>The <a href="conditional-probability-and-independence.html">conditional probability article</a>
+covers the underlying probability calculus.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

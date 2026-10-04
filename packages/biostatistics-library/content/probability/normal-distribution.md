@@ -45,6 +45,20 @@ Its practical properties:
   result) is different from using it for a *distribution of sample means* — the
   latter is covered by the central limit theorem and is far more forgiving.
 
+### Reference intervals are not confidence intervals
+
+A central 95% reference interval describes the middle 95% of values in a
+defined reference population; it does not mean that 95% of patients are
+healthy or that values outside it are necessarily diseased. A confidence
+interval for the population mean instead quantifies uncertainty in an
+estimated parameter. In laboratory practice, reference intervals are often
+estimated from a selected healthy sample using the 2.5th and 97.5th
+percentiles; the mean ± 1.96 SD shortcut requires an approximately normal
+distribution. Partitioning by age or sex may be needed when distributions
+differ, but subgroup intervals need enough observations. For bounded or
+strongly skewed measures, use methods suited to their distribution rather than
+forcing a normal model.
+
 ## Worked example
 
 In a clinic population, systolic blood pressure has mean μ = 120 mmHg and
@@ -79,10 +93,13 @@ distribution (say, one with a long upper tail) would put far more than 9% above
 
 ## References and further reading
 
+- CLSI. [EP28: Defining, establishing, and verifying reference intervals in the clinical laboratory](https://clsi.org/standards/products/method-evaluation/documents/ep28/).
+- NIST/SEMATECH. [Normal probability plot](https://www.itl.nist.gov/div898/handbook/eda/section3/normprpl.htm).
+
 - Rosner B. *Fundamentals of Biostatistics*. Cengage Learning.
 - Bland JM, Altman DG. *Medical Statistics: A Companion Guide*. Nelson.
 - Kleinbaum D, Kupper L, Muller K, Nizam A. *Applied Biostatistics*. Pearson.
 
-*The "Sampling distributions and the central limit theorem" article in this
-library explains why sample means are normal even when individual values are not
-(article planned).*
+The [sampling distributions article](sampling-distributions-and-the-central-limit-theorem.html)
+explains why sample means can be approximately normal even when individual
+values are not.

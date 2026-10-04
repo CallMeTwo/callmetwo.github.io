@@ -181,12 +181,19 @@
 <li>Reading a single point on the curve as &quot;typical&quot; performance; each point is one specific threshold, and the study&#39;s threshold is not necessarily yours.</li>
 <li>Using the AUC as the only evaluation of a predictive model: a model with AUC 0.8 that is badly miscalibrated (predicts 80% when the true probability is 30%) can still be a poor basis for individual clinical decisions, even though its ranking is good.</li>
 </ul>
+<p>The AUC is the probability that a randomly selected case receives a higher score than a randomly selected non-case (with ties handled conventionally). It measures ranking, not calibration, clinical benefit, or performance at a chosen threshold. Compare AUCs on paired participants with methods that account for correlated ROC curves, and report confidence intervals. For clinical use, show sensitivity and specificity at prespecified thresholds and evaluate consequences across threshold probabilities, for example with decision-curve analysis. Case-control sampling can estimate ROC characteristics under appropriate spectrum assumptions, but does not provide predictive values or population calibration without prevalence information.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Vickers AJ, Elkin EB. &quot;Understanding the area under the receiver operating characteristic curve.&quot; <em>BMC Medical Informatics and Decision Making</em>. 2006.</li>
-<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BNP Books.</li>
-<li>Collett D. <em>Modelling Binary Data</em>. CRC Press.</li>
-<li>The library&#39;s &quot;Sensitivity, specificity and predictive values&quot; article builds the 2×2 table that each ROC point summarises.</li>
+<li><p>DeLong ER, DeLong DM, Clarke-Pearson DL. Comparing the areas under two or more correlated receiver operating characteristic curves. <em>Biometrics</em>. 1988;44:837–845. <a href="https://doi.org/10.2307/2531595" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.2307/2531595</a></p>
+</li>
+<li><p>Vickers AJ, Elkin EB. &quot;Understanding the area under the receiver operating characteristic curve.&quot; <em>BMC Medical Informatics and Decision Making</em>. 2006.</p>
+</li>
+<li><p>Bland M, Altman DG. <em>Statistics with Confidence</em>. BNP Books.</p>
+</li>
+<li><p>Collett D. <em>Modelling Binary Data</em>. CRC Press.</p>
+</li>
+<li><p>The library&#39;s &quot;Sensitivity, specificity and predictive values&quot; article builds the 2×2 table that each ROC point summarises.</p>
+</li>
 </ul>
 
         </article>

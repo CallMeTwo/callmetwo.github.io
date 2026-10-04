@@ -193,13 +193,19 @@ right and clusters are reasonably sized.</li>
 treating the subject as a cluster — the correlation estimate is then
 unstable; consider modelling the clustering factor directly instead.</li>
 </ul>
+<p>GEE targets a population-averaged mean, which generally differs from a subject-specific effect in a nonlinear model such as logistic regression. The sandwich variance is asymptotically robust to a misspecified working correlation when the mean model is correct and the number of independent clusters is sufficiently large; with few clusters, ordinary sandwich intervals can be too narrow. Consider small-sample corrections or cluster-level methods, and report the number and size distribution of clusters. GEE handles within-cluster correlation, not confounding caused by cluster assignment or informative cluster size.</p>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Diggle P, Heagerty P, Liang K, Zeger S. <em>Analysis of Longitudinal Data</em>.
-Oxford University Press.</li>
-<li>Liang K, Zeger S. Longitudinal data analysis using generalized estimating
-equations. <em>Biometrics</em> 1986;42:1056-1070.</li>
-<li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
+<li><p>Liang KY, Zeger SL. Longitudinal data analysis using generalized linear models. <em>Biometrika</em>. 1986;73:13–22. <a href="https://doi.org/10.1093/biomet/73.1.13" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1093/biomet/73.1.13</a></p>
+</li>
+<li><p>Diggle P, Heagerty P, Liang K, Zeger S. <em>Analysis of Longitudinal Data</em>.
+Oxford University Press.</p>
+</li>
+<li><p>Liang K, Zeger S. Longitudinal data analysis using generalized estimating
+equations. <em>Biometrics</em> 1986;42:1056-1070.</p>
+</li>
+<li><p>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</p>
+</li>
 </ul>
 <p><em>The &quot;Mixed-effects models&quot; article develops the subject-specific
 counterpart to the population-averaged perspective used here.</em></p>

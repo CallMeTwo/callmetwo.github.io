@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Common distributions <span class="sep">/</span> <strong style="color:#273e3b">Sampling distributions and the central limit theorem</strong></div>
         <h1 class="article-title">Sampling distributions and the central limit theorem</h1>
         <p class="article-summary">Why sample means are approximately normal, how the standard error shrinks with sample size, and what this means for confidence intervals.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#when-the-clt-approximation-is-and-is-not-enough">When the CLT approximation is and is not enough</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>sampling distribution</strong> is the distribution of a statistic (mean, proportion,
@@ -167,6 +167,17 @@ different arguments.</li>
 be skewed, bimodal, or count-like; the distribution of the mean is what
 becomes normal.</li>
 </ul>
+<h3 id="when-the-clt-approximation-is-and-is-not-enough">When the CLT approximation is and is not enough</h3>
+<p>For independent observations with finite variance, the CLT gives an
+asymptotic approximation, not a universal sample-size cutoff. Strong skew,
+heavy tails, rare binary outcomes and influential observations can require
+much larger samples. For a sample proportion, the normal approximation needs
+both expected successes np and failures n(1−p) to be adequate; exact or score
+intervals behave better near 0 or 1. With clustered observations, the relevant
+uncertainty includes the design effect; with serial correlation, the nominal n
+overstates independent information. A bootstrap can estimate sampling
+uncertainty for some statistics, but it still requires a resampling scheme
+that respects the study design and cannot fix biased sampling.</p>
 <h2 id="worked-example">Worked example</h2>
 <p>In a diabetes clinic, HbA1c values are somewhat right-skewed, with population
 mean μ = 7.5% and standard deviation σ = 2.0%. A sample of n = 49 patients gives
@@ -201,12 +212,19 @@ confidence intervals too narrow.</li>
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</li>
-<li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
+<li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/eda3661.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Normal distribution and central limit theorem</a>.</p>
+</li>
+<li><p>Rice JA. <em>Mathematical Statistics and Data Analysis</em>. 3rd ed. Cengage Learning; 2006.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Bland JM, Altman DG. <em>Medical Statistics: A Companion Guide</em>. Nelson.</p>
+</li>
+<li><p>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</p>
+</li>
 </ul>
-<p><em>The topic map&#39;s &quot;Statistical inference&quot; section develops hypothesis testing and
-confidence intervals in detail (article planned).</em></p>
+<p>The articles on estimation and confidence intervals in this library build on
+these sampling-distribution ideas.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

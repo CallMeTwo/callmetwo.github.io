@@ -109,7 +109,7 @@
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Exploring distributions <span class="sep">/</span> <strong style="color:#273e3b">Histograms and box plots</strong></div>
         <h1 class="article-title">Histograms and box plots</h1>
         <p class="article-summary">Two indispensable plots for seeing distribution shape, skew, outliers and group differences at a glance.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h3"><a href="#reading-plots-with-the-measurement-process-in-mind">Reading plots with the measurement process in mind</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Numbers summarise; plots reveal. The <strong>histogram</strong> bins a continuous variable into adjacent intervals and draws a bar for each bin&#39;s count (or density). The binning is the key design choice: too few bins smear real structure, too many turn random fluctuation into apparent structure. A useful starting point is about sqrt(n) bins (or Sturges&#39; rule, 1 + log2(n)); the final width should be chosen by inspecting the shape at two or three candidate widths, not by the rule alone. On the y-axis, counts answer &quot;how many?&quot;; density (counts divided by bin width and by n) lets histograms with different bin widths be compared on the same axis, which is the safer choice when re-binning.</p>
@@ -162,8 +162,17 @@
 <li>Overlapping boxes do not prove distributions are equal, and non-overlapping ones do not prove a significant difference; plots motivate the test, they do not replace it.</li>
 <li>Both plots describe one sample; they say nothing about how stable the shape is across samples, which is what the inference section&#39;s sampling variability covers.</li>
 </ul>
+<h3 id="reading-plots-with-the-measurement-process-in-mind">Reading plots with the measurement process in mind</h3>
+<p>For unequal-width bins, bar area—not height—should represent frequency; plot
+density so comparisons remain meaningful. If groups have different sample
+sizes, raw-count histograms can make the larger group look more variable; use
+density or relative frequency and display each group&#39;s n. The 1.5×IQR fences
+are descriptive flags, not confidence limits or tests. For small groups,
+overlay individual observations because quartiles can conceal multimodality
+and sparse clusters. Check unusual points against units, instrument limits and
+source records before deciding whether they are errors.</p>
 <h2 id="worked-example">Worked example</h2>
-<p>Ten patients had postoperative haemoglobin (g/L) of 10.8, 11.2, 11.5, 12.0, 12.4, 12.8, 13.1, 13.6, 14.0, 16.9. A histogram with 1 g/L bins gives: 11–12: 3, 12–13: 4, 13–14: 2, 16–17: 1 — a right tail with a conspicuous gap between 14 and 17.</p>
+<p>Ten patients had postoperative haemoglobin (g/L) of 10.8, 11.2, 11.5, 12.0, 12.4, 12.8, 13.1, 13.6, 14.0, 16.9. Using left-closed 1 g/L bins, counts are: [10,11): 1, [11,12): 2, [12,13): 3, [13,14): 2, [14,15): 1, [15,16): 0, [16,17): 1 — a right tail with a gap between 15 and 16.</p>
 <p>The box plot five-number summary: median = (12.4 + 12.8)/2 = 12.6; Q1 = 11.5; Q3 = 13.6; IQR = 2.1. The whisker fences are 11.5 − 3.15 = 8.35 and 13.6 + 3.15 = 16.75, so the 16.9 g/L value sits just beyond the upper fence and is drawn as an individual point. The report would read: &quot;median 12.6 (IQR 11.5–13.6) g/L, with one value (16.9 g/L) beyond the upper Tukey fence&quot; — a single patient worth a clinical look rather than an automatic deletion.</p>
 <p>Both plots tell the same story: a mildly right-skewed distribution with one high value. The histogram shows the gap and the tail; the box plot pins down the median, the IQR and the flag. Reporting the median and IQR alongside the plot (rather than the mean and SD) is the consistent choice for data like these.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
@@ -177,11 +186,19 @@
 </ul>
 <h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
-<li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
-<li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
-<li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
+<li><p>Tukey JW. <a href="https://www.worldcat.org/oclc/3058187" target="_blank" rel="noopener noreferrer" class="ext-link">Exploratory Data Analysis</a>. Addison-Wesley; 1977.</p>
+</li>
+<li><p>NIST/SEMATECH. <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/histogra.htm" target="_blank" rel="noopener noreferrer" class="ext-link">Histogram</a> and <a href="https://www.itl.nist.gov/div898/handbook/eda/section3/boxplot.htm" target="_blank" rel="noopener noreferrer" class="ext-link">box plot</a> guidance.</p>
+</li>
+<li><p>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</p>
+</li>
+<li><p>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</p>
+</li>
+<li><p>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</p>
+</li>
 </ul>
-<p><em>The &quot;Quantiles and the interquartile range&quot; article in this library defines the five-number summary used by the box plot (article planned).</em></p>
+<p>The <a href="quantiles-and-the-interquartile-range.html">quantiles and interquartile range article</a>
+defines the five-number summary used by the box plot.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">

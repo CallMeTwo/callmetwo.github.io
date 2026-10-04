@@ -155,19 +155,19 @@
 <li><strong>Response rate.</strong> A high non-response rate, particularly if related to the outcome (sick people are less likely to attend a screening), introduces selection bias regardless of the sampling method.</li>
 <li><strong>Intra-class correlation (ICC) in cluster sampling.</strong> Individuals within the same cluster tend to be more similar to each other than to individuals in other clusters; the effective sample size is smaller than the raw count, and standard errors must be adjusted.</li>
 <li><strong>Stratification must be on a variable related to the outcome.</strong> Stratifying by a variable unrelated to the outcome adds cost and complexity without reducing variance.</li>
-<li><strong>Non-probability samples</strong> cannot support population-level inference; they are acceptable for pilot studies, qualitative work, or when the research question is explicitly limited to the sampled group.</li>
+<li><strong>Non-probability samples</strong> do not justify design-based population estimates on their own. Generalising beyond the sample requires explicit assumptions about selection and outcomes, often with adjustment or external population data; convenience samples can still be useful for feasibility work or descriptive questions about participants themselves.</li>
 </ul>
 <h2 id="worked-example">Worked example</h2>
-<p>A hospital wants to estimate the mean HbA1c of its adult diabetic outpatients. The practice has 4,000 registered diabetic adults: 1,200 aged 18–40, 2,000 aged 41–60, 1,800 aged 61+.</p>
+<p>A hospital wants to estimate mean HbA1c among its adult diabetic outpatients. Its sampling frame has 5,000 registered adults: 1,200 aged 18–40, 2,000 aged 41–60, and 1,800 aged 61+.</p>
 <p>Using <strong>stratified sampling</strong> with proportional allocation and a desired total sample of 400:</p>
 <ul>
-<li>18–40: n = 400 × 1,200/4,000 = 120</li>
-<li>41–60: n = 400 × 2,000/4,000 = 200</li>
-<li>61+: n = 400 × 1,800/4,000 = 180</li>
+<li>18–40: n = 400 × 1,200/5,000 = 96</li>
+<li>41–60: n = 400 × 2,000/5,000 = 160</li>
+<li>61+: n = 400 × 1,800/5,000 = 144</li>
 </ul>
-<p>A random sample of 120, 200, and 180 patients is drawn from each stratum. Suppose the mean HbA1c is 7.4% (SD 1.1) in the 18–40 group, 8.1% (SD 1.3) in the 41–60 group, and 8.5% (SD 1.4) in the 61+ group.</p>
-<p>Stratified mean = (120/400 × 7.4) + (200/400 × 8.1) + (180/400 × 8.5) = 2.22 + 4.05 + 3.825 = <strong>8.1%</strong>.</p>
-<p>The standard error of the stratified mean is smaller than it would be for a simple random sample of 400 because the between-stratum variance is large; stratification on age (strongly related to HbA1c) improves precision.</p>
+<p>A random sample of 96, 160, and 144 patients is drawn from the respective strata. Suppose the mean HbA1c is 7.4% (SD 1.1) in the 18–40 group, 8.1% (SD 1.3) in the 41–60 group, and 8.5% (SD 1.4) in the 61+ group.</p>
+<p>Stratified mean = (96/400 × 7.4) + (160/400 × 8.1) + (144/400 × 8.5) = 1.776 + 3.240 + 3.060 = <strong>8.08%</strong>.</p>
+<p>Using these illustrative SDs and ignoring finite-population corrections, the estimated SE is sqrt[(0.24² × 1.1²/96) + (0.40² × 1.3²/160) + (0.36² × 1.4²/144)] ≈ 0.065 percentage points. Proportional allocation gives each person the same selection probability, so the weighted mean equals the sample mean here. Stratification can improve precision when strata are internally more homogeneous than the whole population; the gain is not automatic and should be evaluated with a design-based variance estimator.</p>
 <h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Confusing the sample frame with the target population.</strong> A sample of hospital inpatients cannot support inferences about the general community; the target population must be stated explicitly in the methods section.</li>
@@ -182,7 +182,7 @@
 <li>Bland M. <em>An Introduction to Medical Statistics</em>. Oxford University Press.</li>
 <li>Lohr L. <em>Sampling: Design and Analysis</em>. Wiley.</li>
 </ul>
-<p><em>The planned &quot;Bias and confounding&quot; article in this library covers how selection bias — including sampling-related bias — distorts study results.</em></p>
+<p>The <a href="/biostatistics-library/study-design/bias-and-confounding.html">bias and confounding article</a> explains how selection bias, including sampling-related bias, distorts results.</p>
 
         </article>
         <nav class="article-pager" aria-label="Article navigation">
