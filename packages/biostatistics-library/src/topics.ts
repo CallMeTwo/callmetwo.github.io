@@ -17,7 +17,8 @@ export const sections: TopicSection[] = [
     id: 'foundations', title: 'Foundations', description: 'The language of data and statistical thinking.',
     groups: [
       { title: 'Getting started', topics: ['What is biostatistics?', 'Populations and samples', 'Parameters and statistics'] },
-      { title: 'Understanding variables', topics: ['Categorical and numerical data', 'Scales of measurement', 'Data quality and coding'] }
+      { title: 'Understanding variables', topics: ['Categorical and numerical data', 'Scales of measurement', 'Data quality and coding'] },
+      { title: 'Measurement and instruments', topics: ['Validity, reliability and validation of measurement tools'] }
     ]
   },
   {
@@ -38,14 +39,16 @@ export const sections: TopicSection[] = [
     id: 'study-design', title: 'Study design & sampling', description: 'Connect the research question to the data you collect.',
     groups: [
       { title: 'Designing a study', topics: ['Cross-sectional studies', 'Cohort and case-control studies', 'Randomized controlled trials'] },
-      { title: 'Planning and validity', topics: ['Sampling methods', 'Bias and confounding', 'Sample size and statistical power'] }
+      { title: 'Population and non-randomized designs', topics: ['Ecological studies', 'Non-randomized intervention studies'] },
+      { title: 'Planning and validity', topics: ['Sampling methods', 'Bias and confounding', 'Sample size and statistical power', 'Interim analysis and monitoring in randomized trials'] }
     ]
   },
   {
     id: 'inference', title: 'Statistical inference', description: 'Estimate effects and reason about evidence.',
     groups: [
       { title: 'Estimation', topics: ['Point estimates and standard errors', 'Confidence intervals', 'Effect sizes'] },
-      { title: 'Hypothesis testing', topics: ['Null and alternative hypotheses', 'P-values and significance levels', 'Type I and Type II errors', 'Multiple testing'] }
+      { title: 'Hypothesis testing', topics: ['Null and alternative hypotheses', 'P-values and significance levels', 'Type I and Type II errors', 'Multiple testing'] },
+      { title: 'Inference frameworks', topics: ['Frequentist and Bayesian inference'] }
     ]
   },
   {
@@ -63,24 +66,34 @@ export const sections: TopicSection[] = [
     ]
   },
   {
+    id: 'machine-learning', title: 'Machine learning & AI for health data', description: 'Learn prediction and pattern-discovery methods, from classic algorithms to deep learning.',
+    groups: [
+      { title: 'Supervised learning', topics: ['Introduction to machine learning for health data', 'Decision trees', 'Random forests', 'Gradient boosting', 'K-nearest neighbors'] },
+      { title: 'Unsupervised learning', topics: ['Clustering in health data'] },
+      { title: 'Neural networks and deep learning', topics: ['Neural networks for health data', 'Multilayer perceptrons', 'Convolutional neural networks', 'Recurrent neural networks', 'Transformers for health data'] }
+    ]
+  },
+  {
     id: 'survival', title: 'Survival & longitudinal data', description: 'Work with time to events and repeated observations.',
     groups: [
       { title: 'Time-to-event analysis', topics: ['Censoring and survival functions', 'Kaplan–Meier curves and the log-rank test', 'Cox proportional hazards model'] },
-      { title: 'Repeated measurements', topics: ['Repeated-measures designs', 'Mixed-effects models', 'Generalized estimating equations'] }
+      { title: 'Repeated measurements', topics: ['Repeated-measures designs', 'Mixed-effects models', 'Generalized estimating equations'] },
+      { title: 'Temporal and spatial data', topics: ['Time-series analysis in health research', 'Spatiotemporal analysis'] }
     ]
   },
   {
     id: 'clinical-research', title: 'Clinical research & evidence', description: 'Organize methods used to evaluate health evidence.',
     groups: [
-      { title: 'Risk and diagnostic accuracy', topics: ['Risk ratios and odds ratios', 'Absolute risk differences', 'Sensitivity, specificity and predictive values', 'ROC curves and AUC'] },
-      { title: 'Evidence synthesis', topics: ['Systematic reviews', 'Meta-analysis and forest plots', 'Heterogeneity and publication bias'] }
+      { title: 'Risk and diagnostic accuracy', topics: ['Risk ratios and odds ratios', 'Absolute risk differences', 'Sensitivity, specificity and predictive values', 'ROC curves and AUC', 'Decision-curve analysis'] },
+      { title: 'Evidence synthesis', topics: ['Systematic reviews', 'Meta-analysis and forest plots', 'Heterogeneity and publication bias', 'Health economic evaluation'] }
     ]
   },
   {
     id: 'practice', title: 'Statistical practice', description: 'Make analyses transparent, reproducible and useful.',
     groups: [
       { title: 'Further methods', topics: ['Missing data and imputation', 'Bootstrap and permutation methods', 'Introduction to Bayesian inference'] },
-      { title: 'From analysis to reporting', topics: ['Statistical analysis plans', 'Reproducible workflows', 'Reporting and interpreting results'] }
+      { title: 'From analysis to reporting', topics: ['Statistical analysis plans', 'Reproducible workflows', 'Reporting and interpreting results'] },
+      { title: 'Monitoring and prediction', topics: ['Event monitoring and safety surveillance', 'Clinical event prediction'] }
     ]
   }
 ]
