@@ -37,6 +37,9 @@ jobs:
       - name: Create output directory
         run: mkdir -p dist
 
+      - name: Copy hub favicon
+        run: cp favicon-hub.svg dist/favicon-hub.svg
+
       - name: Copy data-analyzer build
         run: cp -r packages/data-analyzer/dist dist/data-analyzer
 
@@ -54,6 +57,7 @@ jobs:
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="icon" type="image/svg+xml" href="/favicon-hub.svg">
             <title>Web Projects Hub</title>
             <style>
               body {

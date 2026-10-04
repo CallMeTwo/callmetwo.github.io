@@ -265,6 +265,7 @@ function pageHtml({ title, summary, breadcrumb, sectionId, sectionTitle, tocHtml
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="${description}" />
     <title>${esc(title)} · Biostatistics Library</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon-biostatistics.svg" />
     <script>
       window.MathJax = {
         tex: {
