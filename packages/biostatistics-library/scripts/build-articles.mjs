@@ -53,6 +53,18 @@ function decorateLinks(html) {
   })
 }
 
+// Marked treats `\(` and `\)` as Markdown escapes and drops their slashes.
+// Protect the delimiters while parsing so MathJax can typeset inline TeX.
+function renderMarkdownBody(markdown) {
+  const inlineOpen = 'MATHJAXINLINEOPEN7E1D'
+  const inlineClose = 'MATHJAXINLINECLOSE7E1D'
+  return marked.parse(markdown
+    .replaceAll('\\(', inlineOpen)
+    .replaceAll('\\)', inlineClose))
+    .replaceAll(inlineOpen, '\\(')
+    .replaceAll(inlineClose, '\\)')
+}
+
 // Bundle topics.ts once and import it (keeps a single source of truth for the
 // taxonomy — the article generator and the React app share the same file).
 async function loadTopics() {
@@ -319,7 +331,7 @@ async function main() {
       fail(`Frontmatter title "${data.title}" in ${rel} must match the topic title "${location.title}" exactly.`)
     }
     const summary = data.summary || ''
-    const bodyHtml = decorateLinks(marked.parse(body))
+    const bodyHtml = decorateLinks(renderMarkdownBody(body))
     const { bodyHtml: anchoredBodyHtml, tocHtml } = addTableOfContents(bodyHtml)
     for (const [, href] of bodyHtml.matchAll(/<a\s+[^>]*href="([^"]+)"/g)) {
       if (/^(?:https?:|mailto:|#|\/\/)/i.test(href) || !/\.html(?:#.*)?$/.test(href)) continue
