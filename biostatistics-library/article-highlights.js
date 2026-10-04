@@ -6,9 +6,11 @@
   const highlightNames = Object.fromEntries(colors.map(color => [color, `reader-highlight-${color}`]))
   const storageKey = `biostatistics-library:highlights:v1:${location.pathname}`
   const quickModeKey = 'biostatistics-library:quick-highlight:v1'
+  const quickColorKey = 'biostatistics-library:quick-highlight-color:v1'
   const statusId = 'article-highlight-status'
   let highlights = readHighlights()
   let quickMode = readQuickMode()
+  let quickColor = readQuickColor()
   let pending = null
   let selectionTimer = null
   let pointerDown = false
@@ -16,7 +18,7 @@
 
   const controls = document.createElement('div')
   controls.className = 'article-highlight-controls'
-  controls.innerHTML = `<span id="${statusId}" aria-live="polite"></span><button type="button" data-quick-highlight aria-pressed="false">Quick highlight: Off</button><button type="button" data-clear-highlights>Clear highlights</button>`
+  controls.innerHTML = `<span id="${statusId}" aria-live="polite"></span><button type="button" data-quick-highlight aria-pressed="false">Quick highlight: Off</button><select data-quick-color aria-label="Quick highlight color" hidden><option value="yellow">Yellow</option><option value="blue">Blue</option><option value="pink">Pink</option></select><button type="button" data-clear-highlights>Clear highlights</button>`
   const toc = document.querySelector('.article-toc')
   if (toc) toc.insertAdjacentElement('afterend', controls)
 
@@ -28,7 +30,12 @@
   toolbar.innerHTML = `<span>Highlight:</span>${colors.map(color => `<button type="button" data-highlight-color="${color}" aria-label="Highlight ${color}" title="Highlight ${color}">${color}</button>`).join('')}<button type="button" data-remove-highlight hidden>Remove</button>`
   document.body.append(toolbar)
 
-  document.body.classList.toggle('quick-highlight-mode', quickMode)
+  function syncQuickModeStyles() {
+    document.body.classList.toggle('quick-highlight-mode', quickMode)
+    colors.forEach(color => document.body.classList.toggle(`quick-highlight-${color}`, quickMode && quickColor === color))
+  }
+
+  syncQuickModeStyles()
 
   function newId() {
     return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
@@ -51,6 +58,15 @@
       return localStorage.getItem(quickModeKey) === 'true'
     } catch {
       return false
+    }
+  }
+
+  function readQuickColor() {
+    try {
+      const color = localStorage.getItem(quickColorKey)
+      return colors.includes(color) ? color : 'yellow'
+    } catch {
+      return 'yellow'
     }
   }
 
@@ -167,6 +183,9 @@
     const quickButton = controls.querySelector('[data-quick-highlight]')
     quickButton.textContent = `Quick highlight: ${quickMode ? 'On' : 'Off'}`
     quickButton.setAttribute('aria-pressed', String(quickMode))
+    const colorSelect = controls.querySelector('[data-quick-color]')
+    colorSelect.hidden = !quickMode
+    colorSelect.value = quickColor
   }
 
   function makeAnchor(range) {
@@ -218,11 +237,11 @@
         if (currentIndex !== -1) quickSelectionId = highlights[currentIndex].id
       }
       if (currentIndex === -1) {
-        const item = { ...anchor, color: 'yellow', id: newId() }
+        const item = { ...anchor, color: quickColor, id: newId() }
         highlights.push(item)
         quickSelectionId = item.id
       } else {
-        highlights[currentIndex] = { ...highlights[currentIndex], ...anchor, color: 'yellow' }
+        highlights[currentIndex] = { ...highlights[currentIndex], ...anchor, color: quickColor }
       }
       if (saveHighlights()) renderHighlights()
       hideToolbar()
@@ -258,7 +277,7 @@
 
   controls.querySelector('[data-quick-highlight]').addEventListener('click', () => {
     quickMode = !quickMode
-    document.body.classList.toggle('quick-highlight-mode', quickMode)
+    syncQuickModeStyles()
     quickSelectionId = null
     try {
       localStorage.setItem(quickModeKey, String(quickMode))
@@ -267,6 +286,16 @@
     }
     renderHighlights()
     if (quickMode) hideToolbar()
+  })
+
+  controls.querySelector('[data-quick-color]').addEventListener('change', event => {
+    quickColor = event.target.value
+    syncQuickModeStyles()
+    try {
+      localStorage.setItem(quickColorKey, quickColor)
+    } catch {
+      status.textContent = 'Could not save this color preference in the browser.'
+    }
   })
 
   document.addEventListener('selectionchange', () => {
