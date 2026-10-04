@@ -30,7 +30,6 @@ h1 { font: 400 clamp(32px, 3.7vw, 49px)/1.2 'Libre Caslon Text', Georgia, serif;
 .library-meta span + span { border-left: 1px solid #ced8cf; padding-left: 20px; }
 .library-meta strong { color: #34594c; font-weight: 700; }
 .index-tools { padding-top: 0; }
-.search-label { font-size: 12px; font-weight: 600; display: block; margin-bottom: 9px; }
 .search-box { display: flex; align-items: center; gap: 12px; padding: 0 16px; border: 1px solid #ccd8d0; background: white; border-radius: 6px; }
 .search-box:focus-within { border-color: var(--teal); box-shadow: 0 0 0 2px #17675d18; }
 .search-box svg { width: 19px; flex-shrink: 0; stroke: #6a8177; stroke-width: 1.5; }
