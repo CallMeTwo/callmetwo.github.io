@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Clinical research &amp; evidence</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,19 +103,20 @@
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Clinical research &amp; evidence <span class="sep">/</span> Risk and diagnostic accuracy <span class="sep">/</span> <strong style="color:#273e3b">Sensitivity, specificity and predictive values</strong></div>
         <h1 class="article-title">Sensitivity, specificity and predictive values</h1>
         <p class="article-summary">How well a test detects and excludes disease — and why a positive result's meaning depends on how common the disease is.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A diagnostic test is summarised against a reference standard in a 2×2 table. <strong>Sensitivity</strong> = TP / (TP + FN) is the proportion of truly diseased people the test detects; <strong>specificity</strong> = TN / (TN + FP) is the proportion of healthy people correctly called negative. <strong>Positive predictive value (PPV)</strong> = TP / (TP + FP) is the probability that a positive result is truly positive; <strong>negative predictive value (NPV)</strong> = TN / (TN + FN) is the corresponding probability for a negative result.</p>
 <p>Sensitivity and specificity are (nearly) properties of the test itself at a given threshold, while PPV and NPV are properties of the test in a particular population — they move with the prevalence of disease. This is the practical heart of diagnostic reasoning: a clinician can never &quot;look up&quot; the probability that a positive result is real, because it is not a fixed property of the test; it is a function of how sick the tested population is.</p>
 <p>The clean bridge between the two worlds is the likelihood ratio: LR+ = sensitivity / (1 − specificity) and LR− = (1 − sensitivity) / specificity, which convert a pre-test probability into a post-test probability via Bayes&#39; theorem without needing to know prevalence.</p>
 <p>Rough clinical heuristics for likelihood ratios (Fagan&#39;s nomogram logic): LR− near 0.1 (e.g. a very sensitive test) can effectively rule disease out; LR+ near 10 can effectively rule it in; LRs between 1 and 10 shift the probability only modestly and are usually not enough for a decision on their own.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -131,14 +141,14 @@
 <td>In a 50-year-old woman with an abnormal mammogram, what is the probability of cancer?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Reference-standard assumptions</strong> — sensitivity and specificity assume every participant is classified by a gold standard applied to everyone; if the reference standard is imperfect, or is applied conditionally on the test result (verification bias), both estimates are distorted.</li>
 <li><strong>Spectrum effects</strong> — test performance changes with disease stage and severity; a 95% sensitivity in symptomatic patients may be far lower in an asymptomatic screening population.</li>
 <li><strong>Transportability of predictive values</strong> — PPV and NPV computed in one study apply at that study&#39;s prevalence; moving them to your clinic requires re-computing at your local pre-test probability.</li>
 <li><strong>A single threshold</strong> — for a continuous marker, the numbers summarise one chosen cut-off; the full sensitivity–specificity trade-off is shown by the ROC curve (see the article on ROC curves and AUC).</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>D-dimer is measured in 400 emergency chest pain patients, of whom 40 (prevalence 10%) have pulmonary embolism confirmed on CT angiography. The test has sensitivity 95% and specificity 55%:</p>
 <table>
 <thead>
@@ -166,7 +176,7 @@
 <li>LR+ = 0.95 / 0.45 = <strong>2.1</strong>; LR− = 0.05 / 0.55 = <strong>0.09</strong>.</li>
 </ul>
 <p>If the target population has a lower 2% prevalence, PPV falls to 8 / (8 + 176) ≈ <strong>4%</strong> while NPV stays near 99.5%. Interpretation: the test is built for exclusion — its high sensitivity gives a small LR−, so a negative result sharply lowers post-test probability, while a positive result (LR+ 2.1) moves it little and the correct next step is CTPA. The example shows that a &quot;95% sensitive&quot; test can still generate 81% false positives, because the accuracy of a positive result is a property of the patient population, not the test.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Quoting one study&#39;s PPV as if it applied in your clinic; PPV moves with prevalence, so recompute it at your patient&#39;s pre-test probability.</li>
 <li>Reading sensitivity and specificity as one &quot;accuracy&quot;: a 95%/55% test is excellent for ruling out and poor for ruling in — the two numbers answer different questions.</li>
@@ -174,7 +184,7 @@
 <li>Confusing test characteristics with post-test probability — sensitivity is not the probability that a positive result is true; that is the PPV.</li>
 <li>Comparing two tests by their sum of sensitivity and specificity, or by &quot;accuracy,&quot; in a lopsided population where most people are healthy (or sick); accuracy can be deceptively high and tells you little about the errors that matter.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BNP Books.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -183,6 +193,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../clinical-research/absolute-risk-differences.html"><span>← Previous article</span>Absolute risk differences</a>
+          <a href="../clinical-research/roc-curves-and-auc.html" style="text-align:right"><span>Next article →</span>ROC curves and AUC</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

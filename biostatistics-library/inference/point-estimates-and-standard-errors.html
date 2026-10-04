@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical inference</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Estimation <span class="sep">/</span> <strong style="color:#273e3b">Point estimates and standard errors</strong></div>
         <h1 class="article-title">Point estimates and standard errors</h1>
         <p class="article-summary">A single number from the sample estimates an unknown population quantity, and the standard error measures how much that estimate varies from sample to sample.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>point estimate</strong> is a single number computed from the data and used as the best summary of an unknown population quantity: the population mean, a proportion, a risk difference, or a regression coefficient. The most familiar examples are the sample mean (x-bar) and the sample proportion (p-hat). Because different samples contain different patients, a point estimate is itself a random quantity: repeat the same study and you will get a different number.</p>
 <p>The <strong>standard error (SE)</strong> quantifies that sampling variability. For the mean of n independent observations with sample standard deviation s:</p>
 <ul>
@@ -111,7 +121,7 @@
 </ul>
 <p>The SE plays two roles. It underpins the confidence interval (estimate +/- 1.96 x SE for a 95% CI) and the test statistic (the estimate divided by its SE, giving a z or t value). It measures <em>precision</em>, not accuracy: a biased estimate can have a small SE and still sit far from the truth.</p>
 <p>For comparisons, the SE of a difference is needed. If two independent samples of size n have sample standard deviations s1 and s2, the SE of the difference in means is sqrt(s1^2/n1 + s2^2/n2), and the same logic gives the SEs for risk differences and, on the log scale, for risk and odds ratios. A good habit is to always report the estimate together with either its SE or, preferably, its confidence interval, so that the reader sees both the centre and the spread of the estimate at a glance.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <p>Whenever you report an estimate from a sample and want readers to judge how stable it is:</p>
 <table>
 <thead>
@@ -137,23 +147,23 @@
 <td>How precisely is the treatment effect estimated in the small subgroup of patients over 80?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>The formula SE = s/sqrt(n) is exact when the data are normal and the observations are independent. For skewed data with small n it understates the error, and the sampling distribution of the mean may not be close to normal.</li>
 <li>The proportion formula is a large-sample binomial approximation. It behaves poorly when the expected number of events, n x p-hat, or non-events, n x (1 - p-hat), is small; use an exact binomial approach instead.</li>
 <li>The SE assumes the sample is a valid (random or representative) draw of the target population. No choice of SE formula can compensate for selection bias.</li>
 <li>With correlated data - repeated measures on the same patient, cluster randomisation, related family members - the naive SE is too small, because the effective sample size is less than n.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A clinic measures fasting plasma glucose in 36 newly diagnosed type 2 diabetes patients and reports a mean of 8.4 mmol/L with a standard deviation of 2.7 mmol/L. The standard error of the mean is 2.7 / sqrt(36) = 2.7 / 6 = 0.45 mmol/L. Interpreted correctly, this means that if the clinic repeated the same 36-patient survey many times, the sample means would scatter around the true population mean with a standard deviation of about 0.45 mmol/L - it does <em>not</em> mean that individual patients&#39; glucose values lie within 0.45 of the mean (that is what the SD of 2.7 describes). If the study had enrolled 144 patients instead of 36, the SE would fall to 2.7 / 12 = 0.225 mmol/L, halving the uncertainty about the estimated mean.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Confusing SD with SE.</strong> The SD (2.7) describes spread among individual patients; the SE (0.45) describes uncertainty about the estimated mean. Report the SD for descriptive purposes and the SE or confidence interval when the question concerns the population parameter.</li>
 <li><strong>&quot;The SE is the measurement error.&quot;</strong> It is the sampling variability of the estimator. Assay imprecision and missing data contribute to bias and precision in different ways that the SE does not capture.</li>
 <li><strong>Combining SEs carelessly.</strong> The SE of a ratio such as a rate ratio is not obtained by dividing the SEs of the numerator and denominator; use a model or the delta method.</li>
 <li><strong>Precision without accuracy.</strong> A small SE only says the estimate is reproducible across samples; if the design is biased, every sample consistently lands in the wrong place.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott-Raven.</li>
@@ -161,6 +171,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../study-design/sample-size-and-statistical-power.html"><span>← Previous article</span>Sample size and statistical power</a>
+          <a href="../inference/confidence-intervals.html" style="text-align:right"><span>Next article →</span>Confidence intervals</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

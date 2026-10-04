@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Study design &amp; sampling</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Planning and validity <span class="sep">/</span> <strong style="color:#273e3b">Sampling methods</strong></div>
         <h1 class="article-title">Sampling methods</h1>
         <p class="article-summary">How to choose a subset of a population so that the inferences drawn from it are valid, unbiased, and appropriately precise.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>sample</strong> is the subset of a population from which data are actually collected; the <strong>population</strong> (or <strong>target population</strong>) is the group to which inferences are to be generalised. The choice of sampling method determines which population the results apply to and how much error is introduced by the sampling process itself. The two broad families are <strong>probability sampling</strong> (every member of the population has a known, non-zero chance of selection) and <strong>non-probability sampling</strong> (selection is based on researcher judgment or convenience).</p>
 <ul>
 <li><strong>Simple random sampling.</strong> Each member has the same probability of selection. Easy to describe; inefficient when the population is large or spread out.</li>
@@ -110,7 +120,7 @@
 <li><strong>Systematic sampling.</strong> Select every kth member from an ordered list (k = population size / desired sample size). Efficient and easy to implement; valid only if the list order is unrelated to the variable of interest.</li>
 <li><strong>Convenience and volunteer sampling.</strong> No probability framework; results cannot be generalised to a defined population without strong additional assumptions.</li>
 </ul>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -139,7 +149,7 @@
 <td>National health surveys (e.g., NHANES): stratify by geography, cluster by census tract, random sample of households within each tract.</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Representativeness.</strong> The sample must be drawn from the target population. If the frame (list from which sampling starts) is incomplete or outdated, no sampling technique will fix the bias.</li>
 <li><strong>Response rate.</strong> A high non-response rate, particularly if related to the outcome (sick people are less likely to attend a screening), introduces selection bias regardless of the sampling method.</li>
@@ -147,7 +157,7 @@
 <li><strong>Stratification must be on a variable related to the outcome.</strong> Stratifying by a variable unrelated to the outcome adds cost and complexity without reducing variance.</li>
 <li><strong>Non-probability samples</strong> cannot support population-level inference; they are acceptable for pilot studies, qualitative work, or when the research question is explicitly limited to the sampled group.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A hospital wants to estimate the mean HbA1c of its adult diabetic outpatients. The practice has 4,000 registered diabetic adults: 1,200 aged 18–40, 2,000 aged 41–60, 1,800 aged 61+.</p>
 <p>Using <strong>stratified sampling</strong> with proportional allocation and a desired total sample of 400:</p>
 <ul>
@@ -158,14 +168,14 @@
 <p>A random sample of 120, 200, and 180 patients is drawn from each stratum. Suppose the mean HbA1c is 7.4% (SD 1.1) in the 18–40 group, 8.1% (SD 1.3) in the 41–60 group, and 8.5% (SD 1.4) in the 61+ group.</p>
 <p>Stratified mean = (120/400 × 7.4) + (200/400 × 8.1) + (180/400 × 8.5) = 2.22 + 4.05 + 3.825 = <strong>8.1%</strong>.</p>
 <p>The standard error of the stratified mean is smaller than it would be for a simple random sample of 400 because the between-stratum variance is large; stratification on age (strongly related to HbA1c) improves precision.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Confusing the sample frame with the target population.</strong> A sample of hospital inpatients cannot support inferences about the general community; the target population must be stated explicitly in the methods section.</li>
 <li><strong>Ignoring non-response.</strong> If 40% of a convenience sample does not attend and the non-respondents are systematically sicker, the mean HbA1c will be biased low; the non-response rate and any evidence about its direction must be reported.</li>
 <li><strong>Using a raw count to estimate precision in cluster sampling.</strong> If 20 schools are sampled with 100 students each (n = 2,000) and the ICC is 0.05, the design effect is 1 + (100 − 1) × 0.05 ≈ 6.0; the effective sample size is about 333, not 2,000. Standard errors computed from n = 2,000 will be far too small.</li>
 <li><strong>Treating a convenience sample as random.</strong> Recruiting &quot;the first 50 patients who came to clinic today&quot; does not produce a random sample of the clinic&#39;s diabetic population; generalisability beyond the sampled group is not supported.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
@@ -175,6 +185,10 @@
 <p><em>The planned &quot;Bias and confounding&quot; article in this library covers how selection bias — including sampling-related bias — distorts study results.</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../study-design/randomized-controlled-trials.html"><span>← Previous article</span>Randomized controlled trials</a>
+          <a href="../study-design/bias-and-confounding.html" style="text-align:right"><span>Next article →</span>Bias and confounding</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

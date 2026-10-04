@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Survival &amp; longitudinal data</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Survival &amp; longitudinal data <span class="sep">/</span> Time-to-event analysis <span class="sep">/</span> <strong style="color:#273e3b">Cox proportional hazards model</strong></div>
         <h1 class="article-title">Cox proportional hazards model</h1>
         <p class="article-summary">The workhorse regression for time-to-event data, modelling how covariates change the hazard over time.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>Cox proportional hazards (PH) model</strong> relates the hazard at time t to
 covariates: h(t|x) = h0(t) × exp(b1 x1 + b2 x2 + ...), where h0(t) is a
 baseline hazard with unspecified shape and the b coefficients are estimated by
@@ -115,7 +125,7 @@ are driven by the ordering of event times rather than the absolute scale.
 Cox models adjust simultaneously for multiple covariates, which is their main
 advantage over the log-rank test: they answer &quot;does this covariate matter,
 holding the others constant?&quot;</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -139,7 +149,7 @@ holding the others constant?&quot;</p>
 <p>The Cox model is the standard for multivariable survival analysis, for
 stratified analyses, and for checking whether an apparent treatment effect
 dissolves once confounders are controlled.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Proportional hazards</strong>: HRs constant over time. Test with Schoenfeld
 residuals or by plotting log(−log S(t)) versus log(t) — parallel lines
@@ -154,7 +164,7 @@ rule of thumb is at least 10 events per covariate.</li>
 <li>The baseline hazard is not used to estimate coefficients, but it must be
 estimated (e.g. Breslow) before predicting individual survival curves.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>In a cohort of 850 patients admitted with acute heart failure, 310 died within
 2 years. A 2-covariate Cox model with age and Charlson comorbidity index gives:
 age, HR 1.06 (95% CI 1.03 to 1.09) per year older; comorbidity index, HR 1.42
@@ -166,7 +176,7 @@ mortality; each additional comorbidity point raises the hazard 42%, and the
 CI excludes 1 for both, so the association is statistically significant. The
 CI width also shows precision: the age effect is estimated much more tightly
 than the comorbidity effect.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>A hazard ratio is a ratio of <strong>rates</strong>, not of risks or probabilities: an
 HR of 1.4 over 5 years may correspond to a small absolute difference if
@@ -181,7 +191,7 @@ summary of the whole follow-up.</li>
 estimated with its own uncertainty; naive point predictions should carry
 that caveat.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Klein JP, Moeschberger ML. <em>Survival Analysis: A Self-Learning Text</em>.
 Springer.</li>
@@ -192,6 +202,10 @@ Springer.</li>
 building blocks used in the survival examples here.</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../survival/kaplan-meier-curves-and-the-log-rank-test.html"><span>← Previous article</span>Kaplan–Meier curves and the log-rank test</a>
+          <a href="../survival/repeated-measures-designs.html" style="text-align:right"><span>Next article →</span>Repeated-measures designs</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

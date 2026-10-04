@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Probability &amp; distributions</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Probability essentials <span class="sep">/</span> <strong style="color:#273e3b">Probability rules</strong></div>
         <h1 class="article-title">Probability rules</h1>
         <p class="article-summary">How to combine event probabilities using the complement, the addition rule, and the multiplication rule in clinical settings.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Probability is the language of uncertainty in medicine: it assigns a number between
 0 and 1 to the chance that an event occurs, where 0 means impossible and 1 means
 certain. Risk, prevalence, and survival probabilities are all probabilities written
@@ -119,7 +129,7 @@ independent, this reduces to P(A) × P(B).</li>
 <p>These rules are identities — they are always true for correctly specified events —
 so mistakes with them are almost always mistakes in setting up the events, not in
 the arithmetic.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -144,7 +154,7 @@ the arithmetic.</p>
 <td>What proportion of the exposed group develops disease, versus the unexposed group?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>The events must be defined for <strong>the same population and time frame</strong>; mixing a
 five-year risk with a one-year risk in one expression gives a number that refers
@@ -157,7 +167,7 @@ sharing a cause (e.g. both linked to frailty) are usually dependent.</li>
 <li>The rules combine probabilities exactly, but the inputs still carry sampling
 uncertainty — a &quot;15%&quot; computed from a small study is an estimate.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>In a 100-patient ICU cohort, 10 patients (10%) developed ventilator-associated
 pneumonia (VAP), 8 (8%) developed a catheter-related bloodstream infection
 (CLABSI), and 3 (3%) developed both. Using the addition rule:</p>
@@ -168,7 +178,7 @@ both. For the multiplication rule: if 95% of patients survive surgery and, among
 those survivors, 90% survive the postoperative period, the chance of surviving
 both is 0.95 × 0.90 = 0.855, so the complement rule gives a 14.5% chance of dying
 in either phase.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Double counting</strong> — adding P(A) and P(B) without subtracting the overlap
 inflates the probability of &quot;A or B&quot;.</li>
@@ -181,7 +191,7 @@ individual risks, but the exact calculation is safer.</li>
 <li><strong>Inclusive &quot;or&quot;</strong> — in probability &quot;A or B&quot; includes the case where both
 occur; if a clinical question really means &quot;exactly one&quot;, subtract both overlaps.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -190,6 +200,10 @@ occur; if a clinical question really means &quot;exactly one&quot;, subtract bot
 rule with conditioning in detail (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../describing-data/scatter-plots-and-relationships.html"><span>← Previous article</span>Scatter plots and relationships</a>
+          <a href="../probability/conditional-probability-and-independence.html" style="text-align:right"><span>Next article →</span>Conditional probability and independence</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

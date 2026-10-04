@@ -69,15 +69,15 @@ export default function App() {
           <div className="eyebrow">THE KNOWLEDGE INDEX <span>Prototype</span></div>
           <h1>Biostatistics Library</h1>
           <p className="hero-description">A place to make sense of data, evidence and uncertainty.<br className="desktop-break" /> Explore the topic map, from first principles to applied methods.</p>
-          <div className="library-meta"><span><strong>{sections.length}</strong> subject areas</span><span><strong>{topicCount}</strong> planned articles</span><span>From foundations to practice</span></div>
+          <div className="library-meta"><span><strong>{sections.length}</strong> subject areas</span><span><strong>{publishedTopics.length}</strong> published articles</span><span>From foundations to practice</span></div>
         </header>
 
-        <div className="prototype-note"><span className="note-symbol" aria-hidden="true">i</span><p><strong>First look: the library’s structure.</strong> This is a draft topic map. Select any topic to preview its article layout — published articles include a “Visit page” button, full content and references for the rest will come later.</p></div>
+        <div className="prototype-note"><span className="note-symbol" aria-hidden="true">i</span><p><strong>Explore the library.</strong> Browse the topic map or search for a method. Select a topic to open its article or see which topics are still planned.</p></div>
 
         <section className="index-tools" aria-label="Find topics">
           <label className="search-label" htmlFor="topic-search">Find a topic</label>
           <div className="search-box"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg><input id="topic-search" type="search" placeholder="Search topics, e.g. regression or study design" value={query} onChange={event => setQuery(event.target.value)} />{query && <button className="clear-search" onClick={() => setQuery('')} aria-label="Clear search">Clear</button>}</div>
-          <div className="index-heading"><div><h2>Browse the topic map</h2><p role="status">{isSearching ? `${visibleCount} matching ${visibleCount === 1 ? 'topic' : 'topics'} in ${visibleSections.length} subject ${visibleSections.length === 1 ? 'area' : 'areas'}` : 'A hierarchy of subjects, subtopics and planned articles.'}</p></div><div className="tree-actions"><button disabled={isSearching} onClick={() => setCollapsed(new Set())}>Expand all</button><span aria-hidden="true">/</span><button disabled={isSearching} onClick={() => setCollapsed(new Set(sections.map(section => section.id)))}>Collapse all</button></div></div>
+          <div className="index-heading"><div><h2>Browse the topic map</h2><p role="status">{isSearching ? `${visibleCount} matching ${visibleCount === 1 ? 'topic' : 'topics'} in ${visibleSections.length} subject ${visibleSections.length === 1 ? 'area' : 'areas'}` : 'Browse subjects, published articles and upcoming topics.'}</p></div><div className="tree-actions"><button disabled={isSearching} onClick={() => setCollapsed(new Set())}>Expand all</button><span aria-hidden="true">/</span><button disabled={isSearching} onClick={() => setCollapsed(new Set(sections.map(section => section.id)))}>Collapse all</button></div></div>
         </section>
 
         <div className="topic-tree">

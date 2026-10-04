@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,17 +103,18 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Associations and models <span class="sep">/</span> <strong style="color:#273e3b">Simple and multiple linear regression</strong></div>
         <h1 class="article-title">Simple and multiple linear regression</h1>
         <p class="article-summary">Models a continuous outcome as a weighted sum of predictors, allowing adjustment for confounders and prediction from several variables.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Simple linear regression models one continuous outcome Y as a straight-line function of a single predictor X: Y = β₀ + β₁X + ε, where β₀ is the intercept and β₁ the slope — the average change in Y for each one-unit increase in X. Multiple linear regression extends this to several predictors: Y = β₀ + β₁X₁ + β₂X₂ + … + βₖXₖ + ε. Each coefficient βⱼ then has the interpretation &quot;the average change in Y per one-unit increase in Xⱼ, <em>holding the other predictors fixed</em>&quot;, which is what lets the model adjust for confounding.</p>
 <p>The model is fitted by least squares, minimising the sum of squared vertical deviations of observed points from the fitted line. The key outputs are the coefficient estimates with their standard errors, p-values and confidence intervals, the R² (proportion of variance in Y explained by the model), and the adjusted R², which penalises for adding useless predictors. A model with a single predictor is simple regression; with two or more it is multiple, but the mathematics is the same.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -130,7 +140,7 @@
 </tr>
 </tbody></table>
 <p>Use it when the outcome is continuous and roughly normally distributed around its mean, the main goal is estimation or adjustment, and the relationship of interest is plausibly linear. If the outcome is a count (e.g. number of ER visits), a binary result (died/survived), or a time-to-event, other models are more appropriate — Poisson/negative binomial, logistic, or survival regression respectively.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Linearity</strong>: the mean of Y changes linearly with each predictor; curvilinear relationships bias the coefficients and predictions.</li>
 <li><strong>Independence</strong>: residuals are uncorrelated across observations; violated by clustered or repeated-measures data (e.g. multiple visits per patient).</li>
@@ -138,16 +148,16 @@
 <li><strong>Normality of residuals</strong> (for exact p-values and CIs in small samples); with large n the central limit theorem makes the estimates robust to mild departures.</li>
 <li><strong>No strong multicollinearity</strong>: highly correlated predictors make individual coefficients unstable, with wide CIs and sign flips, even though overall predictions stay fine.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A hospital team wants to predict admission systolic blood pressure from age and BMI. Fitting the model to 300 admissions gives: SBP = 84.2 + 0.38·(age) + 0.91·(BMI). For a 60-year-old with BMI 28, the predicted SBP is 84.2 + 22.8 + 25.5 = 132.5 mmHg. The age coefficient of 0.38 means a one-year older patient is expected to have about 0.4 mmHg higher SBP at the same BMI. Age is p &lt; 0.001 (95% CI 0.30 to 0.46) and BMI is p = 0.002 (95% CI 0.40 to 1.42), and R² = 0.41: age and BMI together explain 41% of the variation in SBP, so a typical observed value deviates from its prediction by roughly sqrt(1 − 0.41) ≈ 24% of the SD.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>&quot;Holding the other predictors fixed&quot; does not mean they <em>were</em> fixed — in observational data the adjusted coefficient is a controlled association, and it estimates a causal effect only under no-unmeasured-confounding and a correct model.</li>
 <li>Never interpret a coefficient of a continuous predictor from a model where it was entered as a dummy or vice versa; scaling (e.g. age in decades vs years) changes the coefficient but not the fit.</li>
 <li>A small p-value on an added predictor can coexist with a large change in the main predictor&#39;s coefficient — that is confounding, and the adjusted (post-change) coefficient is the one to report.</li>
 <li>Do not select predictors by fishing for significance one at a time; this inflates false positives and gives an optimistic R².</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
@@ -156,6 +166,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../regression/pearson-and-spearman-correlation.html"><span>← Previous article</span>Pearson and Spearman correlation</a>
+          <a href="../regression/logistic-regression.html" style="text-align:right"><span>Next article →</span>Logistic regression</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

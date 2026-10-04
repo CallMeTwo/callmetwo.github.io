@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Comparing groups</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Comparing groups <span class="sep">/</span> Numerical outcomes <span class="sep">/</span> <strong style="color:#273e3b">Analysis of variance (ANOVA)</strong></div>
         <h1 class="article-title">Analysis of variance (ANOVA)</h1>
         <p class="article-summary">Comparing the means of three or more groups with a single F-test, then locating which pairs differ.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>When you want to compare the means of three or more groups, a string of
 pairwise t-tests inflates the type I error rate (three comparisons at 5% each
 give about a 14% chance of at least one false positive). One-way analysis of
@@ -123,7 +133,7 @@ of groups differ while controlling the family-wise error rate.</p>
 groups it is algebraically equivalent (F = t²). It extends the same logic to
 k groups, and to two-way designs (e.g. treatment × sex) that add main effects
 and an interaction term.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -153,7 +163,7 @@ two-way ANOVA when you want to model two factors and their interaction
 simultaneously. For non-normal or ordinal outcomes use the Kruskal–Wallis
 test instead; for repeated measurements within subjects use
 repeated-measures ANOVA.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Independence</strong> — each subject contributes exactly one observation.
 Repeated measures, matched groups, or clustering violate this and need
@@ -173,7 +183,7 @@ changes both the hypothesis and the test.</li>
 </ul>
 <p>The test tells you only that <em>some</em> means differ, not which ones or by how
 much — plan your post-hoc comparisons before looking at the data.</p>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A 12-month trial randomised 30 type 2 diabetes patients to three
 glucose-lowering strategies (n = 10 per arm). Mean HbA1c at 12 months was
 7.0% (standard care), 6.5% (drug A) and 6.0% (drug B), with each group&#39;s SD
@@ -189,7 +199,7 @@ a critical difference of about 0.78%) separates standard care from drug B
 (1.0% apart, significant) but not the other pairs: drug A and drug B (0.5%
 apart) are not distinguishable at this sample size. Report all three group
 means with 95% CIs, not just the F statistic.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>A significant ANOVA is not the end of the analysis.</strong> It only says at
 least one mean differs; without post-hoc comparisons you cannot say which.</li>
@@ -203,7 +213,7 @@ over-conservative — check Levene&#39;s test and consider Welch&#39;s ANOVA.</l
 spread rather than location, the F-test can mislead; inspect the
 distributions before interpreting.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Chow S, Lu J, Jehessel M. <em>Design and Analysis of Clinical Trials</em>. Wiley.</li>
@@ -213,6 +223,10 @@ in detail (article planned).</li>
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../comparisons/independent-and-paired-t-tests.html"><span>← Previous article</span>Independent and paired t-tests</a>
+          <a href="../comparisons/mann-whitney-and-wilcoxon-tests.html" style="text-align:right"><span>Next article →</span>Mann–Whitney and Wilcoxon tests</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

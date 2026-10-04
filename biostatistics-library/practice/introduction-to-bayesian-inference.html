@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical practice</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical practice <span class="sep">/</span> Further methods <span class="sep">/</span> <strong style="color:#273e3b">Introduction to Bayesian inference</strong></div>
         <h1 class="article-title">Introduction to Bayesian inference</h1>
         <p class="article-summary">A framework in which prior knowledge and the data combine through Bayes' theorem into a full posterior distribution — the whole answer, not just a point estimate.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Frequentist inference asks, &quot;if the data were generated by a fixed true effect, how likely would we see a result like this?&quot; Bayesian inference flips the question: &quot;given the data I have, how should my beliefs about the effect change?&quot;</p>
 <p>The engine is <strong>Bayes&#39; theorem</strong>: the posterior distribution of a parameter is proportional to the likelihood (the data, viewed as a function of the parameter) times the prior (what you believed before seeing this data). Written loosely: <em>posterior ∝ likelihood × prior</em>. You start with a <strong>prior distribution</strong> over the plausible values of the unknown, multiply it by the likelihood of the observed data, and normalise to get the <strong>posterior</strong> — a full probability distribution for the parameter, not a single number.</p>
 <p>Practical consequences that matter in medicine:</p>
@@ -111,7 +121,7 @@
 <li><strong>Decision making is natural</strong>: you can compute the probability that the new treatment beats the standard by more than a clinically meaningful margin.</li>
 </ul>
 <p>Modern Bayesian analysis is done almost entirely by <strong>Markov chain Monte Carlo (MCMC)</strong>: a computer algorithm that draws a large sample from the posterior even when it has no closed form. MCMC constructs a chain of dependent draws that, after a burn-in period, explores the shape of the posterior; from those draws you read means, medians, credible intervals, and tail probabilities directly. Widely used engines include Stan and its No-U-Turn Sampler, JAGS, and Hamiltonian Monte Carlo implementations in Python.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -137,26 +147,26 @@
 </tr>
 </tbody></table>
 <p>Choose Bayesian when prior evidence is strong and trustworthy, when the sample is small, when the design is adaptive, or when the decision-maker wants answers framed as probabilities about the unknown.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>The prior matters when the data are weak.</strong> With small n, a misspecified or over-confident prior can dominate the posterior. With large n, any reasonable prior is washed out by the data. Always check how much the answer moves under a range of sensible priors (sensitivity analysis).</li>
 <li><strong>Subjectivity is a feature, but it must be declared.</strong> An &quot;informative&quot; prior encodes genuine prior evidence; a &quot;vague&quot; or &quot;weakly informative&quot; prior does minimal so. Neither is free — both are choices that must be stated and justified.</li>
 <li><strong>The likelihood and model must still be correct.</strong> A wrong model with a clever prior still gives a wrong posterior (garbage in, garbage out).</li>
 <li><strong>MCMC output must be diagnosed.</strong> Correlated chains, poor mixing, or non-convergence silently corrupt the posterior summary. Check convergence (e.g. R-hat near 1) and effective sample size before trusting any number.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A phase II trial tests a new drug for a rare cancer: 12 of 40 patients (30%) achieved a durable response. Earlier literature puts the historical response rate of the best standard at roughly 15%.</p>
 <p>Put a Beta(6, 34) prior (mean ≈ 0.15, reflecting about 200 historical patients) on the response probability, combine it with the 12/40 data, and the posterior is Beta(18, 42) with mean ≈ 0.30. From MCMC draws, the 95% credible interval for the new drug&#39;s response rate is about (0.16, 0.45), and the posterior probability that the response rate exceeds the historical 15% is ≈ 0.99.</p>
 <p>The interpretation a Bayesian can state that a frequentist interval cannot: &quot;Given the data and the historical evidence, there is about a 99% chance the new drug&#39;s response rate is higher than the standard&#39;s 15%.&quot;</p>
 <p>If the decision is whether to proceed to a phase III trial, the framework extends naturally: compute the posterior probability that the response rate exceeds a pre-agreed threshold (say 25%), and pre-specify that a probability above 80% triggers continuation. That turns a fuzzy &quot;is it promising?&quot; discussion into a number tied to a declared decision rule.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>A credible interval is not a confidence interval</strong> — it is a probability statement about the parameter conditional on the data and the chosen prior, not the long-run coverage frequency of a procedure.</li>
 <li><strong>Priors are not &quot;unfair advantage&quot;</strong> — a well-justified prior with published evidence is a legitimate input; hiding it behind a &quot;non-informative&quot; label is the pitfall.</li>
 <li><strong>Always report the prior</strong> — the prior, the likelihood/model, and the software so the posterior is reproducible and auditable.</li>
 <li><strong>Do not read a posterior probability of a hypothesis directly from a point estimate</strong> — to compare hypotheses you need prior model probabilities and the full posterior predictive, not a hand-wavy &quot;p-value translation.&quot;</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Gelman A, Carlin JB, Stern HS, Dunson DB, Vehtari A, Rubin DB. <em>Bayesian Data Analysis</em>. Chapman and Hall/CRC.</li>
 <li>Hoff PD. <em>A First Course in Bayesian Statistical Methods</em>. Springer.</li>
@@ -165,6 +175,10 @@
 <p><em>The topic map&#39;s &quot;Statistical inference&quot; section covers the frequentist baseline this contrasts with (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../practice/bootstrap-and-permutation-methods.html"><span>← Previous article</span>Bootstrap and permutation methods</a>
+          <a href="../practice/statistical-analysis-plans.html" style="text-align:right"><span>Next article →</span>Statistical analysis plans</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

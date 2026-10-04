@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,17 +103,18 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Associations and models <span class="sep">/</span> <strong style="color:#273e3b">Logistic regression</strong></div>
         <h1 class="article-title">Logistic regression</h1>
         <p class="article-summary">Models the log-odds of a binary outcome as a linear combination of predictors, yielding interpretable odds ratios with confidence intervals.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Logistic regression is the standard model for binary outcomes — died/survived, infected/not infected, present/absent — and, with extensions, for rare events and ordinal responses. It models the <em>log-odds</em> (logit) of the outcome as a linear function of the predictors: log(p / (1 − p)) = β₀ + β₁X₁ + β₂X₂ + …, where p is the probability of the event. The inverse logit converts back to a probability: p = 1 / (1 + e^−(β₀ + β₁X₁ + …)), which always stays between 0 and 1.</p>
 <p>The model is fitted by maximum likelihood rather than least squares. The central estimand is the exponentiated coefficient: for a one-unit increase in Xⱼ, the <em>odds</em> of the event are multiplied by e^βⱼ — the odds ratio (OR) — holding other predictors fixed. OR = 1 means no association, OR &gt; 1 increases odds, OR &lt; 1 decreases them. For a binary predictor (e.g. sex), the OR compares the odds between the two groups directly. Logistic regression can be used descriptively (adjusting for confounders) or for prediction, and it underpins case-control studies, where it naturally estimates ORs even when disease prevalence is sampled, not measured.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -130,7 +140,7 @@
 </tr>
 </tbody></table>
 <p>Use it when the outcome is binary (or a count of rare events per subject) and you want an effect estimate adjusted for covariates. If the outcome is a rate (events per person-time), use Poisson or negative binomial regression; if it is time-to-event, use Cox proportional hazards. Logistic regression can also be fitted to a binary outcome with a 1-in-N prevalence as an approximation of a rare-event rate.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Linearity on the logit scale</strong>: the log-odds must change linearly with each continuous predictor; a curved relationship (e.g. U-shaped risk by age) biases the OR.</li>
 <li><strong>Independence</strong>: one observation per subject; repeated measures or clustered patients require generalised estimating equations or mixed models.</li>
@@ -138,16 +148,16 @@
 <li><strong>Sufficient events</strong>: a rule of thumb is at least 10 outcome events per fitted coefficient (often stricter for prediction models), or the maximum-likelihood estimates become unstable and overfit.</li>
 <li><strong>OR ≠ risk ratio</strong>: when the outcome is common (prevalence &gt; 10–20%), the OR overstates the risk ratio in both directions; a rare outcome (incidence &lt; 10%) makes OR ≈ RR.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A registry of 1,200 myocardial infarction patients models in-hospital death with age (per 10 years) and Killip class (&gt;1 vs 1). Maximum likelihood gives: logit(death) = −2.00 + 0.25·(age/10) + 0.95·(Killip &gt; 1). For a 70-year-old in Killip class I: logit = −2.00 + 0.50 = −1.50, so p = 1/(1 + e^1.5) ≈ 0.18, i.e. an estimated 18% mortality. Upgrading to Killip class II adds 0.95 to the logit: p = 1/(1 + e^0.55) ≈ 0.58. The exponentiated Killip coefficient is e^0.95 = 2.59 (95% CI e^0.53 to e^1.37, i.e. 1.70 to 3.95): Killip class &gt;1 multiplies the odds of death by about 2.6 at any given age — roughly tripling, not merely adding, the probability (18% to 58%), which is why the OR and the absolute risks must be reported together.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>The OR is a ratio of <em>odds</em>, not of probabilities: an OR of 2 does not mean &quot;twice as likely&quot; when the baseline probability is anything but small.</li>
 <li>Reporting ORs from a case-control study as risk ratios, or ORs from a cohort study of a common outcome as if they were RRs, systematically exaggerates effects.</li>
 <li>A &quot;non-significant&quot; adjusted OR can still be an important finding (wide CI) or a sign of residual confounding; examine the CI and the change from the crude OR, not just the p-value.</li>
 <li>Do not interpret the intercept as a clinically meaningful baseline risk unless the reference values of all predictors are realistic (e.g. age = 0).</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
 <li>Menard S. <em>Applied Logistic Regression</em>. SAGE.</li>
@@ -157,6 +167,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../regression/simple-and-multiple-linear-regression.html"><span>← Previous article</span>Simple and multiple linear regression</a>
+          <a href="../regression/poisson-and-negative-binomial-regression.html" style="text-align:right"><span>Next article →</span>Poisson and negative binomial regression</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

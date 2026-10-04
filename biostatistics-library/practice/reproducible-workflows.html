@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical practice</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical practice <span class="sep">/</span> From analysis to reporting <span class="sep">/</span> <strong style="color:#273e3b">Reproducible workflows</strong></div>
         <h1 class="article-title">Reproducible workflows</h1>
         <p class="article-summary">The habits that make an analysis verifiable — version control, scripts over point-and-click, pinned software and seeds, and an audit trail from raw data to reported number.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>reproducible workflow</strong> is one in which a third party, given the raw data and your code, can regenerate every number, figure, and table in the paper by running a sequence of commands — without asking you to &quot;email the R session&quot; or to walk them through a series of GUI clicks. Reproducibility is not about perfecting the science; it is about making your <em>process</em> auditable.</p>
 <p>This is distinct from, but stronger than, <em>replicability</em> (does another group get the same conclusion?) and <em>reproducibility of the data</em> (can the raw data be shared?). In this article &quot;reproducible&quot; means the narrow, technical sense: a fixed sequence of operations that turns given data into the reported outputs, every step recorded.</p>
 <p>The core habits, in order of impact:</p>
@@ -112,7 +122,7 @@
 <li><strong>Randomness made deterministic.</strong> Any random component — resampling, simulation, random-number generation for splits — gets an explicitly recorded seed so it can be replayed.</li>
 <li><strong>Audit trail from raw to reported.</strong> Raw data (or a documented, hash-verified copy) → cleaning script → analysis script → output. Each step&#39;s input and output are traceable, and the transformation from source data to the number in Table 2 is a chain anyone can walk.</li>
 </ul>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -138,24 +148,24 @@
 </tr>
 </tbody></table>
 <p>Reproducibility matters most where results will be scrutinised (trials, publications, submissions) or reused (shared datasets, living analyses). Even a small single-author project benefits: the next version of yourself is the first beneficiary of a traceable process.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Reproducibility is not the same as validity.</strong> A perfectly reproducible analysis can still answer the wrong question or rest on biased data. The workflow controls <em>process</em>; it does not control <em>design</em>.</li>
 <li><strong>It is not zero-cost.</strong> Setting up version control, a lockfile, and organised scripts takes real time up front, and it resists ad-hoc exploratory habits. The trade-off is well worth it for anything that will be cited or submitted.</li>
 <li><strong>Data access is the usual blocker.</strong> Code without data reproduces nothing. If the raw data cannot be shared (privacy, ethics), the reproducibility claim is partial: code and synthetic/derived data are reproducible, the raw-data step is not. State this explicitly.</li>
 <li><strong>Notebooks have a specific trap.</strong> A notebook is only reproducible if its execution environment is also pinned; a saved .ipynb with unrecorded dependencies is a snapshot, not a recipe.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A group analyses a 2-year registry of 4,000 sepsis patients to estimate the association between early lactate clearance and 28-day mortality. The workflow: a git repository with <code>data/</code> (raw CSV plus SHA-256 checksums recorded at import), <code>clean/</code> (one script turning raw → analysis-ready file, committed once the cleaning logic is frozen), <code>analysis/</code> (the Cox model script), and <code>output/</code> (tables and figures regenerated, never hand-edited). The R environment is locked with <code>renv</code>; the analysis script sets <code>set.seed(2026)</code> for the bootstrap SE of the hazard ratio.</p>
 <p>A collaborator six months later clones the repo, runs <code>renv::restore()</code>, executes the three scripts in order, and regenerates every table in the paper. The hazard ratio 0.86 (95% CI 0.79–0.94) appears bit-for-bit. When a new site&#39;s data arrives, the team creates a new branch, records the new checksum, reruns the chain, and commits the diff — the old results remain reproducible at the old commit.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Committing a script is not the same as committing the environment</strong> — &quot;it runs on my machine&quot; fails when the library is a different version; the lockfile is the missing half.</li>
 <li><strong>Spreadsheets as a hidden data pipeline</strong> — if a cleaning step happened in an Excel file that was &quot;just organised,&quot; that step is invisible to anyone rerunning the code; the chain is broken exactly where it is hardest to audit.</li>
 <li><strong>Forgetting the seed (or using a different one per run)</strong> — any stochastic step without a recorded seed makes the reported standard error or split non-replayable.</li>
 <li><strong>Editing figures by hand</strong> — regenerating a figure from code and then nudging the legend in a drawing tool means the published figure is no longer what the code produces.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Leisch F, R-Core-Team. <em>Reproducible Research with R</em>. Springer.</li>
 <li>Wickham H, Grolemund G. <em>R for Data Science</em>. O&#39;Reilly Media.</li>
@@ -164,6 +174,10 @@
 <p><em>The topic map&#39;s &quot;Study design&quot; section covers the upstream data-capture decisions that a reproducible pipeline inherits (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../practice/statistical-analysis-plans.html"><span>← Previous article</span>Statistical analysis plans</a>
+          <a href="../practice/reporting-and-interpreting-results.html" style="text-align:right"><span>Next article →</span>Reporting and interpreting results</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

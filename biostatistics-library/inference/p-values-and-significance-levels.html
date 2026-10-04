@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical inference</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,19 +103,20 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Hypothesis testing <span class="sep">/</span> <strong style="color:#273e3b">P-values and significance levels</strong></div>
         <h1 class="article-title">P-values and significance levels</h1>
         <p class="article-summary">The p-value is the probability of data at least this extreme under the null hypothesis, compared with a prespecified threshold alpha to decide whether to reject it.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>p-value</strong> is the probability, assuming the null hypothesis is true, of obtaining a test statistic at least as extreme as the one actually observed. It measures incompatibility between the data and the null: a small p means that, if the null were true, data this extreme would be unusual.</p>
 <p>The <strong>significance level (alpha)</strong> - conventionally 0.05, and often 0.025 one-sided in confirmatory trials - is the threshold chosen before the data are examined. If p is at most alpha, the null is rejected; otherwise it is not rejected. For a two-sided test the level is split across both tails, so the p-value is twice the one-tail probability for a symmetric test statistic.</p>
 <p>The p-value is a property of the data under the null, not a probability about hypotheses: it is not P(H0 is true | data), and it is not the probability that the observed effect is &quot;real&quot;.</p>
 <p>A useful way to build intuition for what a p-value does and does not say is to fix the true state of the world and ask what p-values the procedure would produce. If the null is exactly true, a p-value at or below 0.05 appears in exactly 5% of repetitions. If the null is false and the effect is large, p-values concentrate far below 0.05. If the null is false but the effect is tiny, p-values scatter around and above the threshold and the test will often &quot;fail&quot;. The p-value of your one study is a single draw from whichever of these distributions applies - and without knowing the true effect and the power of the design, you cannot say which draw you have.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -131,23 +141,23 @@
 <td>Combining study-level evidence on a common scale</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>The p-value is valid only under the test&#39;s conditions: correct randomisation or error model, independent observations, and the prespecified analysis. Optional stopping, switching endpoints, or subgroup fishing makes the nominal p-value too small.</li>
 <li>The p-value depends heavily on sample size: with a very large n a trivially small effect becomes &quot;significant&quot;, and with a small n a clinically large effect may not reach significance. The p-value says nothing about the magnitude of the effect.</li>
 <li>The 0.05 threshold is a convention, not a boundary of evidence: p = 0.051 and p = 0.049 are almost indistinguishable in strength of evidence but are treated categorically differently.</li>
 <li>The p-value is computed as if the null were exactly true; in practice it is only approximately true, which matters most when interpreting borderline values.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A trial randomises 80 patients per arm to an antihypertensive or to placebo. Over six months, systolic blood pressure falls 4.2 mmHg more in the treatment arm, with a standard error of the difference of 2.0 mmHg. The test statistic is z = 4.2 / 2.0 = 2.10, giving a two-sided p-value of about 0.036. Because 0.036 is below 0.05, the null hypothesis of no difference is rejected. The correct reading is: if the drug truly had no effect, a difference of 4.2 mmHg or more would occur in about 3.6% of similarly sized trials - not &quot;there is a 96.4% probability the drug works&quot;. The 95% CI for the difference, 4.2 +/- 1.96 x 2.0, that is 0.3 to 8.1 mmHg, should be reported alongside, because it shows the range of clinically plausible effects rather than a pass/fail verdict at 0.05.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>&quot;The p-value is the probability that the null is true.&quot;</strong> It is P(data this extreme | H0 true), computed with the null assumed; reversing the conditioning gives a different (Bayesian) quantity.</li>
 <li><strong>&quot;p = 0.03 means a 3% chance the result is due to chance.&quot;</strong> The p-value is the tail probability of the test statistic under H0, not a probability that randomness produced the study.</li>
 <li><strong>Dichotomising at 0.05.</strong> &quot;Significant&quot; and &quot;not significant&quot; are administrative labels, not a categorical difference in evidence; report the p-value and the effect size with its CI.</li>
 <li><strong>P-hacking.</strong> Optional stopping, selective outcome reporting, and subgroup fishing all push p-values down and invalidate the nominal alpha.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott-Raven.</li>
@@ -155,6 +165,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../inference/null-and-alternative-hypotheses.html"><span>← Previous article</span>Null and alternative hypotheses</a>
+          <a href="../inference/type-i-and-type-ii-errors.html" style="text-align:right"><span>Next article →</span>Type I and Type II errors</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

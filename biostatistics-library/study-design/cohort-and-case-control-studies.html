@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Study design &amp; sampling</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,20 +103,21 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Designing a study <span class="sep">/</span> <strong style="color:#273e3b">Cohort and case-control studies</strong></div>
         <h1 class="article-title">Cohort and case-control studies</h1>
         <p class="article-summary">Two observational designs that track the exposure-to-outcome route — cohorts follow exposed subjects forward in time, case-control studies compare past exposures of cases and controls.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A <strong>cohort study</strong> starts from the exposure: exposed and unexposed individuals are identified and followed over time, and outcome rates are compared between the two groups. It estimates incidence (cumulative incidence or incidence rate) directly, and the effect measure is the <strong>relative risk (RR)</strong>. A cohort can be <em>prospective</em> — exposure ascertained before any outcome, the classical form — or <em>retrospective</em> — exposure and outcome both recovered from existing records (hospital or employment registers). The time direction of inference is the same in both; only the calendar direction differs.</p>
 <p>A <strong>case-control study</strong> starts from the outcome: people with the outcome (cases) and people without it (controls) are selected, and their past exposures are compared. Because the numbers of cases and controls are fixed by design, incidence cannot be estimated; the natural effect measure is the <strong>odds ratio (OR)</strong>, which approximates the relative risk when the outcome is rare in the source population (<strong>rare-disease assumption</strong>).</p>
 <p>A third distinction matters in practice: in a cohort, the effect can be reported as a relative risk (risk ratio) or, with person-time follow-up, as a <strong>rate ratio</strong> using incidence rates; in a case-control study, the only directly estimable ratio is the odds ratio. The case-control OR can be converted to a risk ratio only when the outcome incidence in the source population is known from an independent source — otherwise it should be reported as an odds ratio, full stop.</p>
 <p>The two designs are mirror images: a cohort fixes the exposure and watches for the outcome; a case-control fixes the outcome and looks back for the exposure.</p>
 <p>A further efficiency point: a cohort can answer several outcome questions at once from a single follow-up (hence &quot;cohort studies&quot; as long-running research programmes), while a case-control study is built around one outcome and one exposure — extending it to a second outcome requires a fresh selection of cases and controls.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -137,7 +147,7 @@
 </tr>
 </tbody></table>
 <p>Rule of thumb: a cohort is more efficient when the exposure is common; a case-control study is more efficient when the outcome is rare. A practical way to choose is to ask which arm of the mirror image is cheap: if you can identify and follow the exposed, do a cohort; if you can identify cases from a registry or hospital system, do case-control.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Cohort</strong> — long follow-up for rare outcomes is expensive and produces loss to follow-up; incidence estimates assume the cohort is representative of the exposed source population; the at-risk time scale must be handled correctly (person-time vs cumulative incidence).</li>
 <li><strong>Cohort</strong> — if the outcome develops at different times, comparing proportions (cumulative incidence) and rates (incidence per person-time) can give different pictures: a cohort with longer follow-up in the exposed group will show higher cumulative incidence even if the hazard is identical.</li>
@@ -145,11 +155,11 @@
 <li><strong>Case-control</strong> — the OR ≈ RR approximation holds only when the outcome is rare in the source population; for common outcomes the OR overstates the RR.</li>
 <li><strong>Both</strong> — exposure measurement error and recall bias (worse in case-controls, where cases and controls interview differently); confounding is handled by design (restriction, matching) or analysis (stratification, regression), not by the design itself.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A retrospective cohort followed 4,000 long-term smokers and 4,000 never-smokers for 20 years using hospital and death records. One hundred twenty lung cancers occurred among smokers and 12 among never-smokers. Cumulative incidence: 120/4,000 = 3.0% vs 12/4,000 = 0.3%, so RR = 3.0% / 0.3% = <strong>10.0</strong>.</p>
 <p>In a separate case-control study, 200 incident lung-cancer cases and 200 age-matched controls were interviewed. Smoking history was present in 160 cases and 80 controls. OR = (160 × 120) / (40 × 80) = <strong>6.0</strong>.</p>
 <p>Both point to a strong association; the OR of 6.0 is a reasonable approximation of the RR here because lung cancer is uncommon in the source population over 20 years. If the outcome were common, the OR would overstate the relative risk and should be reported as an odds ratio, not a risk ratio. Note also the contrast in denominators: the cohort&#39;s 120 vs 12 events are incidence counts from 8,000 person-followed subjects, while the case-control counts (160 vs 80) are exposure counts in selected cases and controls — the two 2×2 tables answer different questions even though they come from the same population.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Treating a case-control odds ratio as a relative risk when the outcome is common — the OR is then an overestimate of the RR.</li>
 <li>Selecting controls from the same hospital as cases for a condition with a shared exposure (e.g., comparing stroke to angina in a cardiac ward) — Berkson bias, not a valid reference.</li>
@@ -158,7 +168,7 @@
 <li>Using a single control group when the source population is heterogeneous: matching on age, sex, or calendar period, or using two control groups, reduces residual confounding from the strongest, well-measured variables.</li>
 <li>Reporting the OR from a hospital-based case-control study as if it applied to the whole population: the OR is valid for the source population from which the cases arose (that hospital&#39;s catchment), not automatically for the nation.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rothman K, Greenland S, Lash TL. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
 <li>Klein J, Moeschberger M. <em>Survival Analysis: A Self-Learning Text</em>. Springer.</li>
@@ -167,6 +177,10 @@
 <p><em>The planned &quot;Bias and confounding&quot; article in this library develops selection, information, and confounding bias in detail.</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../study-design/cross-sectional-studies.html"><span>← Previous article</span>Cross-sectional studies</a>
+          <a href="../study-design/randomized-controlled-trials.html" style="text-align:right"><span>Next article →</span>Randomized controlled trials</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

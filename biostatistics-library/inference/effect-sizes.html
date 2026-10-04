@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical inference</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Estimation <span class="sep">/</span> <strong style="color:#273e3b">Effect sizes</strong></div>
         <h1 class="article-title">Effect sizes</h1>
         <p class="article-summary">Measures of how large an association or treatment effect is - risk differences, risk ratios, odds ratios, hazard ratios, and standardised mean differences.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>An <strong>effect size</strong> quantifies the magnitude of an association or a treatment effect. Unlike the p-value, which mixes magnitude with sample size, the effect size answers &quot;how big is it?&quot;, and the confidence interval around it answers &quot;how precisely is it estimated?&quot;</p>
 <p>For binary outcomes three scales are used most often:</p>
 <table>
@@ -130,7 +140,7 @@
 </tbody></table>
 <p>For time-to-event outcomes the <strong>hazard ratio</strong> summarises the relative instantaneous risk over follow-up. For continuous outcomes the <strong>mean difference</strong> is used, and the <strong>standardised mean difference</strong> (Cohen&#39;s d = mean difference / pooled SD) expresses the effect in units of variability so that different endpoints can be compared, for example in a meta-analysis.</p>
 <p>One decision aid that follows directly from the absolute scale is the <strong>number needed to treat</strong> (NNT): NNT = 1 / RD when the treatment is beneficial (number needed to harm, NNH = 1 / RD, when it is harmful). An NNT of 33 means 33 patients must be treated for one year to prevent one recurrent myocardial infarction in this example; it combines the effect size with the follow-up horizon and is often the single clearest number for clinicians and patients.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -159,23 +169,23 @@
 <td>RD and NNT, because they map to absolute impact</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>The OR estimates the RR only when the outcome is rare; for common outcomes the OR exaggerates the strength of the association in whichever direction it points.</li>
 <li>RR and RD require a well-defined population at risk with known follow-up; the hazard ratio additionally assumes the proportional hazards condition holds over the follow-up window of interest.</li>
 <li>The SD in Cohen&#39;s d is estimated from the data and differs between populations; the 0.2 / 0.5 / 0.8 &quot;small / medium / large&quot; thresholds are rules of thumb, not clinical truths.</li>
 <li>Relative measures can make tiny absolute effects look dramatic: a 50% reduction of a baseline risk of 1 in 10,000 still halves something negligible.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A trial randomises 500 patients with acute coronary syndrome to an intensive antiplatelet strategy and 500 to standard care. At 12 months, 25 of 500 (5%) versus 40 of 500 (8%) in the two arms have a recurrent myocardial infarction. The risk difference is 8% - 5% = 3% (number needed to treat = 1/0.03 = 33); the risk ratio is 5/8 = 0.625; the odds ratio is (25 x 460) / (475 x 40) = 0.605. The OR is close to, but slightly more extreme than, the RR because the outcome, at 5-8%, is no longer rare. Reporting only the RR (&quot;a 37.5% relative reduction&quot;) would overstate the benefit for a clinician deciding about an individual patient; the 3% absolute reduction, with its confidence interval, is the number that drives the treatment decision.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Reporting only the relative effect.</strong> Pair every RR or OR with the absolute risk difference so readers can see the baseline risk it acts on.</li>
 <li><strong>Reading an OR as if it were an RR</strong> when the outcome is common - it exaggerates the association.</li>
 <li><strong>Letting the p-value, not the effect size, carry the conclusion.</strong> A statistically significant 1 mmHg blood pressure difference is &quot;significant&quot; but clinically unimportant.</li>
 <li><strong>Choosing the most flattering scale.</strong> RR and RD tell different stories when baseline risk is extreme; prespecify the primary measure and report the others alongside it.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Greenland S, Rothman KJ, Lachin JM. <em>Modern Epidemiology</em>. Lippincott-Raven.</li>
 <li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
@@ -183,6 +193,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../inference/confidence-intervals.html"><span>← Previous article</span>Confidence intervals</a>
+          <a href="../inference/null-and-alternative-hypotheses.html" style="text-align:right"><span>Next article →</span>Null and alternative hypotheses</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

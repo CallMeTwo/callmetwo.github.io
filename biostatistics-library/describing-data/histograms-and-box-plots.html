@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Describing &amp; visualizing data</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Exploring distributions <span class="sep">/</span> <strong style="color:#273e3b">Histograms and box plots</strong></div>
         <h1 class="article-title">Histograms and box plots</h1>
         <p class="article-summary">Two indispensable plots for seeing distribution shape, skew, outliers and group differences at a glance.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Numbers summarise; plots reveal. The <strong>histogram</strong> bins a continuous variable into adjacent intervals and draws a bar for each bin&#39;s count (or density). The binning is the key design choice: too few bins smear real structure, too many turn random fluctuation into apparent structure. A useful starting point is about sqrt(n) bins (or Sturges&#39; rule, 1 + log2(n)); the final width should be chosen by inspecting the shape at two or three candidate widths, not by the rule alone. On the y-axis, counts answer &quot;how many?&quot;; density (counts divided by bin width and by n) lets histograms with different bin widths be compared on the same axis, which is the safer choice when re-binning.</p>
 <p>The <strong>box plot</strong> (Tukey&#39;s box-and-whisker) compresses the same information into the five-number summary — minimum, Q1, median, Q3, maximum — with one twist: the whiskers extend to the most extreme observation <em>within</em> 1.5×IQR of the box, and points beyond are drawn individually as outliers. A box plot therefore answers three questions at once: where is the centre (median line), how wide is the middle 50% (box), and are there unusual extremes (beyond the whiskers)?</p>
 <ul>
@@ -110,7 +120,7 @@
 <li>The two are complementary: the histogram shows what the box hides (bimodality, fine shape); the box plot shows what a long histogram buries (group comparison, individual outliers).</li>
 </ul>
 <p>Reading a histogram is a three-step routine: (1) centre — where is the mass; (2) spread — how wide is the bulk; (3) shape — symmetric, skewed, gapped or multimodal? Shape decides whether the mean or the median is the honest summary, which is why the histogram precedes the choice of descriptive statistic.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -143,7 +153,7 @@
 <td>Showing readers the distribution a summary statistic cannot convey</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>Histograms depend on the bin edges: shifting the origin or changing the width can create or erase apparent skew or modes, so never read fine structure from a single arbitrary binning.</li>
 <li>Box plots summarise five numbers (plus individual outliers). Identical boxes can hide very different shapes: a right-skewed and a bimodal dataset can draw the same box.</li>
@@ -152,11 +162,11 @@
 <li>Overlapping boxes do not prove distributions are equal, and non-overlapping ones do not prove a significant difference; plots motivate the test, they do not replace it.</li>
 <li>Both plots describe one sample; they say nothing about how stable the shape is across samples, which is what the inference section&#39;s sampling variability covers.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>Ten patients had postoperative haemoglobin (g/L) of 10.8, 11.2, 11.5, 12.0, 12.4, 12.8, 13.1, 13.6, 14.0, 16.9. A histogram with 1 g/L bins gives: 11–12: 3, 12–13: 4, 13–14: 2, 16–17: 1 — a right tail with a conspicuous gap between 14 and 17.</p>
 <p>The box plot five-number summary: median = (12.4 + 12.8)/2 = 12.6; Q1 = 11.5; Q3 = 13.6; IQR = 2.1. The whisker fences are 11.5 − 3.15 = 8.35 and 13.6 + 3.15 = 16.75, so the 16.9 g/L value sits just beyond the upper fence and is drawn as an individual point. The report would read: &quot;median 12.6 (IQR 11.5–13.6) g/L, with one value (16.9 g/L) beyond the upper Tukey fence&quot; — a single patient worth a clinical look rather than an automatic deletion.</p>
 <p>Both plots tell the same story: a mildly right-skewed distribution with one high value. The histogram shows the gap and the tail; the box plot pins down the median, the IQR and the flag. Reporting the median and IQR alongside the plot (rather than the mean and SD) is the consistent choice for data like these.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Reading a histogram&#39;s shape from too few bins: with three or four bars everything looks &quot;fine&quot;. Inspect at two or three different bin widths before concluding the shape.</li>
 <li>Treating every point beyond a whisker as an error or as significant. It is a flag, not a verdict.</li>
@@ -165,7 +175,7 @@
 <li>Misreading the whisker ends as the minimum and maximum. They are the most extreme <em>in-fence</em> values; the true min/max may be further out and are only shown if plotted.</li>
 <li>Comparing histograms with different bin widths or different y-axis scales (counts vs density) as if they were the same picture.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -174,6 +184,10 @@
 <p><em>The &quot;Quantiles and the interquartile range&quot; article in this library defines the five-number summary used by the box plot (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../describing-data/frequency-tables.html"><span>← Previous article</span>Frequency tables</a>
+          <a href="../describing-data/scatter-plots-and-relationships.html" style="text-align:right"><span>Next article →</span>Scatter plots and relationships</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

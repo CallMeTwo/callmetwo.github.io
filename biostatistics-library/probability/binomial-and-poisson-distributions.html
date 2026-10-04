@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Probability &amp; distributions</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Probability &amp; distributions <span class="sep">/</span> Common distributions <span class="sep">/</span> <strong style="color:#273e3b">Binomial and Poisson distributions</strong></div>
         <h1 class="article-title">Binomial and Poisson distributions</h1>
         <p class="article-summary">Probability models for counts of events — fixed cohorts (binomial) and rare events over time (Poisson) — and when one approximates the other.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>binomial distribution</strong> models the count X of &quot;successes&quot; (events) among a
 fixed number n of independent trials, each with event probability p:</p>
 <p>P(X = k) = n choose k × p^k × (1 − p)^(n − k), with mean np and variance np(1 − p).</p>
@@ -112,7 +122,7 @@ interval of time or space, with average rate λ (expected number of events):</p>
 is well approximated by the Poisson(λ). This is why rare-event data (adverse
 reactions, outbreaks, deaths per 100,000 person-years) are usually analysed with
 Poisson models even though the underlying process is binomial at its core.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -137,7 +147,7 @@ Poisson models even though the underlying process is binomial at its core.</p>
 <td>Is the number of rare serious adverse events in a safety signal higher than the historical rate?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Binomial:</strong> n is fixed in advance; trials are independent; p is the same for
 every trial. Clustering (e.g. infection outbreaks within a ward) or heterogeneity
@@ -153,7 +163,7 @@ then appropriate.</li>
 (events per patient-days, per person-years) and the exposure time must be
 recorded for each subject.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A clinic plans to screen 400 patients for a condition with true prevalence
 p = 0.02. X ~ Binomial(400, 0.02), so the expected number of positives is
 np = 8. Suppose the clinic would flag the screen as anomalous at 10 or more
@@ -167,7 +177,7 @@ genuine rise in prevalence. A second, smaller example: if a rare adverse event
 occurs at a mean rate of λ = 3 per 1000 patient-days, the chance of 5 or more in
 a given 1000-day window is P(X ≥ 5) ≈ 0.185 — again, ordinary variation, not an
 automatic alarm.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Treating Poisson counts as normal when λ is small</strong> — with λ &lt; 10 the
 distribution is visibly right-skewed; exact Poisson probabilities or the
@@ -182,7 +192,7 @@ events per window does not mean a 300% probability; for rare events the
 single-event probability is approximately λ divided by the number of
 opportunities.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Biostatistics</em>. Pearson.</li>
 <li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
@@ -193,6 +203,10 @@ library explains why counts and proportions become normal for large n (article
 planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../probability/bayes-theorem.html"><span>← Previous article</span>Bayes’ theorem</a>
+          <a href="../probability/normal-distribution.html" style="text-align:right"><span>Next article →</span>Normal distribution</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

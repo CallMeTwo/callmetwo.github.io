@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Survival &amp; longitudinal data</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Survival &amp; longitudinal data <span class="sep">/</span> Time-to-event analysis <span class="sep">/</span> <strong style="color:#273e3b">Censoring and survival functions</strong></div>
         <h1 class="article-title">Censoring and survival functions</h1>
         <p class="article-summary">How censored observations are handled in time-to-event data, and what the survival function actually tells you.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Time-to-event data measure how long patients live, stay disease-free, or remain
 free of a complication. In almost every real study, some patients are still
 event-free when the study ends, are lost to follow-up, or experience a
@@ -116,7 +126,7 @@ is fully determined by the hazard over time. A censored patient contributes
 their exact follow-up duration to the analysis — the information &quot;no event
 happened up to this time&quot; — but contributes nothing about what happens after
 their censoring time.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <p>Survival-function thinking is required whenever the outcome is a time to an
 event, not a simple yes/no. Typical settings:</p>
 <table>
@@ -143,7 +153,7 @@ event, not a simple yes/no. Typical settings:</p>
 <td>How long do patients remain hospitalised before discharge?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Non-informative (independent) censoring</strong> is the foundational assumption:
 the censoring mechanism must be unrelated to the risk of the event,
@@ -158,7 +168,7 @@ risk.</li>
 <li>Survival functions describe probabilities, not individual fates; small
 samples produce noisy estimates at times when the risk set is small.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>Consider 50 melanoma patients followed after surgery. At 12 months, 14 have
 recurred, 28 are recurrence-free and still under observation, and 8 were lost
 to follow-up between 3 and 11 months. A Kaplan–Meier estimate (the standard
@@ -169,7 +179,7 @@ excluded afterwards. The interpretation: roughly 55% of such patients are
 recurrence-free at one year, and we are 95% confident the true proportion lies
 between 40% and 70%. Censoring here means we cannot claim what would happen
 after the 12-month mark without data we do not have.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Counting censored patients as &quot;survivors&quot; at the end of follow-up
 overstates survival; counting them as &quot;failures&quot; understates it. Both are
@@ -182,7 +192,7 @@ test (the log-rank test) and report effect estimates, not just p-values.</li>
 <li>Reporting &quot;survival&quot; when the event is something undesirable (recurrence,
 death) without defining the endpoint clearly confuses readers.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Klein JP, Moeschberger ML. <em>Survival Analysis: A Self-Learning Text</em>.
 Springer.</li>
@@ -193,6 +203,10 @@ Springer.</li>
 non-parametric estimation of S(t) and group comparison in detail.</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../regression/model-validation-and-overfitting.html"><span>← Previous article</span>Model validation and overfitting</a>
+          <a href="../survival/kaplan-meier-curves-and-the-log-rank-test.html" style="text-align:right"><span>Next article →</span>Kaplan–Meier curves and the log-rank test</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

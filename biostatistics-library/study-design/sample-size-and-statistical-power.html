@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Study design &amp; sampling</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Planning and validity <span class="sep">/</span> <strong style="color:#273e3b">Sample size and statistical power</strong></div>
         <h1 class="article-title">Sample size and statistical power</h1>
         <p class="article-summary">Determining how many participants a study needs to detect a clinically meaningful effect with a pre-specified probability, controlling false-positive and false-negative error.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p><strong>Statistical power</strong> is the probability that a study will correctly reject the null hypothesis when a true effect of a specified size exists. It is set in advance alongside the significance level (α, typically 0.05 two-sided), the clinically important effect size (the smallest difference worth detecting, e.g. a 10-percentage-point reduction in event rate), the outcome&#39;s variability (SD for continuous outcomes), and the design (two groups vs one, cluster randomisation, crossover). <strong>Sample size calculation</strong> inverts this: given α, power (conventionally 80% or 90%), and the target effect size, it computes the number of participants required.</p>
 <p>The four inputs that determine power are α, the effect size, the outcome variance, and the sample size; changing any one changes the others. A study underpowered for the effect it claims to detect cannot distinguish a real effect from chance even when the null is rejected, and a non-significant result is uninterpretable without knowing what effect the study was powered to find.</p>
 <p>Key formulas (two independent groups, two-sided):</p>
@@ -110,7 +120,7 @@
 <li>Two proportions: n per group ≈ [z_{1−α/2} √(2 p̄(1−p̄)) + z_{1−β} √(p₁(1−p₁) + p₂(1−p₂))]² / (p₁ − p₂)²</li>
 </ul>
 <p>where p̄ = (p₁ + p₂)/2 and Δ is the difference in means.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -139,7 +149,7 @@
 <td>A pilot study of 20–30 patients to estimate the event rate and SD for the definitive trial&#39;s sample size calculation, not to answer the primary question.</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>The effect size is an assumption, not a fact.</strong> The calculation is conditional on the effect really being as large as assumed; if the true effect is half the assumed size, power collapses. Base the assumed effect on prior evidence, not on the smallest effect that will look plausible.</li>
 <li><strong>The outcome variance is assumed.</strong> An underestimated SD inflates the required n; a conservative (larger) SD assumption is safer.</li>
@@ -147,7 +157,7 @@
 <li><strong>Loss to follow-up.</strong> The calculated n is the number analysed; if 20% are expected to drop out, recruit n / 0.8 and state this explicitly in the protocol.</li>
 <li><strong>Non-inferiority margins</strong> must be justified clinically before the calculation; the margin, not a p-value, is the central design parameter.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A trial will compare a new drug with standard therapy for a chronic condition. Standard therapy yields a 5-year event rate of 20% (p₁ = 0.20). The clinically important target is an absolute reduction to 10% (p₂ = 0.10), so Δ = 0.10. Set α = 0.05 two-sided (z_{1−α/2} = 1.96) and power 80% (z_{1−β} = 0.84).</p>
 <p>p̄ = (0.20 + 0.10)/2 = 0.15.</p>
 <ul>
@@ -156,14 +166,14 @@
 <li>n per group = (0.989 + 0.420)² / 0.10² = 1.409² / 0.01 = 1.987 / 0.01 ≈ <strong>199 per group</strong></li>
 </ul>
 <p>Round up to 200 per group. With 15% expected loss to follow-up, recruit 200 / 0.85 ≈ 236 per group, for a total of 472 randomised patients. If the true effect were only 0.05 (20% vs 15%), the required n would rise to roughly 800 per group — the sample size is extremely sensitive to the assumed effect size.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Underpowered studies are the norm, not the exception.</strong> Most clinical trials are powered for 80% of the assumed effect, meaning that even when the assumed effect is real, one in five studies will miss it. A non-significant result from an underpowered study is weak evidence of no effect, not evidence of a small effect.</li>
 <li><strong>Treating the sample size as a fixed target rather than a conditional statement.</strong> &quot;The study needed 400 patients&quot; is meaningless without stating the effect size and outcome variance the 400 was calculated for; report all inputs, not just n.</li>
 <li><strong>Using observed (post-hoc) power.</strong> Post-hoc power (power computed from the observed effect size) is a monotone function of the p-value; it adds no information and is misleading. A non-significant result always has post-hoc power below 50%; that is tautological, not informative.</li>
 <li><strong>Ignoring the design effect in cluster trials.</strong> A trial with 30 clusters of 100 patients each (raw n = 3,000) with ICC = 0.05 has a design effect of 1 + 99 × 0.05 ≈ 6; the effective sample size is about 500, not 3,000. Computing power from the raw count overstates precision by roughly the square root of the design effect.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Chow S, Shao W, Wang H, Lokhnygina Y. <em>Sample Size Calculations in Clinical Research</em>. CRC Press.</li>
 <li>Dupont W, Schuemaker M. <em>Power and Sample Size Calculation</em>. CRC Press.</li>
@@ -173,6 +183,10 @@
 <p><em>The planned &quot;Randomized controlled trials&quot; article in this library covers how the sample size feeds into the trial&#39;s design and analysis plan.</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../study-design/bias-and-confounding.html"><span>← Previous article</span>Bias and confounding</a>
+          <a href="../inference/point-estimates-and-standard-errors.html" style="text-align:right"><span>Next article →</span>Point estimates and standard errors</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

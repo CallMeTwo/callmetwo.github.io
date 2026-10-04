@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,17 +103,18 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Associations and models <span class="sep">/</span> <strong style="color:#273e3b">Poisson and negative binomial regression</strong></div>
         <h1 class="article-title">Poisson and negative binomial regression</h1>
         <p class="article-summary">Models count outcomes and incidence rates with log-link models, extending from the equidispersed Poisson to the overdispersed negative binomial.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Poisson regression models a count outcome (or an event rate per unit of exposure time) as the dependent variable: log(μ) = β₀ + β₁X₁ + …, where μ is the expected count (or rate) and the link is the natural logarithm. Exponentiating a coefficient gives a rate ratio (RR), also called a multiplicative incidence-rate ratio: for a one-unit increase in Xⱼ the expected count/rate is multiplied by e^βⱼ, holding other predictors fixed. Because log(μ) = log(count) − log(offset), including log(person-time) as an offset lets the model estimate <em>incidence rates</em> (events per person-year) while adjusting for unequal follow-up.</p>
 <p>The Poisson distribution has a built-in constraint: its variance equals its mean. In real health data the variance of counts is often larger — for example, a few patients account for many relapses while most have none. That <em>overdispersion</em> makes Poisson standard errors too small and p-values too small. The negative binomial regression is the standard remedy: it adds one extra parameter (often called the size or inverse-dispersion parameter α) that lets the variance exceed the mean; as α → 0 the model approaches a gamma-mixed Poisson, and as α → ∞ it collapses back to the Poisson. The RR estimates are nearly identical under the two models; the standard errors and p-values are not.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -130,7 +140,7 @@
 </tr>
 </tbody></table>
 <p>Use it when the outcome is a non-negative integer count or a rate with person-time, and you want an interpretable multiplicative effect. If only a very few events per subject matter and the outcome is effectively binary, logistic regression is simpler. If the outcome is time-to-<em>first</em> event rather than a count, Cox regression is the usual tool.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Independence of counts</strong>: one count per subject per period; recurrent events on the same subject are dependent, which requires a GEE or mixed model with the same log link.</li>
 <li><strong>Correct exposure measurement</strong>: with person-time, follow-up must be recorded accurately; left truncation and administrative censoring change the valid at-risk time.</li>
@@ -138,16 +148,16 @@
 <li><strong>Linearity on the log scale</strong> for continuous predictors.</li>
 <li><strong>Zero inflation</strong>: a large excess of <em>structural</em> zeros (patients who can never have the event) is not handled by the negative binomial and may call for a zero-inflated or hurdle model.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A cohort of 4,000 patients with inflammatory bowel disease contributes 9,800 person-years and 1,470 hospitalisations. A Poisson model with an offset of log(person-time) and the covariates age (per 10 years) and prior hospitalisations in year 1 (count) gives: log(rate) = −1.90 + 0.18·(age/10) + 0.42·(prior admissions). A 50-year-old with 2 admissions last year has expected rate e^(−1.90 + 0.90 + 0.84) = e^−0.16 ≈ 0.85 admissions/year, versus e^(−1.90 + 0.90 + 0) = 0.37/year for a same-age patient with 0 — a rate ratio of e^0.42 = 1.52 (95% CI 1.30 to 1.77): each extra prior admission is associated with a 52% higher admission rate. The residual deviance was 2,150 on 1,240 df (ratio ≈ 1.73), indicating marked overdispersion; refitting the same model as negative binomial gave α ≈ 0.45 and a rate ratio of 1.55 with a wider 95% CI of 1.31 to 1.83 — the effect is similar, but only the negative binomial CI is trustworthy.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>A rate ratio of 1.5 means the <em>rate</em> is 50% higher, not that the probability of the event rises by 0.5 — rates per person-time are not probabilities, and they can exceed 1 for recurrent events.</li>
 <li>Always check dispersion before trusting Poisson p-values; reporting Poisson inference on overdispersed data makes everything look more significant than it is.</li>
 <li>Do not use Poisson regression as a shortcut for a binary outcome with a &quot;large denominator&quot;; the models answer different questions (rare-event approximation only).</li>
 <li>For recurrent events, an ordinary Poisson model on the total count ignores within-subject correlation; use a GEE/mixed model with a log link and report the design effect.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Agresti A. <em>Categorical Data Analysis</em>. Wiley.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
@@ -156,6 +166,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../regression/logistic-regression.html"><span>← Previous article</span>Logistic regression</a>
+          <a href="../regression/model-assumptions-and-diagnostics.html" style="text-align:right"><span>Next article →</span>Model assumptions and diagnostics</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

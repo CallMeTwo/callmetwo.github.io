@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Describing &amp; visualizing data</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Descriptive statistics <span class="sep">/</span> <strong style="color:#273e3b">Variance and standard deviation</strong></div>
         <h1 class="article-title">Variance and standard deviation</h1>
         <p class="article-summary">Measures of spread around the mean: how to calculate them, why the denominator is n-1, and how the SD differs from the standard error.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Central tendency alone is a poor description of clinical data: two wards can share the same mean systolic blood pressure with very different clinical meaning if one is tightly clustered and the other wildly variable. The <strong>variance</strong> is the average of the squared deviations from the mean, and the <strong>standard deviation (SD)</strong> is its square root, which returns the measure to the original units. For a sample, the standard unbiased formula is s² = Σ(xi − x̄)² / (n − 1), with s = sqrt(s²).</p>
 <p>Dividing by n − 1 rather than n (Bessel&#39;s correction) removes the downward bias introduced by estimating the mean from the same data; with that correction the sample variance is an unbiased estimate of the population variance. Because deviations are squared before averaging, the SD is dominated by the most extreme observations and describes spread faithfully only when the distribution is roughly symmetric and unimodal.</p>
 <p>Two uses appear constantly in clinical work. First, as a descriptor of within-group variability: &quot;mean blood pressure 132 (SD 18) mmHg&quot; tells the reader that a typical patient is near 132 but that individual readings spread roughly over 132 ± 2×18 = 96–168 mmHg if the data are near-normal. Second, as a quality-control quantity: laboratory control charts track the SD of a control material over time, and a rising SD signals assay degradation before the mean drifts.</p>
@@ -110,7 +120,7 @@
 <li>The SD is in the variable&#39;s own units and is interpretable; the variance is in squared units and is mainly useful mathematically.</li>
 <li>For two independent measurements, the variance of their difference is the sum of the variances: Var(x − y) = s1² + s2².</li>
 </ul>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -144,7 +154,7 @@
 </tr>
 </tbody></table>
 <p>The SD is the correct companion to the mean (mean, SD). When the data are skewed, replace the pair with median and interquartile range rather than reporting a misleading one.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>The SD presumes a reasonably symmetric, unimodal distribution. For skewed variables (length of stay, procalcitonin) it overstates the typical patient-to-patient spread; the IQR is the more honest companion.</li>
 <li>It is scale-sensitive: multiplying every measurement by 10 multiplies the SD by 10, so SDs are comparable only within the same variable.</li>
@@ -153,10 +163,10 @@
 <li>Variance is additive for independent quantities (the property behind ANOVA and measurement-error models), but that additivity does not extend to means of ratios or to correlated within-patient repeats.</li>
 <li>The squared-deviation construction also means two datasets with the same SD can have very different shapes; the SD is one summary, not a description.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>Eight postoperative patients had systolic blood pressures (mmHg) of 118, 124, 130, 122, 135, 128, 121, 132. The mean is 1010/8 = 126.25 mmHg. Squared deviations from the mean are 68.06, 5.06, 14.06, 18.06, 76.56, 3.06, 27.56 and 33.06, summing to 245.5. The sample variance is 245.5/7 ≈ 35.07 mmHg² and the SD is sqrt(35.07) ≈ 5.9 mmHg.</p>
 <p>So the group summary is 126.3 (5.9) mmHg. If the readings were near-normal, about 95% would fall within 126.3 ± 2×5.9 ≈ 114–138 mmHg, consistent with the observed range of 118–135. Note the distinction the numbers make: the SD (5.9 mmHg) describes patient-to-patient spread, while the SE = 5.9/sqrt(8) ≈ 2.1 mmHg describes how precisely this sample mean estimates the true group mean — a smaller number that belongs in an inference, not in a baseline table.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Printing the standard error in a descriptive table. SE belongs to inference about the mean; SD belongs to describing the data. Baseline tables need SD.</li>
 <li>Pooling SDs by averaging them. To combine groups, average the variances (weighted by n − 1) and take the square root, or pool the raw data.</li>
@@ -164,7 +174,7 @@
 <li>Ignoring that a large SD swamps a group difference: a mean difference of 6 mmHg with SD 18 needs a much larger sample to detect than the same difference with SD 5.</li>
 <li>Quoting the SD from a small pilot as if it were the population&#39;s: one pilot&#39;s SD drives the whole power calculation, and a single outlier in it inflates the required n.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books. (See also their &quot;Statistics notes: measures of spread&quot;, BMJ 1996.)</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -173,6 +183,10 @@
 <p><em>The &quot;Quantiles and the interquartile range&quot; article in this library covers the spread measure used when the SD is inappropriate (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../describing-data/mean-median-and-mode.html"><span>← Previous article</span>Mean, median and mode</a>
+          <a href="../describing-data/quantiles-and-the-interquartile-range.html" style="text-align:right"><span>Next article →</span>Quantiles and the interquartile range</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

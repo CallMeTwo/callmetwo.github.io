@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Describing &amp; visualizing data</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Describing &amp; visualizing data <span class="sep">/</span> Descriptive statistics <span class="sep">/</span> <strong style="color:#273e3b">Mean, median and mode</strong></div>
         <h1 class="article-title">Mean, median and mode</h1>
         <p class="article-summary">Three complementary measures of central tendency and when each one is the right summary for a clinical variable.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Every dataset needs a single number that represents its centre, and biostatistics offers three. The <strong>mean</strong> is the sum of all values divided by the number of observations: mean = (x1 + x2 + ... + xn) / n. Because it uses every value, it is the most efficient summary for symmetric data and the basis of most parametric tests. The <strong>median</strong> is the middle value once the data are ordered; with an even number of observations it is the average of the two central values. It depends only on position, so extreme values cannot move it. The <strong>mode</strong> is the most frequently occurring value — the natural summary for discrete counts (number of comorbidities, number of readmissions) and the only sensible &quot;centre&quot; for nominal categories (most common blood group).</p>
 <p>The three measures sit close together when a distribution is roughly symmetric. Under skew they separate predictably: in a right-skewed distribution the tail of large values pulls the mean up, so typically mode &lt; median &lt; mean; a left skew reverses the order. That ordering is one of the quickest shape checks available, and it is why baseline tables pair the mean with the standard deviation or the median with the interquartile range, depending on the histogram.</p>
 <ul>
@@ -109,7 +119,7 @@
 <li>Median: resistant; describes the typical patient even when a few extreme values exist.</li>
 <li>Mode: useful for discrete or categorical data; unstable for continuous measurements.</li>
 </ul>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -144,7 +154,7 @@
 <li>Interval scale, skewed or with outliers → median (with IQR).</li>
 <li>Categorical → mode, backed by a full frequency table.</li>
 </ul>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>The mean requires an interval or ratio scale. Averaging nominal categories is meaningless, and averaging ordinal scales (1–5 severity scores) is common practice but an assumption about the numbers, not a property of them.</li>
 <li>With strong skew, heavy tails or influential outliers, the mean no longer represents the typical patient and can sit far from where most values cluster.</li>
@@ -153,17 +163,17 @@
 <li>Group differences in the mean or median can be driven by a few patients; always report the spread (SD or IQR) alongside the centre.</li>
 <li>With small samples all three are noisy estimates of population parameters; the mean&#39;s sampling variability is the standard-error topic of the inference section.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>Fifteen patients with acute coronary syndrome had ICU stays (days) of: 1, 1, 2, 2, 2, 3, 3, 4, 5, 5, 6, 8, 9, 12, 30. The sum is 93, so the mean is 93/15 = 6.2 days; the median is the 8th ordered value, 4 days; the mode is 2 days.</p>
 <p>One 30-day stay inflates the mean to 6.2 days, well above the central bulk of stays, whereas the median of 4 days sits where most patients actually are. Deleting the outlier drops the mean to (93 − 30)/14 = 4.5 days, showing how strongly the mean reacts to a single observation. The appropriate report is &quot;median 4 days (IQR 2–8 days)&quot;, with the mean added only if a mean-based quantity such as total bed-days is needed.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Reporting mean and SD for a skewed variable makes most patients look atypical; switch to median and IQR.</li>
 <li>Averages of ratios are not ratios of averages: the mean of each patient&#39;s diastolic/systolic ratio is not mean diastolic divided by mean systolic.</li>
 <li>Do not pool subgroup means by simple averaging; weight by subgroup size (averaging ward means of different sizes misstates the overall mean).</li>
 <li>The mode of a continuous variable measured at limited precision is an artifact of rounding, not a real centre of the distribution.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Bland M, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
@@ -172,6 +182,10 @@
 <p><em>The topic map&#39;s &quot;Statistical inference&quot; section develops standard errors and sampling variability in detail (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../foundations/data-quality-and-coding.html"><span>← Previous article</span>Data quality and coding</a>
+          <a href="../describing-data/variance-and-standard-deviation.html" style="text-align:right"><span>Next article →</span>Variance and standard deviation</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

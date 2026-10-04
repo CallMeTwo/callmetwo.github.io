@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical inference</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,19 +103,20 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Hypothesis testing <span class="sep">/</span> <strong style="color:#273e3b">Null and alternative hypotheses</strong></div>
         <h1 class="article-title">Null and alternative hypotheses</h1>
         <p class="article-summary">The null hypothesis states the default position that the test must reject, and the alternative states what the researcher wants evidence for.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Hypothesis testing formalises a decision problem with two competing statements. The <strong>null hypothesis (H0)</strong> is the default position - typically no difference, no association, or no effect - and it carries the burden of proof: it is rejected only when the data are sufficiently incompatible with it. The <strong>alternative hypothesis (H1)</strong> states what the researcher wants evidence for.</p>
 <p>The alternative can be <strong>two-sided</strong> (an effect in either direction, for example H1: mean difference not equal to 0) or <strong>one-sided</strong> (an effect in a prespecified direction, for example H1: the new treatment is superior). Two-sided tests split the significance level between both tails and are the default in medical research.</p>
 <p>Two structural points matter. First, the test is asymmetric: failing to reject H0 is not the same as accepting it; it only means the data did not reach the threshold for rejection. Second, the null is a mathematical device that defines the error probabilities of the procedure; it is not a scientific claim the researcher believes to be true.</p>
 <p>The choice between a point null (&quot;difference exactly equals 0&quot;) and a composite or margin-based null deserves attention. Exact point nulls are mathematically convenient and are the default for superiority tests, but they can be unambitious: if the true difference is 0.001 mmol/L, the null is false and the study will eventually &quot;reject&quot; it while nothing of interest has been shown. Margin-based hypotheses (non-inferiority, equivalence) instead anchor the test to a clinically meaningful boundary, which is often a better formulation of the scientific question, at the cost of having to justify the margin up front.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -131,23 +141,23 @@
 <td>H0: no exposure-disease association; H1: an association exists</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>A one-sided H1 is defensible only if a result in the opposite direction would be of no scientific or regulatory interest, and only if it is prespecified before the data are seen; a post hoc one-sided test is a route to p-hacking.</li>
 <li>In non-inferiority and equivalence designs the null is not &quot;no effect&quot; but &quot;an effect of at least a clinically meaningful size&quot;; the margin must be clinically justified, because the conclusion is only as meaningful as the margin.</li>
 <li>The probability statements behind the test (type I and type II errors) are valid only under the test&#39;s conditions: randomisation or a correct error model, independent observations, and the prespecified analysis. Design or selection bias invalidates the p-value no matter how carefully the hypotheses are worded.</li>
 <li>The choice of null value is a modelling decision that changes the answer; &quot;H0: difference = 0.1&quot; is a different test from &quot;H0: difference = 0&quot;.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A non-inferiority trial compares a new oral anticoagulant with warfarin for stroke prevention in atrial fibrillation. The prespecified margin is 1.5 percentage points per year of stroke risk: the new drug would be acceptable even if it were worse by up to 1.5% per year. The hypotheses are H0: (new drug - warfarin) stroke rate is at least +1.5% versus H1: the difference is less than +1.5%. The observed rate difference is -0.2% (favouring the new drug) and the upper limit of the 95% CI is +1.1%. Because even the worst value compatible with the data lies below the margin, H0 is rejected and non-inferiority is declared: the data are incompatible with the new drug being clinically worse by the prespecified margin.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>&quot;We proved the null.&quot;</strong> A failure to reject H0 is an absence of evidence against it, not evidence for it; a small underpowered study &quot;proves&quot; almost nothing in either direction.</li>
 <li><strong>Believing that rejecting H0 establishes H1 as true.</strong> It shows the data are incompatible with H0 at the chosen level; the effect size and its CI, not the verdict, describe what remains plausible.</li>
 <li><strong>Choosing a one-sided test after seeing the data</strong> to obtain a smaller p-value - invalid, because the tail probability was selected after the direction of the result was known.</li>
 <li><strong>Mismatching hypothesis and decision.</strong> Using a two-sided test when only one direction would change practice, or the reverse, wastes power or creates a question no one asked.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Chow SC, Lu J, Jiang H. <em>Design and Analysis of Clinical Trials</em>. Wiley.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -155,6 +165,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../inference/effect-sizes.html"><span>← Previous article</span>Effect sizes</a>
+          <a href="../inference/p-values-and-significance-levels.html" style="text-align:right"><span>Next article →</span>P-values and significance levels</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

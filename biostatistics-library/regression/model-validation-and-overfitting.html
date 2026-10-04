@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,17 +103,18 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Working with models <span class="sep">/</span> <strong style="color:#273e3b">Model validation and overfitting</strong></div>
         <h1 class="article-title">Model validation and overfitting</h1>
         <p class="article-summary">How to test whether a prediction or risk model generalises beyond its development data, and how to detect and prevent overfitting.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A regression model fitted to a dataset will always fit that dataset well — and increasingly well the more predictors you add. <em>Overfitting</em> is the failure mode in which the model captures random noise specific to the sample, so its <em>apparent</em> performance (e.g. R², AUC) is much better than its performance on new patients. Validation is the set of techniques that estimate how the model will actually perform in new data, and shrinkage is what overfitting does to a model: its coefficient estimates tend to be too large in magnitude, and its calibration (predicted vs observed probabilities) tends to be worse than it looks internally.</p>
 <p>The standard ladder of validation is: <strong>optimism</strong> (no validation — the model&#39;s own fit, always too optimistic), <strong>internal validation</strong> (bootstrap resampling or k-fold cross-validation on the same data), <strong>temporal validation</strong> (apply the model to patients followed later in the same cohort), and <strong>external validation</strong> (apply it to a genuinely independent dataset, ideally from a different site). For a model with k fitted coefficients, the classic shortcut for the expected overfitting of R² is the shrinkage estimate: adjusted R² ≈ 1 − (1 − R²)(n − 1)/(n − k − 1). With n = 150 and k = 15, a development R² of 0.30 shrinks to about 1 − (0.70)(149/134) ≈ 0.20 — one-fifth of the variance, not three-tenths.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -130,7 +140,7 @@
 </tr>
 </tbody></table>
 <p>Validation is required whenever a model is used for prediction (not just inference) — every clinical risk score, nomogram or ML model — and the more predictive claims are made, the more rigorous the validation must be: development-only performance is a minimum for an honest external test, not a promise of it.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Sample size relative to complexity</strong>: the events-per-variable (EPV) heuristic (≥ 10 outcome events per predictor, often ≥ 20 for reliable prediction) is a guard against overfitting, not a law; small samples with many predictors guarantee optimistic performance estimates.</li>
 <li><strong>Applicability</strong>: external validation tests performance <em>in a new population</em>; if the new population differs substantially (different case mix, outcome prevalence, measurement methods), the model may be inapplicable rather than merely imperfect.</li>
@@ -138,9 +148,9 @@
 <li><strong>Stability of the data-generating process</strong>: a model validated on 2010–2015 data may fail after a care pathway change in 2020; temporal validity can decay.</li>
 <li><strong>What is being validated</strong>: discrimination (AUC, calibration slope) and calibration (intercept, slope) are distinct; a model can discriminate well while being miscalibrated, and vice versa.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A team builds a logistic model predicting 30-day readmission from 12 predictors in 900 patients (215 readmissions). The development AUC is 0.79 and R² (Hosmer–Lemeshow-type) looks excellent. A 10-fold cross-validation gives AUC 0.71 — an optimism of 0.08. The calibration slope from the bootstrap is 0.72, indicating coefficients are about 28% too large. The team shrinks the model (ridge penalty) and re-estimates: AUC 0.72, slope 0.85. Two independent hospitals then apply the shrunk model: AUC 0.69 and 0.71, calibration slope 0.90 and 0.94. The honest claim is &quot;AUC about 0.7, reasonably well calibrated, externally validated in two sites&quot; — not &quot;AUC 0.79&quot;. Had the unshrunk model been deployed, its predicted probabilities would have been systematically too extreme: patients it labelled 25% risk would have observed risk closer to 19%.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Reporting the development AUC or R² as if it were the expected real-world performance is the single most common error; always pair it with a cross-validated or externally validated estimate.</li>
 <li>A &quot;non-significant&quot; difference between two models&#39; AUCs means the data cannot distinguish them — it does not prove they are equally good, and it is not a license to pick by convenience and report the winner&#39;s optimistic number.</li>
@@ -148,7 +158,7 @@
 <li>Adding predictors until the cross-validated metric stops improving is a defensible stopping rule; adding predictors until the <em>development</em> metric stops improving is how overfitted models are built.</li>
 <li>External validation with a small external sample has its own wide CIs; a single external AUC of 0.68 with n = 120 may be compatible with a true AUC of 0.62–0.74 — report the CI.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Vickers AJ, Elkin EB. &quot;Decision curve analysis: a novel method for evaluating prediction models.&quot; <em>Med Decis Making</em> 2006.</li>
 <li>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</li>
@@ -157,6 +167,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../regression/interaction-and-effect-modification.html"><span>← Previous article</span>Interaction and effect modification</a>
+          <a href="../survival/censoring-and-survival-functions.html" style="text-align:right"><span>Next article →</span>Censoring and survival functions</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

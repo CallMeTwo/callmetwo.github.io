@@ -12,7 +12,7 @@
 // map and the content can never drift apart silently.
 
 import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync, existsSync } from 'node:fs'
-import { join, dirname, relative } from 'node:path'
+import { join, dirname, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import esbuild from 'esbuild'
 import { marked } from 'marked'
@@ -98,13 +98,13 @@ function collectContentFiles() {
   return files
 }
 
-function navbarHtml(sectionId) {
+function navbarHtml(sectionTitle) {
   return `<nav style="background:#2c3e50;padding:12px 0;border-bottom:3px solid #3498db;position:sticky;top:0;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1)">
   <div style="max-width:1000px;margin:0 auto;padding:0 20px;display:flex;align-items:center;font-size:14px;flex-wrap:wrap;gap:0 5px">
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    ${sectionId ? `<span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>${''}</span>` : ''}
+    ${sectionTitle ? `<span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>${esc(sectionTitle)}</span>` : ''}
   </div>
 </nav>`
 }
@@ -114,17 +114,17 @@ function sidebarHtml(sections, activeSectionId) {
     const active = section.id === activeSectionId
     return `      <a href="../#topic-index" ${active ? `style="color:#17675d;background:#edf3ef;font-weight:700"` : ''}><span>${String(index + 1).padStart(2, '0')}</span>${esc(section.title)}</a>`
   }).join('\n')
-  return `<aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+  return `<aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>${sections.reduce((count, item) => count + item.groups.reduce((n, group) => n + group.topics.length, 0), 0)}</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
 ${links}
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>`
 }
 
@@ -162,6 +162,12 @@ function articleCss() {
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -182,6 +188,9 @@ function articleCss() {
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -192,7 +201,7 @@ function articleCss() {
   }`
 }
 
-function pageHtml({ title, summary, breadcrumb, sectionHtml, bodyHtml, sectionId }) {
+function pageHtml({ title, summary, breadcrumb, sectionId, sectionTitle, tocHtml, bodyHtml, previous, next }) {
   const description = escAttr(summary || '')
   return `<!doctype html>
 <html lang="en">
@@ -204,16 +213,21 @@ function pageHtml({ title, summary, breadcrumb, sectionHtml, bodyHtml, sectionId
     <style>${articleCss()}</style>
   </head>
   <body class="article-page">
-    ${navbarHtml(sectionId)}
+    ${navbarHtml(sectionTitle)}
     <div class="article-shell">
       ${sidebarHtml(sectionsGlobal, sectionId)}
       <main class="article-main">
         <div class="article-breadcrumb">${breadcrumb}</div>
         <h1 class="article-title">${esc(title)}</h1>
         ${summary ? `<p class="article-summary">${esc(summary)}</p>` : ''}
+        ${tocHtml}
         <article class="article-body">
           ${bodyHtml}
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          ${previous ? `<a href="${previous.href}"><span>← Previous article</span>${esc(previous.title)}</a>` : '<span></span>'}
+          ${next ? `<a href="${next.href}" style="text-align:right"><span>Next article →</span>${esc(next.title)}</a>` : '<span></span>'}
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>
@@ -227,14 +241,47 @@ function pageHtml({ title, summary, breadcrumb, sectionHtml, bodyHtml, sectionId
 
 let sectionsGlobal = []
 
+function slugHeading(value) {
+  return value.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/<[^>]*>/g, '').replace(/&amp;/g, ' and ').replace(/&[^;]+;/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'section'
+}
+
+function addTableOfContents(html) {
+  const counts = new Map()
+  const headings = []
+  const bodyHtml = html.replace(/<(h[23])>([\s\S]*?)<\/\1>/g, (_match, tag, inner) => {
+    const label = inner.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    const base = slugHeading(label)
+    const count = (counts.get(base) || 0) + 1
+    counts.set(base, count)
+    const id = count === 1 ? base : `${base}-${count}`
+    headings.push({ tag, id, label })
+    return `<${tag} id="${id}">${inner}</${tag}>`
+  })
+  if (!headings.length) return { bodyHtml, tocHtml: '' }
+  const tocItems = headings.map(heading => `<li class="${heading.tag}"><a href="#${heading.id}">${esc(heading.label)}</a></li>`).join('')
+  return { bodyHtml, tocHtml: `<nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol>${tocItems}</ol></nav>` }
+}
+
 async function main() {
   const topicsModule = await loadTopics()
-  const { sections, findTopicBySlug } = topicsModule
+  const { sections, findTopicBySlug, topicSlug } = topicsModule
   sectionsGlobal = sections
 
   const contentFiles = existsSync(contentDir)
     ? collectContentFiles()
     : []
+
+  const allTopics = sections.flatMap(section => section.groups.flatMap(group => group.topics.map(title => ({ section, group, title, slug: topicSlug(title) }))))
+  const topicBySlug = new Map()
+  for (const topic of allTopics) {
+    if (topicBySlug.has(topic.slug)) fail(`Duplicate topic slug "${topic.slug}" for "${topic.title}" and "${topicBySlug.get(topic.slug).title}". Topic slugs must be unique across the library.`)
+    topicBySlug.set(topic.slug, topic)
+  }
+  const contentByPath = new Map(contentFiles.map(file => [relative(contentDir, file).replace(/\\/g, '/').replace(/\.md$/, ''), file]))
+  const orderedPublished = allTopics.filter(topic => contentByPath.has(`${topic.section.id}/${topic.slug}`))
+  const publishedIndex = new Map(orderedPublished.map((topic, index) => [`${topic.section.id}/${topic.slug}`, index]))
 
   let generated = 0
   for (const file of contentFiles) {
@@ -258,6 +305,13 @@ async function main() {
     }
     const summary = data.summary || ''
     const bodyHtml = decorateLinks(marked.parse(body))
+    const { bodyHtml: anchoredBodyHtml, tocHtml } = addTableOfContents(bodyHtml)
+    for (const [, href] of bodyHtml.matchAll(/<a\s+[^>]*href="([^"]+)"/g)) {
+      if (/^(?:https?:|mailto:|#|\/\/)/i.test(href) || !/\.html(?:#.*)?$/.test(href)) continue
+      const linkPath = decodeURIComponent(href.split('#')[0]).replace(/\.html$/, '.md')
+      const target = relative(contentDir, resolve(dirname(file), linkPath)).replace(/\\/g, '/')
+      if (!contentByPath.has(target.replace(/\.md$/, ''))) fail(`Broken internal article link "${href}" in ${rel}: no published article at ${target}.`)
+    }
 
     const breadcrumb = [
       `<a href="../">Biostatistics Library</a>`,
@@ -272,7 +326,11 @@ async function main() {
     const outDir = join(distDir, sectionId)
     mkdirSync(outDir, { recursive: true })
     const outPath = join(outDir, `${slug}.html`)
-    writeFileSync(outPath, pageHtml({ title, summary, breadcrumb, bodyHtml, sectionId: location.section.id }))
+    const currentIndex = publishedIndex.get(`${sectionId}/${slug}`)
+    const previousTopic = currentIndex > 0 ? orderedPublished[currentIndex - 1] : null
+    const nextTopic = currentIndex < orderedPublished.length - 1 ? orderedPublished[currentIndex + 1] : null
+    const related = topic => topic && ({ title: topic.title, href: `../${topic.section.id}/${topic.slug}.html` })
+    writeFileSync(outPath, pageHtml({ title, summary, breadcrumb, bodyHtml: anchoredBodyHtml, tocHtml, sectionId: location.section.id, sectionTitle: location.section.title, previous: related(previousTopic), next: related(nextTopic) }))
     console.log(`[biostatistics-library] article  ${sectionId}/${slug}.html  ←  ${rel}`)
     generated += 1
   }

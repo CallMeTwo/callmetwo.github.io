@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Clinical research &amp; evidence</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,18 +103,19 @@
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Clinical research &amp; evidence <span class="sep">/</span> Evidence synthesis <span class="sep">/</span> <strong style="color:#273e3b">Systematic reviews</strong></div>
         <h1 class="article-title">Systematic reviews</h1>
         <p class="article-summary">A structured, reproducible method for locating, appraising and synthesising all relevant studies on a clinical question.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A systematic review answers a clearly formulated question by locating <em>all</em> relevant studies through a comprehensive, pre-specified search, selecting them against explicit eligibility criteria, appraising their risk of bias, and summarising the results. What distinguishes it from a narrative review is not the effort but the <em>process</em>: every step — search strings, databases, inclusion rules, quality checks — is documented before results are seen, so another team could repeat the work and reach the same study set.</p>
 <p>The standard workflow is: (1) frame a focused PICO-style question; (2) write the protocol, ideally registered (e.g. PROSPERO); (3) run the documented search across databases and grey literature; (4) screen titles/abstracts, then full texts, usually with two independent reviewers; (5) extract data and assess risk of bias (e.g. the Cochrane Risk of Bias tool for trials); and (6) synthesise narratively — or quantitatively via meta-analysis when the studies are similar enough to pool.</p>
 <p>The final product should be reportable step by step, and most teams use the PRISMA checklist to ensure none of the steps — including how disagreements between reviewers were resolved and who funded the review — is left out of the report.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -130,17 +140,17 @@
 <td>Is home-based telemonitoring cost-effective for heart failure follow-up?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>What you do not find, you cannot use</strong> — the review is only as complete as its search; unindexed, unpublished and non-English studies (the &quot;grey literature&quot;) are systematically missed, which biases results toward published, positive trials.</li>
 <li><strong>Eligibility is a choice, not a fact</strong> — excluding studies after seeing their results (e.g. dropping small trials that hurt the conclusion) invalidates the review; criteria must be fixed in the protocol.</li>
 <li><strong>Garbage in, garbage out</strong> — pooling high-bias studies gives a precise estimate of the wrong quantity; the risk-of-bias appraisal must feed the conclusions, not just a table.</li>
 <li><strong>Staleness</strong> — evidence moves; a review is a snapshot, and for fast-moving fields it should be treated as a date-stamped summary rather than a permanent verdict.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>Question: does early goal-directed therapy (EGDT) reduce mortality in septic shock, or has it been superseded by bundle care? A team registers a PROSPERO protocol, searches MEDLINE, Embase and CENTRAL (plus trial registries and reference lists) through a fixed date, and applies pre-set inclusion rules: adult ICU trials, EGDT versus usual or bundle care, all-cause mortality at 28 days. They screen 1,240 records, read 94 full texts, and include 7 RCTs. Two reviewers independently extract outcomes and flag 4 trials with unclear allocation concealment. The narrative synthesis concludes that EGDT does not outperform structured bundle care on 28-day mortality — consistent with the large PROCESS trial — so the intervention is not adopted, even though early small trials had suggested a mortality benefit.</p>
 <p>Interpretation: the same clinical question, asked decades apart, produced opposite answers; only by pulling <em>all</em> the trials — including the larger, negative ones the earlier reviews never contained — could the field move on. That shift from hopeful small studies to null large trials is exactly what a systematic review is built to reveal, and it is why its conclusions carry so much weight.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Treating a systematic review as automatically &quot;the best evidence&quot;: if it includes only biased trials, or missed key studies, its summary can mislead just like a single poor trial.</li>
 <li>Ignoring the risk-of-bias table: a pooled estimate from several high-risk trials is a precise estimate of a questionable quantity, not a reliable effect.</li>
@@ -148,7 +158,7 @@
 <li>Reading an older review as current: check the search date and any subsequent updates before basing a decision on it.</li>
 <li>Assuming the review&#39;s included studies answer the exact question your patient raises; if eligibility criteria excluded, say, comorbid kidney disease, the conclusion may not transfer to a patient with it — the protocol&#39;s criteria define the answer&#39;s scope.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, et al. <em>Cochrane Handbook for Systematic Reviews of Interventions</em>, 2nd edn. Wiley-Blackwell.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -157,6 +167,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../clinical-research/roc-curves-and-auc.html"><span>← Previous article</span>ROC curves and AUC</a>
+          <a href="../clinical-research/meta-analysis-and-forest-plots.html" style="text-align:right"><span>Next article →</span>Meta-analysis and forest plots</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical practice</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical practice <span class="sep">/</span> Further methods <span class="sep">/</span> <strong style="color:#273e3b">Missing data and imputation</strong></div>
         <h1 class="article-title">Missing data and imputation</h1>
         <p class="article-summary">How incomplete data bias results, the MCAR/MAR/MNAR taxonomy, and how multiple imputation recovers unbiased estimates with honest uncertainty.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Every analysis that silently drops incomplete records is, strictly speaking, an analysis of the subpopulation that has complete records. If the missing values are unrelated to anything, that is usually harmless; but in clinical research the missingness is often informative. Sicker patients drop out of follow-up, patients doing poorly stop reporting their pain scores, and the people who skip the 12-month visit are precisely the ones whose outcomes you most want to know.</p>
 <p>Missing data are conventionally classified by mechanism:</p>
 <ul>
@@ -111,7 +121,7 @@
 </ul>
 <p>The standard remedy for MAR data is <strong>multiple imputation</strong>. The recipe: (1) fit an imputation model using all observed variables, including those related to the missingness; (2) draw m (typically 20–50) completed datasets, each with the missing values replaced by plausible draws from their predictive distributions; (3) run the analysis of interest separately in each imputed dataset; (4) pool the m estimates and variances with Rubin&#39;s rules, which adds a between-imputation variance term so that the final confidence interval reflects uncertainty from the imputation itself.</p>
 <p>Why &quot;multiple&quot; instead of a single imputed dataset? A single imputed value replaces each missing number with one plausible guess, so the analysis behaves as if those values were measured — the resulting standard errors are too small. Drawing many plausible values, one per dataset, makes the variability <em>across</em> the datasets a genuine part of the uncertainty: the pooled interval is wider and honest about what the missingness cost us.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -137,25 +147,25 @@
 </tr>
 </tbody></table>
 <p>The decision sequence is short: quantify how much is missing per variable, check whether the missingness correlates with observed variables (which distinguishes MCAR from MAR), choose the method, and pre-specify all of this in the analysis plan before looking at the main results.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>MAR is the key assumption</strong> — if the mechanism is actually MNAR, multiple imputation will be systematically biased in a direction you cannot see. Use sensitivity analyses such as tipping-point or pattern-mixture approaches to bound the damage.</li>
 <li><strong>The imputation model must be adequate</strong> — it should include the outcome, the treatment or predictor of interest, and strong predictors of both. Imputing a variable from too few predictors gives weak, implausible values, and linearly imputing a binary outcome is a common subtle error.</li>
 <li><strong>Heavy missingness degrades precision</strong> — with more than about half of a key variable missing, even a correct MAR method yields wide, fragile intervals.</li>
 <li><strong>Single imputation is not a fix</strong> — mean or regression imputation fills values but understates variance, producing confidence intervals that are too narrow.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A randomized trial of an antihypertensive drug follows 400 patients for 12 months. The 12-month systolic BP is missing for 60 patients (15%), and the missingness is associated with baseline BP and treatment allocation — consistent with MAR. A complete-case analysis of the remaining 340 patients gives a treatment–control difference of −4.2 mmHg.</p>
 <p>Run multiple imputation (m = 25, imputing from baseline BP, age, sex, treatment, and missingness indicators), analyse each dataset, and pool with Rubin&#39;s rules: the difference is <strong>−6.1 mmHg (95% CI −8.3 to −3.9)</strong>, with a visible contribution from the between-imputation variance. The complete-case estimate was biased toward the null because the missing patients in the control arm tended to have higher baseline BPs. The pooled interval — not the one from the 340 complete patients — is what you report, alongside a description of how much was missing and why.</p>
 <p>A sensitivity analysis should accompany this: for instance, a tipping-point analysis asking how strongly the missing 12-month values would have to differ from the observed ones (conditional on the same covariates) to move the pooled estimate back across zero. If that threshold is large, the MAR conclusion is robust; if it is small, the trial&#39;s conclusion is fragile to the missingness and the report must say so.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Complete-case analysis is not &quot;conservative&quot;</strong> — it is usually biased, and its standard errors are wrong, sometimes in both directions.</li>
 <li><strong>Exclude the outcome from the imputation model and you bias the effect</strong> — the imputation model must include the outcome and the treatment, plus strong predictors of both; omitting the outcome typically attenuates the estimated treatment effect toward the null.</li>
 <li><strong>Report the missingness pattern, not just the fraction</strong> — &quot;15% missing&quot; tells a reader nothing; describe which variables, in which strata, and the evidence for the mechanism.</li>
 <li><strong>Do not treat imputed values as real measurements</strong> — derived quantities (ratios, composites) must be computed within each imputed dataset, not after pooling.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>van Buuren S. <em>Flexible Imputation of Missing Data</em>. CRC Press.</li>
 <li>Rubin DB. <em>Multiple Imputation for Nonresponse in Surveys</em>. Wiley.</li>
@@ -164,6 +174,10 @@
 <p><em>The topic map&#39;s &quot;Sample size and study design&quot; section covers planning for expected missingness upfront (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../clinical-research/heterogeneity-and-publication-bias.html"><span>← Previous article</span>Heterogeneity and publication bias</a>
+          <a href="../practice/bootstrap-and-permutation-methods.html" style="text-align:right"><span>Next article →</span>Bootstrap and permutation methods</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

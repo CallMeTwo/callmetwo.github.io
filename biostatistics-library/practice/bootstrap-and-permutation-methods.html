@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical practice</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,19 +103,20 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical practice <span class="sep">/</span> Further methods <span class="sep">/</span> <strong style="color:#273e3b">Bootstrap and permutation methods</strong></div>
         <h1 class="article-title">Bootstrap and permutation methods</h1>
         <p class="article-summary">Two resampling strategies — the bootstrap estimates sampling distributions by treating the sample as the population; permutation tests invert hypothesis tests by re-assigning labels.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Most textbook tests (t-test, ANOVA, chi-square) give formulas for the sampling distribution of a statistic that depend on assumptions — normality, equal variance, large samples. <strong>Resampling</strong> replaces the formula with the data itself.</p>
 <p>The <strong>nonparametric bootstrap</strong> is a way to estimate the sampling distribution of a statistic (a mean, a median, a regression coefficient, a risk ratio) without assuming its form. The idea: the observed sample is your best guess at the population, so resample <em>with replacement</em> from it many times (say B = 2000 or 10,000), compute the statistic in each resample, and use the resulting distribution for standard errors and confidence intervals. The bootstrap standard error is simply the standard deviation of the B resampled statistics; it estimates how much the statistic would vary from sample to sample without requiring a closed-form formula.</p>
 <p>Two widely used intervals are the <strong>percentile interval</strong> (the 2.5th and 97.5th percentiles of the bootstrap distribution) and the <strong>BCa (bias-corrected and accelerated) interval</strong>, which adjusts for skewness in the statistic&#39;s distribution and for the rate at which the percentile changes; BCa is generally preferable, and the simple percentile interval should be avoided when the bootstrap distribution is visibly skewed.</p>
 <p>A <strong>permutation test</strong> (randomization test) works in the opposite direction. It answers a hypothesis-testing question exactly under the sharp null of no effect: take the observed data, shuffle the group labels among individuals B times, and compute the test statistic in each shuffled world. The p-value is the fraction of permutations in which the statistic is as extreme as the observed one. Because it uses only the data actually observed, it needs almost no distributional assumptions — it only needs the labels to be exchangeable under the null, which holds under randomization.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -132,25 +142,25 @@
 </tr>
 </tbody></table>
 <p>Rule of thumb: the bootstrap is for <strong>estimation</strong> (intervals, standard errors) when the sampling distribution is inconvenient; the permutation test is for <strong>hypothesis testing</strong> when the null makes labels exchangeable. They are not interchangeable — the bootstrap does not validate a null hypothesis the way a permutation test does.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>The bootstrap assumes the sample is a reasonable stand-in for the population.</strong> With small samples (n &lt; 20 or so), extreme outliers, or data with strong clustering, resampling individuals fails to capture the true variability. For clustered data use a <em>cluster-level</em> (case) bootstrap.</li>
 <li><strong>Resampling units must match the sampling unit.</strong> If the data were collected in groups (patients within clinics), resampling individual rows while ignoring the clustering underestimates standard errors.</li>
 <li><strong>Permutation tests require exchangeability under the null</strong> — the labels must be randomizable. In an observational study with no randomization, shuffling labels is not a valid test of the sharp null; the bootstrap is a safer (and less exact) fallback.</li>
 <li><strong>Both methods need enough replications</strong> — with B = 500, the p-value itself is only accurate to roughly ±0.02, and the endpoints of a percentile CI wobble. Use B ≥ 2000 for estimates and more for small p-values.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>In a randomized trial, 22 patients with early diabetic retinopathy are allocated to treatment (n = 11) or placebo (n = 11). After 6 months, the mean change in retinal capillary density is +4.1% (SE from bootstrap: 1.3%) in treatment and +1.2% (SE 1.1%) in placebo. The difference is 2.9 percentage points; the standard t-test would be borderline because of small n and skew in the placebo changes.</p>
 <p>Because allocation was random, a permutation test is exact under the null of no treatment effect. Re-assign the 22 labels 10,000 times, recompute the difference each time, and find that 142 of the 10,000 shuffled differences are ≥ 2.9 points. The p-value is 142/10000 ≈ 0.014. The interpretation is direct: if the treatment had no effect, a difference this large or larger would arise from the randomization about 1.4% of the time.</p>
 <p>The bootstrap serves a complementary role in the same study: resample the 22 patients 5,000 times and recompute the difference in means each time, and the 95% BCa interval for the treatment effect is roughly (0.4, 5.8) points. The permutation test answers &quot;is there an effect at all?&quot;; the bootstrap interval answers &quot;how big is it, and how precisely is it estimated?&quot; Reporting both gives the reader the full picture neither one alone provides.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Bootstrap is estimation, not proof</strong> — a bootstrap CI says what the sampling distribution looks like <em>given this sample</em>; it does not make the study design or assumptions it rests on (random sampling, independence) magically valid.</li>
 <li><strong>Use the right resampling unit</strong> — resampling individuals from cluster-collected data is the most common bootstrap error, and it flatters the precision.</li>
 <li><strong>Permutation tests test a different null than the model</strong> — the permutation p-value addresses the sharp null of zero effect; it does not estimate the size or uncertainty of the effect.</li>
 <li><strong>Set a seed and report B</strong> — resampling results are random; record the random seed, the number of replications, and the interval type (percentile vs BCa) so the analysis is reproducible.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Efron B, Tibshirani RJ. <em>An Introduction to the Bootstrap</em>. Chapman and Hall.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -159,6 +169,10 @@
 <p><em>The topic map&#39;s &quot;Statistical inference&quot; section covers the frequentist framework these methods sit inside (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../practice/missing-data-and-imputation.html"><span>← Previous article</span>Missing data and imputation</a>
+          <a href="../practice/introduction-to-bayesian-inference.html" style="text-align:right"><span>Next article →</span>Introduction to Bayesian inference</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

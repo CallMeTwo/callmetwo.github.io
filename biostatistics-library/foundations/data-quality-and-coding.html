@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Foundations</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Understanding variables <span class="sep">/</span> <strong style="color:#273e3b">Data quality and coding</strong></div>
         <h1 class="article-title">Data quality and coding</h1>
         <p class="article-summary">Coding turns raw answers into analyzable values; data quality work finds and fixes the errors, gaps and inconsistencies before any inference.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p><strong>Data coding</strong> translates raw readings and free-text answers into structured
 values: assigning numbers to response categories, mapping lab units to a
 common scale, and encoding missingness deliberately. <strong>Data quality</strong> is the
@@ -120,7 +130,7 @@ on the next.</li>
 <p>Coding and quality work are <em>upstream</em> of statistics: no test or estimate can
 repair data that were coded wrong. A clean, documented coded dataset is the
 precondition for trustworthy inference.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <p>Coding and quality checks are applied where raw data first become the analysis
 dataset — at data entry, dataset lock, and before any analysis. Scenarios:</p>
 <table>
@@ -153,7 +163,7 @@ Coding first distinguishes &quot;not measured&quot; from &quot;result not availa
 asks whether the 8% is spread evenly across arm and visit, or concentrated in
 the treatment arm&#39;s last visit, because the answer changes whether the
 missingness biases the treatment comparison.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>A coded value is only as good as the coding scheme.</strong> If the coder applied
 a Likert scale inconsistently, or sites interpreted the instrument
@@ -172,7 +182,7 @@ sources measure the same quantity on the same scale.</li>
 <p>The process breaks down when data are locked before checks are complete, when
 the raw record is no longer available to resolve a discrepancy, or when
 coding is left to a single untrained person without a documented scheme.</p>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A trial database holds 2,400 blood-pressure readings. Quality checks find 192
 readings (8.0%) with a missing diastolic value, 6 with systolic &gt; 250, and 11
 records whose sex code changed between visits. The team traces the 192 to a
@@ -186,7 +196,7 @@ scattering randomly, the analysis plan is updated: the primary analysis uses
 readings from unaffected devices, with a sensitivity analysis including
 imputed values. The <em>pattern</em> of the missingness — discovered only by quality
 work — determined a change in analytic strategy, not just a cleaning footnote.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Treating all missing values as one thing.</strong> &quot;Not measured&quot;, &quot;refused&quot; and
 &quot;lost to follow-up&quot; have different implications; coding them into a single
@@ -201,7 +211,7 @@ precise, not less.</li>
 discrepancies can only be handled analytically, not corrected at source —
 the far more expensive path.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
@@ -212,6 +222,10 @@ missingness mechanisms in depth (article planned).</li>
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../foundations/scales-of-measurement.html"><span>← Previous article</span>Scales of measurement</a>
+          <a href="../describing-data/mean-median-and-mode.html" style="text-align:right"><span>Next article →</span>Mean, median and mode</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

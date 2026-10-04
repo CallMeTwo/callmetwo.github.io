@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Foundations</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Foundations <span class="sep">/</span> Understanding variables <span class="sep">/</span> <strong style="color:#273e3b">Scales of measurement</strong></div>
         <h1 class="article-title">Scales of measurement</h1>
         <p class="article-summary">Nominal, ordinal, interval and ratio scales describe how much structure a variable carries, and the structure fixes which operations are valid.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>scale of measurement</strong> classifies a variable by the structure its values
 carry, in four ascending levels:</p>
 <ul>
@@ -120,7 +130,7 @@ it</em>: weight is a ratio scale in kilograms but ordinal if recorded only as
 &quot;underweight / normal / overweight&quot;. The recorded scale is the ceiling on the
 analyses you can legitimately do — ratio-scale information cannot be recovered
 from a coarser record.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <p>Scale of measurement is fixed when the instrument is designed, because it
 decides which statistics and tests are admissible. Typical scenarios:</p>
 <table>
@@ -152,7 +162,7 @@ but the &quot;distance&quot; II→III need not equal III→IV. Weight is ratio-s
 kg patient really weighs twice a 35 kg patient, so ratios and geometric means
 are legitimate. The same patient, measured on scales of different richness,
 supports different analyses.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>The recorded scale is a ceiling, not a floor.</strong> Once a continuous
 measurement is collapsed into categories, the finer information is gone.
@@ -171,7 +181,7 @@ support time-based analysis.</li>
 different contexts (a date is interval; a duration is ratio) and for hybrid
 instruments, where the scale is assigned per item rather than per
 questionnaire.</p>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A heart-failure clinic records, for 120 patients, NYHA class (ordinal), body
 weight (ratio) and serum sodium (interval). NYHA class III is the mode (45
 patients, 37.5%); the class distribution is best summarised by the mode and
@@ -184,7 +194,7 @@ weight does.</p>
 ordinal variable, medians and IQR (or means and SDs if roughly symmetric) for
 the numeric variables, and no analysis is admissible that reaches past the
 structure the recorded scale provides.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Computing a mean on ordinal data and reporting it as a &quot;score&quot;.</strong> A mean
 of 2.4 on a 1–4 NYHA scale implies equal spacing; report proportions by
@@ -198,7 +208,7 @@ is nominal and only counts are valid.</li>
 &quot;above/below the reference range&quot; in the form makes later continuous
 analysis impossible even if the raw value existed in the lab report.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Bland JM, Altman DG. <em>Statistics with Confidence</em>. BMJ Books.</li>
@@ -208,6 +218,10 @@ appropriate summaries and plots (article planned).</li>
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../foundations/categorical-and-numerical-data.html"><span>← Previous article</span>Categorical and numerical data</a>
+          <a href="../foundations/data-quality-and-coding.html" style="text-align:right"><span>Next article →</span>Data quality and coding</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

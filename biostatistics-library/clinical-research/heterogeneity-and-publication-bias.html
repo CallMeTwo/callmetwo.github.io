@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Clinical research &amp; evidence</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,17 +103,18 @@
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Clinical research &amp; evidence <span class="sep">/</span> Evidence synthesis <span class="sep">/</span> <strong style="color:#273e3b">Heterogeneity and publication bias</strong></div>
         <h1 class="article-title">Heterogeneity and publication bias</h1>
         <p class="article-summary">Two threats to a meta-analysis — genuine differences between studies, and the missing studies that never made it into print.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A meta-analysis rests on the assumption that the included studies are sufficiently alike to pool. <strong>Heterogeneity</strong> is the real, quantifiable disagreement between study results beyond what sampling error alone would produce. It is summarised by Cochran&#39;s Q test and, more usefully, by <strong>I-squared (I²)</strong>, which expresses the percentage of total variation across studies that is due to real differences rather than chance: I² of 0–40% is often unimportant, 30–60% moderate, 50–90% substantial, and 75–100% considerable. High heterogeneity argues for a random-effects model, for subgroup exploration, and for cautious interpretation.</p>
 <p><strong>Publication bias</strong> is a different, nastier threat: the set of studies found is not representative of all studies done, because small or negative trials are less likely to be published. The result is a pool skewed toward large, positive effects — a bias that inflates the pooled estimate and narrows its interval. Because unpublished studies are invisible, it can only be <em>suspected</em> and probed, not directly observed.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -129,24 +139,24 @@
 <td>When downgrading a body of evidence, is the concern heterogeneity, risk of bias, or both?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>I² has no fixed threshold</strong> — the same I² is tolerable with a large overall effect and disqualifying with a small one; it is a proportion of variance, not a pass/fail test, and the underlying Q test has poor power with few studies.</li>
 <li><strong>Random effects does not fix heterogeneity</strong> — it describes the spread of effects and widens the interval, but it does not make non-comparable studies meaningful; if studies differ in ways that matter clinically, pooling may be wrong entirely.</li>
 <li><strong>Funnel-plot methods assume symmetry</strong> — Egger&#39;s test and funnel plots presume that asymmetry, if present, comes from small-study/publication effects; it can also arise from genuine heterogeneity, poor study quality, or chance.</li>
 <li><strong>Few studies are the weak point</strong> — with only 4–6 trials, neither I² nor a funnel plot can reliably detect heterogeneity or bias; the tests are underpowered and the funnel plot is just a handful of points.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A meta-analysis of seven RCTs of a new analgesic versus placebo shows a pooled mean pain-score improvement of 1.2 points (95% CI 0.6–1.8). Cochran&#39;s Q = 18.4, df = 6, p = 0.006, and I² = 67% — substantial heterogeneity: the trials range from 0.4 to 2.3 points. Rather than trust the fixed-effects pool, the analysis is redone with a random-effects model, giving 1.1 (95% CI 0.1–2.1), and a subgroup analysis by dose reveals the high-dose trials are the ones driving the benefit.</p>
 <p>Separately, a funnel plot of the seven trials is noticeably asymmetric: the small trials cluster on the positive side, and there is a gap where small negative trials should be. Egger&#39;s test is significant (p = 0.04). The plausible explanation is that small, negative trials went unpublished, so the pooled benefit is likely overstated. Interpretation: two independent warnings — real between-trial differences and a probable publication gap — mean the &quot;modest benefit&quot; headline is fragile, and the honest summary is a wide random-effects interval that may shrink (or reverse) once missing trials are accounted for.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Treating I² as a rigid rule (&quot;if I² &gt; 50%, pool or don&#39;t&quot;): it is a descriptive proportion, and its tolerability depends on the size and clinical importance of the pooled effect.</li>
 <li>Swapping to a random-effects model and then reading its wide interval as if heterogeneity were solved; random effects describes the spread, it does not make dissimilar studies comparable.</li>
 <li>Taking a symmetric-looking funnel plot as proof there is no publication bias, especially with only a handful of studies where the plot has no statistical power.</li>
 <li>Reporting a significant fixed-effects result while ignoring a significant Q test, i.e. quoting the precise-looking estimate that the data say you should not trust.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Higgins JPT, Thomas J, Chandler J, Cumpston M, Li T, et al. <em>Cochrane Handbook for Systematic Reviews of Interventions</em>, 2nd edn. Wiley-Blackwell.</li>
 <li>Bland M, Altman DG. &quot;Some methods and software for assessing scale of heterogeneity in meta-analysis.&quot; <em>Statistics in Medicine</em>. 1996.</li>
@@ -155,6 +165,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../clinical-research/meta-analysis-and-forest-plots.html"><span>← Previous article</span>Meta-analysis and forest plots</a>
+          <a href="../practice/missing-data-and-imputation.html" style="text-align:right"><span>Next article →</span>Missing data and imputation</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

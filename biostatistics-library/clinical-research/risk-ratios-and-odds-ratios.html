@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Clinical research &amp; evidence</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Clinical research &amp; evidence <span class="sep">/</span> Risk and diagnostic accuracy <span class="sep">/</span> <strong style="color:#273e3b">Risk ratios and odds ratios</strong></div>
         <h1 class="article-title">Risk ratios and odds ratios</h1>
         <p class="article-summary">Two ratios that compare an event rate between groups, and when each one answers a different clinical question.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>The <strong>risk ratio</strong> (relative risk) compares the probability of an event in two groups: RR = risk(exposed) / risk(unexposed). It is computed directly from cohort studies and randomized trials, where follow-up is known for both groups. An RR of 0.60 means the event occurs 40% less often in the exposed group.</p>
 <p>The <strong>odds ratio</strong> compares odds rather than risks: OR = [a/b] / [c/d], where a and c are the numbers of events in each group and b and d the numbers without the event. The OR can be computed from any study design, including case-control studies where risks are not estimable, and it is the natural effect measure from logistic regression, because the model estimates log odds.</p>
 <p>When the outcome is rare (say under 10%), odds closely approximate probabilities, so OR ≈ RR. As the outcome becomes more common the OR increasingly exaggerates the RR: for a harmful exposure the OR is larger than the RR, and for a protective one it is smaller.</p>
@@ -126,7 +136,7 @@
 </tr>
 </tbody></table>
 <p>From it: risk = a/(a+b); RR = [a/(a+b)] / [c/(c+d)]; OR = (a/b) / (c/d).</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <p>Use the risk ratio when you can estimate risks in both groups, and the odds ratio when you cannot, or when modelling several predictors simultaneously.</p>
 <table>
 <thead>
@@ -152,14 +162,14 @@
 <td>Which admission variables independently predict 30-day readmission?</td>
 </tr>
 </tbody></table>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Rare-outcome approximation</strong> — quoting an OR as if it were an RR is only defensible when the outcome is uncommon; at 20% risk the gap is already visible.</li>
 <li><strong>Adequate cell counts</strong> — normal-approximation confidence intervals for log OR or log RR misbehave with small cells or zero cells; use exact or penalized (e.g. Firth) logistic regression instead.</li>
 <li><strong>Comparable follow-up</strong> — the risk ratio compares cumulative risks; if follow-up differs between groups, an incidence rate ratio on person-time is more honest.</li>
 <li><strong>Not a substitute for absolute risk</strong> — the same RR means very different things on different baseline risks; always pair the ratio with absolute risks (see the article on absolute risk differences).</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A trial randomizes 400 patients to a statin and 400 to placebo. Over 5 years, 48 of 400 in the statin arm and 80 of 400 in the placebo arm have a major coronary event.</p>
 <ul>
 <li>Risk ratio = 0.12 / 0.20 = <strong>0.60</strong>, a 40% relative reduction.</li>
@@ -167,7 +177,7 @@
 <li>Odds ratio = (48/352) / (80/320) = 0.136 / 0.25 = <strong>0.55</strong>, close to the RR because the outcome is moderately rare.</li>
 </ul>
 <p>Interpretation: statin-treated patients have a 40% lower relative risk of a coronary event over 5 years, and the interval excludes no effect. Because the placebo risk is 20%, the absolute benefit is 8 percentage points — the number that should drive the shared decision (NNT = 12.5).</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Reporting an odds ratio of 2.5 as &quot;the risk is 2.5 times higher.&quot; With a 20% baseline risk, an OR of 2.5 corresponds to an RR of 2.0 (exposed risk 40%); odds are not risks.</li>
 <li>Reading a case-control OR as a risk estimate. It estimates the RR in the source population under valid sampling, not the actual probability of the outcome.</li>
@@ -175,7 +185,7 @@
 <li>Choosing OR versus RR by habit rather than design: the logistic-regression OR is convenient, but when risks are estimable, risk ratios (or risk differences) are usually easier for clinicians to act on.</li>
 <li>Back-calculating an exposed-group risk from an OR in a trial: the OR identifies the ratio of odds, and converting it back to a risk requires knowing the baseline risk, which the OR alone does not provide.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Greenland S, Rothman KJ, Lachin JM. &quot;Measures of Occurrence and Effect.&quot; In Rothman KJ, Greenland S, Lash TL (eds), <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -184,6 +194,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../survival/generalized-estimating-equations.html"><span>← Previous article</span>Generalized estimating equations</a>
+          <a href="../clinical-research/absolute-risk-differences.html" style="text-align:right"><span>Next article →</span>Absolute risk differences</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

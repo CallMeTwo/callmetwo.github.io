@@ -33,7 +33,11 @@ Markdown links are fully supported. During the build:
 - **Internal links** to other articles work with relative paths, e.g.
   `[Confidence intervals](../inference/confidence-intervals.html)`. Keep the
   `.html` extension in internal links — the static page exists at exactly that
-  path.
+  path. The build checks that each relative article link points to a published
+  article.
+
+Article pages generate a table of contents from `##` and `###` headings and
+previous/next links following the topic map order.
 
 ## Adding an article
 

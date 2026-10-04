@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,24 +103,25 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Working with models <span class="sep">/</span> <strong style="color:#273e3b">Model assumptions and diagnostics</strong></div>
         <h1 class="article-title">Model assumptions and diagnostics</h1>
         <p class="article-summary">Residual plots and tests that check linearity, independence, constant variance and influential points after fitting a regression model.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Every regression model rests on assumptions — linearity of the mean, independence of observations, constant residual variance, normality of residuals (for exact inference in small samples), and the absence of overly influential observations. Diagnostics are the systematic check that these hold for <em>your</em> data rather than in theory. The workhorse tool is the residual: the difference between observed and fitted values. Residuals should look like random noise — mean zero, constant spread, no pattern against fitted values, predictors, or time — and anything structured in them points to a specific violated assumption.</p>
 <p>For generalised linear models (logistic, Poisson) the raw residuals are not scale-free, so diagnostics use <em>standardised</em> or <em>deviance</em> residuals; the same logic applies, but a residual &quot;larger than 3&quot; is judged on a roughly standard-normal scale. The goal is not to prove the model right — it is to find the specific, fixable problems (a curved relationship, a leveraged outlier, clustered errors) before trusting the coefficients.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <ul>
 <li><strong>After fitting any regression</strong> — linear, logistic, Poisson — as a routine step before reporting coefficients, p-values or predictions.</li>
 <li><strong>Before publication</strong> — journals increasingly expect evidence that assumptions were checked, or a statement of why the chosen robust alternative is fine.</li>
 <li><strong>When results look suspicious</strong> — a p-value that flips after adding a covariate, a coefficient with a huge confidence interval, or predictions outside a plausible range.</li>
 <li><strong>After a data revision</strong> — new participants, exclusions or a change in outcome definition can break a previously fine model.</li>
 </ul>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <p>The standard checklist, and the diagnostic that reveals each failure:</p>
 <ul>
 <li><strong>Linearity</strong> — mean of Y changes linearly with each continuous predictor. Check: residual-vs-fitted plot and residual-vs-predictor plots; a smooth (lowess) through the residuals should be flat. A curved trend → add a quadratic term, spline, or transform.</li>
@@ -120,9 +130,9 @@
 <li><strong>Normality of residuals</strong> — matters mostly for p-values and CIs with small n. Check: Q–Q plot of residuals against normal quantiles; mild skew is usually harmless with n &gt; 30–40, but heavy tails warrant robust SEs.</li>
 <li><strong>Influential points</strong> — one observation driving the fit. Check: Cook&#39;s distance (commonly flagging d &gt; 4/n), leverage values (hᵢ &gt; 2k/n, where k is the number of parameters), and the change in coefficients on case deletion. A point can be influential without being an outlier in Y.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A team fits a linear model of postoperative pain score (0–10) on age, BMI and analgesic dose in 180 patients. The residual-vs-fitted plot shows a clear funnel: residual spread near 1.0 for pain scores around 2 but around 2.5 near 8, a variance ratio of roughly 6 between the low- and high-pain groups. The Q–Q plot is otherwise unremarkable, the lowess curve is flat (linearity fine), and no Cook&#39;s distance exceeds 4/180 = 0.022. Because the outcome is a bounded scale with mean–variance dependence, the team refits with weighted least squares using weights proportional to 1/fitted variance; the coefficient for analgesic dose changes from −0.31 (p = 0.004) to −0.27 (p = 0.02) with a similar CI width — the conclusion is unchanged, but the standard errors are now valid. The practical lesson: the p-value <em>before</em> the fix was anti-conservative, and the funnel was visible in a single plot.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>A statistically &quot;significant&quot; Shapiro–Wilk test on residuals does not automatically invalidate a large-sample model; normality is needed for exact small-sample inference, and the central limit theorem does the rest. Judge the Q–Q plot, not only the test p-value.</li>
 <li>A single influential point is a <em>reason to investigate the data</em>, not automatically a reason to delete it — check for data-entry error first; deleting without documentation is a reproducibility problem.</li>
@@ -130,7 +140,7 @@
 <li>Diagnostics on the <em>final</em> model after stepwise selection can look deceptively clean; fit the diagnostics to the model you actually intend to report, and remember that selected models overstate R².</li>
 <li>Robust standard errors fix heteroscedasticity inference but do not fix a badly misspecified mean; the linear fit may still be wrong.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Fox J. <em>Applied Regression Analysis and Generalized Linear Models</em>. SAGE.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
@@ -139,6 +149,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../regression/poisson-and-negative-binomial-regression.html"><span>← Previous article</span>Poisson and negative binomial regression</a>
+          <a href="../regression/interaction-and-effect-modification.html" style="text-align:right"><span>Next article →</span>Interaction and effect modification</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

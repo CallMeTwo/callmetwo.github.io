@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Correlation &amp; regression</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,17 +103,18 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Associations and models <span class="sep">/</span> <strong style="color:#273e3b">Pearson and Spearman correlation</strong></div>
         <h1 class="article-title">Pearson and Spearman correlation</h1>
         <p class="article-summary">Two coefficients that quantify the strength and direction of association between continuous variables, for linear and monotonic relationships.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>Correlation summarises how two variables move together. The Pearson product-moment correlation (r) measures the strength of a <em>linear</em> association on the scale −1 to +1: 0 means no linear association, while ±1 indicates that one variable is an exact linear function of the other. The Spearman rank correlation (ρ, &quot;rho&quot;) instead ranks each variable and then computes Pearson&#39;s r on the ranks, so it captures <em>monotonic</em> associations — relationships that are consistently increasing or decreasing even when not straight-line.</p>
 <p>Both coefficients are symmetric (correlation of X with Y equals that of Y with X) and say nothing about cause. A frequently used companion is r², the proportion of variance in one variable explained by the other: r = 0.5 means r² = 0.25, i.e. only a quarter of the variability is shared. In medical research, correlations of 0.3–0.5 are usually considered moderate, 0.5–0.7 strong, and above 0.7 very strong, but these thresholds depend on the field and the noise in measurement.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -130,7 +140,7 @@
 </tr>
 </tbody></table>
 <p>Choose Pearson when both variables are approximately continuous and the scatterplot looks linear. Choose Spearman when the relationship is monotonic but curved, when the data are ordinal (e.g. Likert scale pain ratings), or when outliers and skew make ranks more representative. A Bland–Altman analysis is the better tool when the scientific question is <em>agreement</em> between two measurements rather than association.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>Pearson assumes a linear relationship between the variables and that the joint distribution is roughly bivariate normal; both variables should be at least interval-scaled.</li>
 <li>Pearson is very sensitive to outliers and to ceiling/floor effects — a single extreme value can inflate or deflate r by 0.1 or more.</li>
@@ -138,16 +148,16 @@
 <li>Neither coefficient detects nonlinear patterns: r can be 0 for a perfect U-shaped relationship.</li>
 <li>The significance test for r uses t = r·sqrt(n−2)/sqrt(1−r²); with n above 50, even weak but nonzero correlations become &quot;significant&quot;, so the size of r matters more than the p-value.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>In a study of 200 adults, a laboratory compares a new point-of-care HbA1c analyser with the reference HPLC method. The Pearson correlation between the two methods is r = 0.94, so r² = 0.88: about 88% of the variability in one measurement is shared with the other. The test statistic is t = 0.94·sqrt(198)/sqrt(1 − 0.8836) = 13.19/0.342 ≈ 38.6, giving p &lt; 0.001. The association is extremely strong and precise, but for method-comparison purposes the 94% shared variance still leaves roughly 6% of variation unexplained — a patient with HbA1c 8.0% on the reference method could plausibly measure anything near the regression line, so Bland–Altman limits of agreement are the appropriate next step.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li>Correlation is not causation, and not agreement: two methods can correlate 0.95 while consistently differing by 2 units, which may be clinically unacceptable.</li>
 <li>A correlation of 0 does not mean &quot;no relationship&quot; — it means no <em>linear</em> (for Pearson) or <em>monotonic</em> (for Spearman) relationship.</li>
 <li>Restricting the range of one variable (e.g. studying only patients with BMI 22–28) attenuates r; correlations from different samples are not directly comparable.</li>
 <li>Do not choose Spearman &quot;to be safe&quot; whenever the scatterplot looks linear — Pearson is more powerful in that case.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
 <li>Kleinbaum D, Kupper L, Muller K, Nizam A. <em>Applied Regression Analysis and Other Advanced Topics</em>. Brooks/Cole.</li>
@@ -156,6 +166,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../comparisons/mcnemars-test.html"><span>← Previous article</span>McNemar’s test</a>
+          <a href="../regression/simple-and-multiple-linear-regression.html" style="text-align:right"><span>Next article →</span>Simple and multiple linear regression</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical practice</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" style="color:#17675d;background:#edf3ef;font-weight:700"><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical practice <span class="sep">/</span> From analysis to reporting <span class="sep">/</span> <strong style="color:#273e3b">Reporting and interpreting results</strong></div>
         <h1 class="article-title">Reporting and interpreting results</h1>
         <p class="article-summary">Reporting guidelines (CONSORT, STROBE, STARD) and the interpretive discipline — confidence intervals, effect sizes, and the difference between statistical and clinical significance.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A result is not reported until it has been <em>communicated</em>: a number with its uncertainty, in a context a reader can evaluate. The field has settled on <strong>reporting guidelines</strong> — structured checklists that specify what must be stated for each study design — and most journals require the relevant one:</p>
 <ul>
 <li><strong>CONSORT</strong> — randomised controlled trials: flow of participants through allocation and analysis, the primary analysis exactly as pre-specified, and all results for all prespecified endpoints.</li>
@@ -110,7 +120,7 @@
 </ul>
 <p>Beyond the checklist, good reporting means three things about every key result: (1) the <strong>point estimate</strong> (the effect size, in clinically meaningful units), (2) its <strong>uncertainty</strong> (95% confidence interval), and (3) the <strong>interpretation in plain terms</strong> — what the number means for the patient, not just for the p-value. A result reported as only &quot;p = 0.03&quot; discards the two most important pieces of information.</p>
 <p>The interpretive core: <strong>statistical significance is not the finding; the effect size and its precision are the finding.</strong> The p-value answers a fixed null question; the confidence interval answers the useful one — how large, and how precisely estimated, is the effect? A narrow interval that excludes both the null and the minimal clinically important difference is a genuinely reassuring result; a wide interval that merely fails to reach 0.05 is a much weaker claim, and the two must not be presented the same way.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <table>
 <thead>
 <tr>
@@ -136,24 +146,24 @@
 </tr>
 </tbody></table>
 <p>These rules apply to any quantitative result in a paper, abstract, conference slide, or press release. The guideline is chosen by the <em>design of the study</em>, not by what is convenient to report.</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Guidelines are checklists, not validators</strong> — a CONSORT-compliant trial can still be biased by poor randomisation or selective follow-up; the checklist makes the bias <em>visible</em>, not absent.</li>
 <li><strong>The confidence interval inherits the model&#39;s assumptions</strong> — a CI around a hazard ratio presumes proportional hazards; around a regression coefficient, linearity and independent errors. Reporting the CI without checking its assumptions is reporting a number, not a guarantee.</li>
 <li><strong>STARD results are only as good as the reference standard</strong> — if the &quot;gold standard&quot; is imperfect or differs by group, sensitivity and specificity are mismeasured in a direction the 2×2 table cannot reveal.</li>
 <li><strong>A reporting guideline cannot fix a study that wasn&#39;t designed to answer the question</strong> — post-hoc subgroup &quot;findings&quot; reported as if confirmatory are the most common interpretive failure, and no checklist can launder them.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A 500-patient RCT of a new vaccine reports, per CONSORT: 250 per arm randomised, 246 and 244 analysed; 9 cases in vaccine, 21 in placebo. The hazard ratio for infection is 0.42 (95% CI 0.19–0.93), p = 0.031.</p>
 <p>The correct interpretation is layered. First, the <em>effect</em>: vaccinated patients had about 58% fewer infections (HR 0.42), and the 95% CI (0.19–0.93) says the true protection could plausibly range from 7% to 81% — so the result is statistically significant but imprecisely estimated. Second, the <em>clinical</em> read: even the worst end of the interval (HR 0.93) is a small benefit, while the central estimate is large; the authors should state whether a 58% relative reduction meets the threshold for adoption given cost and side effects. Reporting only &quot;p = 0.03, vaccine effective&quot; would have discarded the range and the magnitude. The CONSORT flow table lets a reader confirm the 250→246/244 drop did not break the randomisation.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Treating p &lt; 0.05 as &quot;real&quot; and p ≥ 0.05 as &quot;nothing&quot;</strong> — significance is a binary gate the data crossed by chance of the null; the size and precision of the effect, from the CI, carry the scientific content.</li>
 <li><strong>Reporting a p-value without the estimate and CI</strong> — the most common and most damaging omission; it makes the effect size and its uncertainty unknowable to the reader.</li>
 <li><strong>Cherry-picking significant subgroup or secondary endpoints</strong> as if they were the primary analysis; the guideline (and the SAP) exist to prevent exactly this.</li>
 <li><strong>Conflating statistical and clinical significance</strong> — a highly significant 1-point blood-pressure change may be clinically trivial, while a borderline 15-point change may be transformative; both require the effect size in context, not just the p.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Altman DG, Schulz KF, Moher D. <em>The CONSORT Statement: Revised Recommendations for Reporting Parallel Group Randomised Trials</em>. BMJ.</li>
 <li>von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP. <em>The STROBE Statement: Strengthening the Reporting of Observational Studies in Epidemiology</em>.</li>
@@ -163,6 +173,10 @@
 <p><em>The topic map&#39;s &quot;Statistical inference&quot; section develops the confidence-interval logic used throughout (article planned).</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../practice/reproducible-workflows.html"><span>← Previous article</span>Reproducible workflows</a>
+          <span></span>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

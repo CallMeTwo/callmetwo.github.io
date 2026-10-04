@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Statistical inference</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,14 +103,15 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Statistical inference <span class="sep">/</span> Hypothesis testing <span class="sep">/</span> <strong style="color:#273e3b">Type I and Type II errors</strong></div>
         <h1 class="article-title">Type I and Type II errors</h1>
         <p class="article-summary">A hypothesis test can be wrong in two directions - a false positive (Type I, controlled by alpha) or a false negative (Type II, governed by power).</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p>A hypothesis test has four possible outcomes, depending on whether H0 is true and what decision is made:</p>
 <table>
 <thead>
@@ -125,29 +135,29 @@
 <p>The <strong>Type I error rate (alpha)</strong> is the probability of a false positive - rejecting a true null - and is set by the researcher through the significance level, conventionally 0.05. The <strong>Type II error rate (beta)</strong> is the probability of a false negative - missing a real effect - and is determined by the effect size, the sample size, the variability, and alpha. The <strong>power</strong> of the study is 1 - beta and is conventionally targeted at 0.80 to 0.90 in the design stage.</p>
 <p>For a fixed sample size the two errors trade off: tightening alpha makes beta larger (the test less sensitive) and loosening alpha makes beta smaller. Increasing the sample size is the only way to reduce both at once.</p>
 <p>Because beta depends on the true effect size, which is unknown, power is really a <em>curve</em>: high power for large effects, falling to alpha for an effect of zero. The design convention is to pick the minimal clinically important difference, the effect the study must be able to detect with acceptable probability, and size the study so power reaches the target at <em>that</em> effect. A study that achieves 80% power for a large effect but only 35% for the clinically important one has not met the standard, even though a power calculation can be shown to report 80%.</p>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <ul>
 <li><strong>Sample size calculation</strong> - before a trial, choose n so that power to detect the minimal clinically important difference reaches the target (usually 80-90%).</li>
 <li><strong>Interpreting a non-significant result</strong> - ask whether the study was powered for an effect of the size that matters; a &quot;null&quot; result from a small study may be an undetected effect.</li>
 <li><strong>Choosing alpha</strong> - a confirmatory regulatory trial favours a low alpha (for example one-sided 0.025); an exploratory screening study tolerates a higher alpha in exchange for sensitivity.</li>
 </ul>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li>Alpha, beta, and power are properties of the <em>procedure</em> over repeated samples, not of the single study in front of you: your particular result is not &quot;80% likely to be correct&quot; because the design power was 80%.</li>
 <li><strong>Observed (post hoc) power</strong> - the power computed from the observed effect - is a monotone function of the p-value and adds nothing beyond what the p-value already says.</li>
 <li>The design-time power calculation assumes the true effect equals the planning value; if the true effect is smaller, the actual power is lower and the study is more prone to a Type II error than advertised.</li>
 <li>With multiple endpoints or subgroups, a per-test alpha of 0.05 no longer controls the probability of at least one false positive; see the multiple testing article.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A trial aims to detect a 5 mmHg difference in systolic blood pressure between two antihypertensive drugs (SD 15 mmHg in each arm, two-sided alpha 0.05). The required sample size is about 2 x (1.96 + 0.84)^2 x 15^2 / 5^2 = 142 patients per arm. If the study enrolls only 40 per arm, the power to detect a true 5 mmHg difference falls to roughly one-third: a &quot;no difference&quot; result from that smaller study is highly likely even when a clinically meaningful effect exists. Conversely, if a large trial with 1,000 patients per arm finds no difference, the residual probability of a Type II error for a 5 mmHg effect is small, making that null result much more credible.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>&quot;Non-significant means no effect.&quot;</strong> A failure to reject is uninformative when power is low; report the power, sample size, and CI, and frame the result as &quot;no detectable effect of this size&quot;.</li>
 <li><strong>Confusing the p-value with beta.</strong> The p-value is not the probability of a Type II error; beta is a design-time property of the procedure.</li>
 <li><strong>Powering for the smallest detectable effect</strong> rather than the minimal clinically important difference - a study can have &quot;80% power&quot; for an effect no one cares about while being underpowered for the one that would change practice.</li>
 <li><strong>Treating 80% power as a law.</strong> It is a pragmatic compromise that accepts a 20% false-negative rate; for high-stakes confirmatory decisions, higher power is often warranted.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Dupont WD, Schuemaker L. <em>Statistical Power for Clinical Trials</em>. Marcel Dekker.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -155,6 +165,10 @@
 </ul>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../inference/p-values-and-significance-levels.html"><span>← Previous article</span>P-values and significance levels</a>
+          <a href="../inference/multiple-testing.html" style="text-align:right"><span>Next article →</span>Multiple testing</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>

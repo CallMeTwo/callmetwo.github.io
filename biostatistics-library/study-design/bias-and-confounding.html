@@ -36,6 +36,12 @@
   .article-body{max-width:72ch;font-size:15px;line-height:1.85}
   .article-body h2{font:700 21px/1.4 'DM Sans',system-ui,sans-serif;margin:38px 0 14px;color:#203f37;padding-top:6px}
   .article-body h3{font-size:16px;font-weight:600;margin:28px 0 10px;color:#203f37}
+  .article-toc{max-width:72ch;margin:0 0 30px;padding:18px 22px;background:#f0f4ef;border-radius:6px}
+  .article-toc h2{font:600 14px 'DM Sans',system-ui,sans-serif;margin:0 0 8px}
+  .article-toc ol{margin:0;padding-left:20px;font-size:12px;line-height:1.9}
+  .article-toc li.h3{margin-left:18px}
+  .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
+  .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -56,6 +62,9 @@
   .article-footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:34px;margin-top:44px;border-top:1px solid var(--line);font-size:10px;color:#7b8a7f}
   .article-footer a{text-decoration:none}
   .article-footer a:hover{text-decoration:underline}
+  .article-pager{display:flex;justify-content:space-between;gap:16px;margin-top:30px;padding-top:20px;border-top:1px solid var(--line)}
+  .article-pager a{max-width:48%;text-decoration:none;font-size:12px;line-height:1.6}
+  .article-pager a span{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
   @media (max-width:720px){
     .article-shell{display:block}
     .article-sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:15px 22px}
@@ -71,18 +80,18 @@
     <a href="/" style="color:#3498db;text-decoration:none;font-weight:600;display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:4px">🏠 Home</a>
     <span style="color:#7f8c8d;margin:0 2px">/</span>
     <a href="../" style="color:#ecf0f1;text-decoration:none;transition:color .2s;padding:6px 8px;border-radius:4px">Biostatistics Library</a>
-    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section></span>
+    <span style="color:#7f8c8d;margin:0 2px">/</span><span style="color:#95a5a6;padding:6px 8px" data-active-section>Study design &amp; sampling</span>
   </div>
 </nav>
     <div class="article-shell">
-      <aside class="sidebar" aria-label="Library navigation">
-  <a class="library-brand" href="../" aria-label="Biostatistics Library home">
-    <span class="brand-icon" aria-hidden="true">B<span>∑</span></span>
+      <aside class="article-sidebar" aria-label="Library navigation">
+  <a class="article-brand" href="../" aria-label="Biostatistics Library home">
+    <span class="article-brand-icon" aria-hidden="true">B<span>∑</span></span>
     <span>Biostatistics<br><strong>Library</strong></span>
   </a>
-  <div class="nav-label">CONTENTS</div>
-  <a class="overview-link" href="../#topic-index">All topics <span></span></a>
-  <nav aria-label="Topic sections" class="section-nav">
+  <div class="article-nav-label">CONTENTS</div>
+  <a class="article-overview" href="../#topic-index">All topics <span>64</span></a>
+  <nav aria-label="Topic sections" class="article-sections">
       <a href="../#topic-index" ><span>01</span>Foundations</a>
       <a href="../#topic-index" ><span>02</span>Describing &amp; visualizing data</a>
       <a href="../#topic-index" ><span>03</span>Probability &amp; distributions</a>
@@ -94,21 +103,22 @@
       <a href="../#topic-index" ><span>09</span>Clinical research &amp; evidence</a>
       <a href="../#topic-index" ><span>10</span>Statistical practice</a>
   </nav>
-  <div class="sidebar-note"><span class="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
+  <div class="article-note-side"><span class="article-dot" /> Biostatistics Library<p>Explore statistical ideas and methods for health research.</p></div>
 </aside>
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Study design &amp; sampling <span class="sep">/</span> Planning and validity <span class="sep">/</span> <strong style="color:#273e3b">Bias and confounding</strong></div>
         <h1 class="article-title">Bias and confounding</h1>
         <p class="article-summary">Systematic errors that distort study results — selection bias, information bias, and confounding — and how to detect and control them.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview-and-key-ideas">Overview and key ideas</a></li><li class="h2"><a href="#when-to-use-it">When to use it</a></li><li class="h2"><a href="#assumptions-and-limitations">Assumptions and limitations</a></li><li class="h2"><a href="#worked-example">Worked example</a></li><li class="h2"><a href="#interpretation-and-common-pitfalls">Interpretation and common pitfalls</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
-          <h2>Overview and key ideas</h2>
+          <h2 id="overview-and-key-ideas">Overview and key ideas</h2>
 <p><strong>Bias</strong> is any systematic deviation of an estimated effect from its true value, caused by the study&#39;s design, conduct, or analysis. Unlike random error, bias does not shrink with a larger sample size; more data make a biased estimate more precisely wrong. The three broad families are:</p>
 <ul>
 <li><strong>Selection bias</strong> — the way participants are chosen or retained makes the observed exposure–outcome association differ from the one in the source population. Classic examples: low response rate that correlates with the outcome, hospital (Berkson) selection of controls, loss to follow-up that differs by group, and excluding long-term survivors from a cohort.</li>
 <li><strong>Information (misclassification) bias</strong> — the way exposure or outcome is measured systematically differs between groups or over time. Classic examples: recall bias in case-control studies (cases remember exposures differently than controls), diagnostic suspicion bias (clinicians investigate differently in treated patients), and unblinded outcome assessment.</li>
 <li><strong>Confounding</strong> — the exposure is associated with a third variable (the <strong>confounder</strong>) that independently affects the outcome, so the crude association mixes the exposure&#39;s effect with the confounder&#39;s. A confounder must be (1) associated with the exposure, (2) an independent cause of the outcome, and (3) not on the causal pathway between exposure and outcome.</li>
 </ul>
-<h2>When to use it</h2>
+<h2 id="when-to-use-it">When to use it</h2>
 <p>Bias and confounding are not methods to &quot;use&quot;; they are threats to check in every study. Typical moments where each matters most:</p>
 <table>
 <thead>
@@ -131,7 +141,7 @@
 </tr>
 </tbody></table>
 <p>In a properly randomised trial, confounding is controlled by design; residual confounding and information bias remain possible (e.g., through post-randomisation dropouts or unblinded assessments).</p>
-<h2>Assumptions and limitations</h2>
+<h2 id="assumptions-and-limitations">Assumptions and limitations</h2>
 <ul>
 <li><strong>Confounding control by regression</strong> assumes the model is correctly specified: all relevant confounders are measured, the exposure–confounder and confounder–outcome relationships are correctly modelled (linearity, no unmodelled interactions), and no unmeasured confounder remains. An unmeasured or poorly measured confounder can leave substantial residual confounding.</li>
 <li><strong>Stratification</strong> requires adequate numbers in each stratum; sparse strata produce unstable stratum-specific estimates and wide intervals.</li>
@@ -139,7 +149,7 @@
 <li><strong>Direct standardisation</strong> of rates requires an external standard population; results depend on the choice of standard and are not comparable across studies using different standards.</li>
 <li><strong>Instrumental-variable and marginal-structural-model approaches</strong> for unmeasured confounding rest on strong, untestable assumptions (e.g., the exclusion restriction for instruments); they are tools of last resort, not routine practice.</li>
 </ul>
-<h2>Worked example</h2>
+<h2 id="worked-example">Worked example</h2>
 <p>A case-control study examined coffee drinking and lung cancer (168 cases, 1832 non-cases with coffee; 28 cases, 1972 non-cases without). Crude OR = (168 × 1972) / (1832 × 28) ≈ <strong>6.5</strong> — suggesting coffee is a strong carcinogen.</p>
 <p>Stratifying by smoking (a confounder: coffee drinkers are more likely to smoke, and smoking causes lung cancer):</p>
 <table>
@@ -165,14 +175,14 @@
 </tr>
 </tbody></table>
 <p>Within each stratum the association is modest (and the smoker stratum is dominated by smoking itself). The crude OR of 6.5 is largely confounded: it mostly reflects the fact that heavy coffee drinkers are also more likely to be smokers. This is the classic demonstration that a strong crude association can be almost entirely explained by a single confounder.</p>
-<h2>Interpretation and common pitfalls</h2>
+<h2 id="interpretation-and-common-pitfalls">Interpretation and common pitfalls</h2>
 <ul>
 <li><strong>Confounding by indication</strong>: in observational studies of treatments, sicker patients receive the treatment, so the treatment looks harmful when it merely treated the sick. Randomisation, propensity methods, or restriction are needed; raw comparison is not valid.</li>
 <li><strong>Overadjustment</strong>: adjusting for a variable on the causal pathway between exposure and outcome (a mediator), or for a collider (a common effect of exposure and outcome), <em>creates</em> bias that was not there; adjusting for a collider opens a spurious association.</li>
 <li><strong>Assuming &quot;not significant&quot; means &quot;no confounding&quot;</strong>: a confounder can be associated with the outcome but fail a significance test for association with the exposure (especially with low power), and still materially confound the effect.</li>
 <li><strong>Relying on a single adjustment</strong>: one regression model is not a proof of unbiasedness. Sensitivity analyses (different models, stratification, negative-control outcomes, quantitative bias analysis) are how researchers argue that residual confounding is unlikely to explain the result.</li>
 </ul>
-<h2>References and further reading</h2>
+<h2 id="references-and-further-reading">References and further reading</h2>
 <ul>
 <li>Rothman K, Greenland S, Lash TL. <em>Modern Epidemiology</em>. Lippincott Williams &amp; Wilkins.</li>
 <li>Rosner B. <em>Fundamentals of Biostatistics</em>. Cengage Learning.</li>
@@ -182,6 +192,10 @@
 <p><em>The planned &quot;Cohort and case-control studies&quot; article in this library covers how control selection and follow-up introduce specific selection biases.</em></p>
 
         </article>
+        <nav class="article-pager" aria-label="Article navigation">
+          <a href="../study-design/sampling-methods.html"><span>← Previous article</span>Sampling methods</a>
+          <a href="../study-design/sample-size-and-statistical-power.html" style="text-align:right"><span>Next article →</span>Sample size and statistical power</a>
+        </nav>
         <footer class="article-footer">
           <span>Biostatistics Library · <a href="../">Browse the topic map</a></span>
           <a href="/">Back to Web Projects Hub 🌐</a>
