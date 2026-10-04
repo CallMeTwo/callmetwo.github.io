@@ -17,11 +17,16 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import esbuild from 'esbuild'
 import { marked } from 'marked'
 import { tmpdir } from 'node:os'
+import { createHash } from 'node:crypto'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = join(here, '..')
 const contentDir = join(root, 'content')
 const distDir = join(root, 'dist')
+const highlightScriptVersion = createHash('sha256')
+  .update(readFileSync(join(root, 'public', 'article-highlights.js')))
+  .digest('hex')
+  .slice(0, 10)
 
 marked.setOptions({ gfm: true, breaks: false })
 
@@ -296,7 +301,7 @@ function pageHtml({ title, summary, breadcrumb, sectionId, sectionTitle, tocHtml
         </footer>
       </main>
     </div>
-    <script src="../article-highlights.js" defer></script>
+    <script src="../article-highlights.js?v=${highlightScriptVersion}" defer></script>
   </body>
 </html>
 `
