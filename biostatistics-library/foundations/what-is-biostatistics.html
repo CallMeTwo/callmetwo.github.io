@@ -144,9 +144,9 @@
 <p>A small audit can prevent a large analytic error. Suppose a laboratory result is stored in mg/dL for one site and mmol/L for another. Pooling the raw values creates a site artifact that may look like biological heterogeneity. Unit harmonization and source checks belong before model fitting, with corrections documented so another analyst can reproduce them.</p>
 <h2 id="estimation-uncertainty-and-a-worked-comparison">Estimation, uncertainty, and a worked comparison</h2>
 <p>An estimate is a data-based summary of a target quantity; uncertainty describes how much the estimate could vary under the study’s sampling process and model. For a simple randomized comparison, let the outcome be change in systolic pressure, with negative values indicating reductions. Suppose mean change is −8 mmHg in the new-drug group and −3 mmHg in usual care. The estimated difference is</p>
-<p>[
+<p>\[
 \widehat{\Delta}= -8 - (-3) = -5\text{ mmHg}.
-]</p>
+\]</p>
 <p>If the standard error of the difference is 1.8 mmHg, a rough 95% confidence interval is −5 ± 1.96(1.8), or −8.5 to −1.5 mmHg. This interval expresses sampling uncertainty under the analysis assumptions; it does not say there is a 95% probability that the fixed treatment effect lies in this particular interval. A p-value alone would discard much of the information about plausible magnitude and precision.</p>
 <p>A reproducible calculation from patient-level data can be made in R:</p>
 <pre><code class="language-r"># change is follow-up minus baseline; assignment is randomized group

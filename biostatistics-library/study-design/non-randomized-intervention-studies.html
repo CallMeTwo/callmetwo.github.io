@@ -157,9 +157,9 @@ summary(weighted_fit)
 <h2 id="use-natural-experiments-with-explicit-assumptions">Use natural experiments with explicit assumptions</h2>
 <h3 id="difference-in-differences">Difference-in-differences</h3>
 <p>With treated and comparison groups measured before and after intervention, the basic estimator is</p>
-<p>[
+<p>\[
 \widehat{\tau}<em>{DID}=(Y</em>{T,post}-Y_{T,pre})-(Y_{C,post}-Y_{C,pre}).
-]</p>
+\]</p>
 <p>For example, if treated districts fall from 18 to 14 admissions per 10,000 and comparison districts fall from 16 to 15, then DID is ((14-18)-(15-16)=-3) admissions per 10,000. The estimate says the treated group&#39;s rate declined by three more than the comparison group&#39;s over the period, under the model. A causal reading requires that, absent the policy, the groups would have followed parallel trends on the chosen scale.</p>
 <p>Plot multiple pre-intervention periods and assess their substantive comparability. A non-significant pretrend test does not prove parallel trends; such tests can have low power. Check anticipation, concurrent programs, composition changes, and spillovers. Cluster uncertainty at the policy assignment unit. With staggered adoption and heterogeneous effects, a conventional two-way fixed-effects regression can mix comparisons and produce difficult-to-interpret weights. Cohort-time methods or event-study estimators designed for staggered rollout are generally preferable. Define which cohorts and post-treatment periods contribute to the target contrast.</p>
 <h3 id="interrupted-time-series">Interrupted time series</h3>

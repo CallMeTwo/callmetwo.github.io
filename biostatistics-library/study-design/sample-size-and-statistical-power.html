@@ -137,15 +137,15 @@
 <h2 id="what-determines-the-required-information">What determines the required information?</h2>
 <p>For a fixed design, power rises with the magnitude of the target effect and sample size and falls as outcome variability increases. It also depends on the type-I error rate, allocation ratio, dependence among observations, outcome prevalence, censoring, and analysis efficiency. Raising power from 80% to 90% generally requires a noticeable increase in enrollment. Reducing alpha to protect against multiple comparisons also increases the sample required for the same power.</p>
 <p>In a simple two-group comparison of means with equal group size (n), common standard deviation σ, and difference δ, the standard error of the estimated difference is σ√(2/n). A normal-approximation sample size per group is</p>
-<p>[
+<p>\[
 n \approx \frac{2\sigma^2 (z_{1-\alpha/2}+z_{1-\beta})^2}{\delta^2},
-]</p>
+\]</p>
 <p>where (1-\beta) is target power. This approximation assumes independent observations, a common variance, and a test whose sampling distribution is sufficiently close to normal. Exact software calculations may differ slightly, especially with small samples or non-normal outcomes.</p>
 <h3 id="worked-example-a-continuous-endpoint">Worked example: a continuous endpoint</h3>
 <p>Suppose a trial compares a new rehabilitation program with usual care on a functional score. Clinicians consider a 6-point mean difference important. Prior data suggest a standard deviation of 12 points. With equal allocation, two-sided α=.05, and 80% power, the approximation gives:</p>
-<p>[
+<p>\[
 n \approx 2(12^2)(1.96+0.84)^2/6^2 \approx 63
-]</p>
+\]</p>
 <p>analyzable participants per group. If approximately 15% of enrolled participants are expected to lack an endpoint measurement, the enrollment target is (63/(1-.15)\approx75) per group. This simple inflation addresses anticipated loss of analyzable observations; it does not correct bias if missingness depends on outcome or treatment response.</p>
 <pre><code class="language-r">delta &lt;- 6
 sd &lt;- 12
@@ -164,9 +164,9 @@ c(analyzable_per_arm = n_analyzable,
 <h2 id="match-the-calculation-to-the-outcome-and-design">Match the calculation to the outcome and design</h2>
 <p>For a binary outcome, the control and treatment probabilities both matter. For example, a relative risk reduction of 25% means different absolute differences when control risk is 4% versus 20%; the lower event rate generally requires more participants for the same relative contrast. Normal approximations can be poor with rare events or small samples. Use validated score, exact, or simulation-based procedures where needed, and clearly identify whether the target contrast is a risk difference, risk ratio, or odds ratio.</p>
 <p>For a time-to-event endpoint, power is often driven mainly by the number of observed events, not simply the number randomized. Under equal allocation and proportional hazards, a common approximation for a two-sided log-rank test is</p>
-<p>[
+<p>\[
 D \approx \frac{4(z_{1-\alpha/2}+z_{1-\beta})^2}{[\log(HR)]^2},
-]</p>
+\]</p>
 <p>where (D) is the required number of events. If the target hazard ratio is 0.70, with α=.05 and 80% power, the result is about 247 events. The total enrollment needed to obtain those events depends on control survival, accrual, follow-up, competing risks, and loss to follow-up. A participant count without an event-accrual projection is incomplete for an event-driven trial.</p>
 <p>Cluster randomization changes effective information because people in one clinic or school tend to resemble each other. For equal cluster size (m) and intraclass correlation ρ, the approximate design effect is (1+(m-1)\rho). If an individual-level calculation calls for 100 people per arm, average cluster size is 15, and ICC=.03, the design effect is 1.42 and a rough inflation gives 142 people per arm. This approximation does not account for a small number of clusters, unequal cluster sizes, or cluster dropout; design and analysis should be planned together.</p>
 <p>Repeated measurements can improve precision when within-person correlation is favorable and the analysis models the covariance appropriately. A longitudinal calculation therefore needs the number and timing of measurements, expected correlation, dropout pattern, and treatment-by-time contrast. For diagnostic sensitivity, the relevant information is often the number with disease, so a low-prevalence condition can require screening a large cohort. For prediction model development, the aim is not merely a significant coefficient: planning should consider overfitting, shrinkage, calibration, and the size of an independent validation sample.</p>

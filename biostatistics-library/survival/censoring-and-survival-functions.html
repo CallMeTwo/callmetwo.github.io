@@ -138,9 +138,9 @@
 <p>The hazard is conditional on remaining event-free. A hazard ratio compares instantaneous rates in the current risk sets; it is not a risk ratio, and it does not directly provide an absolute probability. A hazard can increase while event risk remains low if few people remain at risk, or decrease as susceptible individuals experience events. Present survival probabilities or cumulative incidence at meaningful times alongside hazard ratios.</p>
 <h2 id="kaplan-meier-estimation-from-risk-sets">Kaplan–Meier estimation from risk sets</h2>
 <p>At each distinct event time (t_j), let (n_j) be the number at risk just before the time and (d_j) the number of events. The Kaplan–Meier estimate multiplies conditional survival proportions:</p>
-<p>[
+<p>\[
 \widehat S(t)=\prod_{t_j\le t}\left(1-\frac{d_j}{n_j}\right).
-]</p>
+\]</p>
 <p>Consider 10 patients followed for recurrence. At day 5, 1 of 10 at risk has an event, so survival becomes 0.9. Two are censored at day 7, leaving 7 at risk. At day 10, 2 events occur; survival becomes (0.9\times(1-2/7)=0.643). Censored participants contribute information up to their censoring time, then leave the risk set. They do not cause a downward step in the curve.</p>
 <pre><code class="language-r">library(survival)
 fit &lt;- survfit(Surv(time_days, event) ~ treatment, data = dat)

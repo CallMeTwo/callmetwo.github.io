@@ -142,9 +142,9 @@
 <p>Autocorrelation diagnostics should be performed on model residuals, not only raw data. ACF bars outside approximate limits can indicate remaining dependence, but many lags are inspected and tests have limited power in short series. ACF/PACF patterns guide ARMA models, while domain knowledge informs plausible lag structure. For count outcomes, generalized linear autoregressive models or state-space count models may be needed rather than Gaussian ARIMA.</p>
 <h2 id="interrupted-time-series-a-policy-example">Interrupted time series: a policy example</h2>
 <p>Suppose monthly emergency admissions are observed for 36 months before and 24 months after a new triage policy. A segmented regression models baseline trend, immediate level change, and slope change. Let (t) be months from series start and (I_t) indicate post-policy; define (P_t=0) before implementation and months since implementation afterward:</p>
-<p>[
+<p>\[
 Y_t=\beta_0+\beta_1t+\beta_2I_t+\beta_3P_t+\epsilon_t.
-]</p>
+\]</p>
 <p>Here \(\beta_2\) estimates an immediate level shift and \(\beta_3\) a change in monthly trend, relative to the projected pre-policy trajectory. If \(\beta_2=-12\) admissions/month and \(\beta_3=-0.4\), the modeled difference at 12 months post-policy is −12−0.4(12)=−16.8 admissions/month, assuming a linear trend and no concurrent shock. This is an association with implementation unless the counterfactual assumptions support causal attribution.</p>
 <pre><code class="language-r">library(nlme)
 dat$post &lt;- as.integer(dat$month &gt;= policy_month)

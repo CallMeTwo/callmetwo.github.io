@@ -141,15 +141,15 @@
 <p>Stratified sampling partitions the population into mutually exclusive groups and draws a sample in each. Stratification guarantees representation of small groups and can improve overall precision when outcomes are more homogeneous within strata than across them. It is useful when both subgroup and overall estimates matter. The analysis must account for the population shares when allocation is disproportionate.</p>
 <p>Cluster sampling selects groups—clinics, schools, villages—then observes some or all members inside sampled groups. It reduces travel and listing costs, but people in a shared cluster often resemble one another. In a multistage design, sample primary units first and then select people within those units. A design with many clusters and few people per cluster is often more informative than one with few clusters and many people in each, though the cost structure and estimand matter.</p>
 <p>Sampling with unequal probabilities is useful for rare outcomes, high-priority subpopulations, or units expected to yield more information. The Horvitz–Thompson estimator of a finite-population total is</p>
-<p>[
+<p>\[
 \widehat{T}<em>{HT}=\sum</em>{i\in s}\frac{y_i}{\pi_i},
-]</p>
+\]</p>
 <p>where \(\pi_i\) is unit i’s inclusion probability. When the population size is known, divide by N for a mean. A ratio or Hájek estimator divides the weighted total by the sum of weights; it is often more stable but has small-sample bias. The sampling design—not a rule that weights must sum to a particular number—determines the estimator and its variance.</p>
 <h2 id="worked-allocation-precision-cost-and-subgroup-goals">Worked allocation: precision, cost, and subgroup goals</h2>
 <p>Suppose a registry contains 5,000 eligible patients: 1,200 aged 18–40, 2,000 aged 41–60, and 1,800 aged 61 or older. A sample of 400 allocated proportionally yields 96, 160, and 144 patients. If their observed HbA1c means are 7.4, 8.1, and 8.5 percentage points, the population-weighted mean is</p>
-<p>[
+<p>\[
 (1200/5000)(7.4)+(2000/5000)(8.1)+(1800/5000)(8.5)=8.08.
-]</p>
+\]</p>
 <p>Proportional allocation gives equal inclusion probabilities here. If the study instead samples 100 people in each age group to ensure adequate precision for age-specific estimates, the overall mean must still use the population shares 0.24, 0.40, and 0.36; the unweighted mean of the three equally sized samples would target an artificial population with equal age-group shares.</p>
 <p>For fixed total n and equal field costs, Neyman allocation is approximately \(n_h\propto N_hS_h\), where S_h is the within-stratum outcome standard deviation. It allocates more observations to large or variable strata and minimizes variance for a single outcome under its assumptions. If costs differ, a cost-aware allocation changes this rule; if several outcomes are primary, no one allocation is optimal for all. Subgroup minimums, logistical constraints, and the need for an overall estimate generally call for a transparent compromise.</p>
 <h2 id="design-effects-and-honest-uncertainty">Design effects and honest uncertainty</h2>

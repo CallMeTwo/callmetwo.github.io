@@ -53,16 +53,22 @@ function decorateLinks(html) {
   })
 }
 
-// Marked treats `\(` and `\)` as Markdown escapes and drops their slashes.
-// Protect the delimiters while parsing so MathJax can typeset inline TeX.
+// Marked treats the TeX delimiters as Markdown escapes and drops their slashes.
+// Protect them while parsing so MathJax can typeset inline and display TeX.
 function renderMarkdownBody(markdown) {
   const inlineOpen = 'MATHJAXINLINEOPEN7E1D'
   const inlineClose = 'MATHJAXINLINECLOSE7E1D'
+  const displayOpen = 'MATHJAXDISPLAYOPEN7E1D'
+  const displayClose = 'MATHJAXDISPLAYCLOSE7E1D'
   return marked.parse(markdown
     .replaceAll('\\(', inlineOpen)
-    .replaceAll('\\)', inlineClose))
+    .replaceAll('\\)', inlineClose)
+    .replaceAll('\\[', displayOpen)
+    .replaceAll('\\]', displayClose))
     .replaceAll(inlineOpen, '\\(')
     .replaceAll(inlineClose, '\\)')
+    .replaceAll(displayOpen, '\\[')
+    .replaceAll(displayClose, '\\]')
 }
 
 // Bundle topics.ts once and import it (keeps a single source of truth for the

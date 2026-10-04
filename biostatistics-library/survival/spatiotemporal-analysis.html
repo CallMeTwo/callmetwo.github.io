@@ -142,9 +142,9 @@
 <p>Spatial smoothing stabilizes noisy area estimates but can suppress a true local extreme, especially if it is isolated or borders lower-risk areas. A high posterior exceedance probability can be used to flag areas above a policy threshold, but it depends on posterior uncertainty and threshold choice. Distinguish exploratory prioritization from confirmatory evidence. Model-based borrowing is not evidence that neighbors share a causal exposure.</p>
 <h2 id="spatiotemporal-count-model">Spatiotemporal count model</h2>
 <p>For area (i) and time (t), a common model is (Y_{it}\sim\text{Poisson}(E_{it}\theta_{it})), where (E_{it}) is expected count or population offset and \(\theta_{it}\) relative risk. A log-linear predictor can include covariates, spatial random effect, temporal trend, and space-time interaction:</p>
-<p>[
+<p>\[
 \log(\theta_{it})=\beta_0+X_{it}\beta+u_i+v_t+w_{it}.
-]</p>
+\]</p>
 <p>Here \(u_i\) captures persistent area differences, \(v_t\) common temporal change, and \(w_{it}\) local deviations. For overdispersed counts, negative-binomial or hierarchical models may be more appropriate than Poisson. Spatial random effects often use conditional autoregressive (CAR) priors based on adjacency; their assumptions and identifiability constraints need explicit treatment.</p>
 <p>Suppose observed count is 24 in an area where expected count is 16. Crude standardized incidence ratio is 1.5. A Poisson interval is broad when counts are small; hierarchical smoothing may shrink the area&#39;s relative risk toward the overall mean using neighboring information. The smoothed value is not simply a “corrected rate”: it is a model-based posterior or empirical estimate whose uncertainty and prior structure should be shown.</p>
 <pre><code class="language-r">library(INLA)

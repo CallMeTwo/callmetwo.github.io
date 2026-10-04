@@ -145,9 +145,9 @@
 <p>Boundary changes introduce measurement error. A county may split, merge, or change its reporting system; converting data to constant boundaries often requires crosswalking counts or population. Areal interpolation assumes something about how counts are distributed within source regions. Document that assumption and assess whether exposure surfaces are smooth enough for it to be plausible. If boundary changes track economic or political changes, the missingness is not random noise.</p>
 <h2 id="model-counts-rates-and-repeated-areas">Model counts, rates, and repeated areas</h2>
 <p>When outcome counts arise over different amounts of person-time or population, count models with an offset often preserve the sampling structure better than ordinary regression on crude rates. For area (i), a Poisson model can be written</p>
-<p>[
+<p>\[
 Y_i \sim \text{Poisson}(E_i\lambda_i), \qquad \log(E[Y_i])=\log(E_i)+\beta_0+\beta_1X_i+\boldsymbol{\gamma}^{T}Z_i,
-]</p>
+\]</p>
 <p>where \(E_i\) is the denominator or expected count, \(X_i\) is exposure, and \(Z_i\) contains prespecified group covariates. Then \(\beta_1\) is a log rate ratio per stated exposure increment, conditional on included covariates. It is not automatically a causal effect. If count variability exceeds the Poisson assumption, standard errors may be too small; assess overdispersion and consider quasi-Poisson, negative-binomial, or hierarchical approaches.</p>
 <pre><code class="language-r"># One row per district: events, person_years, pm25, deprivation
 fit &lt;- glm(events ~ I(pm25 / 5) + deprivation + offset(log(person_years)),
@@ -159,9 +159,9 @@ exp(cbind(rate_ratio = coef(fit), confint(fit)))
 <p>Spatial smoothing and hierarchical models can stabilize small-area estimates by partial pooling. They estimate a smoothed surface under a model; they do not convert sparse observations into exact local truth. Show raw counts or rates next to modeled estimates, report uncertainty, and explain the neighborhood structure or prior that induces smoothing. For dashboards, stability flags can deter overinterpretation of the noisiest areas.</p>
 <h2 id="worked-policy-illustration-what-the-slope-says">Worked policy illustration: what the slope says</h2>
 <p>Suppose a cross-section of 40 districts has a fitted association of 1.8 additional deaths per 100,000 residents for every 5 µg/m³ higher annual pollution, with standard error 0.71. The normal-approximation 95% confidence interval is</p>
-<p>[
+<p>\[
 1.8 \pm 1.96(0.71) = (0.41,\ 3.19).
-]</p>
+\]</p>
 <p>In this model, districts with higher mean pollution tend to have higher mortality after the stated group-level adjustment. The interval describes sampling uncertainty conditional on the model; it does not quantify uncertainty from unmeasured confounding, exposure error, boundary choice, or the ecological identification problem.</p>
 <p>Adding thousands of residents to each district can improve the precision of each district&#39;s rate, but the exposure slope still has only 40 independent area units in this cross-sectional analysis. More individuals do not substitute for more independent groups. A model that weights districts by population also changes the implicit target toward the average resident&#39;s district; equal weighting describes the average district. Explain which summary policy-makers need, and compare both only if they answer legitimate distinct questions.</p>
 <pre><code class="language-r">fit &lt;- lm(death_rate ~ pm25 + deprivation + urbanicity, data = district)

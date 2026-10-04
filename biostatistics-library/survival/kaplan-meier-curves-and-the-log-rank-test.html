@@ -132,9 +132,9 @@
 <p>Use curves to show when events occur and how the event-free proportion evolves, not just whether a final p-value crosses a threshold. Use the log-rank test for a global comparison under assumptions that give similar meaning to differences across time. If curves cross or treatment effects change over time, the test may be hard to interpret and a single hazard ratio may conceal benefit-harm patterns.</p>
 <h2 id="construct-the-curve-from-event-and-censoring-times">Construct the curve from event and censoring times</h2>
 <p>For each distinct event time (t_j), count (n_j), the number at risk immediately beforehand, and (d_j), the number of events. The Kaplan–Meier estimate is:</p>
-<p>[
+<p>\[
 \widehat S(t)=\prod_{t_j\le t}\left(1-\frac{d_j}{n_j}\right).
-]</p>
+\]</p>
 <p>Censoring removes a participant from future risk sets but does not lower the curve. For example, if 50 patients enter, 3 have events before any censoring, and then 5 are censored before the next event, the first step is 47/50=0.94. If the next event occurs with 42 remaining at risk, the second step multiplies by 41/42, giving 0.918. The estimate reflects the conditional event-free fractions among those still followed.</p>
 <pre><code class="language-r">library(survival)
 fit &lt;- survfit(Surv(followup_days, event) ~ arm, data = dat)
