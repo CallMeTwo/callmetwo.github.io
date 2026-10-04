@@ -55,6 +55,20 @@
   .article-toc li.h3{margin-left:0}
   .article-toc a{text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body h2[id],.article-body h3[id]{scroll-margin-top:80px}
+  .article-highlight-controls{max-width:72ch;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-16px 0 24px;color:var(--muted);font-size:12px}
+  .article-highlight-controls button{border:1px solid var(--line);border-radius:5px;background:#fff;color:#34594c;padding:6px 10px;font:inherit;cursor:pointer}
+  .article-highlight-controls button:disabled{display:none}
+  .article-highlight-toolbar{position:fixed;z-index:3000;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;gap:7px;max-width:calc(100vw - 20px);padding:9px 11px;border:1px solid #cbd6ce;border-radius:12px;background:#fff;color:#203f37;box-shadow:0 5px 24px rgba(20,40,32,.2);font:13px system-ui,sans-serif}
+  .article-highlight-toolbar[hidden]{display:none}
+  .article-highlight-toolbar button{border:1px solid #cbd6ce;border-radius:7px;background:#fff;color:#203f37;padding:7px 9px;font:inherit;cursor:pointer}
+  .article-highlight-toolbar button[data-highlight-color="yellow"]{background:#fff2b8}
+  .article-highlight-toolbar button[data-highlight-color="blue"]{background:#d8edff}
+  .article-highlight-toolbar button[data-highlight-color="pink"]{background:#f9dce8}
+  .article-highlight-toolbar button[data-remove-highlight]{margin-left:4px}
+  .article-highlight-toolbar button[hidden]{display:none}
+  .article-body::highlight(reader-highlight-yellow){background-color:#ffe58a;color:#17211b}
+  .article-body::highlight(reader-highlight-blue){background-color:#b9e1ff;color:#17211b}
+  .article-body::highlight(reader-highlight-pink){background-color:#ffc8dc;color:#17211b}
   .article-body p{margin:0 0 16px}
   .article-body a{color:var(--teal);text-decoration:none;border-bottom:1px solid #bcd3c9}
   .article-body a:hover{border-bottom-color:var(--teal)}
@@ -208,5 +222,6 @@ c(n = n, mean = mean_x, se = se_x, lower = ci[1], upper = ci[2])
         </footer>
       </main>
     </div>
+    <script src="../article-highlights.js" defer></script>
   </body>
 </html>
