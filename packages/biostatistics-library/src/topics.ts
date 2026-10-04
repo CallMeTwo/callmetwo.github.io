@@ -10,8 +10,7 @@ export interface TopicSection {
   groups: TopicGroup[]
 }
 
-// A starting taxonomy for the prototype, not an exhaustive syllabus.
-// Article content will be added separately after the structure is reviewed.
+// Topic taxonomy used by the library index and article generator.
 export const sections: TopicSection[] = [
   {
     id: 'foundations', title: 'Foundations', description: 'The language of data and statistical thinking.',

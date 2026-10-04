@@ -1,34 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import Navbar from '../../shared/Navbar'
-import { articleHref, articlePath, filterSections, sections, topicCount } from './topics'
-import publishedTopics from './published-topics.json'
-
-// Topics that have a markdown article in content/ — regenerated before every
-// build by scripts/list-published.mjs. Used to render real <a> links instead
-// of the "planned article" placeholder dialog.
-const published = new Set(
-  publishedTopics.map(({ sectionId, slug }) => `${articlePath(sectionId, slug)}`)
-)
-
-function hasArticle(sectionId: string, title: string): boolean {
-  return published.has(articlePath(sectionId, title))
-}
-
-interface ArticlePreview { title: string; section: string; group: string; href: string | null }
+import { articleHref, filterSections, sections, topicCount } from './topics'
 
 export default function App() {
   const [query, setQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
-  const [article, setArticle] = useState<ArticlePreview | null>(null)
-  const dialog = useRef<HTMLDialogElement>(null)
   const visibleSections = filterSections(query)
   const isSearching = query.trim().length > 0
   const visibleCount = visibleSections.reduce((sum, section) =>
     sum + section.groups.reduce((n, group) => n + group.topics.length, 0), 0)
-
-  useEffect(() => {
-    if (article && !dialog.current?.open) dialog.current?.showModal()
-  }, [article])
 
   function toggleSection(id: string) {
     setCollapsed(previous => {
@@ -37,11 +17,6 @@ export default function App() {
       else next.add(id)
       return next
     })
-  }
-
-  function closeArticle() {
-    dialog.current?.close()
-    setArticle(null)
   }
 
   return <>
@@ -61,23 +36,18 @@ export default function App() {
             setCollapsed(previous => { const next = new Set(previous); next.delete(section.id); return next })
           }}><span>{String(index + 1).padStart(2, '0')}</span>{section.title}</a>)}
         </nav>
-        <div className="sidebar-note"><span className="small-dot" /> A library in the making<p>A starting map for learning, exploring and revisiting biostatistics.</p></div>
       </aside>
 
       <main id="topic-index" className="main-content">
         <header className="hero">
-          <div className="eyebrow">THE KNOWLEDGE INDEX <span>Prototype</span></div>
           <h1>Biostatistics Library</h1>
-          <p className="hero-description">A place to make sense of data, evidence and uncertainty.<br className="desktop-break" /> Explore the topic map, from first principles to applied methods.</p>
-          <div className="library-meta"><span><strong>{sections.length}</strong> subject areas</span><span><strong>{publishedTopics.length}</strong> published articles</span><span>From foundations to practice</span></div>
+          <div className="library-meta"><span><strong>{sections.length}</strong> subject areas</span><span><strong>{topicCount}</strong> articles</span></div>
         </header>
-
-        <div className="prototype-note"><span className="note-symbol" aria-hidden="true">i</span><p><strong>Explore the library.</strong> Browse the topic map or search for a method. Select a topic to open its article or see which topics are still planned.</p></div>
 
         <section className="index-tools" aria-label="Find topics">
           <label className="search-label" htmlFor="topic-search">Find a topic</label>
           <div className="search-box"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg><input id="topic-search" type="search" placeholder="Search topics, e.g. regression or study design" value={query} onChange={event => setQuery(event.target.value)} />{query && <button className="clear-search" onClick={() => setQuery('')} aria-label="Clear search">Clear</button>}</div>
-          <div className="index-heading"><div><h2>Browse the topic map</h2><p role="status">{isSearching ? `${visibleCount} matching ${visibleCount === 1 ? 'topic' : 'topics'} in ${visibleSections.length} subject ${visibleSections.length === 1 ? 'area' : 'areas'}` : 'Browse subjects, published articles and upcoming topics.'}</p></div><div className="tree-actions"><button disabled={isSearching} onClick={() => setCollapsed(new Set())}>Expand all</button><span aria-hidden="true">/</span><button disabled={isSearching} onClick={() => setCollapsed(new Set(sections.map(section => section.id)))}>Collapse all</button></div></div>
+          <div className="index-heading"><div><h2>Topics</h2><p role="status">{isSearching ? `${visibleCount} matching ${visibleCount === 1 ? 'topic' : 'topics'} in ${visibleSections.length} subject ${visibleSections.length === 1 ? 'area' : 'areas'}` : `${topicCount} articles across ${sections.length} subject areas`}</p></div><div className="tree-actions"><button disabled={isSearching} onClick={() => setCollapsed(new Set())}>Expand all</button><span aria-hidden="true">/</span><button disabled={isSearching} onClick={() => setCollapsed(new Set(sections.map(section => section.id)))}>Collapse all</button></div></div>
         </section>
 
         <div className="topic-tree">
@@ -90,18 +60,14 @@ export default function App() {
                 <span className="section-number">{String(number).padStart(2, '0')}</span><span className="section-title">{section.title}<span className="section-description">{section.description}</span></span><span className="article-count">{count} {count === 1 ? 'topic' : 'topics'}</span><span className={`chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span>
               </button></h3>
               <div id={`${section.id}-topics`} hidden={!isOpen}>
-                <div className="topic-groups">{section.groups.map(group => <div className="topic-group" key={group.title}><h4>{group.title}</h4><ul>{group.topics.map(topic => <li key={topic}><button className="topic-link" onClick={() => setArticle({ title: topic, section: section.title, group: group.title, href: hasArticle(section.id, topic) ? articleHref(section.id, topic) : null })}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></button></li>)}</ul></div>)}</div>
+                <div className="topic-groups">{section.groups.map(group => <div className="topic-group" key={group.title}><h4>{group.title}</h4><ul>{group.topics.map(topic => <li key={topic}><a className="topic-link" href={articleHref(section.id, topic)}><span>{topic}</span><span className="topic-arrow" aria-hidden="true">↗</span></a></li>)}</ul></div>)}</div>
               </div>
             </section>
           })}
           {visibleSections.length === 0 && <div className="empty-state"><h3>No topics found</h3><p>Try a broader term such as “data”, “test” or “regression”.</p><button onClick={() => setQuery('')}>Show all topics</button></div>}
         </div>
-        <footer className="library-footer"><span>Biostatistics Library · Draft topic index</span><a href="/">Back to Web Projects Hub ↗</a></footer>
+        <footer className="library-footer"><span>Biostatistics Library</span><a href="/">Back to Web Projects Hub ↗</a></footer>
       </main>
     </div>
-
-    <dialog ref={dialog} className="article-dialog" aria-labelledby="article-title" onCancel={closeArticle} onClose={() => setArticle(null)} onClick={e => { if (e.target === dialog.current) closeArticle() }}>
-      {article && <><div className="dialog-top"><span>ARTICLE PREVIEW</span></div><p className="article-breadcrumb">{article.section} / {article.group}</p><h2 id="article-title">{article.title}</h2>{article.href ? <span className="draft-badge published-badge">Published article</span> : <span className="draft-badge">Planned article</span>}<p className="article-intro">{article.href ? 'This article is published. Use “Visit page” to read it in full.' : 'This page is a placeholder. The article will explain the topic with examples, interpretation notes and sources.'}</p><div className="article-outline"><h3>On this page</h3><ol><li>Overview and key ideas</li><li>When to use it</li><li>Assumptions and limitations</li><li>Worked example</li><li>Interpretation and common pitfalls</li><li>References and further reading</li></ol></div>{!article.href && <p className="article-note">Dummy content for reviewing the library structure.</p>}{article.href && <a className="primary-button" href={article.href}>Visit page</a>}</>}
-    </dialog>
   </>
 }
