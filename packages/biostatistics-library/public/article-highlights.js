@@ -15,6 +15,7 @@
   let selectionTimer = null
   let pointerDown = false
   let quickSelectionId = null
+  const undoStack = []
 
   const controls = document.createElement('div')
   controls.className = 'article-highlight-controls'
@@ -78,6 +79,11 @@
       status.textContent = 'Could not save highlights in this browser.'
       return false
     }
+  }
+
+  function recordUndo() {
+    undoStack.push(highlights.map(item => ({ ...item })))
+    if (undoStack.length > 50) undoStack.shift()
   }
 
   const status = controls.querySelector(`#${statusId}`)
@@ -248,6 +254,7 @@
     pending = { range: range.cloneRange(), anchor }
     if (quickMode) {
       let currentIndex = highlights.findIndex(item => item.id === quickSelectionId)
+      if (currentIndex === -1) recordUndo()
       if (currentIndex === -1) {
         currentIndex = findExisting(anchor)
         if (currentIndex !== -1) quickSelectionId = highlights[currentIndex].id
@@ -273,11 +280,15 @@
     if (!button || !pending) return
     if (button.dataset.highlightColor) {
       const existingIndex = findExisting(pending.anchor)
+      recordUndo()
       if (existingIndex !== -1) highlights.splice(existingIndex, 1)
       highlights.push({ ...pending.anchor, color: button.dataset.highlightColor })
     } else if (button.hasAttribute('data-remove-highlight')) {
       const existingIndex = findExisting(pending.anchor)
-      if (existingIndex !== -1) highlights.splice(existingIndex, 1)
+      if (existingIndex !== -1) {
+        recordUndo()
+        highlights.splice(existingIndex, 1)
+      }
     } else return
     if (saveHighlights()) renderHighlights()
     window.getSelection()?.removeAllRanges()
@@ -285,6 +296,7 @@
   })
 
   controls.querySelector('[data-clear-highlights]').addEventListener('click', () => {
+    if (highlights.length) recordUndo()
     highlights = []
     quickSelectionId = null
     saveHighlights()
@@ -315,6 +327,19 @@
     }
   })
 
+  document.addEventListener('keydown', event => {
+    const target = event.target
+    const isTyping = target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')
+    if (isTyping || !(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z' || event.shiftKey || !undoStack.length) return
+    event.preventDefault()
+    highlights = undoStack.pop()
+    quickSelectionId = null
+    hideToolbar()
+    saveHighlights()
+    renderHighlights()
+    status.textContent = 'Undid the last highlight change.'
+  })
+
   document.addEventListener('selectionchange', () => {
     clearTimeout(selectionTimer)
     selectionTimer = setTimeout(() => {
@@ -322,7 +347,10 @@
     }, 140)
   })
 
-  document.addEventListener('pointerdown', () => { pointerDown = true }, true)
+  document.addEventListener('pointerdown', () => {
+    pointerDown = true
+    if (quickMode && window.getSelection()?.isCollapsed) quickSelectionId = null
+  }, true)
   document.addEventListener('pointerup', () => {
     pointerDown = false
     if (quickMode) {
