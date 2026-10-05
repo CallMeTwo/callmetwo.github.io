@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Model event counts and rates with log links and exposure offsets, diagnose overdispersion, and interpret incidence-rate ratios on an absolute scale." />
+    <meta name="description" content="Choose and interpret regression models for discrete event counts and rates, including Poisson, negative binomial, hurdle, and zero-inflated models." />
     <title>Poisson and negative binomial regression · Biostatistics Library</title>
     <link rel="icon" type="image/svg+xml" href="../favicon-biostatistics.svg" />
     <script>
@@ -150,12 +150,16 @@
       <main class="article-main">
         <div class="article-breadcrumb"><a href="../">Biostatistics Library</a> <span class="sep">/</span> Correlation &amp; regression <span class="sep">/</span> Associations and models <span class="sep">/</span> <strong style="color:#273e3b">Poisson and negative binomial regression</strong></div>
         <h1 class="article-title">Poisson and negative binomial regression</h1>
-        <p class="article-summary">Model event counts and rates with log links and exposure offsets, diagnose overdispersion, and interpret incidence-rate ratios on an absolute scale.</p>
-        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#mean-model-log-link-and-offset">Mean model, log link, and offset</a></li><li class="h2"><a href="#negative-binomial-variation">Negative-binomial variation</a></li><li class="h2"><a href="#worked-example-infection-rates">Worked example: infection rates</a></li><li class="h3"><a href="#estimating-the-crude-rate-ratio-by-hand">Estimating the crude rate ratio by hand</a></li><li class="h2"><a href="#assessing-overdispersion-and-excess-zeros">Assessing overdispersion and excess zeros</a></li><li class="h3"><a href="#what-the-dispersion-parameter-represents">What the dispersion parameter represents</a></li><li class="h3"><a href="#hurdle-and-zero-inflated-models">Hurdle and zero-inflated models</a></li><li class="h2"><a href="#functional-form-and-covariates">Functional form and covariates</a></li><li class="h2"><a href="#dependence-clustering-and-repeated-counts">Dependence, clustering, and repeated counts</a></li><li class="h2"><a href="#interpretation-and-reporting">Interpretation and reporting</a></li><li class="h2"><a href="#contrast-calculations-on-relative-and-absolute-scales">Contrast calculations on relative and absolute scales</a></li><li class="h2"><a href="#predictive-checks-and-model-comparison">Predictive checks and model comparison</a></li><li class="h2"><a href="#common-interpretation-errors">Common interpretation errors</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
+        <p class="article-summary">Choose and interpret regression models for discrete event counts and rates, including Poisson, negative binomial, hurdle, and zero-inflated models.</p>
+        <nav class="article-toc" aria-label="On this page"><h2>On this page</h2><ol><li class="h2"><a href="#overview">Overview</a></li><li class="h2"><a href="#check-that-the-outcome-is-a-count">Check that the outcome is a count</a></li><li class="h2"><a href="#mean-model-log-link-and-offset">Mean model, log link, and offset</a></li><li class="h2"><a href="#negative-binomial-variation">Negative-binomial variation</a></li><li class="h2"><a href="#worked-example-infection-rates">Worked example: infection rates</a></li><li class="h3"><a href="#estimating-the-crude-rate-ratio-by-hand">Estimating the crude rate ratio by hand</a></li><li class="h2"><a href="#assessing-overdispersion-and-excess-zeros">Assessing overdispersion and excess zeros</a></li><li class="h3"><a href="#what-the-dispersion-parameter-represents">What the dispersion parameter represents</a></li><li class="h3"><a href="#match-the-variance-model-to-the-source-of-extra-variation">Match the variance model to the source of extra variation</a></li><li class="h2"><a href="#excess-zeros-zero-inflated-and-hurdle-models">Excess zeros: zero-inflated and hurdle models</a></li><li class="h3"><a href="#worked-zero-inflation-calculation">Worked zero-inflation calculation</a></li><li class="h3"><a href="#fit-and-interpret-candidate-models-in-r">Fit and interpret candidate models in R</a></li><li class="h2"><a href="#functional-form-and-covariates">Functional form and covariates</a></li><li class="h2"><a href="#dependence-clustering-and-repeated-counts">Dependence, clustering, and repeated counts</a></li><li class="h2"><a href="#interpretation-and-reporting">Interpretation and reporting</a></li><li class="h2"><a href="#contrast-calculations-on-relative-and-absolute-scales">Contrast calculations on relative and absolute scales</a></li><li class="h2"><a href="#predictive-checks-and-model-comparison">Predictive checks and model comparison</a></li><li class="h2"><a href="#common-interpretation-errors">Common interpretation errors</a></li><li class="h2"><a href="#references-and-further-reading">References and further reading</a></li></ol></nav>
         <article class="article-body">
           <h2 id="overview">Overview</h2>
 <p>Poisson and negative-binomial regression model nonnegative event counts. They are useful for hospital admissions, infections, recurrent events, and adverse-event counts, especially when observation time or population size varies. A log link ensures fitted means are positive; an offset incorporates exposure such as person-time.</p>
 <p>Poisson regression assumes conditional mean equals conditional variance. Health counts often vary more than Poisson allows because of unmeasured heterogeneity, clustering, or outbreaks. Negative-binomial regression adds a dispersion parameter. Neither model automatically handles zero inflation, dependence, confounding, or informative exposure; those features need explicit modeling.</p>
+<h2 id="check-that-the-outcome-is-a-count">Check that the outcome is a count</h2>
+<p>A count records how many times an event occurred for a defined unit during a defined observation window. It takes integer values starting at zero and usually has no fixed upper bound: admissions per person-year, infections per catheter-day, or adverse events per treatment cycle. The unit, event definition, follow-up window, and ascertainment process define the outcome as much as the number does.</p>
+<p>Several other discrete outcomes need different likelihoods. A yes/no endpoint is Bernoulli and is commonly modeled with logistic regression. The number of successes out of a known number of opportunities is binomial; for example, infections out of 12 catheter-days is not automatically the same estimand as infections per catheter-day. An ordered symptom grade is ordinal, even though it is coded with integers. A bounded count such as the number of affected organs out of a fixed set may be binomial or beta-binomial. Do not use a Poisson model just because the outcome is numeric and discrete.</p>
+<p>Counts should be nonnegative integers. If sampling includes only people with at least one event, zero-truncated models may be required. If records stop at a maximum because of a survey or claims window, the observed upper endpoint may be censoring rather than a true bound. If different people have different time at risk, model counts with an exposure offset when proportional accumulation of events over exposure is plausible. A rate is a count divided by exposure; it is not itself a count outcome.</p>
 <h2 id="mean-model-log-link-and-offset">Mean model, log link, and offset</h2>
 <p>For count (Y_i), a Poisson model specifies (Y_i\sim\text{Poisson}(\mu_i)) and \(\log(\mu_i)=\beta_0+X_i\beta+\log(E_i)\), where (E_i) is exposure. The offset coefficient is fixed at 1, so \(\mu_i/E_i\) is the modeled event rate. Exponentiated coefficients are incidence-rate ratios (IRRs), conditional on included predictors.</p>
 <p>If 100 patients contribute 500 person-years and 50 events occur, crude rate is 0.10 events per person-year. A treatment coefficient −0.223 gives IRR \(e^{-0.223}=0.80\), or 20% lower event rate conditional on covariates. If control rate is 0.10, model implies treated rate about 0.08 under common assumptions. For recurrent events, the rate can exceed one per person-year and is not a probability.</p>
@@ -188,9 +192,112 @@ exp(cbind(IRR = coef(fit_nb), confint(fit_nb)))
 <p>Use simulation-based diagnostics to compare observed count frequencies with replicated data, especially tails and zeros. Check residuals against fitted values, exposure, time, and clusters. A single dispersion ratio does not identify the appropriate alternative. If the model predicts too few zeros and too few extreme counts, unmodeled heterogeneity is plausible; if excess zeros occur only in a subgroup, model that mechanism.</p>
 <p>For Poisson GLM, Pearson dispersion is \(\sum r_{Pi}^2/(n-p)\), where (r_{Pi}) are Pearson residuals. A value near 1 is compatible with the Poisson variance but does not demonstrate fit; a value of 2 suggests variance roughly twice the model expectation as a rough summary. Inspect residuals and compare observed versus expected zeros, ones, and upper-tail counts. With small samples, the ratio is noisy.</p>
 <p>Negative-binomial dispersion estimates can be poorly identified when counts are sparse or few observations are available. If estimated \(\alpha\) is near zero, Poisson may suffice, but compare uncertainty rather than relying on a boundary test. If overdispersion comes from clusters, a hierarchical model may improve transport and prediction more than a single global dispersion parameter.</p>
-<h3 id="hurdle-and-zero-inflated-models">Hurdle and zero-inflated models</h3>
-<p>A hurdle model has two processes: whether any event occurs and, conditional on a positive count, how many events occur. It fits when event initiation and recurrence are distinct, such as whether a patient is ever hospitalized and the number of admissions among those hospitalized. A zero-inflated model assumes some observations are in a structural-zero state while others arise from a count process that can also produce zeros.</p>
-<p>These models can be weakly identified if data do not distinguish the zero mechanisms. Interpret both components and provide predicted probabilities and expected counts. Do not select them just because the zero fraction seems high; low event rates naturally produce many zeros. Compare out-of-sample calibration and clinical plausibility, and report uncertainty in the zero-process membership.</p>
+<h3 id="match-the-variance-model-to-the-source-of-extra-variation">Match the variance model to the source of extra variation</h3>
+<p>Overdispersion is a diagnosis that the fitted conditional variance is too small; it is not a diagnosis of its cause. A negative-binomial NB2 model commonly uses \(Var(Y_i\mid X_i)=\mu_i+\alpha\mu_i^2\), so extra variation grows quadratically with the mean. NB1 instead uses a variance that grows approximately linearly with the mean. Quasi-Poisson uses \(Var(Y_i\mid X_i)=\phi\mu_i\) and estimates a scale factor, but does not specify a full probability distribution. These alternatives can yield different standard errors, predictions, and likelihoods.</p>
+<p>Before adding a dispersion parameter, check whether the mean model is wrong. Nonlinear age or calendar-time effects, omitted exposure, seasonality, an influential clinic, or an inappropriate independence assumption can all make the residual variance look too large. A negative-binomial model can accommodate unobserved heterogeneity but will not repair a wrong denominator, serial correlation, or confounding. If observations are more regular than Poisson allows, investigate the sampling process and consider an underdispersed count family rather than forcing a negative-binomial model.</p>
+<p>The Pearson dispersion statistic \(\sum_i r_{Pi}^2/(n-p)\) is a useful rough screen, not a pass/fail threshold. It can be high because the mean structure is wrong and can be misleading with small samples or estimated dispersion. Inspect residuals against fitted values, exposure, time, and clusters. Compare the observed count frequencies, including zero and upper-tail counts, with frequencies simulated from the fitted model. A model that gets the mean right can still badly miss the probability of zero or a clinically important high count.</p>
+<h2 id="excess-zeros-zero-inflated-and-hurdle-models">Excess zeros: zero-inflated and hurdle models</h2>
+<p>An ordinary Poisson model already predicts many zeros when the mean is small: at \(\mu=0.2\), \(P(Y=0)=e^{-0.2}=0.819\). Therefore a large observed zero percentage is not, by itself, evidence of zero inflation. First compare the observed zeros with the zero frequency predicted after fitting a suitable Poisson or negative-binomial mean model. Also check whether low exposure, different risk groups, missed events, or a poor mean model explains the zeros.</p>
+<p>A zero-inflated model represents two latent states. With probability \(\pi_i\), an observation is in a state that always produces zero; otherwise it follows a count distribution with mean \(\mu_i\), which can itself produce zero. For zero-inflated Poisson (ZIP),</p>
+<p>\[
+P(Y_i=0)=\pi_i+(1-\pi_i)e^{-\mu_i},\qquad
+P(Y_i=y&gt;0)=(1-\pi_i)\frac{e^{-\mu_i}\mu_i^y}{y!}.
+\]</p>
+<p>The marginal mean is \((1-\pi_i)\mu_i\), not \(\mu_i\). In a zero-inflated negative-binomial model (ZINB), the count state is negative binomial and can handle extra-Poisson variation among counts as well as the separate zero mixture. In <code>pscl::zeroinfl()</code>, the formula to the left of <code>|</code> describes the count component; the formula to the right describes the probability of belonging to the extra-zero component. A positive coefficient in this second logit model means higher odds of the extra-zero state. It does not mean higher odds of any observed zero, since the count state can also generate zeros.</p>
+<p>A hurdle model also has two parts, but it assigns every zero to the zero part. The first part models zero versus positive count. The second part models positive values using a zero-truncated Poisson or negative-binomial distribution. This is a natural formulation when crossing from no event to at least one event is a distinct process from how often an event recurs. In <code>pscl::hurdle()</code>, the formula after <code>|</code> models the zero part; the count distribution for positive observations is truncated at zero. Unlike a zero-inflated model, a hurdle count component cannot generate additional zeros. A hurdle model can represent either more or fewer zeros than its underlying untruncated count model would predict, while a zero-inflated mixture can only add zero probability for fixed count-component parameters.</p>
+<p>The mechanisms are assumptions, not labels that can be read directly from an observed zero. A zero in a ZIP or ZINB fit may come from either latent state. Unless membership is known from design, the model estimates probabilities of state membership rather than certifying which individuals are “structural zeros.” Hurdle models do not require that interpretation. If the scientific question is the probability of any event and the burden among those with events, a hurdle model may align well with the estimands. If a subgroup can never experience the event during the observation window for a substantive reason, a zero-inflated model may be defensible. In either case, state the mechanism and show marginal predictions.</p>
+<h3 id="worked-zero-inflation-calculation">Worked zero-inflation calculation</h3>
+<p>Suppose 200 patients contribute comparable follow-up and experience 96 recurrent events in total. The mean is \(96/200=0.48\) events per patient-window, and 134 patients have zero events (67%). A homogeneous Poisson model with mean 0.48 predicts</p>
+<p>\[
+P(Y=0)=e^{-0.48}=0.619,
+\]</p>
+<p>or about \(200(0.619)=124\) zero-event patients. The observed 134 zeros suggest possible excess zeros, but differences in exposure or predictors could account for some of this gap.</p>
+<p>For illustration, suppose a ZIP model estimates \(\pi=0.40\) and a mean of \(\mu=0.80\) in the count-generating state. Its overall mean is \((1-0.40)(0.80)=0.48\), the same as above, while its probability of zero is</p>
+<p>\[
+0.40+0.60e^{-0.80}=0.670,
+\]</p>
+<p>which predicts about 134 zeros among 200 patients. The two models have the same marginal mean but different distributions. Under ZIP, the probability of exactly one event is \(0.60e^{-0.80}(0.80)=0.216\), or about 43 patients; under Poisson(0.48), it is \(e^{-0.48}(0.48)=0.297\), or about 59 patients. The mixture reallocates probability away from one event toward zero and, in this example, higher counts.</p>
+<p>Even in this fitted illustration, an observed zero is not certainly from the extra-zero state. Its model-based probability of being from that state is</p>
+<p>\[
+P(S=1\mid Y=0)=\frac{0.40}{0.40+0.60e^{-0.80}}=0.597.
+\]</p>
+<p>Thus the fitted model assigns about a 60% probability to that latent state for a zero observation. This is a model-based posterior classification, not observed biological truth. With covariates and unequal exposure, calculate these quantities for each covariate pattern rather than substituting one overall mean.</p>
+<h3 id="fit-and-interpret-candidate-models-in-r">Fit and interpret candidate models in R</h3>
+<p>The following reproducible example simulates recurrent event counts with unequal follow-up, extra zeros linked to eligibility, and a treatment effect in the count-generating state. <code>MASS</code> and <code>pscl</code> are separate R packages; install them once with <code>install.packages(c(&quot;MASS&quot;, &quot;pscl&quot;))</code> if needed. The simulation makes a known extra-zero process for teaching; real data require a scientific justification for that process.</p>
+<pre><code class="language-r">set.seed(2026)
+n &lt;- 800
+dat &lt;- data.frame(
+  treatment = rbinom(n, 1, 0.5),
+  age_z = rnorm(n),
+  person_years = runif(n, 0.5, 1.5),
+  not_eligible = rbinom(n, 1, 0.2)
+)
+
+# Probability of a latent extra-zero state; mean count is defined among
+# observations in the event-generating state.
+dat$pi_zero &lt;- plogis(-2 + 1.8 * dat$not_eligible)
+dat$mu_count &lt;- exp(log(0.45) - 0.25 * dat$treatment +
+                    0.20 * dat$age_z + log(dat$person_years))
+structural_zero &lt;- rbinom(n, 1, dat$pi_zero) == 1
+dat$events &lt;- ifelse(structural_zero, 0, rpois(n, dat$mu_count))
+
+# Poisson, quasi-Poisson, and negative-binomial mean models
+fit_pois &lt;- glm(events ~ treatment + age_z +
+                  offset(log(person_years)),
+                family = poisson(), data = dat)
+fit_quasi &lt;- update(fit_pois, family = quasipoisson())
+fit_nb &lt;- MASS::glm.nb(events ~ treatment + age_z +
+                         offset(log(person_years)), data = dat)
+
+# The right side of | models the extra-zero probability in pscl::zeroinfl()
+fit_zip &lt;- pscl::zeroinfl(
+  events ~ treatment + age_z + offset(log(person_years)) |
+    not_eligible + age_z,
+  dist = &quot;poisson&quot;, data = dat
+)
+fit_zinb &lt;- pscl::zeroinfl(
+  events ~ treatment + age_z + offset(log(person_years)) |
+    not_eligible + age_z,
+  dist = &quot;negbin&quot;, data = dat
+)
+
+# Hurdle: the right side models zero versus positive; the count part is
+# fitted to positive observations using a zero-truncated distribution.
+fit_hurdle &lt;- pscl::hurdle(
+  events ~ treatment + age_z + offset(log(person_years)) |
+    not_eligible + age_z,
+  dist = &quot;negbin&quot;, data = dat
+)
+
+# Rough Poisson dispersion screen and observed vs fitted zero frequencies
+pearson_dispersion &lt;- sum(residuals(fit_pois, type = &quot;pearson&quot;)^2) /
+  df.residual(fit_pois)
+zero_check &lt;- c(
+  observed = mean(dat$events == 0),
+  poisson = mean(exp(-fitted(fit_pois))),
+  zinb = mean(predict(fit_zinb, type = &quot;prob&quot;, at = 0)[, &quot;0&quot;])
+)
+
+# exp(beta_treatment) is the adjusted rate ratio in the NB count model.
+nb_irr &lt;- exp(coef(fit_nb)[&quot;treatment&quot;])
+AIC(fit_pois, fit_nb, fit_zip, fit_zinb, fit_hurdle)
+
+# pscl zero-inflated predictions:
+# response = marginal expected count; count = mean in count state;
+# zero = probability of extra-zero state.
+prediction &lt;- data.frame(
+  marginal_mean = predict(fit_zinb, type = &quot;response&quot;),
+  count_state_mean = predict(fit_zinb, type = &quot;count&quot;),
+  extra_zero_probability = predict(fit_zinb, type = &quot;zero&quot;)
+)
+
+pearson_dispersion
+zero_check
+nb_irr
+head(prediction)
+</code></pre>
+<p>The dispersion ratio is a rough diagnostic. The <code>zero_check</code> compares observed zeros with mean fitted probabilities, not merely the zero percentage against a single Poisson mean. <code>nb_irr</code> is conditional on the NB model&#39;s included covariates and offset. In ZINB, <code>count_state_mean</code> is the mean within the count-generating state; <code>marginal_mean</code> combines that mean with the estimated extra-zero probability. Report the marginal expected count or a standardized contrast when the question concerns the full population. Do not describe the extra-zero component coefficient as the effect on the total event rate.</p>
+<p>Fit models to the same observations before comparing likelihood-based criteria. AIC can compare Poisson, NB, ZIP, ZINB, and hurdle likelihoods when they use the same outcome and records; quasi-Poisson does not have a full likelihood for ordinary AIC. A lower AIC does not establish a zero-generating mechanism or adequate external prediction. Also inspect calibration by treatment, exposure, risk group, and important time or clinic strata, and validate on held-out patients, clinics, or later periods when prediction is intended.</p>
 <h2 id="functional-form-and-covariates">Functional form and covariates</h2>
 <p>The model assumes log mean is linear in continuous predictors. Check whether age, calendar time, or dose has nonlinear association; use splines or transformed terms. A one-unit coefficient interpretation depends on scale. For categorical predictors, state reference categories. Interactions change IRRs across covariates and require calculation of contrasts with covariance.</p>
 <p>Confounder selection should follow design and subject matter. Adjusting for exposure-affected variables can alter causal estimand or induce bias. Count regression does not turn an observational association into a causal rate ratio. Positivity and exchangeability remain necessary for causal interpretation.</p>
@@ -262,8 +369,12 @@ exp(cbind(IRR = coef(fit_nb), confint(fit_nb)))
 <ul>
 <li>Cameron AC, Trivedi PK. <em>Regression Analysis of Count Data</em>. 2nd ed. Cambridge University Press; 2013.</li>
 <li>Hilbe JM. <em>Negative Binomial Regression</em>. 2nd ed. Cambridge University Press; 2011.</li>
+<li>Lambert D. Zero-inflated Poisson regression, with an application to defects in manufacturing. <em>Technometrics</em>. 1992;34(1):1–14. <a href="https://doi.org/10.1080/00401706.1992.10485228" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1080/00401706.1992.10485228</a></li>
+<li>Mullahy J. Specification and testing of some modified count data models. <em>Journal of Econometrics</em>. 1986;33(3):341–365. <a href="https://doi.org/10.1016/0304-4076(86)90002-3" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1016/0304-4076(86)90002-3</a></li>
+<li>Feng CX. A comparison of zero-inflated and hurdle models for modeling zero-inflated count data. <em>Journal of Statistical Distributions and Applications</em>. 2021;8:8. <a href="https://doi.org/10.1186/s40488-021-00121-4" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1186/s40488-021-00121-4</a></li>
 <li>Ver Hoef JM, Boveng PL. Quasi-Poisson vs. negative binomial regression: how should we model overdispersed count data? <em>Ecology</em>. 2007;88:2766–2772. <a href="https://doi.org/10.1890/07-0043.1" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.1890/07-0043.1</a></li>
 <li>Zeileis A, Kleiber C, Jackman S. Regression models for count data in R. <em>Journal of Statistical Software</em>. 2008;27(8):1–25. <a href="https://doi.org/10.18637/jss.v027.i08" target="_blank" rel="noopener noreferrer" class="ext-link">doi:10.18637/jss.v027.i08</a></li>
+<li><code>pscl</code> package documentation: <a href="https://cran.r-project.org/web/packages/pscl/refman/pscl.html" target="_blank" rel="noopener noreferrer" class="ext-link">zero-inflated and hurdle model reference manual</a> and <a href="https://cran.r-project.org/web/packages/pscl/vignettes/countreg.pdf" target="_blank" rel="noopener noreferrer" class="ext-link">count-data vignette</a>.</li>
 </ul>
 
         </article>
