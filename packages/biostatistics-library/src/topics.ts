@@ -100,6 +100,31 @@ export const sections: TopicSection[] = [
 export const topicCount = sections.reduce((total, section) =>
   total + section.groups.reduce((count, group) => count + group.topics.length, 0), 0)
 
+export interface TopicEntry {
+  title: string
+  tags: string[]
+}
+
+// Flatten the old hierarchy into a topic directory. Former section and group
+// labels remain useful as tags, but are no longer displayed as nested groups.
+export const topicEntries: TopicEntry[] = sections.flatMap(section =>
+  section.groups.flatMap(group => group.topics.map(title => ({
+    title,
+    tags: [section.title, group.title],
+  })))
+).sort((a, b) => a.title.localeCompare(b.title))
+
+export const topicTags = [...new Set(topicEntries.flatMap(topic => topic.tags))]
+
+export function filterTopics(query: string, activeTag: string | null = null): TopicEntry[] {
+  const terms = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean)
+  return topicEntries.filter(topic => {
+    const matchesTag = !activeTag || topic.tags.includes(activeTag)
+    const text = `${topic.title} ${topic.tags.join(' ')}`.toLocaleLowerCase()
+    return matchesTag && terms.every(term => text.includes(term))
+  })
+}
+
 // Turn a topic title into a URL-safe slug, e.g.
 // 'What is biostatistics?' -> 'what-is-biostatistics'
 // 'Fisher’s exact test' -> 'fishers-exact-test'

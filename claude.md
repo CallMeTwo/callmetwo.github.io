@@ -95,18 +95,14 @@ App.tsx                    # Main workflow coordinator
 
 ### 2. Biostatistics Library
 **URL:** https://callmetwo.github.io/biostatistics-library/
-**Purpose:** Wiki-style biostatistics topic map (10 sections, ~64 planned articles) with published articles as static pages.
+**Purpose:** Compact searchable directory of biostatistics topics with clickable tags.
 
-#### Article content pipeline (SSG)
+#### Static topic pages
 - **Source of truth for the taxonomy:** `packages/biostatistics-library/src/topics.ts` (sections → groups → topic titles).
-- **Article content:** one markdown file per topic at `packages/biostatistics-library/content/<section-id>/<slug>.md`. Slug = kebab-case of the topic title (apostrophes stripped), e.g. `foundations/what-is-biostatistics.md`. Format documented in `content/README.md`. Frontmatter: `title` (must match the topic title) and optional `summary`.
-- **Build** (`npm run build -w biostatistics-library`):
-  1. `scripts/list-published.mjs` → `src/published-topics.json` (gitignored; lists published slugs so the SPA knows which topics get real links).
-  2. `vite build` → SPA (topic map).
-  3. `scripts/build-articles.mjs` → renders each `.md` with `marked` into `dist/<section-id>/<slug>.html` (self-contained page: navbar + sidebar + article CSS). Bundles `topics.ts` with esbuild, so a `.md` file that doesn't match a topic title (or is in the wrong section folder) **fails the build**.
-- **Published topics** render as `<a href>` in the map (e.g. `biostatistics-library/foundations/what-is-biostatistics.html`); unpublished topics open the "Planned article" placeholder dialog.
-- **Tests:** `scripts/content.test.js` keeps content files and the topic map in sync (slug mapping, section placement, frontmatter titles).
-- **Adding an article:** drop a `.md` in `content/<section-id>/`, run `bash deploy.sh`, commit & push.
+- **Article pages:** topic page files will live in `packages/biostatistics-library/public/<section-id>/<slug>.html`; the files are currently omitted while they are rewritten. Slugs derive from topic titles, e.g. `foundations/what-is-biostatistics.html`.
+- **Build** (`npm run build -w biostatistics-library`): Vite builds the searchable topic index and copies any static HTML topic pages into `dist/`. There is no Markdown conversion or article-generation step.
+- **Topic directory:** the homepage flattens the topic taxonomy into a single list; former section and subgroup names are used as tags and filters.
+- **Adding an article:** add the corresponding HTML file under `public/<section-id>/`, then run `bash deploy.sh` and commit the updated source and deployment output.
 
 ### 3. Clinical Calculator
 **URL:** https://callmetwo.github.io/clinical-calculator/
