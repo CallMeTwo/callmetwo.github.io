@@ -116,10 +116,10 @@ export const topicEntries: TopicEntry[] = sections.flatMap(section =>
 
 export const topicTags = [...new Set(topicEntries.flatMap(topic => topic.tags))]
 
-export function filterTopics(query: string, activeTag: string | null = null): TopicEntry[] {
+export function filterTopics(query: string, activeTags: ReadonlySet<string> = new Set()): TopicEntry[] {
   const terms = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean)
   return topicEntries.filter(topic => {
-    const matchesTag = !activeTag || topic.tags.includes(activeTag)
+    const matchesTag = activeTags.size === 0 || topic.tags.some(tag => activeTags.has(tag))
     const text = `${topic.title} ${topic.tags.join(' ')}`.toLocaleLowerCase()
     return matchesTag && terms.every(term => text.includes(term))
   })

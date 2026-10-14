@@ -4,11 +4,17 @@ import { filterTopics, topicCount, topicTags } from './topics'
 
 export default function App() {
   const [query, setQuery] = useState('')
-  const [activeTag, setActiveTag] = useState<string | null>(null)
-  const topics = useMemo(() => filterTopics(query, activeTag), [query, activeTag])
+  const [activeTags, setActiveTags] = useState<Set<string>>(new Set())
+  const [tagsOpen, setTagsOpen] = useState(true)
+  const topics = useMemo(() => filterTopics(query, activeTags), [query, activeTags])
 
   function toggleTag(tag: string) {
-    setActiveTag(current => current === tag ? null : tag)
+    setActiveTags(current => {
+      const next = new Set(current)
+      if (next.has(tag)) next.delete(tag)
+      else next.add(tag)
+      return next
+    })
   }
 
   return <>
@@ -31,10 +37,14 @@ export default function App() {
           {query && <button className="clear-search" onClick={() => setQuery('')} aria-label="Clear search">Clear</button>}
         </label>
 
-        <div className="tag-filter" aria-label="Filter by tag">
-          <span className="tag-label">Tags</span>
-          <button className={`tag-chip ${activeTag === null ? 'active' : ''}`} aria-pressed={activeTag === null} onClick={() => setActiveTag(null)}>All</button>
-          {topicTags.map(tag => <button key={tag} className={`tag-chip ${activeTag === tag ? 'active' : ''}`} aria-pressed={activeTag === tag} onClick={() => toggleTag(tag)}>{tag}</button>)}
+        <div className={`tag-filter ${tagsOpen ? 'is-open' : 'is-closed'}`} aria-label="Filter by tag">
+          <button className="tag-label" aria-expanded={tagsOpen} aria-controls="tag-options" onClick={() => setTagsOpen(open => !open)}>
+            Tags <span className="tag-toggle-icon" aria-hidden="true">{tagsOpen ? '−' : '+'}</span>
+          </button>
+          <div id="tag-options" className="tag-options" hidden={!tagsOpen}>
+            <button className={`tag-chip ${activeTags.size === 0 ? 'active' : ''}`} aria-pressed={activeTags.size === 0} onClick={() => setActiveTags(new Set())}>All</button>
+            {topicTags.map(tag => <button key={tag} className={`tag-chip ${activeTags.has(tag) ? 'active' : ''}`} aria-pressed={activeTags.has(tag)} onClick={() => toggleTag(tag)}>{tag}</button>)}
+          </div>
         </div>
 
         <div className="result-bar" aria-live="polite">
@@ -46,10 +56,10 @@ export default function App() {
           {topics.map(topic => <li className="topic-card" key={topic.title}>
             <h3>{topic.title}</h3>
             <div className="topic-tags" aria-label={`Tags for ${topic.title}`}>
-              {topic.tags.map(tag => <button key={tag} className={`topic-tag ${activeTag === tag ? 'selected' : ''}`} aria-pressed={activeTag === tag} onClick={() => toggleTag(tag)}>{tag}</button>)}
+              {topic.tags.map(tag => <button key={tag} className={`topic-tag ${activeTags.has(tag) ? 'selected' : ''}`} aria-pressed={activeTags.has(tag)} onClick={() => toggleTag(tag)}>{tag}</button>)}
             </div>
           </li>)}
-        </ul> : <div className="empty-state"><h3>No matching topics</h3><p>Clear the search or choose another tag.</p><button onClick={() => { setQuery(''); setActiveTag(null) }}>Clear filters</button></div>}
+        </ul> : <div className="empty-state"><h3>No matching topics</h3><p>Clear the search or choose another tag.</p><button onClick={() => { setQuery(''); setActiveTags(new Set()) }}>Clear filters</button></div>}
       </section>
 
       <footer className="library-footer"><span>Biostatistics Library</span><a href="/">Back to Web Projects Hub ↗</a></footer>
