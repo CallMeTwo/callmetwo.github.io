@@ -103,7 +103,12 @@ export const topicCount = sections.reduce((total, section) =>
 export interface TopicEntry {
   title: string
   tags: string[]
+  href?: string
 }
+
+const availableTopicPages = new Set([
+  'probability/sampling-distributions-and-the-central-limit-theorem',
+])
 
 // Flatten the old hierarchy into a topic directory. Former section and group
 // labels remain useful as tags, but are no longer displayed as nested groups.
@@ -111,8 +116,9 @@ export const topicEntries: TopicEntry[] = sections.flatMap(section =>
   section.groups.flatMap(group => group.topics.map(title => ({
     title,
     tags: [section.title, group.title],
+    href: availableTopicPages.has(articlePath(section.id, title)) ? articleHref(section.id, title) : undefined,
   })))
-).sort((a, b) => a.title.localeCompare(b.title))
+).sort((a, b) => Number(Boolean(b.href)) - Number(Boolean(a.href)) || a.title.localeCompare(b.title))
 
 export const topicTags = [...new Set(topicEntries.flatMap(topic => topic.tags))]
 

@@ -7,7 +7,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w data-analyzer -- --host",
+    "dev": "python3 -m http.server 5173 --bind 0.0.0.0",
+    "dev:library": "npm run dev -w biostatistics-library -- --host 0.0.0.0",
     "dev:static": "npm run build:copy && python3 -m http.server 5173",
     "build": "npm run build --workspaces",
     "build:copy": "npm run build -w data-analyzer && rm -rf data-analyzer/* && cp -r packages/data-analyzer/dist/* data-analyzer/",

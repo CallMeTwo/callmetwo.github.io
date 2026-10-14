@@ -9,7 +9,7 @@ A monorepo hosting multiple web applications on GitHub Pages, with automatic CI/
 ### 📚 Biostatistics Library
 - **URL**: https://callmetwo.github.io/biostatistics-library/
 - **Description**: Compact searchable topic directory with clickable tags for filtering.
-- **Status**: Topic pages are currently omitted while they are being rewritten.
+- **Status**: The sampling distributions and central limit theorem article is available; remaining topic pages are being rewritten.
 - **Development**: `npm run dev -w biostatistics-library`
 - **Build**: `npm run build -w biostatistics-library`
 - **Deployment**: Copy `packages/biostatistics-library/dist/` into `biostatistics-library/` (also included in `deploy.sh`).
@@ -36,8 +36,11 @@ npm install
 
 ### Development
 ```bash
-# Start dev servers for all apps
+# Serve the Web Projects Hub homepage and built apps at http://localhost:5173
 npm run dev
+
+# Run the Biostatistics Library Vite dev server
+npm run dev:library
 
 # Build all projects
 npm run build

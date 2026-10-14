@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Understand sampling distributions, standard error, and the central limit theorem with an interactive health research example and R confidence interval code.">
+  <title>Sampling distributions and the central limit theorem · Biostatistics Library</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon-biostatistics.svg">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Caslon+Text:wght@400;700&display=swap');
+    :root{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df;--pale:#edf3ed;--gold:#b37b29}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:78px}body{margin:0;line-height:1.7}button,input,select{font:inherit}a{color:var(--teal)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    .skip{position:fixed;top:-60px;left:14px;z-index:3;padding:8px 12px;background:white}.skip:focus{top:8px}
+    .topbar{position:sticky;top:0;z-index:2;border-bottom:1px solid var(--line);background:#fff}.topbar-inner{display:flex;align-items:center;gap:12px;max-width:1120px;margin:auto;padding:11px 24px;font-size:12px}.topbar a{text-decoration:none;font-weight:600}.crumb{color:#9aaa9f}.top-current{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    main{width:min(100% - 40px,1040px);margin:0 auto;padding:40px 0 32px}.article-head{max-width:790px;margin-bottom:36px}.eyebrow{margin:0 0 10px;color:#638074;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase}.article-head h1{margin:0;color:#203f37;font:400 clamp(32px,5vw,48px)/1.18 'Libre Caslon Text',Georgia,serif;letter-spacing:-1px}.dek{margin:16px 0 0;color:#526861;font-size:17px;line-height:1.65}.article-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}.pill{border:1px solid #d8e3db;border-radius:30px;background:#f7f9f6;padding:4px 10px;color:#536b61;font-size:10px}
+    .article-layout{display:grid;grid-template-columns:minmax(0,740px) minmax(190px,1fr);gap:48px;align-items:start}.article{min-width:0}.article h2{margin:42px 0 12px;color:#203f37;font-size:22px;line-height:1.35}.article h2:first-child{margin-top:0}.article h3{margin:26px 0 8px;color:#2d5144;font-size:16px}.article p{margin:0 0 15px}.article li{margin:6px 0}.article ul,.article ol{padding-left:23px;margin:0 0 18px}.article code{border-radius:3px;background:#edf3ed;padding:1px 5px;font: .9em ui-monospace,SFMono-Regular,Menlo,monospace}.equation{display:block;overflow:auto;margin:16px 0;padding:14px 17px;border-left:3px solid #8cad99;border-radius:0 4px 4px 0;background:#f1f5f0;color:#244c40;font:16px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}.note{margin:20px 0;padding:14px 17px;border:1px solid #dbe5dc;border-radius:5px;background:#fff;color:#4c615b;font-size:13px}.note strong{color:#294d40}.toc{position:sticky;top:78px;border-left:1px solid var(--line);padding:4px 0 4px 17px}.toc h2{margin:0 0 9px;color:#62776c;font-size:10px;letter-spacing:1px;text-transform:uppercase}.toc a{display:block;padding:4px 0;color:#61766c;font-size:11px;line-height:1.45;text-decoration:none}.toc a:hover{color:var(--teal);text-decoration:underline}
+    .simulator{margin:22px 0 26px;padding:20px;border:1px solid #d6e2d8;border-radius:7px;background:#fff;box-shadow:0 5px 20px #203f3709}.sim-intro{margin:0 0 15px;color:#5a6e64;font-size:12px}.controls{display:grid;grid-template-columns:1fr 1fr minmax(180px,1.25fr) auto auto;gap:12px;align-items:end}.control label{display:block;margin-bottom:5px;color:#536a60;font-size:10px;font-weight:700}.control select{width:100%;min-height:37px;border:1px solid #cdd9cf;border-radius:4px;padding:6px 8px;background:#fbfcfa;color:#28473d;font-size:12px}.range-line{display:flex;align-items:center;gap:9px}.range-line input{width:100%;accent-color:var(--teal)}.range-line output{min-width:36px;color:#28473d;font-size:12px;font-variant-numeric:tabular-nums}.primary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:#17675d;color:white;font-size:11px;font-weight:600}.primary:hover{background:#12584f}.secondary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:white;color:#17675d;font-size:11px;font-weight:600}.secondary:hover{background:#f1f6f2}.chart-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}.chart-wrap{min-width:0;border:1px solid #e2e9e3;border-radius:4px;background:#fff}.chart-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 12px 0}.chart-heading h3{margin:0;color:#35594a;font-size:12px}.chart-heading span{color:var(--muted);font-size:9px;text-align:right}.chart{display:block;width:100%;height:205px}.legend{display:flex;flex-wrap:wrap;gap:12px;padding:0 12px 12px;color:#64766d;font-size:9px}.legend-item{display:flex;align-items:center;gap:6px}.swatch{width:12px;height:9px;border-radius:2px;background:#a8c9b3}.swatch.curve,.swatch.density,.swatch.mean-line,.swatch.sample-mean{height:0;background:transparent}.swatch.curve{border-top:2px solid #bd8135}.swatch.density{border-top:2px solid #17675d}.swatch.mean-line{border-top:2px dashed #bd8135}.swatch.sample-mean{border-top:2px dotted #7553a6}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.stat{padding:10px 11px;border-radius:4px;background:#f3f6f2}.stat-label{display:block;color:#667970;font-size:9px;line-height:1.4}.stat output{display:block;margin-top:3px;color:#264c40;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}.sim-status{min-height:1.5em;margin:8px 0 0;color:#687b71;font-size:10px}.sim-caveat{margin:12px 0 0;color:#687b71;font-size:10px}
+    .example-box{margin:16px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.example-box h3{margin:0 0 8px}.data-vector{display:block;overflow-wrap:anywhere;padding:10px 12px;border-radius:4px;background:#f1f5f0;color:#244c40;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace}.code-box{position:relative;margin:17px 0 20px;border-radius:5px;background:#203f37;color:#e4eee7;overflow:hidden}.code-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #ffffff20;color:#c3d6ca;font-size:10px}.copy-button{border:1px solid #92b4a0;border-radius:3px;padding:4px 8px;background:transparent;color:#e4eee7;font-size:10px}.copy-button:hover{background:#ffffff15}.code-box pre{overflow:auto;margin:0;padding:15px;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2}.code-box code{padding:0;background:none;color:inherit}.code-output{margin:9px 0 16px;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:#f7f9f6;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#375548}.bottom-nav{display:flex;justify-content:space-between;gap:18px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px}.bottom-nav a{text-decoration:none}.footer{margin-top:30px;padding-top:15px;border-top:1px solid var(--line);color:#7b8a7f;font-size:10px}
+    .quiz-intro{color:#586d63}.quiz-progress{padding:10px 12px;border-radius:4px;background:#f1f5f0;color:#315448;font-size:12px;font-weight:600}.quiz-question{margin:18px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.quiz-question h3{margin:0 0 10px;font-size:14px}.quiz-options{display:grid;gap:7px}.quiz-option{width:100%;padding:9px 11px;border:1px solid #d5e0d7;border-radius:4px;background:#fbfcfa;color:#344f44;text-align:left;font-size:12px;line-height:1.5;cursor:pointer}.quiz-option:hover:not(:disabled){border-color:#7fa393;background:#f4f8f4}.quiz-option:disabled{cursor:default}.quiz-option.is-correct{border-color:#4b8c68;background:#edf7ef;color:#245c3d}.quiz-option.is-incorrect{border-color:#c67e6e;background:#fff2ef;color:#813d31}.quiz-feedback{margin:10px 0 0;padding:10px 12px;border-left:3px solid #8cad99;background:#f4f7f3;color:#465e53;font-size:12px}.quiz-feedback[hidden]{display:none}.quiz-retry{margin:12px 0;padding:8px 12px;border:1px solid #17675d;border-radius:4px;background:#fff;color:#17675d;font-size:11px;font-weight:600}
+    @media(max-width:800px){.article-layout{grid-template-columns:minmax(0,1fr)}.toc{position:static;grid-row:1;display:flex;flex-wrap:wrap;gap:3px 13px;border:1px solid var(--line);border-radius:5px;padding:10px 12px}.toc h2{flex-basis:100%}.toc a{padding:2px 0}.controls{grid-template-columns:1fr 1fr}.controls .control:nth-child(3){grid-column:1/-1}.controls .primary{justify-self:start}.article-layout{gap:24px}}
+    @media(max-width:800px){.chart-grid{grid-template-columns:1fr 1fr}.chart-wrap:last-child{grid-column:1/-1}.chart{height:230px}.controls{grid-template-columns:1fr 1fr}.controls .control:nth-child(3){grid-column:1/-1}.controls .primary,.controls .secondary{justify-self:start}}
+    @media(max-width:520px){main{width:min(100% - 28px,1040px);padding-top:26px}.topbar-inner{padding:10px 14px}.dek{font-size:15px}.simulator{padding:13px}.controls{grid-template-columns:1fr}.controls .control:nth-child(3){grid-column:auto}.controls .primary,.controls .secondary{width:100%}.chart-grid{grid-template-columns:1fr}.chart-wrap:last-child{grid-column:auto}.chart{height:220px}.stats{grid-template-columns:1fr 1fr}.chart-heading{align-items:flex-start;flex-direction:column;gap:2px}.bottom-nav{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to article</a>
+  <header class="topbar"><nav class="topbar-inner" aria-label="Breadcrumb"><a href="../">Biostatistics Library</a><span class="crumb">/</span><span class="top-current">Probability &amp; distributions / Sampling distributions and the central limit theorem</span></nav></header>
+
+  <main id="main">
+    <header class="article-head">
+      <p class="eyebrow">Probability &amp; distributions</p>
+      <h1>Sampling distributions and the central limit theorem</h1>
+      <p class="dek">A sample statistic changes from sample to sample. Its sampling distribution describes that variation, and the central limit theorem explains why averages often become predictable even when individual observations are skewed.</p>
+      <div class="article-meta"><span class="pill">Sampling distributions</span><span class="pill">Standard error</span><span class="pill">Central limit theorem</span></div>
+    </header>
+
+    <div class="article-layout">
+      <article class="article">
+        <section id="three-distributions">
+          <h2>Three distributions to keep separate</h2>
+          <p>Suppose researchers record length of stay (LOS) for patients admitted to a hospital. Individual stays vary: many patients leave quickly, while a smaller number stay much longer. The <strong>population distribution</strong> is the distribution of LOS values in the population the study is trying to describe.</p>
+          <p>A sample of patients gives one sample mean, <em>x̄</em>. A different sample would usually give a slightly different mean. If we repeatedly took samples of the same size and calculated a mean each time, the resulting values would form the <strong>sampling distribution of the sample mean</strong>.</p>
+          <div class="note"><strong>Keep the objects distinct.</strong> The population distribution describes individual patients. A sample is one group of patients. The sampling distribution describes a statistic across many hypothetical repetitions of that sampling process.</div>
+          <p>The central limit theorem (CLT) concerns this third distribution. It does not claim that patient-level data become normal, and it does not make a single sample look normal. It describes the behavior of a statistic across repeated samples.</p>
+        </section>
+
+        <section id="standard-error">
+          <h2>Standard error measures sample-to-sample variation</h2>
+          <p>Let individual observations have population mean <em>μ</em> and standard deviation <em>σ</em>. For a random sample of <em>n</em> independent observations, the sample mean is</p>
+          <div class="equation" role="math" aria-label="x bar equals the sum of observations divided by n">x̄ = (X₁ + X₂ + ⋯ + Xₙ) / n</div>
+          <p>The sample mean is centered on the population mean. Its standard deviation across repeated samples is called the <strong>standard error</strong> (SE):</p>
+          <div class="equation" role="math" aria-label="Standard error of the sample mean equals sigma divided by square root of n">SE(x̄) = σ / √n</div>
+          <p>In practice, <em>σ</em> is usually unknown, so we estimate it with the sample standard deviation <em>s</em>:</p>
+          <div class="equation" role="math" aria-label="Estimated standard error equals s divided by square root of n">estimated SE(x̄) = s / √n</div>
+          <p>Standard deviation describes spread among individual observations. Standard error describes uncertainty in an estimate across samples. Increasing the sample size makes the standard error smaller at a rate of <em>1 / √n</em>: quadrupling <em>n</em> halves the SE, all else equal.</p>
+        </section>
+
+        <section id="central-limit-theorem">
+          <h2>What the central limit theorem says</h2>
+          <p>When observations are independent and come from the same population with a finite mean and variance, the distribution of the standardized sample mean approaches a standard normal distribution as the sample size grows:</p>
+          <div class="equation" role="math" aria-label="The standardized sample mean approaches a standard normal distribution">(x̄ − μ) / (σ / √n)  →  N(0, 1) as n increases</div>
+          <p>In practical terms, the distribution of sample means becomes more nearly bell-shaped and remains centered at <em>μ</em>. Its spread is the standard error <em>σ / √n</em>. This is why normal-based methods can often describe uncertainty in averages, even when the original observations are not normally distributed.</p>
+          <h3>When is the sample mean exactly normal?</h3>
+          <p>If the population itself is normal, the sample mean has a normal distribution for any sample size. The CLT is useful in the broader case where the population is not normal: it provides an approximation that generally improves with larger samples.</p>
+          <h3>There is no universal “n = 30” rule</h3>
+          <p>How quickly the approximation becomes useful depends on the population shape. A mildly skewed distribution may need fewer observations than a strongly skewed distribution with rare extreme values. Dependence between observations can also change the sampling distribution. Check the study design and data rather than treating a sample-size threshold as a guarantee.</p>
+        </section>
+
+        <section id="sampling-lab">
+          <h2>Interactive sampling lab</h2>
+          <p>This lab shows individual values from a population beside the means from repeated samples. Switch population shapes, change the sample size, and compare how the sample means cluster around the population mean. All four populations have the same theoretical mean and standard deviation; only their shape differs.</p>
+          <div class="simulator" aria-labelledby="sim-title">
+            <h3 id="sim-title">Watch sample means take shape</h3>
+            <p class="sim-intro">Illustrative LOS population: mean = 12 days, SD = 8 days. The stronger right skew makes the change in sample means easier to see as sample size grows.</p>
+            <div class="controls">
+              <div class="control"><label for="population">Population shape</label><select id="population"><option value="lognormal" selected>Right-skewed lognormal</option><option value="normal">Normal</option><option value="uniform">Uniform</option><option value="bimodal">Bimodal</option></select></div>
+              <div class="control"><label for="sample-size">Sample size (n)</label><select id="sample-size"><option>1</option><option selected>5</option><option>10</option><option>30</option><option>100</option></select></div>
+              <div class="control"><label for="repetitions">Samples in a batch</label><div class="range-line"><input id="repetitions" type="range" min="200" max="5000" step="200" value="1000"><output id="repetitions-value" for="repetitions">1,000</output></div></div>
+              <button id="sample-one" class="primary" type="button">Sample 1</button>
+              <button id="sample-batch" class="secondary" type="button">Sample batch</button>
+            </div>
+            <div class="chart-grid">
+              <div class="chart-wrap">
+                <div class="chart-heading"><h3>Population distribution</h3><span>Individual LOS values (days)</span></div>
+                <canvas id="population-chart" class="chart" role="img" aria-label="Histogram of individual population values and theoretical population density">The population distribution chart requires a browser with canvas support.</canvas>
+                <div class="legend" aria-hidden="true"><span class="legend-item"><i class="swatch"></i>Simulated individuals</span><span class="legend-item"><i class="swatch curve"></i>Population density</span><span class="legend-item"><i class="swatch mean-line"></i>Mean: 12 days</span></div>
+              </div>
+              <div class="chart-wrap">
+                <div class="chart-heading"><h3>One sample</h3><span>Individual LOS values (days)</span></div>
+                <canvas id="sample-chart" class="chart" role="img" aria-label="Histogram of values in the most recently drawn sample">The sample histogram requires a browser with canvas support.</canvas>
+                <div class="legend" aria-hidden="true"><span class="legend-item"><i class="swatch"></i>Values in latest sample</span><span class="legend-item"><i class="swatch mean-line"></i>Mean: <output id="sample-mean-label">—</output> days</span></div>
+              </div>
+              <div class="chart-wrap">
+                <div class="chart-heading"><h3>Sampling distribution</h3><span>Sample mean LOS (days)</span></div>
+                <canvas id="sampling-chart" class="chart" role="img" aria-label="Histogram of simulated sample means and theoretical normal approximation">The sampling distribution chart requires a browser with canvas support.</canvas>
+                <div class="legend"><span class="legend-item"><i class="swatch"></i>Sample means</span><span class="legend-item"><i class="swatch density"></i>Estimated density</span><span class="legend-item"><i class="swatch curve"></i>Normal approximation</span><span class="legend-item"><i class="swatch mean-line"></i>Population mean: 12 days</span><span class="legend-item"><i class="swatch sample-mean"></i>Mean of sample means: <output id="sampling-mean-label">—</output> days</span></div>
+              </div>
+            </div>
+            <div class="stats" aria-label="Simulation summary">
+              <div class="stat"><span class="stat-label">Theoretical mean</span><output id="theory-mean">12.00 days</output></div>
+              <div class="stat"><span class="stat-label">Theoretical SE (σ / √n)</span><output id="theory-se">1.79 days</output></div>
+              <div class="stat"><span class="stat-label">Simulated mean of means</span><output id="empirical-mean">—</output></div>
+              <div class="stat"><span class="stat-label">Simulated SD of means</span><output id="empirical-se">—</output></div>
+            </div>
+            <p id="sim-status" class="sim-status" role="status" aria-live="polite">Choose “Sample 1” to add one sample mean or “Sample batch” to start a new set of repeated samples.</p>
+            <p class="sim-caveat">The normal curve uses the population mean and theoretical SE; the estimated density shows the simulated sample means. Small differences between them are expected. These are illustrative distributions matched on mean and SD, not literal models for hospital stays. The normal, uniform, and bimodal options can generate values below zero.</p>
+          </div>
+        </section>
+
+        <section id="hospital-example">
+          <h2>Worked example: average hospital stay</h2>
+          <p>Imagine a hypothetical sample of 12 admissions with recorded lengths of stay, in days. The values are right-skewed: several stays are short and a few are longer.</p>
+          <div class="example-box"><h3>Hypothetical sample (days)</h3><code class="data-vector">1, 2, 2, 3, 3, 4, 4, 5, 6, 8, 11, 17</code></div>
+          <p>The sample mean is 5.5 days. The sample standard deviation is about 4.58 days, so the estimated standard error is <em>4.58 / √12 ≈ 1.32 days</em>. The SE describes how much the sample mean would vary across repeated samples of 12 patients under the same sampling process.</p>
+          <p>This one sample does not show the CLT by itself. The interactive lab demonstrates the repeated-sampling idea. The example instead shows how a sample standard deviation becomes an estimated SE for an observed sample mean.</p>
+        </section>
+
+        <section id="confidence-interval">
+          <h2>From standard error to a 95% confidence interval</h2>
+          <p>A confidence interval combines an estimate with its uncertainty. For a mean, an often-used interval is</p>
+          <div class="equation" role="math" aria-label="Sample mean plus or minus the t critical value times estimated standard error">x̄ ± t* × (s / √n)</div>
+          <p>For the example, a t-based 95% interval is approximately 2.59 to 8.41 days. The t critical value accounts for estimating the population SD from the sample. Under independent sampling and a normally distributed population, this interval has exact 95% coverage; for a skewed population it is an approximation, and with only 12 observations the long right tail can make that approximation unreliable.</p>
+          <p>In repeated use under its assumptions, 95% of intervals constructed this way would contain the fixed population mean. It does not mean there is a 95% probability that this particular interval contains the mean.</p>
+        </section>
+
+        <section id="r-code">
+          <h2>Calculate the SE and 95% interval in R</h2>
+          <p>This code uses the 12 observed values above. It does not simulate repeated samples. The t-based interval is appropriate when observations are independent and the sample mean is reasonably modeled by a t procedure; strong skew at small <em>n</em> deserves caution.</p>
+          <div class="code-box">
+            <div class="code-toolbar"><span>R · standard error and 95% CI</span><button id="copy-code" class="copy-button" type="button">Copy code</button></div>
+            <pre><code id="r-code-text">stay_days &lt;- c(1, 2, 2, 3, 3, 4, 4, 5, 6, 8, 11, 17)
+
+n &lt;- length(stay_days)
+sample_mean &lt;- mean(stay_days)
+sample_sd &lt;- sd(stay_days)
+standard_error &lt;- sample_sd / sqrt(n)
+
+t_critical &lt;- qt(0.975, df = n - 1)
+ci_95 &lt;- sample_mean + c(-1, 1) * t_critical * standard_error
+
+sample_mean
+standard_error
+ci_95</code></pre>
+          </div>
+          <p>For these data, R returns a mean of 5.50 days, an SE of about 1.32 days, and a t-based 95% interval of about 2.59 to 8.41 days. A large-sample normal approximation uses 1.96 in place of the t critical value, but the CLT does not remove concerns about dependence, extreme tails, or a small sample.</p>
+          <div id="copy-status" class="code-output" role="status" aria-live="polite">The interval uses the sample standard deviation and 11 degrees of freedom.</div>
+        </section>
+
+        <section id="assumptions">
+          <h2>Assumptions and common mistakes</h2>
+          <ul>
+            <li><strong>Independence matters.</strong> Repeated measures on one patient or clustering within hospitals reduce the effective amount of independent information. Use methods that reflect the design.</li>
+            <li><strong>Finite variance matters.</strong> The usual CLT requires a population with a finite variance. Extremely heavy tails can make normal approximations slow or inappropriate.</li>
+            <li><strong>Skew affects convergence.</strong> A larger sample often helps, but there is no sample-size cutoff that guarantees a good approximation for every population.</li>
+            <li><strong>The CLT concerns a statistic.</strong> It does not say that the observed data, a histogram of patients, or the population itself becomes normal.</li>
+            <li><strong>SE is not SD.</strong> The SD describes individual values; the SE describes uncertainty in an estimate across repeated samples.</li>
+            <li><strong>Precision is not protection from bias.</strong> A narrow interval cannot repair selection bias, measurement problems, confounding, or an unrepresentative sample.</li>
+          </ul>
+          <div class="note"><strong>Practical reading:</strong> first identify the statistic and its sampling process. Then ask whether observations are independent, whether the sample size is adequate for the population shape, and whether the interval’s assumptions match the study.</div>
+        </section>
+
+        <section id="self-check">
+          <h2>Check your understanding</h2>
+          <p class="quiz-intro">Answer each question to reveal feedback and an explanation. Your score updates as you go.</p>
+          <div id="quiz-progress" class="quiz-progress" role="status" aria-live="polite">Answered 0 of 10 · Score 0</div>
+          <div id="quiz-container"></div>
+          <button id="quiz-retry" class="quiz-retry" type="button">Try again</button>
+        </section>
+
+        <section id="takeaways">
+          <h2>Key takeaways</h2>
+          <ul>
+            <li>A sampling distribution describes a statistic across repeated samples.</li>
+            <li>The standard error is the standard deviation of that sampling distribution; for a sample mean, it is <em>σ / √n</em>.</li>
+            <li>The CLT explains why sample means tend toward a normal distribution under suitable conditions, even when individual observations are skewed.</li>
+            <li>Use the CLT as an approximation whose quality depends on the population and sampling design, not as a blanket rule.</li>
+            <li>R can calculate a sample mean’s estimated SE and a t-based confidence interval directly from observed data.</li>
+          </ul>
+        </section>
+
+        <nav class="bottom-nav" aria-label="Article navigation"><a href="../#topic-index">← Back to all topics</a><a href="../#topic-index">Explore Probability &amp; distributions ↗</a></nav>
+      </article>
+
+      <nav class="toc" aria-label="On this page">
+        <h2>On this page</h2>
+        <a href="#three-distributions">Three distributions</a>
+        <a href="#standard-error">Standard error</a>
+        <a href="#central-limit-theorem">The central limit theorem</a>
+        <a href="#sampling-lab">Interactive sampling lab</a>
+        <a href="#hospital-example">Worked example</a>
+        <a href="#confidence-interval">95% confidence interval</a>
+        <a href="#r-code">R code</a>
+        <a href="#assumptions">Assumptions and mistakes</a>
+        <a href="#self-check">Self-check quiz</a>
+        <a href="#takeaways">Key takeaways</a>
+      </nav>
+    </div>
+
+    <footer class="footer">Biostatistics Library · Educational reference. Interpret methods in the context of the study design and data.</footer>
+  </main>
+
+  <script>
+    (() => {
+      const mu = 12
+      const sigma = 8
+      const population = document.getElementById('population')
+      const sampleSize = document.getElementById('sample-size')
+      const repetitions = document.getElementById('repetitions')
+      const repetitionsValue = document.getElementById('repetitions-value')
+      const canvas = document.getElementById('sampling-chart')
+      const context = canvas.getContext('2d')
+      const sampleCanvas = document.getElementById('sample-chart')
+      const sampleContext = sampleCanvas.getContext('2d')
+      const populationCanvas = document.getElementById('population-chart')
+      const populationContext = populationCanvas.getContext('2d')
+      const status = document.getElementById('sim-status')
+      const numberFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 })
+      let currentValues = []
+      let currentPopulationValues = []
+      let currentSample = []
+
+      function normalRandom() {
+        let u = 0
+        let v = 0
+        while (u === 0) u = Math.random()
+        while (v === 0) v = Math.random()
+        return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+      }
+
+      function drawObservation() {
+        if (population.value === 'normal') return mu + sigma * normalRandom()
+        if (population.value === 'uniform') {
+          const halfWidth = sigma * Math.sqrt(3)
+          return mu - halfWidth + Math.random() * halfWidth * 2
+        }
+        if (population.value === 'bimodal') {
+          const separation = 0.9 * sigma
+          const withinSd = Math.sqrt(sigma * sigma - separation * separation)
+          return mu + (Math.random() < 0.5 ? -separation : separation) + withinSd * normalRandom()
+        }
+        const cv = sigma / mu
+        const logSigma = Math.sqrt(Math.log1p(cv * cv))
+        const logMu = Math.log(mu) - 0.5 * logSigma * logSigma
+        return Math.exp(logMu + logSigma * normalRandom())
+      }
+
+      function normalDensity(x, mean, sd) {
+        const z = (x - mean) / sd
+        return Math.exp(-0.5 * z * z) / (sd * Math.sqrt(2 * Math.PI))
+      }
+
+      function estimatedDensity(x, values, bandwidth) {
+        const scale = 1 / (values.length * bandwidth * Math.sqrt(2 * Math.PI))
+        let total = 0
+        for (const value of values) {
+          const z = (x - value) / bandwidth
+          total += Math.exp(-0.5 * z * z)
+        }
+        return total * scale
+      }
+
+      function populationDensity(x) {
+        if (population.value === 'normal') return normalDensity(x, mu, sigma)
+        if (population.value === 'uniform') {
+          const halfWidth = sigma * Math.sqrt(3)
+          return x >= mu - halfWidth && x <= mu + halfWidth ? 1 / (2 * halfWidth) : 0
+        }
+        if (population.value === 'bimodal') {
+          const separation = 0.9 * sigma
+          const withinSd = Math.sqrt(sigma * sigma - separation * separation)
+          return 0.5 * normalDensity(x, mu - separation, withinSd) + 0.5 * normalDensity(x, mu + separation, withinSd)
+        }
+        if (x <= 0) return 0
+        const cv = sigma / mu
+        const logSigma = Math.sqrt(Math.log1p(cv * cv))
+        const logMu = Math.log(mu) - 0.5 * logSigma * logSigma
+        const z = (Math.log(x) - logMu) / logSigma
+        return Math.exp(-0.5 * z * z) / (x * logSigma * Math.sqrt(2 * Math.PI))
+      }
+
+      function drawPopulationChart(values) {
+        const rect = populationCanvas.getBoundingClientRect()
+        if (!rect.width || !values.length) return
+        const dpr = window.devicePixelRatio || 1
+        const width = rect.width
+        const height = rect.height
+        populationCanvas.width = Math.round(width * dpr)
+        populationCanvas.height = Math.round(height * dpr)
+        populationContext.setTransform(dpr, 0, 0, dpr, 0, 0)
+        populationContext.clearRect(0, 0, width, height)
+
+        const cv = sigma / mu
+        const logSigma = Math.sqrt(Math.log1p(cv * cv))
+        const logMu = Math.log(mu) - 0.5 * logSigma * logSigma
+        const halfWidth = sigma * Math.sqrt(3)
+        const separation = 0.9 * sigma
+        const withinSd = Math.sqrt(sigma * sigma - separation * separation)
+        const xMin = population.value === 'normal' ? mu - 4 * sigma
+          : population.value === 'uniform' ? mu - halfWidth
+          : population.value === 'bimodal' ? mu - separation - 4 * withinSd
+          : 0
+        const xMax = population.value === 'normal' ? mu + 4 * sigma
+          : population.value === 'uniform' ? mu + halfWidth
+          : population.value === 'bimodal' ? mu + separation + 4 * withinSd
+          : Math.exp(logMu + 3 * logSigma)
+        const x0 = 48
+        const x1 = width - 12
+        const y0 = height - 36
+        const y1 = 17
+        const plotWidth = x1 - x0
+        const plotHeight = y0 - y1
+        const bins = 38
+        const binWidth = (xMax - xMin) / bins
+        const counts = Array(bins).fill(0)
+        for (const value of values) {
+          const index = Math.floor((value - xMin) / binWidth)
+          if (index >= 0 && index < bins) counts[index]++
+        }
+        let yMax = Math.max(1, ...counts)
+        for (let i = 0; i <= 100; i++) {
+          const x = xMin + (xMax - xMin) * i / 100
+          yMax = Math.max(yMax, populationDensity(x) * values.length * binWidth)
+        }
+        yMax *= 1.13
+        const px = x => x0 + (x - xMin) / (xMax - xMin) * plotWidth
+        const py = y => y0 - y / yMax * plotHeight
+
+        populationContext.font = '10px DM Sans, system-ui, sans-serif'
+        populationContext.textAlign = 'right'
+        populationContext.textBaseline = 'middle'
+        populationContext.strokeStyle = '#e5ebe5'
+        populationContext.fillStyle = '#75867c'
+        for (let i = 0; i <= 3; i++) {
+          const y = py(yMax * i / 3)
+          populationContext.beginPath()
+          populationContext.moveTo(x0, y)
+          populationContext.lineTo(x1, y)
+          populationContext.stroke()
+          populationContext.fillText(String(Math.round(yMax * i / 3)), x0 - 7, y)
+        }
+        populationContext.textAlign = 'center'
+        populationContext.textBaseline = 'top'
+        for (let i = 0; i <= 4; i++) {
+          const x = xMin + (xMax - xMin) * i / 4
+          populationContext.strokeStyle = '#eef1ed'
+          populationContext.beginPath()
+          populationContext.moveTo(px(x), y1)
+          populationContext.lineTo(px(x), y0)
+          populationContext.stroke()
+          populationContext.fillStyle = '#75867c'
+          populationContext.fillText(numberFormat.format(x), px(x), y0 + 7)
+        }
+        populationContext.fillStyle = '#a8c9b3'
+        for (let i = 0; i < bins; i++) {
+          const left = px(xMin + i * binWidth) + 0.75
+          const right = px(xMin + (i + 1) * binWidth) - 0.75
+          const y = py(counts[i])
+          populationContext.fillRect(left, y, Math.max(1, right - left), y0 - y)
+        }
+        populationContext.beginPath()
+        populationContext.strokeStyle = '#bd8135'
+        populationContext.lineWidth = 2
+        for (let i = 0; i <= 120; i++) {
+          const x = xMin + (xMax - xMin) * i / 120
+          const y = py(populationDensity(x) * values.length * binWidth)
+          if (i === 0) populationContext.moveTo(px(x), y)
+          else populationContext.lineTo(px(x), y)
+        }
+        populationContext.stroke()
+        const meanX = px(mu)
+        populationContext.save()
+        populationContext.strokeStyle = '#bd8135'
+        populationContext.lineWidth = 2
+        populationContext.setLineDash([5, 4])
+        populationContext.beginPath()
+        populationContext.moveTo(meanX, y1)
+        populationContext.lineTo(meanX, y0)
+        populationContext.stroke()
+        populationContext.restore()
+        populationContext.strokeStyle = '#82948a'
+        populationContext.lineWidth = 1
+        populationContext.beginPath()
+        populationContext.moveTo(x0, y0)
+        populationContext.lineTo(x1, y0)
+        populationContext.stroke()
+      }
+
+      function drawChart(values, n) {
+        const rect = canvas.getBoundingClientRect()
+        if (!rect.width) return
+        const dpr = window.devicePixelRatio || 1
+        const width = rect.width
+        const height = rect.height
+        canvas.width = Math.round(width * dpr)
+        canvas.height = Math.round(height * dpr)
+        context.setTransform(dpr, 0, 0, dpr, 0, 0)
+        context.clearRect(0, 0, width, height)
+
+        const theoreticalSe = sigma / Math.sqrt(n)
+        const sorted = [...values].sort((a, b) => a - b)
+        const meanOfMeans = sorted.reduce((sum, value) => sum + value, 0) / sorted.length
+        const sdOfMeans = sorted.length > 1
+          ? Math.sqrt(sorted.reduce((sum, value) => sum + (value - meanOfMeans) ** 2, 0) / (sorted.length - 1))
+          : theoreticalSe
+        const bandwidth = Math.max(1.06 * sdOfMeans * Math.pow(sorted.length, -0.2), theoreticalSe * 0.08)
+        const lowQuantile = sorted[Math.floor((sorted.length - 1) * 0.005)]
+        const highQuantile = sorted[Math.ceil((sorted.length - 1) * 0.995)]
+        const xMin = Math.min(lowQuantile, mu - 4 * theoreticalSe)
+        const xMax = Math.max(highQuantile, mu + 4 * theoreticalSe)
+        const x0 = 56
+        const x1 = width - 16
+        const y0 = height - 39
+        const y1 = 17
+        const plotWidth = x1 - x0
+        const plotHeight = y0 - y1
+        const bins = Math.max(18, Math.min(42, Math.round(Math.sqrt(values.length) * 1.25)))
+        const binWidth = (xMax - xMin) / bins
+        const counts = Array(bins).fill(0)
+        for (const value of values) {
+          const index = Math.floor((value - xMin) / binWidth)
+          if (index >= 0 && index < bins) counts[index]++
+        }
+        let yMax = Math.max(1, ...counts)
+        for (let i = 0; i <= 100; i++) {
+          const x = xMin + (xMax - xMin) * i / 100
+          yMax = Math.max(yMax, normalDensity(x, mu, theoreticalSe) * values.length * binWidth)
+          yMax = Math.max(yMax, estimatedDensity(x, values, bandwidth) * values.length * binWidth)
+        }
+        yMax *= 1.13
+        const px = x => x0 + (x - xMin) / (xMax - xMin) * plotWidth
+        const py = y => y0 - y / yMax * plotHeight
+
+        context.font = '10px DM Sans, system-ui, sans-serif'
+        context.textAlign = 'right'
+        context.textBaseline = 'middle'
+        context.strokeStyle = '#e5ebe5'
+        context.fillStyle = '#75867c'
+        for (let i = 0; i <= 3; i++) {
+          const value = yMax * i / 3
+          const y = py(value)
+          context.beginPath()
+          context.moveTo(x0, y)
+          context.lineTo(x1, y)
+          context.stroke()
+          context.fillText(String(Math.round(value)), x0 - 8, y)
+        }
+        const tickCount = 5
+        context.textAlign = 'center'
+        context.textBaseline = 'top'
+        for (let i = 0; i <= tickCount; i++) {
+          const value = xMin + (xMax - xMin) * i / tickCount
+          const x = px(value)
+          context.strokeStyle = '#eef1ed'
+          context.beginPath()
+          context.moveTo(x, y1)
+          context.lineTo(x, y0)
+          context.stroke()
+          context.fillStyle = '#75867c'
+          context.fillText(numberFormat.format(value), x, y0 + 7)
+        }
+
+        const gap = 1.5
+        context.fillStyle = '#a8c9b3'
+        for (let i = 0; i < bins; i++) {
+          const left = px(xMin + i * binWidth) + gap / 2
+          const right = px(xMin + (i + 1) * binWidth) - gap / 2
+          const y = py(counts[i])
+          context.fillRect(left, y, Math.max(1, right - left), y0 - y)
+        }
+
+        context.beginPath()
+        context.strokeStyle = '#bd8135'
+        context.lineWidth = 2
+        for (let i = 0; i <= 120; i++) {
+          const x = xMin + (xMax - xMin) * i / 120
+          const densityCount = normalDensity(x, mu, theoreticalSe) * values.length * binWidth
+          const y = py(densityCount)
+          if (i === 0) context.moveTo(px(x), y)
+          else context.lineTo(px(x), y)
+        }
+        context.stroke()
+        context.beginPath()
+        context.strokeStyle = '#17675d'
+        context.lineWidth = 2
+        for (let i = 0; i <= 120; i++) {
+          const x = xMin + (xMax - xMin) * i / 120
+          const densityCount = estimatedDensity(x, values, bandwidth) * values.length * binWidth
+          const y = py(densityCount)
+          if (i === 0) context.moveTo(px(x), y)
+          else context.lineTo(px(x), y)
+        }
+        context.stroke()
+        const referenceLines = [
+          { value: mu, color: '#bd8135', dash: [5, 4] },
+          { value: meanOfMeans, color: '#7553a6', dash: [2, 4] }
+        ]
+        for (const line of referenceLines) {
+          context.save()
+          context.strokeStyle = line.color
+          context.lineWidth = 2
+          context.setLineDash(line.dash)
+          context.beginPath()
+          context.moveTo(px(line.value), y1)
+          context.lineTo(px(line.value), y0)
+          context.stroke()
+          context.restore()
+        }
+        document.getElementById('sampling-mean-label').textContent = numberFormat.format(meanOfMeans)
+        context.strokeStyle = '#82948a'
+        context.lineWidth = 1
+        context.beginPath()
+        context.moveTo(x0, y0)
+        context.lineTo(x1, y0)
+        context.stroke()
+      }
+
+      function drawSampleChart(values) {
+        const rect = sampleCanvas.getBoundingClientRect()
+        if (!rect.width || !values.length) return
+        const dpr = window.devicePixelRatio || 1
+        const width = rect.width
+        const height = rect.height
+        sampleCanvas.width = Math.round(width * dpr)
+        sampleCanvas.height = Math.round(height * dpr)
+        sampleContext.setTransform(dpr, 0, 0, dpr, 0, 0)
+        sampleContext.clearRect(0, 0, width, height)
+        const min = Math.min(...values)
+        const max = Math.max(...values)
+        const span = Math.max(max - min, sigma / 4)
+        const xMin = Math.max(0, min - span * 0.25)
+        const xMax = max + span * 0.25 || 1
+        const x0 = 48
+        const x1 = width - 12
+        const y0 = height - 36
+        const y1 = 17
+        const bins = Math.min(12, Math.max(1, values.length))
+        const binWidth = (xMax - xMin) / bins
+        const counts = Array(bins).fill(0)
+        for (const value of values) counts[Math.min(bins - 1, Math.floor((value - xMin) / binWidth))]++
+        const yMax = Math.max(...counts, 1) * 1.18
+        const px = x => x0 + (x - xMin) / (xMax - xMin) * (x1 - x0)
+        const py = y => y0 - y / yMax * (y0 - y1)
+        sampleContext.font = '10px DM Sans, system-ui, sans-serif'
+        sampleContext.textAlign = 'right'
+        sampleContext.textBaseline = 'middle'
+        sampleContext.strokeStyle = '#e5ebe5'
+        sampleContext.fillStyle = '#75867c'
+        for (let i = 0; i <= 3; i++) {
+          const count = yMax * i / 3
+          const y = py(count)
+          sampleContext.beginPath()
+          sampleContext.moveTo(x0, y)
+          sampleContext.lineTo(x1, y)
+          sampleContext.stroke()
+          sampleContext.fillText(String(Math.round(count)), x0 - 7, y)
+        }
+        sampleContext.textAlign = 'center'
+        sampleContext.textBaseline = 'top'
+        for (let i = 0; i <= 3; i++) {
+          const x = xMin + (xMax - xMin) * i / 3
+          sampleContext.fillStyle = '#75867c'
+          sampleContext.fillText(numberFormat.format(x), px(x), y0 + 7)
+        }
+        sampleContext.fillStyle = '#a8c9b3'
+        for (let i = 0; i < bins; i++) {
+          const left = px(xMin + i * binWidth) + 1
+          const right = px(xMin + (i + 1) * binWidth) - 1
+          const y = py(counts[i])
+          sampleContext.fillRect(left, y, Math.max(1, right - left), y0 - y)
+        }
+        const sampleMean = values.reduce((sum, value) => sum + value, 0) / values.length
+        const meanX = px(sampleMean)
+        sampleContext.save()
+        sampleContext.strokeStyle = '#bd8135'
+        sampleContext.lineWidth = 2
+        sampleContext.setLineDash([5, 4])
+        sampleContext.beginPath()
+        sampleContext.moveTo(meanX, y1)
+        sampleContext.lineTo(meanX, y0)
+        sampleContext.stroke()
+        sampleContext.restore()
+        document.getElementById('sample-mean-label').textContent = numberFormat.format(sampleMean)
+        sampleContext.strokeStyle = '#82948a'
+        sampleContext.beginPath()
+        sampleContext.moveTo(x0, y0)
+        sampleContext.lineTo(x1, y0)
+        sampleContext.stroke()
+      }
+
+      function drawCurrentMeans() {
+        if (!currentValues.length) return
+        let mean = 0
+        let sumSquares = 0
+        currentValues.forEach((value, i) => {
+          const delta = value - mean
+          mean += delta / (i + 1)
+          sumSquares += delta * (value - mean)
+        })
+        const n = Number(sampleSize.value)
+        document.getElementById('theory-mean').textContent = `${numberFormat.format(mu)} days`
+        document.getElementById('theory-se').textContent = `${numberFormat.format(sigma / Math.sqrt(n))} days`
+        document.getElementById('empirical-mean').textContent = `${numberFormat.format(mean)} days`
+        document.getElementById('empirical-se').textContent = `${numberFormat.format(currentValues.length > 1 ? Math.sqrt(sumSquares / (currentValues.length - 1)) : 0)} days`
+        drawChart(currentValues, n)
+      }
+
+      function makeSample() {
+        const n = Number(sampleSize.value)
+        const values = Array.from({ length: n }, drawObservation)
+        return { values, mean: values.reduce((sum, value) => sum + value, 0) / n }
+      }
+
+      function sampleOne() {
+        const sample = makeSample()
+        currentSample = sample.values
+        currentValues.push(sample.mean)
+        drawSampleChart(currentSample)
+        drawCurrentMeans()
+        status.textContent = `Added one sample of ${sampleSize.value} observations. The mean histogram contains ${currentValues.length.toLocaleString()} sample${currentValues.length === 1 ? '' : 's'}.`
+      }
+
+      function sampleBatch() {
+        const count = Number(repetitions.value)
+        const means = new Array(count)
+        let firstSample = []
+        for (let i = 0; i < count; i++) {
+          const sample = makeSample()
+          if (i === 0) firstSample = sample.values
+          means[i] = sample.mean
+        }
+        currentSample = firstSample
+        currentValues = means
+        drawSampleChart(currentSample)
+        drawCurrentMeans()
+        status.textContent = `Drew a fresh batch of ${count.toLocaleString()} samples. The sample histogram shows one sample; the mean histogram shows the batch.`
+      }
+
+      function resetForSettingsChange() {
+        currentValues = []
+        currentSample = []
+        const n = Number(sampleSize.value)
+        document.getElementById('theory-mean').textContent = `${numberFormat.format(mu)} days`
+        document.getElementById('theory-se').textContent = `${numberFormat.format(sigma / Math.sqrt(n))} days`
+        document.getElementById('empirical-mean').textContent = '—'
+        document.getElementById('empirical-se').textContent = '—'
+        sampleContext.clearRect(0, 0, sampleCanvas.width, sampleCanvas.height)
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        status.textContent = 'Settings changed. Sample again to start a new mean distribution.'
+      }
+
+      population.addEventListener('change', () => {
+        currentPopulationValues = Array.from({ length: 4000 }, drawObservation)
+        drawPopulationChart(currentPopulationValues)
+        resetForSettingsChange()
+      })
+      sampleSize.addEventListener('change', resetForSettingsChange)
+      repetitions.addEventListener('input', () => { repetitionsValue.value = Number(repetitions.value).toLocaleString() })
+      document.getElementById('sample-one').addEventListener('click', sampleOne)
+      document.getElementById('sample-batch').addEventListener('click', sampleBatch)
+      window.addEventListener('resize', () => {
+        if (currentPopulationValues.length) drawPopulationChart(currentPopulationValues)
+        if (currentSample.length) drawSampleChart(currentSample)
+        if (currentValues.length) drawCurrentMeans()
+      })
+
+      const quizItems = [
+        {
+          question: 'What does the sampling distribution of the sample mean describe?',
+          options: ['The spread of individual observations in the population', 'The values in one observed sample', 'The sample means across many repeated samples of the same size', 'The distribution of sample sizes in a study'],
+          answer: 2,
+          explanation: 'It is the distribution of a statistic—in this case, the mean—across repeated samples. It is distinct from both the population distribution and one sample.'
+        },
+        {
+          question: 'A population has mean μ = 12 days. What is the expected value of the sample mean for samples of size n = 5?',
+          options: ['2.4 days', '12 days', '60 days', 'It depends on the sample SD'],
+          answer: 1,
+          explanation: 'The sampling distribution of the mean is centered at the population mean: E(x̄) = μ. Sample size changes its spread, not its expected value.'
+        },
+        {
+          question: 'If the population SD is 8 days and n = 16, what is the theoretical SE of the sample mean?',
+          options: ['0.5 days', '2 days', '4 days', '8 days'],
+          answer: 1,
+          explanation: 'SE(x̄) = σ / √n = 8 / √16 = 8 / 4 = 2 days.'
+        },
+        {
+          question: 'If sample size is multiplied by four, what happens to the standard error, assuming the population SD stays the same?',
+          options: ['It doubles', 'It is cut in half', 'It is cut to one quarter', 'It does not change'],
+          answer: 1,
+          explanation: 'Because SE = σ / √n, multiplying n by four multiplies √n by two, so the SE is halved.'
+        },
+        {
+          question: 'Which statement correctly distinguishes SD from SE?',
+          options: ['SD describes individual variation; SE describes sample-to-sample variation in an estimate', 'SD and SE are two names for the same quantity', 'SE describes individual variation; SD describes uncertainty in the sample mean', 'SE is always larger than SD'],
+          answer: 0,
+          explanation: 'The SD describes how spread out individual observations are. The SE describes how much an estimate such as x̄ would vary across repeated samples.'
+        },
+        {
+          question: 'If observations come from a normal population, what is true of the sample mean?',
+          options: ['It is exactly normally distributed for any sample size', 'It becomes normal only when n reaches 30', 'It has the same SD as individual observations', 'It is normal only if the sample SD is known'],
+          answer: 0,
+          explanation: 'For a normal population, the sample mean is exactly normal for every n. The CLT is especially useful when the population itself is not normal.'
+        },
+        {
+          question: 'Which conditions support the usual central limit theorem for sample means?',
+          options: ['Independent observations from the same population with finite mean and variance', 'A normal population and a sample size of exactly 30', 'A large sample, even if observations are strongly dependent', 'Equal numbers in every category'],
+          answer: 0,
+          explanation: 'The usual CLT relies on independent, identically distributed observations with finite mean and variance. Dependence or extremely heavy tails can change the result.'
+        },
+        {
+          question: 'The population is strongly right-skewed with rare extreme values. What should you expect as n increases?',
+          options: ['The individual population values become less skewed', 'The distribution of sample means generally becomes more nearly normal, though it may take a larger n', 'The sample mean becomes biased upward by the CLT', 'The standard error increases'],
+          answer: 1,
+          explanation: 'The CLT concerns the distribution of sample means, not the individual data. Strong skew and rare extremes can make convergence slower, while SE still decreases as n grows.'
+        },
+        {
+          question: 'Why is “n = 30 is always enough” an unsafe rule?',
+          options: ['The required sample size depends partly on the population shape and sampling design', 'The CLT applies only below n = 30', 'At n = 30, the sample mean stops varying', 'The rule applies only to categorical outcomes'],
+          answer: 0,
+          explanation: 'There is no universal cutoff. A strongly skewed or heavy-tailed population may need more observations, and dependence can undermine the approximation.'
+        },
+        {
+          question: 'What is the frequentist interpretation of a 95% confidence interval procedure?',
+          options: ['There is a 95% probability that the fixed population mean is inside this particular interval', 'Across repeated use under its assumptions, about 95% of intervals would contain the fixed population mean', '95% of the observations lie inside the interval', 'The interval contains 95% of possible sample means'],
+          answer: 1,
+          explanation: 'The 95% refers to the long-run coverage of the method across repeated samples. After the interval is calculated, the population mean is fixed; the interval either contains it or it does not.'
+        }
+      ]
+
+      function renderQuiz() {
+        const container = document.getElementById('quiz-container')
+        const progress = document.getElementById('quiz-progress')
+        container.replaceChildren()
+        let answered = 0
+        let score = 0
+        progress.textContent = `Answered 0 of ${quizItems.length} · Score 0`
+        quizItems.forEach((item, index) => {
+          const card = document.createElement('div')
+          card.className = 'quiz-question'
+          const heading = document.createElement('h3')
+          heading.textContent = `${index + 1}. ${item.question}`
+          card.append(heading)
+          const options = document.createElement('div')
+          options.className = 'quiz-options'
+          options.setAttribute('role', 'group')
+          options.setAttribute('aria-label', `Answers for question ${index + 1}`)
+          const feedback = document.createElement('p')
+          feedback.className = 'quiz-feedback'
+          feedback.hidden = true
+          item.options.forEach((option, optionIndex) => {
+            const button = document.createElement('button')
+            button.className = 'quiz-option'
+            button.type = 'button'
+            button.textContent = `${String.fromCharCode(65 + optionIndex)}. ${option}`
+            button.setAttribute('aria-pressed', 'false')
+            button.addEventListener('click', () => {
+              answered++
+              const isCorrect = optionIndex === item.answer
+              if (isCorrect) score++
+              for (const choice of options.querySelectorAll('button')) {
+                choice.disabled = true
+                if (Number(choice.dataset.option) === item.answer) choice.classList.add('is-correct')
+              }
+              button.setAttribute('aria-pressed', 'true')
+              if (!isCorrect) button.classList.add('is-incorrect')
+              feedback.textContent = `${isCorrect ? 'Correct. ' : 'Not quite. '}${item.explanation}`
+              feedback.hidden = false
+              progress.textContent = `Answered ${answered} of ${quizItems.length} · Score ${score}${answered === quizItems.length ? ' · Complete' : ''}`
+            })
+            button.dataset.option = String(optionIndex)
+            options.append(button)
+          })
+          card.append(options, feedback)
+          container.append(card)
+        })
+      }
+
+      document.getElementById('quiz-retry').addEventListener('click', renderQuiz)
+      renderQuiz()
+
+      document.getElementById('copy-code').addEventListener('click', async event => {
+        const button = event.currentTarget
+        const code = document.getElementById('r-code-text').innerText
+        const message = document.getElementById('copy-status')
+        try {
+          await navigator.clipboard.writeText(code)
+          message.textContent = 'R code copied to clipboard.'
+        } catch {
+          message.textContent = 'Clipboard access is unavailable here. Select the code block and copy it manually.'
+        }
+        button.textContent = 'Copied'
+        window.setTimeout(() => { button.textContent = 'Copy code' }, 1800)
+      })
+
+      currentPopulationValues = Array.from({ length: 4000 }, drawObservation)
+      drawPopulationChart(currentPopulationValues)
+    })()
+  </script>
+</body>
+</html>

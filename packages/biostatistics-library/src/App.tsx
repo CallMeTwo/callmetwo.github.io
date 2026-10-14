@@ -54,7 +54,7 @@ export default function App() {
 
         {topics.length > 0 ? <ul className="topic-list">
           {topics.map(topic => <li className="topic-card" key={topic.title}>
-            <h3>{topic.title}</h3>
+            {topic.href ? <a className="topic-title-link" href={topic.href}><h3>{topic.title}</h3><span aria-hidden="true">↗</span></a> : <h3>{topic.title}</h3>}
             <div className="topic-tags" aria-label={`Tags for ${topic.title}`}>
               {topic.tags.map(tag => <button key={tag} className={`topic-tag ${activeTags.has(tag) ? 'selected' : ''}`} aria-pressed={activeTags.has(tag)} onClick={() => toggleTag(tag)}>{tag}</button>)}
             </div>

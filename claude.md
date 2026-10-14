@@ -99,10 +99,17 @@ App.tsx                    # Main workflow coordinator
 
 #### Static topic pages
 - **Source of truth for the taxonomy:** `packages/biostatistics-library/src/topics.ts` (sections → groups → topic titles).
-- **Article pages:** topic page files will live in `packages/biostatistics-library/public/<section-id>/<slug>.html`; the files are currently omitted while they are rewritten. Slugs derive from topic titles, e.g. `foundations/what-is-biostatistics.html`.
+- **Article pages:** standalone HTML files live in `packages/biostatistics-library/public/<section-id>/<slug>.html`. The sampling distributions and central limit theorem page is available; remaining pages are being rewritten. Slugs derive from topic titles, e.g. `foundations/what-is-biostatistics.html`.
 - **Build** (`npm run build -w biostatistics-library`): Vite builds the searchable topic index and copies any static HTML topic pages into `dist/`. There is no Markdown conversion or article-generation step.
-- **Topic directory:** the homepage flattens the topic taxonomy into a single list; former section and subgroup names are used as tags and filters.
+- **Topic directory:** the homepage flattens the topic taxonomy into a single list; former section and subgroup names are used as tags and filters. Topics link to their article page when one exists.
 - **Adding an article:** add the corresponding HTML file under `public/<section-id>/`, then run `bash deploy.sh` and commit the updated source and deployment output.
+
+#### Reusable topic page pattern
+- Use `packages/biostatistics-library/public/probability/sampling-distributions-and-the-central-limit-theorem.html` as the reference when creating other topic pages. Keep each article as a complete, standalone HTML page with its own styles and interactions.
+- Follow its learning flow: explain the core concepts first, distinguish commonly confused ideas, state assumptions and limitations, give a worked health research example, and finish with practical takeaways.
+- Add interactive elements when they help teach the topic. For simulations, make controls explicit, label axes and curves, explain what each display represents, and show how changing parameters affects the result.
+- Include a self-check quiz near the end: multiple-choice questions that cover the article’s main concepts and applications. Selecting an option should lock that question, immediately mark the response, reveal a concise explanation, update a running score, and allow the learner to retry the full quiz.
+- Preserve the visual style and accessibility of the reference: responsive layout, contents navigation, semantic headings, keyboard-visible focus, clear button labels, and live status text for results. Adapt the number and kind of examples or interactions to the topic rather than copying irrelevant details.
 
 ### 3. Clinical Calculator
 **URL:** https://callmetwo.github.io/clinical-calculator/
@@ -124,7 +131,8 @@ App.tsx                    # Main workflow coordinator
 ### Local Development
 ```bash
 npm install              # Install all workspace dependencies
-npm run dev              # Start all dev servers
+npm run dev              # Serve the Web Projects Hub homepage and built apps
+npm run dev:library      # Start the Biostatistics Library Vite dev server
 npm run build            # Build all projects
 npm run preview          # Preview production builds
 npm run test:run         # Run tests (Vitest)
