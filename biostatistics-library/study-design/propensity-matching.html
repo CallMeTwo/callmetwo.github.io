@@ -611,12 +611,12 @@
           question: 'Under its assumptions, why does matching on the propensity score work?',
           options: [
             'It physically randomizes patients, so any remaining difference between groups is pure chance and no further adjustment is needed',
-            'It removes the effect of measured confounding',
+            'It removes the effect of all confounding, whether the covariates were measured or not',
             'Within groups of the same score, treatment behaves as if random with respect to the measured covariates',
             'It forces the two groups to be the same size, so their means are mechanically identical by construction and no test is needed'
           ],
           answer: 2,
-          explanation: 'Rosenbaum and Rubin (1983) showed conditional independence of treatment and potential outcomes given the score — but only with respect to the covariates you measured.'
+          explanation: 'Rosenbaum and Rubin (1983) proved conditional independence of treatment and potential outcomes given the score — but only with respect to the covariates you measured. So B is wrong: matching cannot remove bias from variables you never measured. It also does not physically randomize anyone (A) or merely equalize group sizes (D).'
         },
         {
           question: 'Which set of covariates should the propensity model include?',
