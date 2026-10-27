@@ -599,10 +599,10 @@
         {
           question: 'A hospital registry treats sicker patients with a new drug. What does the propensity score e(x) estimate?',
           options: [
-            'The probability that the drug improves the outcome',
-            'The probability of receiving the drug given the patient’s baseline characteristics x',
-            'The probability that a patient is sick given the drug',
-            'The probability that treatment was randomly assigned'
+            'The probability that the drug improves the outcome for a given patient',
+            'The probability of receiving the drug given the measured baseline characteristics x',
+            'The probability that a patient is sick given that they took the drug, which is the reverse direction of what is asked',
+            'The probability that the treatment was randomly assigned to the patient, as would happen in a properly conducted randomized trial'
           ],
           answer: 1,
           explanation: 'e(x) = P(A = 1 | X = x): the probability of treatment given the measured baseline covariates. It says nothing about the outcome itself.'
@@ -610,10 +610,10 @@
         {
           question: 'Under its assumptions, why does matching on the propensity score work?',
           options: [
-            'It physically randomizes patients before treatment',
-            'It removes the effect of all confounders, measured or unmeasured',
+            'It physically randomizes patients, so any remaining difference between groups is pure chance and no further adjustment is needed',
+            'It removes the effect of measured confounding',
             'Within groups of the same score, treatment behaves as if random with respect to the measured covariates',
-            'It forces the two groups to be the same size'
+            'It forces the two groups to be the same size, so their means are mechanically identical by construction and no test is needed'
           ],
           answer: 2,
           explanation: 'Rosenbaum and Rubin (1983) showed conditional independence of treatment and potential outcomes given the score — but only with respect to the covariates you measured.'
@@ -621,10 +621,10 @@
         {
           question: 'Which set of covariates should the propensity model include?',
           options: [
-            'Only the single strongest confounder',
-            'Baseline variables that predict treatment and are related to the outcome; outcome predictors with little treatment association may also be included for precision',
-            'Every variable in the chart, including post-treatment values',
-            'Only variables that strongly predict the outcome, regardless of their relation to treatment'
+            'Only the single strongest confounder, chosen by expert judgment to maximize the model’s predictive accuracy for treatment',
+            'Baseline variables that predict treatment and are related to the outcome',
+            'Every variable in the chart, including post-treatment values, mediators on the treatment pathway, and proxies for unmeasured confounding',
+            'Only the variables that most strongly predict the outcome, so that the model stays parsimonious and overfitting is avoided'
           ],
           answer: 1,
           explanation: 'Definitely include confounders. Extra outcome predictors do not bias the estimate under the assumptions and can improve precision — but post-treatment variables never belong in the score model.'
@@ -632,10 +632,10 @@
         {
           question: 'Why must a variable measured after treatment starts (e.g. blood pressure after starting a new antihypertensive) be excluded from the propensity model?',
           options: [
-            'It can be affected by the treatment; conditioning on a mediator blocks part of the effect being estimated',
-            'It is usually measured with more error than baseline variables',
-            'It would inflate the sample size',
-            'Post-treatment variables are always missing'
+            'It is a mediator on the treatment pathway; adjusting for it can bias the effect estimate toward the null',
+            'It is usually measured with more error than the baseline variables, which would add avoidable noise to the entire propensity-score model',
+            'It would inflate the sample size of the matched cohort and reduce the power of the downstream analysis',
+            'Post-treatment variables are always missing from the clinical record'
           ],
           answer: 0,
           explanation: 'The score is defined on baseline covariates. Variables downstream of treatment are mediators (or, in other designs, colliders); conditioning on them is a form of over-control that can bias the treatment estimate.'
@@ -646,7 +646,7 @@
             'One standard deviation of the raw propensity score',
             '0.2 × the standard deviation of the logit-transformed propensity score',
             '0.2 × the standard deviation of the outcome',
-            'The 95th percentile of the propensity score distribution'
+            '0.1 times the standard deviation of the logit-transformed score, which is the widely cited stricter default used when few matches form'
           ],
           answer: 1,
           explanation: 'caliper = 0.2 × SD(logit(e)) is the standard rule of thumb (Austin 2011). It is a convention, not a theorem — state the caliper you used, and treat patients without a partner inside the caliper remain unmatched.'
@@ -654,10 +654,10 @@
         {
           question: 'After 1:1 caliper matching, one covariate still shows |SMD| = 0.18. A reasonable next step is to:',
           options: [
-            'Ignore it, because matching always guarantees perfect balance',
-            'Declare balance by reporting that the t-test p-value for that covariate is above 0.05',
-            'Note it and consider residual adjustment — add that covariate (or the score itself) to the final model, or re-estimate and re-match',
-            'Pool the unmatched patients into the analysis to dilute the imbalance'
+            'Ignore it, because a well-specified propensity-score model is guaranteed to achieve perfect balance on every covariate by construction',
+            'Declare balance by reporting that the t-test p-value for that covariate is above 0.05, since a non-significant test is the accepted criterion',
+            'Note it and consider residual adjustment, adding that covariate or the score itself to the final model, or re-estimate and re-match',
+            'Pool the unmatched patients back in to dilute the residual imbalance across the combined cohort, then re-check balance on the pooled set before any claim of balance'
           ],
           answer: 2,
           explanation: 'Matching must be checked, not assumed. Residual options include adjusting for the offending covariate in the analysis, adding the propensity score (or a spline of it), or re-matching after re-estimating. Balance is judged descriptively with the SMD, never with p-values.'
@@ -667,7 +667,7 @@
           options: [
             'p > 0.05 on a two-group test',
             '|SMD| < 0.1 (some stricter standards use 0.05)',
-            'Identical means in the two groups',
+            'Identical means in the two groups, which is what matching is supposed to guarantee and what balance actually requires',
             'A variance ratio of exactly 1.0'
           ],
           answer: 1,
@@ -677,9 +677,9 @@
           question: 'Why should you not use t-test p-values to declare that two groups are “balanced”?',
           options: [
             't-tests only work on binary variables',
-            'Matched pairs violate the assumptions of every t-test',
+            'Matched pairs violate the independence assumption of the unpaired test, so its p-value systematically overstates the evidence against balance and inflates the type I error',
             'P-values depend on sample size: with large n even trivial differences are “significant”, with small n even important ones are not',
-            'P-values can never be computed for continuous covariates'
+            'P-values can never be computed for continuous covariates, so the SMD is the only metric that can ever be reported for a continuous variable'
           ],
           answer: 2,
           explanation: 'Balance is a descriptive assessment. A non-significant p-value does not prove balance, and a significant one does not disprove it — the same difference gets a tiny p-value in a large registry and a large one in a small pilot study.'
@@ -688,8 +688,8 @@
           question: 'In a 1:1 matched sample with a binary outcome, which analysis respects the design?',
           options: [
             'McNemar’s test on the matched pairs (or conditional logistic regression stratified by pair)',
-            'An unpaired logistic regression treating the 2N patients as independent',
-            'A chi-square test of the two groups, ignoring the pairing',
+            'An unpaired logistic regression that treats all 2N patients as independent observations, ignoring the matched-pair structure entirely',
+            'A chi-square test of the two groups',
             'An unpaired t-test on the raw outcome values'
           ],
           answer: 0,
@@ -699,8 +699,8 @@
           question: 'A caliper match leaves 25% of treated patients unmatched — all with the highest propensity scores. What does this imply?',
           options: [
             'The result still applies to the full treated population',
-            'The unmatched patients should be averaged into the matched results',
-            'The analysis is automatically invalid and must be redone with IPTW',
+            'The unmatched patients should be averaged into the matched results so that the final estimate reflects the entire treated cohort rather than just the overlap',
+            'The analysis is automatically invalid and must be redone with inverse-probability weighting, which is the only acceptable correction',
             'The estimate targets the overlap population; the unmatched high-score patients are not covered, so the estimand is narrower'
           ],
           answer: 3,
