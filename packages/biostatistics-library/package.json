@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "katex:inject": "node scripts/inject-katex.js"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -16,6 +17,7 @@
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
+    "katex": "^0.16.22",
     "vite": "^5.0.8"
   }
 }
