@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Learn propensity matching for confounding control in observational health research: which covariates to use, caliper matching, SMD balance checks, and pair-aware analysis — with an interactive balance lab.">
+  <title>Propensity matching · Biostatistics Library</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon-biostatistics.svg">
+  <style>
+    :root{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df;--pale:#edf3ed;--gold:#b37b29}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:78px}body{margin:0;line-height:1.7}button,input,select{font:inherit}a{color:var(--teal)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    .skip{position:fixed;top:-60px;left:14px;z-index:3;padding:8px 12px;background:white}.skip:focus{top:8px}
+    .topbar{position:sticky;top:0;z-index:2;border-bottom:1px solid var(--line);background:#fff}.topbar-inner{display:flex;align-items:center;gap:12px;max-width:1120px;margin:auto;padding:11px 24px;font-size:12px}.topbar a{text-decoration:none;font-weight:600}.crumb{color:#9aaa9f}.top-current{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    main{width:min(100% - 40px,1040px);margin:0 auto;padding:40px 0 32px}.article-head{max-width:790px;margin-bottom:36px}.eyebrow{margin:0 0 10px;color:#638074;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase}.article-head h1{margin:0;color:#203f37;font:400 clamp(32px,5vw,48px)/1.18 'Libre Caslon Text',Georgia,serif;letter-spacing:-1px}.dek{margin:16px 0 0;color:#526861;font-size:17px;line-height:1.65}.article-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}.pill{border:1px solid #d8e3db;border-radius:30px;background:#f7f9f6;padding:4px 10px;color:#536b61;font-size:10px}
+    .article-layout{display:grid;grid-template-columns:minmax(0,740px) minmax(190px,1fr);gap:48px;align-items:start}.article{min-width:0}.article h2{margin:42px 0 12px;color:#203f37;font-size:22px;line-height:1.35}.article h2:first-child{margin-top:0}.article h3{margin:26px 0 8px;color:#2d5144;font-size:16px}.article p{margin:0 0 15px}.article li{margin:6px 0}.article ul,.article ol{padding-left:23px;margin:0 0 18px}.article code{border-radius:3px;background:#edf3ed;padding:1px 5px;font:.9em ui-monospace,SFMono-Regular,Menlo,monospace}.equation{display:block;overflow:auto;margin:16px 0;padding:14px 17px;border-left:3px solid #8cad99;border-radius:0 4px 4px 0;background:#f1f5f0;color:#244c40;font:16px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}.note{margin:20px 0;padding:14px 17px;border:1px solid #dbe5dc;border-radius:5px;background:#fff;color:#4c615b;font-size:13px}.note strong{color:#294d40}.toc{position:sticky;top:78px;border-left:1px solid var(--line);padding:4px 0 4px 17px}.toc h2{margin:0 0 9px;color:#62776c;font-size:10px;letter-spacing:1px;text-transform:uppercase}.toc a{display:block;padding:4px 0;color:#61766c;font-size:11px;line-height:1.45;text-decoration:none}.toc a:hover{color:var(--teal);text-decoration:underline}
+    .article table{width:100%;margin:0 0 18px;border-collapse:collapse;font-size:12px}.article th{border-bottom:2px solid #cfdcd1;padding:7px 9px;text-align:left;color:#35594a;font-size:10px;letter-spacing:.4px;text-transform:uppercase}.article td{border-bottom:1px solid #e4ebe4;padding:7px 9px;color:#435a50;vertical-align:top}
+    .simulator{margin:22px 0 26px;padding:20px;border:1px solid #d6e2d8;border-radius:7px;background:#fff;box-shadow:0 5px 20px #203f3709}.sim-intro{margin:0 0 15px;color:#5a6e64;font-size:12px}.controls{display:grid;grid-template-columns:1fr 1fr minmax(180px,1.25fr) auto auto;gap:12px;align-items:end}.control label{display:block;margin-bottom:5px;color:#536a60;font-size:10px;font-weight:700}.control select{width:100%;min-height:37px;border:1px solid #cdd9cf;border-radius:4px;padding:6px 8px;background:#fbfcfa;color:#28473d;font-size:12px}.range-line{display:flex;align-items:center;gap:9px}.range-line input{width:100%;accent-color:var(--teal)}.range-line output{min-width:36px;color:#28473d;font-size:12px;font-variant-numeric:tabular-nums}.primary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:#17675d;color:white;font-size:11px;font-weight:600}.primary:hover{background:#12584f}.secondary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:white;color:#17675d;font-size:11px;font-weight:600}.secondary:hover{background:#f1f6f2}.chart-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}.chart-wrap{min-width:0;border:1px solid #e2e9e3;border-radius:4px;background:#fff}.chart-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 12px 0}.chart-heading h3{margin:0;color:#35594a;font-size:12px}.chart-heading span{color:var(--muted);font-size:9px;text-align:right}.legend{display:flex;flex-wrap:wrap;gap:12px;padding:10px 12px 12px;color:#64766d;font-size:9px}.legend-item{display:flex;align-items:center;gap:6px}.swatch{width:12px;height:9px;border-radius:2px;background:#a8c9b3}.swatch.treated{background:#17675d}.swatch.unmatched{background:#c67e6e}.swatch.pair-line{height:0;background:transparent;border-top:2px solid #9dbfab}.swatch.caliper-band{background:#17675d;opacity:.12}.swatch.pre-smd{width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #bd8135}.swatch.post-smd{width:10px;height:10px;border-radius:50%;background:#17675d}.swatch.smd-band{background:#eef3ee}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.stat{padding:10px 11px;border-radius:4px;background:#f3f6f2}.stat-label{display:block;color:#667970;font-size:9px;line-height:1.4}.stat output{display:block;margin-top:3px;color:#264c40;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}.sim-status{min-height:1.5em;margin:8px 0 0;color:#687b71;font-size:10px}.sim-caveat{margin:12px 0 0;color:#687b71;font-size:10px}
+    .lab-grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.lab-grid .lab-wide{grid-column:1/-1}.lab-svg{display:block;width:100%;height:auto}.lab-stats{grid-template-columns:1fr 1fr;margin-top:0}.lab-summary{padding:0 12px 12px}.lab-status{min-height:3.2em;margin:10px 12px 12px;padding:10px 12px;border-radius:4px;background:#f3f6f2;color:#3f5a4f;font-size:11px;line-height:1.55}
+    .example-box{margin:16px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.example-box h3{margin:0 0 8px}
+    .quiz-intro{color:#586d63}.quiz-progress{padding:10px 12px;border-radius:4px;background:#f1f5f0;color:#315448;font-size:12px;font-weight:600}.quiz-question{margin:18px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.quiz-question h3{margin:0 0 10px;font-size:14px}.quiz-options{display:grid;gap:7px}.quiz-option{width:100%;padding:9px 11px;border:1px solid #d5e0d7;border-radius:4px;background:#fbfcfa;color:#344f44;text-align:left;font-size:12px;line-height:1.5;cursor:pointer}.quiz-option:hover:not(:disabled){border-color:#7fa393;background:#f4f8f4}.quiz-option:disabled{cursor:default}.quiz-option.is-correct{border-color:#4b8c68;background:#edf7ef;color:#245c3d}.quiz-option.is-incorrect{border-color:#c67e6e;background:#fff2ef;color:#813d31}.quiz-feedback{margin:10px 0 0;padding:10px 12px;border-left:3px solid #8cad99;background:#f4f7f3;color:#465e53;font-size:12px}.quiz-feedback[hidden]{display:none}.quiz-retry{margin:12px 0;padding:8px 12px;border:1px solid #17675d;border-radius:4px;background:#fff;color:#17675d;font-size:11px;font-weight:600}
+    .bottom-nav{display:flex;justify-content:space-between;gap:18px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px}.bottom-nav a{text-decoration:none}.footer{margin-top:30px;padding-top:15px;border-top:1px solid var(--line);color:#7b8a7f;font-size:10px}
+    @media(max-width:800px){.article-layout{grid-template-columns:minmax(0,1fr)}.toc{position:static;grid-row:1;display:flex;flex-wrap:wrap;gap:3px 13px;border:1px solid var(--line);border-radius:5px;padding:10px 12px}.toc h2{flex-basis:100%}.toc a{padding:2px 0}.controls{grid-template-columns:1fr 1fr}.controls .control:nth-child(3){grid-column:1/-1}.controls .primary{justify-self:start}.article-layout{gap:24px}.lab-grid{grid-template-columns:minmax(0,1fr)}}
+    @media(max-width:520px){main{width:min(100% - 28px,1040px);padding-top:26px}.topbar-inner{padding:10px 14px}.dek{font-size:15px}.simulator{padding:13px}.controls{grid-template-columns:1fr}.controls .control:nth-child(3){grid-column:auto}.controls .primary,.controls .secondary{width:100%}.chart-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.chart-heading{align-items:flex-start;flex-direction:column;gap:2px}.bottom-nav{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to article</a>
+  <header class="topbar"><nav class="topbar-inner" aria-label="Breadcrumb"><a href="../">Biostatistics Library</a><span class="crumb">/</span><span class="top-current">Study design &amp; sampling / Propensity matching</span></nav></header>
+
+  <main id="main">
+    <header class="article-head">
+      <p class="eyebrow">Study design &amp; sampling</p>
+      <h1>Propensity matching</h1>
+      <p class="dek">In observational data, sicker patients often get the treatment, so a simple comparison confuses the treatment effect with being sicker. The propensity score compresses everything you measured about treatment selection into one number — and matching on it makes the groups comparable, on what you measured.</p>
+      <div class="article-meta"><span class="pill">Propensity score</span><span class="pill">Confounding by indication</span><span class="pill">Caliper matching</span><span class="pill">Balance (SMD)</span></div>
+    </header>
+
+    <div class="article-layout">
+      <article class="article">
+        <section id="core-idea">
+          <h2>Core idea: comparable patients, not comparable outcomes</h2>
+          <p>In a randomized trial, treatment allocation is independent of confounders by design. In observational data — hospital registries, claims databases, chart reviews — sicker patients often get surgery or a new drug, so treated and untreated groups differ systematically. Comparing them directly conflates the treatment effect with the effect of being sicker. This is <strong>confounding by indication</strong>, and it is the dominant source of bias in clinical observational studies.</p>
+          <p>The <strong>propensity score</strong> is one of several tools (alongside regression adjustment and stratification) for mimicking randomization on the <em>measured</em> covariates. It is defined as the conditional probability that a patient receives the treatment of interest, given their observed baseline characteristics. For a binary treatment <em>A</em> (1 = treated, 0 = untreated) and measured covariates <em>X</em>:</p>
+          <div class="equation" role="math" aria-label="Propensity score e of x equals the probability of treatment A equal to one given covariates X equal to x">e(x) = P(A = 1 | X = x)</div>
+          <p>It summarizes all measured confounding information into a single number between 0 and 1 for each patient. The key theoretical result, due to Rosenbaum and Rubin (1983), is that under the assumptions below, treatment and potential outcomes are conditionally independent given the propensity score:</p>
+          <div class="equation" role="math" aria-label="A is conditionally independent of the potential outcomes Y zero and Y one given e of X">A ⟂ {Y(0), Y(1)} | e(X)</div>
+          <p>In plain language: among patients with the <em>same</em> propensity score, treatment assignment behaves <em>as if</em> it were random with respect to the measured covariates. (For background, see the <a href="https://en.wikipedia.org/wiki/Propensity_score" target="_blank" rel="noopener">overview of propensity scores on Wikipedia ↗</a>.)</p>
+          <div class="note"><strong>The one-liner to remember:</strong> matching on the propensity score makes the groups comparable on everything you measured — nothing more, nothing less.</div>
+          <h3>The two assumptions it relies on</h3>
+          <ul>
+            <li><strong>No unmeasured confounding.</strong> Every variable that jointly influences both treatment selection and the outcome must be measured and included. If an important confounder is missing from <em>X</em> — for example, a clinician's subjective judgment of frailty that never made it into the chart — the propensity score cannot fix it.</li>
+            <li><strong>Positivity (overlap, or common support).</strong> Every patient must have a nonzero chance of receiving either treatment: 0 &lt; e(x) &lt; 1 for all observed x. In practice, the treated and untreated propensity score distributions should meaningfully overlap, so that comparable counterparts actually exist.</li>
+          </ul>
+          <h3>What propensity matching is NOT</h3>
+          <ul>
+            <li><strong>It does not remove unmeasured confounding.</strong> A match that achieves perfect balance on measured covariates can still be completely biased if an unmeasured confounder drives both treatment and outcome.</li>
+            <li><strong>It is not a substitute for randomization.</strong> It mimics randomization with respect to measured covariates only.</li>
+            <li><strong>It does not remove bias in a single step.</strong> You must check (further down) that balance was actually achieved; a poor model or poor overlap can silently leave large residual differences.</li>
+            <li><strong>It is an analysis tool, not a data-collection recommendation.</strong> If the confounders were never measured, no analysis method can recover them.</li>
+          </ul>
+        </section>
+
+        <section id="covariates">
+          <h2>Which covariates to match on</h2>
+          <p>Covariate selection is the most practical — and most commonly mis-handled — part of a propensity-score analysis. The general principle is to include every measured covariate that <strong>predicts treatment assignment</strong> and is <strong>associated with the outcome</strong>. In the working rule of thumb used in the literature (e.g. Austin 2011; Stuart 2010):</p>
+          <ul>
+            <li><strong>Definitely include</strong> all confounders — variables that influence both who gets treated and the outcome.</li>
+            <li><strong>Preferably also include</strong> outcome predictors that have little or no association with treatment. This does not bias the treatment effect estimate (conditional on the confounders) and can improve precision by reducing residual outcome variability. This is why propensity models are often deliberately <em>over-adjusted</em> relative to a minimal confounder set.</li>
+            <li><strong>Do not include</strong> variables affected by treatment (mediators on the path from treatment to outcome) and do not include <strong>colliders</strong> (variables caused by both treatment and outcome, or by both plus some other cause).</li>
+          </ul>
+          <h3>Why the “do not include” list matters</h3>
+          <p><strong>Mediators</strong> are measured downstream of treatment. If you study a blood-pressure drug and include post-randomization blood pressure, that variable is partly <em>caused</em> by the drug; conditioning on it blocks part of the causal effect you are trying to measure. The propensity score is defined on <strong>baseline</strong> covariates — everything measured <em>before</em> treatment assignment. <strong>Colliders</strong> behave similarly: a classic example is hospital admission for a procedure, which can be caused by both disease severity and the decision to treat; conditioning on it can induce a spurious association between variables that are otherwise independent. A practical test: if the covariate can plausibly have been <em>changed by the treatment</em>, it does not belong in the propensity model. When in doubt, measure the covariate before treatment and keep the timing explicit.</p>
+          <h3>A practical baseline covariate list for clinical studies</h3>
+          <table>
+            <thead><tr><th scope="col">Domain</th><th scope="col">Examples</th></tr></thead>
+            <tbody>
+              <tr><td>Demographics</td><td>Age, sex</td></tr>
+              <tr><td>Disease severity</td><td>Severity score or stage, Charlson comorbidity index (or individual comorbidities), NYHA class, eGFR</td></tr>
+              <tr><td>Baseline labs / vitals</td><td>Hemoglobin, creatinine, eGFR, blood pressure, heart rate, BNP/NT-proBNP (condition-specific)</td></tr>
+              <tr><td>Prior treatments</td><td>Previous drugs of the same class, prior surgery, prior hospitalizations</td></tr>
+              <tr><td>Disease duration / history</td><td>Time since diagnosis, prior events (e.g. prior stroke)</td></tr>
+              <tr><td>Health-system factors</td><td>Index facility or hospital (in multi-site studies), calendar year of enrollment</td></tr>
+              <tr><td>Socioeconomic factors</td><td>Insurance type, distance to facility, region — where relevant and measured</td></tr>
+              <tr><td>Study-structure factors</td><td>Referral source, indication category (if it also predicts outcome)</td></tr>
+            </tbody>
+          </table>
+          <p>Two judgment calls to keep in mind: facility and year are often included in multi-site studies to absorb unmeasured site-level practice variation — a defensible convention, not a rule; socioeconomic variables belong only when they are actually measured and plausibly related to both treatment choice and outcome in the setting.</p>
+          <h3>The over-adjustment nuance</h3>
+          <p>The propensity score estimates <em>treatment assignment</em>, not the outcome. So including extra outcome predictors that are not confounders does not bias the treatment effect (under no unmeasured confounding and correct overlap) and can improve precision. But piling in dozens of weakly related variables can make the model unstable, produce extreme propensity scores (near 0 or 1), and destroy overlap. “More covariates” has diminishing returns and a real cost: err toward including relevant baseline covariates, then check the overlap histogram after estimation — extreme scores are the symptom of a model that has over-fitted noise or captured idiosyncratic treatment rules.</p>
+          <h3>When there are hundreds or thousands of covariates</h3>
+          <p>With very large candidate sets (claims databases, EHR-derived features), plain logistic regression overfits. Standard responses include <strong>LASSO</strong> (L1-regularized logistic regression, which also performs variable selection), <strong>elastic net</strong> when predictors are correlated, <strong>machine-learning estimators</strong> such as gradient-boosted trees or random forests, and the <strong>high-dimensional propensity score (hdPS)</strong> used in pharmacoepidemiology. The pedagogical point: the covariate-selection strategy changes, but everything downstream — matching, balance checking, analysis — stays the same.</p>
+        </section>
+
+        <section id="estimation">
+          <h2>Estimating the propensity score</h2>
+          <p><strong>Logistic regression</strong> is the workhorse and the default teaching model:</p>
+          <div class="equation" role="math" aria-label="Logit of e equals beta zero plus beta one x one plus … plus beta k x k">logit(e) = β₀ + β₁x₁ + ⋯ + βₖxₖ</div>
+          <p>It is transparent, easy to check, and works well when the treatment rule is roughly linear in the covariates. For non-linearities and interactions, consider splines or flexible terms in the logistic model, or gradient-boosted trees and random forests. The choice of estimator affects <em>how well</em> overlap is achieved — not the downstream analysis plan.</p>
+          <p><strong>Model checking:</strong> assess <em>calibration</em> — do predicted scores match the observed treatment proportions within score bands? The Hosmer–Lemeshow test is a classic but sample-size-sensitive check; a calibration plot is more informative. Also check whether the score actually predicts treatment: if the area under the ROC curve is near 0.5, either the treatment is close to random (good news — less confounding to control) or the model is misspecified (check).</p>
+          <div class="note"><strong>Practical warning:</strong> the propensity model is a tool for achieving balance, not a scientific claim about which covariates “cause” treatment. Do not over-interpret its coefficients.</div>
+        </section>
+
+        <section id="positivity">
+          <h2>Positivity, overlap, and trimming</h2>
+          <p>Matching can only pair patients where the two groups coexist on the propensity score scale. If a surgical patient has a score of 0.98 and no medical patient is above 0.80, there is no honest comparison for that patient — the estimate for them would be pure extrapolation.</p>
+          <ul>
+            <li><strong>Common-support restriction:</strong> keep only patients whose score lies within the range where both groups are present (for example, between the minimum treated score and the maximum untreated score, or tighter).</li>
+            <li><strong>Trimming:</strong> remove extreme scores. A conventional choice is trimming below the 1st percentile and above the 99th percentile of the <em>treated</em> group's score distribution (Austin 2011), or trimming wherever either group has very few patients. Report how many were trimmed and on what rule.</li>
+          </ul>
+          <p>If overlap is <em>fundamentally</em> poor, matching is not the right method. Your options are to accept a very narrow estimand (the effect only in a small overlap subgroup), rethink the design question (perhaps the treatment is only given to a specific subgroup — then define the study accordingly), or use a different comparison entirely. Do not force a caliper so wide that “matched” patients are clearly not comparable.</p>
+        </section>
+
+        <section id="matching-methods">
+          <h2>Choosing a matching method</h2>
+          <p>Once the score is estimated, there are several ways to use it. Matching is the most common, but it is one member of a family of methods.</p>
+          <h3>Nearest-neighbor matching</h3>
+          <p>For each treated patient, find the untreated patient(s) with the closest propensity score.</p>
+          <ul>
+            <li><strong>1:1 matching:</strong> one untreated partner per treated patient. The most efficient use of the treatment group and the simplest to explain and analyze.</li>
+            <li><strong>1:k matching (e.g. 1:3, 1:4):</strong> up to <em>k</em> untreated partners per treated patient. Retains more of the untreated pool and can improve precision, at the cost of a more complex analysis (see the analysis section for how variance must be handled when k &gt; 1).</li>
+          </ul>
+          <p><strong>With vs. without replacement.</strong> The default in most clinical applications is <em>without replacement</em>: each untreated patient can be used at most once. It mirrors how you would actually pair patients and keeps the analysis straightforward. <em>With replacement</em>, the same untreated patient can be matched to multiple treated patients; it retains more of the treated group but produces correlated partners and can overweight a few common untreated patients. It is rarely the first choice.</p>
+          <h3>Caliper matching</h3>
+          <p>Without a caliper, a treated patient in a thin part of the score distribution may be forced to pair with a poorly similar untreated patient. <strong>Caliper matching</strong> fixes this: each treated patient is matched to the nearest untreated patient <em>within a maximum distance</em> (the caliper); if no untreated patient falls within the caliper, the treated patient is left unmatched.</p>
+          <div class="equation" role="math" aria-label="The conventional caliper equals zero point two times the standard deviation of the logit of the propensity score, computed on the whole sample">caliper = 0.2 × SD( logit(e) )</div>
+          <p>This rule, proposed by Austin (2011) building on earlier practice, is the standard default in the propensity-matching literature. It is a rule of thumb, not a theorem — some authors use 0.1 or 0.25 SD — and the important thing is to state the caliper you used. The caliper deliberately sacrifices some treated patients (those with no close counterpart) in exchange for better within-pair similarity; expect to lose a nontrivial fraction of the sample, especially where overlap is thin. The interactive lab below shows this trade-off directly.</p>
+          <h3>Exact matching</h3>
+          <p>Match treated and untreated patients on one or more covariates <em>exactly</em> — for example, exact calendar year and facility, or exact disease stage — and do nearest-neighbor matching <em>within</em> each exact-match stratum. It is common when a categorical variable is a strong driver of both treatment and outcome, and it guarantees balance on the exact-match variables by construction, at the cost of potentially thin strata.</p>
+          <h3>Subclassification (stratification)</h3>
+          <p>Instead of pairing individuals, divide the propensity score into strata (commonly quintiles or deciles) and compare treated versus untreated <em>within each stratum</em>, then combine — for example, a Cox model stratified by score decile or a Mantel–Haenszel-style pooled estimate. Subclassification is simpler than matching and preserves more of the sample, but it gives rough balance at the stratum level rather than the individual level, so it is less precise for individual-level inference.</p>
+          <h3>Distance metric</h3>
+          <p>You can match on the raw score values, but that scale is non-linear and heteroscedastic — the difference between 0.4 and 0.5 is not the same “distance” as between 0.9 and 1.0. The more recommended choice is <strong>Mahalanobis distance on the logit of the propensity score</strong>: working on the logit (log-odds) scale linearizes the treatment-assignment relationship, and Mahalanobis distance accounts for the (un)equal variance of the logit score across the sample. Most standard software (for example R's <code>MatchIt</code> or <code>CEPM</code>) defaults to the logit score with a Mahalanobis or Euclidean metric; caliper matching on the logit score is the conventional pairing.</p>
+          <h3>The sibling methods, for context</h3>
+          <table>
+            <thead><tr><th scope="col">Method</th><th scope="col">What it does</th><th scope="col">Retains full sample?</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Matching</strong> (this article's focus)</td><td>Selects comparable treated–untreated pairs or groups; analyzes the matched sample only</td><td>No — drops unmatched units</td></tr>
+              <tr><td><strong>IPTW</strong> (inverse probability of treatment weighting)</td><td>Weights each patient by 1/e(x) if treated or 1/(1−e(x)) if untreated, so the weighted sample mimics a randomized trial; analyzes the full sample with weights</td><td>Yes (weighted)</td></tr>
+              <tr><td><strong>PS stratification / subclassification</strong></td><td>Compares within propensity-score strata</td><td>Yes (with stratum effects)</td></tr>
+              <tr><td><strong>Covariate adjustment by the PS</strong></td><td>Adds the score (or a spline of it) to the outcome regression</td><td>Yes</td></tr>
+              <tr><td><strong>Trimming</strong></td><td>Removes patients with extreme scores before any of the above</td><td>Partially</td></tr>
+              <tr><td><strong>Doubly-robust estimation</strong></td><td>Combines an outcome model and the score; consistent if either model is correct</td><td>Varies</td></tr>
+            </tbody>
+          </table>
+          <p><strong>Matching vs. IPTW, in one paragraph.</strong> Matching answers “what is the treatment effect among patients like those who received treatment?” — it restricts to the overlap region and analyzes a selected subset. IPTW answers “what is the average treatment effect in the <em>full</em> sample?” — it keeps everyone and uses weights to rebalance (and is sensitive to extreme weights when the score is near 0 or 1, so truncating or stabilizing weights is standard practice). Matching is sensitive to overlap: poor overlap means a large unmatched fraction. Both require the same two assumptions. A common practical recommendation: pick your estimand <em>first</em> — for example, use IPTW for the full-sample average effect and matching as a sensitivity analysis focused on the treated, or vice versa.</p>
+          <div class="note"><strong>Trade-offs to remember:</strong> matching discards unmatched patients — modest if overlap is good, large and possibly <em>informative</em> if overlap is poor. The matched sample is the overlap region: patients genuinely ambivalent about treatment, and the result estimates the effect in <em>that</em> subpopulation (closest to the ATT), not at the extremes. Report the number and characteristics of unmatched units; never quietly analyze them as if they were matched. If a large fraction is unmatched, the result is fragile and the estimand is narrow — say so.</div>
+        </section>
+
+        <section id="balance-lab">
+          <h2>Interactive balance lab</h2>
+          <p>This lab simulates an observational cohort: each patient is a dot placed on the logit-propensity-score axis, and three baseline covariates (age, a severity score, and a Charlson-style comorbidity index) are generated so that they are correlated with that score. That mimics the real situation where baseline covariates predict treatment. The lab then runs 1:1 nearest-neighbor matching <em>without replacement</em> and shows, live, how many pairs form and how well the matched groups balance. Drag the sliders: <strong>group separation</strong> controls how different the treated and untreated score distributions are (less overlap), and the <strong>caliper width</strong> controls how similar partners must be. Watch both the pair count and the balance respond.</p>
+          <div class="simulator" aria-labelledby="lab-title">
+            <h3 id="lab-title">Caliper matching and balance, live</h3>
+            <p class="sim-intro">Simulated cohort: 400 treated and 500 untreated patients. The shaded band around one treated patient shows the current caliper; pair lines connect matched patients.</p>
+            <div class="controls">
+              <div class="control"><label for="lab-separation">Group separation (logit-PS, SD units)</label><div class="range-line"><input id="lab-separation" type="range" min="0" max="1.2" step="0.05" value="0.4"><output id="lab-separation-value" for="lab-separation">0.40</output></div></div>
+              <div class="control"><label for="lab-caliper">Caliper width (logit-PS units)</label><div class="range-line"><input id="lab-caliper" type="range" min="0.05" max="0.6" step="0.01" value="0.11"><output id="lab-caliper-value" for="lab-caliper">0.11</output></div></div>
+              <div class="control"><label for="draw-cohort">Cohort</label><button id="draw-cohort" class="primary" type="button">Draw new cohort</button></div>
+            </div>
+            <div class="chart-grid lab-grid">
+              <div class="chart-wrap lab-wide">
+                <div class="chart-heading"><h3>Matched pairs on the logit-PS scale</h3><span>one dot per patient</span></div>
+                <svg id="match-diagram" class="lab-svg" viewBox="0 0 720 250" role="img" aria-label="Diagram of treated and untreated patients positioned by logit propensity score, with lines connecting matched pairs and a shaded caliper band around one treated patient."></svg>
+                <div class="legend" aria-hidden="true"><span class="legend-item"><i class="swatch treated"></i>Matched treated</span><span class="legend-item"><i class="swatch unmatched"></i>Unmatched treated</span><span class="legend-item"><i class="swatch"></i>Matched untreated</span><span class="legend-item"><i class="swatch" style="background:#e3eae4"></i>Unmatched untreated</span><span class="legend-item"><i class="swatch pair-line"></i>Matched pair</span><span class="legend-item"><i class="swatch caliper-band"></i>Caliper band</span></div>
+              </div>
+              <div class="chart-wrap">
+                <div class="chart-heading"><h3>Balance before vs. after</h3><span>SMD per covariate</span></div>
+                <svg id="love-plot" class="lab-svg" viewBox="0 0 380 240" role="img" aria-label="Love plot of standardized mean differences for three covariates before and after matching, with a shaded band for values below zero point one in absolute value."></svg>
+                <div class="legend" aria-hidden="true"><span class="legend-item"><i class="swatch pre-smd"></i>Pre-match SMD</span><span class="legend-item"><i class="swatch post-smd"></i>Post-match SMD</span><span class="legend-item"><i class="swatch smd-band"></i>|SMD| &lt; 0.1</span></div>
+              </div>
+              <div class="chart-wrap">
+                <div class="chart-heading"><h3>Matching summary</h3><span>updates live</span></div>
+                <div class="stats lab-stats" aria-label="Matching summary">
+                  <div class="stat"><span class="stat-label">Matched pairs</span><output id="lab-pairs">—</output></div>
+                  <div class="stat"><span class="stat-label">Treated retained</span><output id="lab-retained">—</output></div>
+                  <div class="stat"><span class="stat-label">Severity SMD (pre)</span><output id="lab-pre-smd">—</output></div>
+                  <div class="stat"><span class="stat-label">Severity SMD (post)</span><output id="lab-post-smd">—</output></div>
+                </div>
+                <p id="lab-status" class="lab-status" role="status" aria-live="polite">Adjust the sliders or draw a new cohort to start the matching.</p>
+              </div>
+            </div>
+            <p class="sim-caveat">The patients are simulated and the covariate structure is simplified, but the mechanism is the real one: matching on the score equalizes covariates that predict treatment. In real studies, the overlap histogram and a full balance table across all covariates play the role of the two displays here — as in the worked example below.</p>
+          </div>
+        </section>
+
+        <section id="checking-balance">
+          <h2>Checking balance after matching</h2>
+          <p>Matching only works if it actually equalized the groups. <strong>Always report a balance check before trusting the effect estimate.</strong> The gold-standard presentation is a balance table and a <strong>Love plot</strong>, pre- versus post-match.</p>
+          <h3>Standardized mean difference (SMD)</h3>
+          <p>For each covariate, the SMD compares the difference in means between treated and untreated, scaled by a common spread so every covariate sits on a common scale:</p>
+          <div class="equation" role="math" aria-label="SMD equals the difference in treated and untreated means divided by the square root of the average of the two variances">SMD = (mean_t − mean_u) / √( (var_t + var_u) / 2 )</div>
+          <p>For a <strong>binary</strong> covariate, use the proportions in place of the means:</p>
+          <div class="equation" role="math" aria-label="Binary SMD equals the difference in treated and untreated proportions divided by the square root of the average of the two proportion variances">SMD = (p_t − p_u) / √( (p_t(1−p_t) + p_u(1−p_u)) / 2 )</div>
+          <p>This pooled-SD scaling is the conventional definition (Austin 2009, 2011) and what most software reports. The conventional rule of thumb is that <strong>|SMD| &lt; 0.1</strong> indicates adequate balance — a difference of less than one-tenth of a standard deviation is considered trivial — while some stricter standards use |SMD| &lt; 0.05. These are descriptive conventions, not statistical cutoffs; state which one you use.</p>
+          <h3>Variance ratio</h3>
+          <p>For continuous covariates, means can be balanced while the <em>spread</em> is not. The variance ratio is var_t / var_u; a conventional acceptable range is roughly <strong>0.5 to 2.0</strong> (some authors accept 0.2–5.0 — state your standard). A ratio far outside this range means the groups differ in variability even when the means match, which matters especially for skewed outcomes.</p>
+          <h3>The Love plot</h3>
+          <p>A <strong>Love plot</strong> (a dumbbell or slope plot) displays, for each covariate on the y-axis, the pre-match and post-match SMD on the x-axis, usually with a shaded band at |SMD| &lt; 0.1. It shows at a glance: (a) which covariates were badly imbalanced before matching, (b) whether matching fixed them, and (c) whether matching <em>introduced</em> new imbalance — it can, if the caliper discarded a non-random subset. The post-match points should sit comfortably inside the 0.1 band; any that remain outside are candidates for the residual adjustment described next.</p>
+          <h3>The propensity-score overlap histogram</h3>
+          <p>A histogram or density of the score for treated versus untreated patients, ideally shown both before any restriction and after trimming or matching, shows how much of the sample lies in the overlap region and flags extreme-score patients who have no plausible counterpart. If the two distributions barely overlap, no matching scheme can produce a credible comparison — that is a fundamental design problem, not a tuning problem.</p>
+          <div class="note"><strong>The critical methodological point: balance is a descriptive assessment, not a hypothesis test.</strong> Do not report p-values from t-tests or chi-square tests of covariate differences and claim balance where the p-value is large. In large samples, p-values are tiny even for trivially small differences; in small samples, they are large even for important ones. The SMD is scale-free and sample-size-free — exactly why it is the right tool.</div>
+        </section>
+
+        <section id="post-match-analysis">
+          <h2>Analysis after matching</h2>
+          <p>A frequent and serious error: after 1:1 caliper matching, analysts run an ordinary unpaired t-test or unstratified logistic regression on the matched sample, treating the 2N patients as independent. They are not — the pairs are correlated by construction, and the naive standard error is wrong (typically too small for 1:1 pairs, leading to overconfident p-values).</p>
+          <h3>Analyze the matched pairs, respecting the dependence</h3>
+          <ul>
+            <li><strong>1:1 matching, continuous outcome:</strong> a <strong>paired t-test</strong> on the within-pair differences (treated − untreated), or equivalently a regression of the outcome on treatment with the pair as a fixed effect (one dummy per pair). Report the mean difference with a 95% CI and p-value — the same standard-error logic as in the <a href="../probability/sampling-distributions-and-the-central-limit-theorem.html">sampling distributions article</a>.</li>
+            <li><strong>1:1 matching, binary outcome:</strong> <strong>McNemar's test</strong> on the 2×2 table of pair outcomes (both had the event / only treated / only untreated / neither), or a conditional logistic regression (pair as the stratum), which gives an odds ratio.</li>
+            <li><strong>1:1 matching, time-to-event outcome:</strong> a Cox model stratified by pair, or a frailty model with the pair as the random effect.</li>
+            <li><strong>1:k matching (k &gt; 1):</strong> the untreated partners of one treated patient are not exchangeable in the same simple way; use a <strong>cluster-robust (sandwich) variance</strong> with the treatment unit (the treated patient and its k partners) as the cluster, or a mixed model with a random intercept per treatment unit. Most matching software (e.g. <code>MatchIt</code>) handles the variance estimation automatically if you specify the design correctly.</li>
+          </ul>
+          <h3>Analyze the matched sample, not the full sample</h3>
+          <p>The treatment effect estimate and its confidence interval apply <strong>only to the matched (overlap) sample</strong>. Do not pool unmatched patients into the primary analysis; they belong in a sensitivity analysis or a separate analysis (for example, an IPTW analysis). State the estimand explicitly — for instance, “the mean difference in outcome between treated and propensity-matched untreated patients among those with a propensity score within the caliper of a treated patient.”</p>
+          <h3>Residual adjustment if balance is imperfect</h3>
+          <p>If a few covariates still show |SMD| &gt; 0.1 after matching, the usual options are: add the <strong>propensity score itself</strong> (or a spline of it) as a covariate in the final regression; add the <strong>specific residual covariate(s)</strong> that remain imbalanced (a lab value the score model under-weighted, for example); or re-estimate the score giving that covariate more weight and re-match. This is a judgment call — some reviewers prefer a pure matched comparison, others want the residual adjustment. If you adjust, re-report the balance table <em>after</em> the adjustment.</p>
+          <h3>Reporting checklist</h3>
+          <ol>
+            <li><strong>Estimand</strong> (ATT or ATE) and the matching specification (1:1 or 1:k, caliper value, distance metric, with or without replacement).</li>
+            <li><strong>Score model:</strong> the list of covariates included and the model form (logistic, etc.).</li>
+            <li><strong>Sample accounting:</strong> N total, N treated, N untreated, N matched — and N unmatched, with their characteristics if notable.</li>
+            <li><strong>Balance table:</strong> pre- and post-match SMD (plus variance ratios for continuous covariates), ideally as a Love plot.</li>
+            <li><strong>Effect estimate</strong> with 95% CI and p-value, from a pair- or cluster-aware analysis.</li>
+            <li><strong>Sensitivity / limitations:</strong> note unmeasured-confounding risk and any trimming done.</li>
+          </ol>
+        </section>
+
+        <section id="worked-example">
+          <h2>Worked example: surgery versus medical management</h2>
+          <div class="example-box"><h3>The question</h3><p>In a hospital registry, does surgical resection (versus medical management) improve 1-year survival among patients newly diagnosed with a localized tumor? N = 1,200: 420 had surgery, 780 received medical management.</p></div>
+          <h3>Step 1 — Choose baseline (pre-treatment) covariates</h3>
+          <p>Age, sex, tumor stage, Charlson comorbidity index, ECOG performance status, baseline hemoglobin, eGFR, prior hospitalization in the last 12 months, calendar year, and index facility. <em>Excluded:</em> 3-month post-treatment weight and post-operative complications — both are downstream of the treatment decision, so they belong in the outcome model at most, never in the score model.</p>
+          <h3>Step 2 — Estimate the score</h3>
+          <p>Logistic regression of surgery on the nine covariates. AUC = 0.78 — reasonable discrimination, which means treatment was <em>not</em> random and adjustment is needed. The calibration plot looks adequate.</p>
+          <h3>Step 3 — Check overlap and trim</h3>
+          <p>The score for surgical patients ranges 0.10–0.95; for medical patients, 0.02–0.90. There is substantial overlap, but a few surgical patients with scores above 0.90 have no medical counterpart. Trim the top 5% of the surgical score distribution (about 20 patients) to common support, leaving 400 surgical and 780 medical patients.</p>
+          <h3>Step 4 — Match</h3>
+          <p>1:1 nearest-neighbor, <em>without</em> replacement, caliper = 0.2 × SD(logit score) = 0.2 × 0.55 ≈ <strong>0.11</strong> on the logit scale. Result: <strong>348 matched pairs</strong>; 52 surgical patients remain unmatched because no medical patient fell within the caliper.</p>
+          <h3>Step 5 — Check balance</h3>
+          <table>
+            <thead><tr><th scope="col">Covariate</th><th scope="col">Pre-match SMD</th><th scope="col">Post-match SMD</th></tr></thead>
+            <tbody>
+              <tr><td>Age (years)</td><td>0.42</td><td>0.03</td></tr>
+              <tr><td>Male sex (%)</td><td>0.31</td><td>0.04</td></tr>
+              <tr><td>Tumor stage III (%)</td><td>0.55</td><td>0.06</td></tr>
+              <tr><td>Charlson index</td><td>0.48</td><td>0.05</td></tr>
+              <tr><td>ECOG ≥ 2 (%)</td><td>0.61</td><td>0.08</td></tr>
+              <tr><td>Baseline hemoglobin</td><td>0.37</td><td>0.06</td></tr>
+              <tr><td>eGFR</td><td>0.29</td><td>0.04</td></tr>
+              <tr><td>Prior hospitalization</td><td>0.22</td><td>0.05</td></tr>
+              <tr><td>Calendar year</td><td>0.18</td><td>0.02</td></tr>
+              <tr><td>Facility (categorical)</td><td>—</td><td>exact match, balanced by design</td></tr>
+            </tbody>
+          </table>
+          <p>Pre-match, the surgical group was clearly sicker — stage III, ECOG ≥ 2, and Charlson all substantially imbalanced, the classic signature of confounding by indication. Post-match, every |SMD| is below 0.1 and all variance ratios fall within 0.5–2.0: balance achieved.</p>
+          <h3>Step 6 — Analyze the pairs</h3>
+          <p>One-year survival is binary, so use <strong>McNemar's test</strong> on the matched pairs (equivalently, conditional logistic regression). Illustrative result: 306/348 surgical survivors versus 281/348 medical survivors — a matched difference of about <strong>7.2 percentage points, 95% CI 2.9 to 11.5, p = 0.001</strong>.</p>
+          <h3>Step 7 — Interpret, with the honest caveat</h3>
+          <p>Among registry patients whose score was close enough to a matched surgical counterpart (the overlap region), surgical resection was associated with 7.2 percentage points higher 1-year survival than medical management. This is <em>not</em> proof of causation: it assumes no unmeasured confounding (for example, unrecorded clinician judgment of operability), and the estimate generalizes to the overlap population — not to the 52 unmatched, high-severity surgical patients.</p>
+          <p class="sim-caveat">All figures in this example are illustrative and clearly not from a real dataset; the structure — covariate choices, caliper, sample loss, SMD table, paired analysis — is the realistic part.</p>
+        </section>
+
+        <section id="limitations">
+          <h2>Limitations and honest caveats</h2>
+          <ol>
+            <li><strong>No protection from unmeasured confounding.</strong> The single biggest limitation. Clinician intuition about frailty, social support, or prognosis is often the real driver of treatment choice and is rarely in the chart.</li>
+            <li><strong>The matched sample limits generalizability.</strong> The estimate is for the overlap population, which may be healthier or milder than the full treated population.</li>
+            <li><strong>Balance ≠ unbiasedness.</strong> Perfect measured-covariate balance does not imply no residual bias.</li>
+            <li><strong>The score model is only as good as its covariates and its specification.</strong> A missing confounder or a badly misspecified model produces a false sense of security.</li>
+            <li><strong>Plan a sensitivity analysis.</strong> Ideas: an <strong>E-value</strong> or Rosenbaum-bounds–style analysis (how strong would an unmeasured confounder have to be to explain away the result?); comparing matching, IPTW, and covariate-adjustment estimates (agreement across methods is reassuring); and <strong>negative-control outcomes</strong> — outcomes the treatment should not affect — as a falsification test.</li>
+          </ol>
+        </section>
+
+        <section id="self-check">
+          <h2>Check your understanding</h2>
+          <p class="quiz-intro">Answer each question to reveal feedback and an explanation. Your score updates as you go.</p>
+          <div id="quiz-progress" class="quiz-progress" role="status" aria-live="polite">Answered 0 of 10 · Score 0</div>
+          <div id="quiz-container"></div>
+          <button id="quiz-retry" class="quiz-retry" type="button">Try again</button>
+        </section>
+
+        <section id="takeaways">
+          <h2>Key takeaways</h2>
+          <ul>
+            <li>The propensity score compresses measured confounding into P(treatment | baseline covariates); within groups of the same score, treatment behaves as if randomized with respect to what you measured.</li>
+            <li>Include baseline confounders (and outcome predictors for precision); never include mediators or colliders — the score model is a baseline model.</li>
+            <li>A common defensible default: 1:1 nearest-neighbor matching without replacement on the logit score, with a caliper of 0.2 × SD(logit score) — and state what you used.</li>
+            <li>Always check balance with pre- vs. post-match SMD (|SMD| &lt; 0.1 convention), variance ratios, and an overlap histogram — descriptively, never with p-values.</li>
+            <li>Analyze the matched sample with pair- or cluster-aware methods: paired t-test, McNemar's test, or stratified Cox — and report the matched sample size, the balance table, and the estimate with its 95% CI.</li>
+            <li>Propensity methods cannot remove unmeasured confounding, and the estimate belongs to the overlap population, not the extremes. Say so.</li>
+          </ul>
+        </section>
+
+        <nav class="bottom-nav" aria-label="Article navigation"><a href="../#topic-index">← Back to all topics</a><a href="../#topic-index">Explore study design &amp; sampling</a></nav>
+      </article>
+
+      <nav class="toc" aria-label="On this page">
+        <h2>On this page</h2>
+        <a href="#core-idea">Core idea</a>
+        <a href="#covariates">Which covariates to match on</a>
+        <a href="#estimation">Estimating the score</a>
+        <a href="#positivity">Positivity and trimming</a>
+        <a href="#matching-methods">Choosing a matching method</a>
+        <a href="#balance-lab">Interactive balance lab</a>
+        <a href="#checking-balance">Checking balance</a>
+        <a href="#post-match-analysis">Analysis after matching</a>
+        <a href="#worked-example">Worked example</a>
+        <a href="#limitations">Limitations</a>
+        <a href="#self-check">Self-check quiz</a>
+        <a href="#takeaways">Key takeaways</a>
+      </nav>
+    </div>
+
+    <footer class="footer">Biostatistics Library · Educational reference. Interpret methods in the context of the study design and data.</footer>
+  </main>
+
+  <script>
+    (() => {
+      // ---------------- Balance lab ----------------
+      const separation = document.getElementById('lab-separation')
+      const separationValue = document.getElementById('lab-separation-value')
+      const caliper = document.getElementById('lab-caliper')
+      const caliperValue = document.getElementById('lab-caliper-value')
+      const drawButton = document.getElementById('draw-cohort')
+      const statusEl = document.getElementById('lab-status')
+      const diagram = document.getElementById('match-diagram')
+      const lovePlot = document.getElementById('love-plot')
+      const nTreated = 400
+      const nUntreated = 500
+      const covariates = [
+        { key: 'age', label: 'Age' },
+        { key: 'severity', label: 'Severity score' },
+        { key: 'charlson', label: 'Charlson index' }
+      ]
+      let patients = []
+      let currentSeed = 4
+
+      // Seeded RNG (mulberry32) so the initial cohort is a stable, well-taught
+      // example; “Draw new cohort” rolls a fresh random seed for a new population.
+      function mulberry32(seed) {
+        let a = seed | 0
+        return function () {
+          a = (a + 0x6D2B79F5) | 0
+          let t = Math.imul(a ^ (a >>> 15), 1 | a)
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+        }
+      }
+
+      function makeNormalRandom(seed) {
+        const u = typeof seed === 'number' ? mulberry32(seed) : Math.random
+        return function () {
+          let x = 0
+          let y = 0
+          while (x === 0) x = u()
+          while (y === 0) y = u()
+          return Math.sqrt(-2 * Math.log(x)) * Math.cos(2 * Math.PI * y)
+        }
+      }
+
+      function makePatient(t, sep, rand) {
+        // Each group's logit-PS is normal with SD 0.9, centered at ±sep/2.
+        // Covariates are generated with known correlations to the logit-PS,
+        // so matching on the score should equalize them — the real mechanism.
+        const ps = (t ? sep / 2 : -sep / 2) + 0.9 * rand()
+        return {
+          t,
+          ps,
+          age: 0.75 * ps + 0.66 * rand(),
+          severity: 0.9 * ps + 0.436 * rand(),
+          charlson: 0.75 * ps + 0.66 * rand()
+        }
+      }
+
+      function makeCohort() {
+        const sep = Number(separation.value)
+        const rand = makeNormalRandom(currentSeed)
+        patients = []
+        for (let i = 0; i < nTreated; i++) patients.push(makePatient(1, sep, rand))
+        for (let i = 0; i < nUntreated; i++) patients.push(makePatient(0, sep, rand))
+      }
+
+      function runMatching(cal) {
+        const treated = patients.filter(p => p.t)
+        const untreated = patients.filter(p => !p.t).map(p => ({ ...p, used: false }))
+        const pairs = []
+        for (const tr of treated) {
+          let best = null
+          let bestD = Infinity
+          for (const un of untreated) {
+            if (un.used) continue
+            const d = Math.abs(un.ps - tr.ps)
+            if (d < bestD) { bestD = d; best = un }
+          }
+          if (best && bestD <= cal) {
+            best.used = true
+            pairs.push({ tr, un: best })
+          }
+        }
+        const matchedT = new Set(pairs.map(p => p.tr))
+        return {
+          pairs,
+          unmatchedT: treated.filter(p => !matchedT.has(p)),
+          unmatchedU: untreated.filter(p => !p.used)
+        }
+      }
+
+      function meanOf(values) {
+        return values.reduce((sum, v) => sum + v, 0) / values.length
+      }
+
+      function varianceOf(values) {
+        const m = meanOf(values)
+        return values.reduce((sum, v) => sum + (v - m) ** 2, 0) / (values.length - 1)
+      }
+
+      function smd(a, b) {
+        const pooled = Math.sqrt((varianceOf(a) + varianceOf(b)) / 2)
+        if (pooled === 0) return 0
+        return (meanOf(a) - meanOf(b)) / pooled
+      }
+
+      function computeSmds(match) {
+        const tAll = patients.filter(p => p.t)
+        const uAll = patients.filter(p => !p.t)
+        const tMatched = match.pairs.map(p => p.tr)
+        const uMatched = match.pairs.map(p => p.un)
+        const pre = {}
+        const post = {}
+        for (const c of covariates) {
+          pre[c.key] = smd(tAll.map(p => p[c.key]), uAll.map(p => p[c.key]))
+          post[c.key] = tMatched.length > 1
+            ? smd(tMatched.map(p => p[c.key]), uMatched.map(p => p[c.key]))
+            : 0
+        }
+        return { pre, post }
+      }
+
+      const svgNS = 'http://www.w3.org/2000/svg'
+      function svgEl(name, attrs, text) {
+        const node = document.createElementNS(svgNS, name)
+        for (const key of Object.keys(attrs)) node.setAttribute(key, attrs[key])
+        if (text !== undefined && text !== null) node.textContent = text
+        return node
+      }
+
+      function niceTicks(min, max, target) {
+        const rawStep = (max - min) / target
+        const mag = Math.pow(10, Math.floor(Math.log10(rawStep)))
+        let step = mag * 10
+        for (const m of [1, 2, 2.5, 5, 10]) {
+          if (mag * m >= rawStep) { step = mag * m; break }
+        }
+        const ticks = []
+        const start = Math.ceil(min / step) * step
+        for (let v = start; v <= max + 1e-9; v += step) ticks.push(Math.round(v * 100) / 100)
+        return ticks
+      }
+
+      function clamp(value, lo, hi) {
+        return Math.min(hi, Math.max(lo, value))
+      }
+
+      function drawDiagram(match) {
+        diagram.replaceChildren()
+        const W = 720
+        const x0 = 64
+        const x1 = 704
+        const yT = 56
+        const yU = 152
+        const axY = 192
+        const ps = patients.map(p => p.ps)
+        const lo = Math.min(...ps) - 0.35
+        const hi = Math.max(...ps) + 0.35
+        const X = v => x0 + (clamp(v, lo, hi) - lo) / (hi - lo) * (x1 - x0)
+        const cal = Number(caliper.value)
+
+        diagram.append(svgEl('rect', { x: x0, y: 26, width: x1 - x0, height: axY - 26, fill: '#fdfefc' }))
+
+        // Caliper band around the treated patient whose logit-PS is closest to 0
+        const focus = patients.filter(p => p.t).reduce((a, b) => Math.abs(a.ps) < Math.abs(b.ps) ? a : b)
+        const bandLeft = X(focus.ps - cal)
+        const bandRight = X(focus.ps + cal)
+        diagram.append(svgEl('rect', { x: bandLeft, y: 32, width: bandRight - bandLeft, height: yU - 32 + 8, fill: '#17675d', opacity: 0.06 }))
+        for (const edge of [bandLeft, bandRight]) {
+          diagram.append(svgEl('line', { x1: edge, x2: edge, y1: 32, y2: yU + 8, stroke: '#17675d', 'stroke-dasharray': '3 3', opacity: 0.45 }))
+        }
+        diagram.append(svgEl('text', { x: (bandLeft + bandRight) / 2, y: 24, 'text-anchor': 'middle', fill: '#638074', 'font-size': 9, 'font-weight': 700 }, 'caliper'))
+
+        // X axis
+        for (const tick of niceTicks(lo, hi, 6)) {
+          diagram.append(svgEl('line', { x1: X(tick), x2: X(tick), y1: 26, y2: axY, stroke: '#eef1ed' }))
+          diagram.append(svgEl('text', { x: X(tick), y: axY + 10, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, String(tick)))
+        }
+        diagram.append(svgEl('line', { x1: x0, x2: x1, y1: axY, y2: axY, stroke: '#82948a' }))
+        diagram.append(svgEl('text', { x: (x0 + x1) / 2, y: axY + 32, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, 'logit of propensity score'))
+        diagram.append(svgEl('text', { x: x0 - 9, y: yT + 3, 'text-anchor': 'end', fill: '#64766d', 'font-size': 10, 'font-weight': 700 }, 'Treated'))
+        diagram.append(svgEl('text', { x: x0 - 9, y: yU + 3, 'text-anchor': 'end', fill: '#64766d', 'font-size': 10, 'font-weight': 700 }, 'Untreated'))
+
+        // Pair lines (under the dots)
+        for (const pair of match.pairs) {
+          diagram.append(svgEl('line', { x1: X(pair.tr.ps), y1: yT, x2: X(pair.un.ps), y2: yU, stroke: '#9dbfab', 'stroke-width': 1, opacity: 0.55 }))
+        }
+        // Dots: unmatched first (background), matched on top
+        for (const un of match.unmatchedU) diagram.append(svgEl('circle', { cx: X(un.ps), cy: yU, r: 4, fill: '#e3eae4' }))
+        for (const un of match.pairs.map(p => p.un)) diagram.append(svgEl('circle', { cx: X(un.ps), cy: yU, r: 4, fill: '#a8c9b3' }))
+        for (const tr of match.unmatchedT) diagram.append(svgEl('circle', { cx: X(tr.ps), cy: yT, r: 4, fill: '#c67e6e' }))
+        for (const tr of match.pairs.map(p => p.tr)) diagram.append(svgEl('circle', { cx: X(tr.ps), cy: yT, r: 4, fill: '#17675d' }))
+      }
+
+      function drawLovePlot(smds) {
+        lovePlot.replaceChildren()
+        const x0 = 92
+        const x1 = 362
+        const lo = -0.7
+        const hi = 0.7
+        const X = v => x0 + (clamp(v, lo, hi) - lo) / (hi - lo) * (x1 - x0)
+        const rowY = i => 56 + i * 60
+        const axY = 200
+
+        lovePlot.append(svgEl('rect', { x: X(-0.1), y: 34, width: X(0.1) - X(-0.1), height: 172, fill: '#eef3ee' }))
+        for (const edge of [-0.1, 0.1]) {
+          lovePlot.append(svgEl('line', { x1: X(edge), x2: X(edge), y1: 34, y2: 206, stroke: '#8cad99', 'stroke-dasharray': '3 3' }))
+        }
+        lovePlot.append(svgEl('line', { x1: X(0), x2: X(0), y1: 34, y2: 206, stroke: '#cfdcd1' }))
+
+        for (const cov of covariates) {
+          const i = covariates.indexOf(cov)
+          const pre = smds.pre[cov.key]
+          const post = smds.post[cov.key]
+          lovePlot.append(svgEl('text', { x: x0 - 9, y: rowY(i) + 3, 'text-anchor': 'end', fill: '#64766d', 'font-size': 10 }, cov.label))
+          lovePlot.append(svgEl('line', { x1: X(pre), y1: rowY(i), x2: X(post), y2: rowY(i), stroke: '#b9c9bd', 'stroke-width': 1.5 }))
+          lovePlot.append(svgEl('circle', { cx: X(pre), cy: rowY(i), r: 4.5, fill: '#fff', stroke: '#bd8135', 'stroke-width': 2 }))
+          lovePlot.append(svgEl('circle', { cx: X(post), cy: rowY(i), r: 4.5, fill: '#17675d' }))
+        }
+
+        for (const tick of [-0.5, 0, 0.5]) {
+          lovePlot.append(svgEl('text', { x: X(tick), y: axY + 14, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, String(tick)))
+        }
+        lovePlot.append(svgEl('line', { x1: x0, x2: x1, y1: axY, y2: axY, stroke: '#82948a' }))
+        lovePlot.append(svgEl('text', { x: (x0 + x1) / 2, y: axY + 32, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, 'standardized mean difference'))
+      }
+
+      function fmtSmd(v) {
+        return (v < 0 ? '−' : '') + Math.abs(v).toFixed(2)
+      }
+
+      function render() {
+        const cal = Number(caliper.value)
+        const match = runMatching(cal)
+        const smds = computeSmds(match)
+        drawDiagram(match)
+        drawLovePlot(smds)
+
+        const nPairs = match.pairs.length
+        const pct = Math.round(100 * nPairs / nTreated)
+        document.getElementById('lab-pairs').textContent = `${nPairs} of ${nTreated}`
+        document.getElementById('lab-retained').textContent = `${pct}%`
+        document.getElementById('lab-pre-smd').textContent = fmtSmd(smds.pre.severity)
+        document.getElementById('lab-post-smd').textContent = fmtSmd(smds.post.severity)
+
+        const balanced = nPairs > 0 && covariates.every(c => Math.abs(smds.post[c.key]) < 0.1)
+        const worst = covariates.reduce((m, c) => Math.abs(smds.post[c.key]) > Math.abs(smds.post[m.key]) ? c : m, covariates[0])
+        statusEl.textContent = nPairs === 0
+          ? `No pairs formed at a caliper of ${cal.toFixed(2)} — the overlap is too thin for this width. Widen the caliper or reduce the group separation.`
+          : `Matched ${nPairs} of ${nTreated} treated patients (${pct}%) at a caliper of ${cal.toFixed(2)} on the logit PS; ${match.unmatchedT.length} treated and ${match.unmatchedU.length} untreated patients remain unmatched. Severity SMD went from ${fmtSmd(smds.pre.severity)} pre-match to ${fmtSmd(smds.post.severity)} post-match — ${balanced ? 'all three covariates now sit inside the |SMD| < 0.1 band.' : `${worst.label} is still outside the |SMD| < 0.1 band: widen the caliper, or plan a residual adjustment.`}`
+      }
+
+      function syncSliderOutputs() {
+        separationValue.textContent = Number(separation.value).toFixed(2)
+        caliperValue.textContent = Number(caliper.value).toFixed(2)
+      }
+
+      separation.addEventListener('input', () => { syncSliderOutputs(); makeCohort(); render() })
+      caliper.addEventListener('input', () => { syncSliderOutputs(); render() })
+      drawButton.addEventListener('click', () => { currentSeed = 1 + Math.floor(Math.random() * 1e9); makeCohort(); render() })
+
+      syncSliderOutputs()
+      makeCohort()
+      render()
+
+      // ---------------- Self-check quiz ----------------
+      const quizItems = [
+        {
+          question: 'A hospital registry treats sicker patients with a new drug. What does the propensity score e(x) estimate?',
+          options: [
+            'The probability that the drug improves the outcome',
+            'The probability of receiving the drug given the patient’s baseline characteristics x',
+            'The probability that a patient is sick given the drug',
+            'The probability that treatment was randomly assigned'
+          ],
+          answer: 1,
+          explanation: 'e(x) = P(A = 1 | X = x): the probability of treatment given the measured baseline covariates. It says nothing about the outcome itself.'
+        },
+        {
+          question: 'Under its assumptions, why does matching on the propensity score work?',
+          options: [
+            'It physically randomizes patients before treatment',
+            'It removes the effect of all confounders, measured or unmeasured',
+            'Within groups of the same score, treatment behaves as if random with respect to the measured covariates',
+            'It forces the two groups to be the same size'
+          ],
+          answer: 2,
+          explanation: 'Rosenbaum and Rubin (1983) showed conditional independence of treatment and potential outcomes given the score — but only with respect to the covariates you measured.'
+        },
+        {
+          question: 'Which set of covariates should the propensity model include?',
+          options: [
+            'Only the single strongest confounder',
+            'Baseline variables that predict treatment and are related to the outcome; outcome predictors with little treatment association may also be included for precision',
+            'Every variable in the chart, including post-treatment values',
+            'Only variables that strongly predict the outcome, regardless of their relation to treatment'
+          ],
+          answer: 1,
+          explanation: 'Definitely include confounders. Extra outcome predictors do not bias the estimate under the assumptions and can improve precision — but post-treatment variables never belong in the score model.'
+        },
+        {
+          question: 'Why must a variable measured after treatment starts (e.g. blood pressure after starting a new antihypertensive) be excluded from the propensity model?',
+          options: [
+            'It can be affected by the treatment; conditioning on a mediator blocks part of the effect being estimated',
+            'It is usually measured with more error than baseline variables',
+            'It would inflate the sample size',
+            'Post-treatment variables are always missing'
+          ],
+          answer: 0,
+          explanation: 'The score is defined on baseline covariates. Variables downstream of treatment are mediators (or, in other designs, colliders); conditioning on them is a form of over-control that can bias the treatment estimate.'
+        },
+        {
+          question: 'The conventional caliper for nearest-neighbor propensity-score matching is:',
+          options: [
+            'One standard deviation of the raw propensity score',
+            '0.2 × the standard deviation of the logit-transformed propensity score',
+            '0.2 × the standard deviation of the outcome',
+            'The 95th percentile of the propensity score distribution'
+          ],
+          answer: 1,
+          explanation: 'caliper = 0.2 × SD(logit(e)) is the standard rule of thumb (Austin 2011; discussed in Austin 2019). It is a convention, not a theorem — state the caliper you used, and treat patients without a partner inside the caliper remain unmatched.'
+        },
+        {
+          question: 'After 1:1 caliper matching, one covariate still shows |SMD| = 0.18. A reasonable next step is to:',
+          options: [
+            'Ignore it, because matching always guarantees perfect balance',
+            'Declare balance by reporting that the t-test p-value for that covariate is above 0.05',
+            'Note it and consider residual adjustment — add that covariate (or the score itself) to the final model, or re-estimate and re-match',
+            'Pool the unmatched patients into the analysis to dilute the imbalance'
+          ],
+          answer: 2,
+          explanation: 'Matching must be checked, not assumed. Residual options include adjusting for the offending covariate in the analysis, adding the propensity score (or a spline of it), or re-matching after re-estimating. Balance is judged descriptively with the SMD, never with p-values.'
+        },
+        {
+          question: 'What is the standard descriptive threshold for adequate balance on a covariate?',
+          options: [
+            'p > 0.05 on a two-group test',
+            '|SMD| < 0.1 (some stricter standards use 0.05)',
+            'Identical means in the two groups',
+            'A variance ratio of exactly 1.0'
+          ],
+          answer: 1,
+          explanation: 'The |SMD| < 0.1 convention treats a difference below one-tenth of a standard deviation as trivial. The SMD is scale-free and sample-size-free, which is why it — not a p-value — is the right balance metric.'
+        },
+        {
+          question: 'Why should you not use t-test p-values to declare that two groups are “balanced”?',
+          options: [
+            't-tests only work on binary variables',
+            'Matched pairs violate the assumptions of every t-test',
+            'P-values depend on sample size: with large n even trivial differences are “significant”, with small n even important ones are not',
+            'P-values can never be computed for continuous covariates'
+          ],
+          answer: 2,
+          explanation: 'Balance is a descriptive assessment. A non-significant p-value does not prove balance, and a significant one does not disprove it — the same difference gets a tiny p-value in a large registry and a large one in a small pilot study.'
+        },
+        {
+          question: 'In a 1:1 matched sample with a binary outcome, which analysis respects the design?',
+          options: [
+            'McNemar’s test on the matched pairs (or conditional logistic regression stratified by pair)',
+            'An unpaired logistic regression treating the 2N patients as independent',
+            'A chi-square test of the two groups, ignoring the pairing',
+            'An unpaired t-test on the raw outcome values'
+          ],
+          answer: 0,
+          explanation: 'Pairs are correlated by construction. Pair-aware methods — McNemar’s test, pair fixed effects, or stratification — give valid standard errors; the naive independent-analysis SE is typically too small, inflating significance.'
+        },
+        {
+          question: 'A caliper match leaves 25% of treated patients unmatched — all with the highest propensity scores. What does this imply?',
+          options: [
+            'The result still applies to the full treated population',
+            'The unmatched patients should be averaged into the matched results',
+            'The analysis is automatically invalid and must be redone with IPTW',
+            'The estimate targets the overlap population; the unmatched high-score patients are not covered, so the estimand is narrower'
+          ],
+          answer: 3,
+          explanation: 'The matched sample is the overlap region. Report the number and characteristics of the unmatched patients and state that the result generalizes to comparable patients — not to the extremes that had no counterpart.'
+        }
+      ]
+
+      function renderQuiz() {
+        const container = document.getElementById('quiz-container')
+        const progress = document.getElementById('quiz-progress')
+        container.replaceChildren()
+        let answered = 0
+        let score = 0
+        progress.textContent = `Answered 0 of ${quizItems.length} · Score 0`
+        quizItems.forEach((item, index) => {
+          const card = document.createElement('div')
+          card.className = 'quiz-question'
+          const heading = document.createElement('h3')
+          heading.textContent = `${index + 1}. ${item.question}`
+          card.append(heading)
+          const options = document.createElement('div')
+          options.className = 'quiz-options'
+          options.setAttribute('role', 'group')
+          options.setAttribute('aria-label', `Answers for question ${index + 1}`)
+          const feedback = document.createElement('p')
+          feedback.className = 'quiz-feedback'
+          feedback.hidden = true
+          item.options.forEach((option, optionIndex) => {
+            const button = document.createElement('button')
+            button.className = 'quiz-option'
+            button.type = 'button'
+            button.textContent = `${String.fromCharCode(65 + optionIndex)}. ${option}`
+            button.setAttribute('aria-pressed', 'false')
+            button.addEventListener('click', () => {
+              answered++
+              const isCorrect = optionIndex === item.answer
+              if (isCorrect) score++
+              for (const choice of options.querySelectorAll('button')) {
+                choice.disabled = true
+                if (Number(choice.dataset.option) === item.answer) choice.classList.add('is-correct')
+              }
+              button.setAttribute('aria-pressed', 'true')
+              if (!isCorrect) button.classList.add('is-incorrect')
+              feedback.textContent = `${isCorrect ? 'Correct. ' : 'Not quite. '}${item.explanation}`
+              feedback.hidden = false
+              progress.textContent = `Answered ${answered} of ${quizItems.length} · Score ${score}${answered === quizItems.length ? ' · Complete' : ''}`
+            })
+            button.dataset.option = String(optionIndex)
+            options.append(button)
+          })
+          card.append(options, feedback)
+          container.append(card)
+        })
+      }
+
+      document.getElementById('quiz-retry').addEventListener('click', renderQuiz)
+      renderQuiz()
+    })()
+  </script>
+</body>
+</html>

@@ -39,7 +39,7 @@ export const sections: TopicSection[] = [
     groups: [
       { title: 'Designing a study', topics: ['Cross-sectional studies', 'Cohort and case-control studies', 'Randomized controlled trials'] },
       { title: 'Population and non-randomized designs', topics: ['Ecological studies', 'Non-randomized intervention studies'] },
-      { title: 'Planning and validity', topics: ['Sampling methods', 'Bias and confounding', 'Sample size and statistical power', 'Interim analysis and monitoring in randomized trials'] }
+      { title: 'Planning and validity', topics: ['Sampling methods', 'Bias and confounding', 'Propensity matching', 'Sample size and statistical power', 'Interim analysis and monitoring in randomized trials'] }
     ]
   },
   {
@@ -108,6 +108,7 @@ export interface TopicEntry {
 
 const availableTopicPages = new Set([
   'probability/sampling-distributions-and-the-central-limit-theorem',
+  'study-design/propensity-matching',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group
