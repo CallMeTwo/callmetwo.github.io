@@ -1,0 +1,18 @@
+[
+  {
+    "label": "The incremental cost-effectiveness ratio equals the difference in cost between two strategies divided by the difference in their effect, such as QALYs gained",
+    "tex": "\\mathrm{ICER} = \\dfrac{\\Delta C}{\\Delta E} = \\dfrac{C_{A} - C_{B}}{E_{A} - E_{B}}"
+  },
+  {
+    "label": "The present value of a stream of costs equals the sum over each time period of that period's cost divided by one plus the discount rate, raised to the period number",
+    "tex": "PV = \\sum_{t=0}^{T} \\dfrac{c_t}{(1 + d)^{t}}"
+  },
+  {
+    "label": "Quality-adjusted life years equals the sum over each time period of the utility in that period multiplied by the length of time spent in it",
+    "tex": "\\mathrm{QALY} = \\sum_{t=0}^{T} U_t \\, \\Delta t_t"
+  },
+  {
+    "label": "The incremental net monetary benefit equals the willingness-to-pay per unit of effect times the incremental effect, minus the incremental cost",
+    "tex": "\\mathrm{INMB} = \\lambda \\, \\Delta E - \\Delta C"
+  }
+]

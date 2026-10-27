@@ -109,6 +109,7 @@ export interface TopicEntry {
 const availableTopicPages = new Set([
   'probability/sampling-distributions-and-the-central-limit-theorem',
   'study-design/propensity-matching',
+  'clinical-research/health-economic-evaluation',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group

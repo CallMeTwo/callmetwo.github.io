@@ -1,11 +1,18 @@
-// Pre-render the propensity-matching page's math with KaTeX at BUILD time,
-// then inline a pruned KaTeX CSS + base64 woff2 fonts so the page stays
-// fully self-contained (no runtime JS, no external fetch, no separate font files).
+// Pre-render a topic page's math with KaTeX at BUILD time, then inline a
+// pruned KaTeX CSS + base64 woff2 fonts so the page stays fully self-contained
+// (no runtime JS, no external fetch, no separate font files).
 //
 // Idempotent: re-running strips any previous injection and re-injects from the
-// canonical FORMULAS list below (matched by the equation div's aria-label).
+// canonical formula list (each equation div is matched by its aria-label).
 //
-// Run: node scripts/inject-katex.js   (or `npm run katex:inject`)
+// Usage:
+//   node scripts/inject-katex.js
+//     -> default: study-design/propensity-matching.html + built-in FORMULAS
+//   node scripts/inject-katex.js <page.html> <formulas.json>
+//     -> page relative to the package root; formulas.json is an array of
+//        { "label": <aria-label>, "tex": <KaTeX source> }
+//
+// Run: npm run katex:inject   (or with the two args above for another page)
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -13,7 +20,7 @@ import { dirname, resolve } from 'node:path'
 import katex from 'katex'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const PAGE = resolve(__dirname, '../public/study-design/propensity-matching.html')
+const PKG = resolve(__dirname, '..')
 
 // Resolve katex/dist by walking up from this script until we find it (handles npm hoisting).
 function findKatexDist() {
@@ -30,8 +37,9 @@ function findKatexDist() {
 }
 const katexDist = findKatexDist()
 
-// Canonical formula list. aria-labels MUST match the <div class="equation" aria-label="..."> in the page.
-const FORMULAS = [
+// Default (propensity) formula list. aria-labels MUST match the
+// <div class="equation" aria-label="..."> in the page.
+const DEFAULT_FORMULAS = [
   {
     label: 'Propensity score e of x equals the probability of treatment A equal to one given covariates X equal to x',
     tex: 'e(x) = \\mathrm{P}(A = 1 \\mid X = x)'
@@ -58,17 +66,31 @@ const FORMULAS = [
   }
 ]
 
-// Fonts we actually need for these 6 simple formulas. Everything else
-// (AMS, Caligraphic, Fraktur, Script, SansSerif, Typewriter, Size3/4) is dropped.
-const KEPT_FONTS = new Set([
+// Base font style-variants always inlined. Fraction / radical / big-operator
+// symbols (\\dfrac, \\sqrt, \\sum, ...) pull in the Size1/Size2 variants, and a
+// display-size operator (msumsize3/4) would pull in Size3/Size4 — detected
+// below from the actual rendered output so we only inline what is used.
+const BASE_FONTS = new Set([
   'Main-Regular', 'Main-Italic', 'Main-Bold',
-  'Math-Italic', 'Math-BoldItalic',
-  'Size1-Regular', 'Size2-Regular'
+  'Math-Italic', 'Math-BoldItalic'
 ])
+
+function fontsForRendered(rendered) {
+  const fonts = new Set(BASE_FONTS)
+  // Fraction bars, radical bars and big operators at display size live in the
+  // Size1/Size2 families; very large ones (msumsize3/4) add Size3/Size4.
+  if (/mfrac|msqrt|mradical|mops|msumsize[12]/.test(rendered)) {
+    fonts.add('Size1-Regular'); fonts.add('Size2-Regular')
+  }
+  if (/msize[34]|msumsize[34]/.test(rendered)) {
+    fonts.add('Size3-Regular'); fonts.add('Size4-Regular')
+  }
+  return fonts
+}
 
 function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') }
 
-function buildInlinedCss() {
+function buildInlinedCss(keptFonts) {
   let css = readFileSync(resolve(katexDist, 'katex.min.css'), 'utf8')
   let removed = 0, inlined = 0
   css = css.replace(/@font-face\{[^}]*\}/g, (block) => {
@@ -80,14 +102,28 @@ function buildInlinedCss() {
     const family = (famM[1] || famM[2]).trim()
     const variant = varM[1] // e.g. KaTeX_Main-Regular
     const stylePart = variant.replace(/^KaTeX_/, '') // e.g. Main-Regular
-    // KEPT_FONTS holds style variants (Main-Regular, Math-Italic, Size1-Regular, ...)
-    if (!KEPT_FONTS.has(stylePart)) { removed++; return '' }
+    if (!keptFonts.has(stylePart)) { removed++; return '' }
     inlined++
     const b64 = readFileSync(resolve(katexDist, `fonts/${variant}.woff2`)).toString('base64')
     return `@font-face{font-family:${family};src:url("data:font/woff2;base64,${b64}") format("woff2");font-display:block;}`
   })
   console.log(`  CSS: inlined ${inlined} fonts, dropped ${removed} font-faces`)
   return css
+}
+
+// ---- Resolve target page + formulas (CLI args override the default) --------
+const [, , pageArg, formulasArg] = process.argv
+let PAGE, FORMULAS
+if (pageArg && formulasArg) {
+  PAGE = resolve(PKG, pageArg)
+  FORMULAS = JSON.parse(readFileSync(resolve(PKG, formulasArg), 'utf8'))
+  if (!Array.isArray(FORMULAS) || !FORMULAS.every(f => f.label && f.tex)) {
+    console.error('formulas.json must be an array of { "label", "tex" }')
+    process.exit(1)
+  }
+} else {
+  PAGE = resolve(PKG, 'public/study-design/propensity-matching.html')
+  FORMULAS = DEFAULT_FORMULAS
 }
 
 let src = readFileSync(PAGE, 'utf8')
@@ -99,10 +135,14 @@ if (/<style data-katex>/.test(src)) {
   console.log('  stripped prior katex <style> injection')
 }
 
-// 2) Replace each equation div (matched by its aria-label) with a pre-rendered KaTeX span.
+// 2) Render every formula once up front (also lets us pick the font set), then
+//    replace each equation div (matched by its aria-label) with the KaTeX span.
+const renderedAll = FORMULAS.map(f =>
+  katex.renderToString(f.tex, { throwOnError: true, displayMode: false })
+)
+const keptFonts = fontsForRendered(renderedAll.join(''))
 let replaced = 0
-for (const f of FORMULAS) {
-  const katexHtml = katex.renderToString(f.tex, { throwOnError: true, displayMode: false })
+FORMULAS.forEach((f, i) => {
   const divRe = new RegExp(
     `<div class="equation"[^>]*aria-label="${escapeRe(f.label)}"[^>]*>[\\s\\S]*?</div>`
   )
@@ -110,13 +150,13 @@ for (const f of FORMULAS) {
     console.error(`  MISSING equation div for: ${f.label.slice(0, 40)}...`)
     process.exit(1)
   }
-  src = src.replace(divRe, () => `<div class="equation" role="math" aria-label="${f.label}">${katexHtml}</div>`)
+  src = src.replace(divRe, () => `<div class="equation" role="math" aria-label="${f.label}">${renderedAll[i]}</div>`)
   replaced++
-}
+})
 console.log(`  replaced ${replaced}/${FORMULAS.length} equation divs`)
 
 // 3) Inject the inlined KaTeX CSS into <head>.
-const css = buildInlinedCss()
+const css = buildInlinedCss(keptFonts)
 src = src.replace('</head>', `<style data-katex>${css}</style>\n</head>`)
 
 writeFileSync(PAGE, src)
