@@ -70,7 +70,7 @@
             <li><strong>Do not include</strong> variables affected by treatment (mediators on the path from treatment to outcome) and do not include <strong>colliders</strong> (variables caused by both treatment and outcome, or by both plus some other cause).</li>
           </ul>
           <h3>Why the “do not include” list matters</h3>
-          <p><strong>Mediators</strong> are measured downstream of treatment. If you study a blood-pressure drug and include post-randomization blood pressure, that variable is partly <em>caused</em> by the drug; conditioning on it blocks part of the causal effect you are trying to measure. The propensity score is defined on <strong>baseline</strong> covariates — everything measured <em>before</em> treatment assignment. <strong>Colliders</strong> behave similarly: a classic example is hospital admission for a procedure, which can be caused by both disease severity and the decision to treat; conditioning on it can induce a spurious association between variables that are otherwise independent. A practical test: if the covariate can plausibly have been <em>changed by the treatment</em>, it does not belong in the propensity model. When in doubt, measure the covariate before treatment and keep the timing explicit.</p>
+          <p><strong>Mediators</strong> are measured downstream of treatment. If you study a blood-pressure drug and include post-randomization blood pressure, that variable is partly <em>caused</em> by the drug; conditioning on it blocks part of the causal effect you are trying to measure. The propensity score is defined on <strong>baseline</strong> covariates — everything measured <em>before</em> treatment assignment. <strong>Colliders</strong> behave similarly: a classic example is a variable caused by both treatment and the outcome — for instance survival to a follow-up visit, or entry into a study that requires both conditions; conditioning on it induces a spurious association between variables that are otherwise independent. A practical test: if the covariate can plausibly have been <em>changed by the treatment</em>, it does not belong in the propensity model. When in doubt, measure the covariate before treatment and keep the timing explicit.</p>
           <h3>A practical baseline covariate list for clinical studies</h3>
           <table>
             <thead><tr><th scope="col">Domain</th><th scope="col">Examples</th></tr></thead>
@@ -204,7 +204,7 @@
 
         <section id="post-match-analysis">
           <h2>Analysis after matching</h2>
-          <p>A frequent and serious error: after 1:1 caliper matching, analysts run an ordinary unpaired t-test or unstratified logistic regression on the matched sample, treating the 2N patients as independent. They are not — the pairs are correlated by construction, and the naive standard error is wrong (typically too small for 1:1 pairs, leading to overconfident p-values).</p>
+          <p><strong>A frequent and serious error:</strong> after 1:1 caliper matching, analysts run an ordinary unpaired t-test or unstratified logistic regression on the matched sample, treating the 2N patients as independent. They are not — the pairs are correlated by construction, so the unpaired standard error is wrong. When the pairs are similar (the usual case after good matching) it is typically too large and the test is conservative; if matching failed to balance a covariate it can be biased in either direction. It also throws away the precision the matching bought. Use a pair-aware analysis.</p>
           <h3>Analyze the matched pairs, respecting the dependence</h3>
           <ul>
             <li><strong>1:1 matching, continuous outcome:</strong> a <strong>paired t-test</strong> on the within-pair differences (treated − untreated), or equivalently a regression of the outcome on treatment with the pair as a fixed effect (one dummy per pair). Report the mean difference with a 95% CI and p-value — the same standard-error logic as in the <a href="../probability/sampling-distributions-and-the-central-limit-theorem.html">sampling distributions article</a>.</li>
@@ -237,7 +237,7 @@
           <h3>Step 3 — Check overlap and trim</h3>
           <p>The score for surgical patients ranges 0.10–0.95; for medical patients, 0.02–0.90. There is substantial overlap, but a few surgical patients with scores above 0.90 have no medical counterpart. Trim the top 5% of the surgical score distribution (about 20 patients) to common support, leaving 400 surgical and 780 medical patients.</p>
           <h3>Step 4 — Match</h3>
-          <p>1:1 nearest-neighbor, <em>without</em> replacement, caliper = 0.2 × SD(logit score) = 0.2 × 0.55 ≈ <strong>0.11</strong> on the logit scale. Result: <strong>348 matched pairs</strong>; 52 surgical patients remain unmatched because no medical patient fell within the caliper.</p>
+          <p>1:1 nearest-neighbor, <em>without</em> replacement, <strong>with exact matching on calendar year and index facility</strong>, caliper = 0.2 × SD(logit score) = 0.2 × 0.55 ≈ <strong>0.11</strong> on the logit scale. Result: <strong>348 matched pairs</strong>; 52 surgical patients remain unmatched because no medical patient fell within the caliper.</p>
           <h3>Step 5 — Check balance</h3>
           <table>
             <thead><tr><th scope="col">Covariate</th><th scope="col">Pre-match SMD</th><th scope="col">Post-match SMD</th></tr></thead>
@@ -514,8 +514,9 @@
         lovePlot.replaceChildren()
         const x0 = 92
         const x1 = 362
-        const lo = -0.7
-        const hi = 0.7
+        const maxAbs = Math.max(...covariates.flatMap(c => [Math.abs(smds.pre[c.key]), Math.abs(smds.post[c.key])]), 0.7)
+        const lo = -Math.ceil(maxAbs * 10) / 10
+        const hi = -lo
         const X = v => x0 + (clamp(v, lo, hi) - lo) / (hi - lo) * (x1 - x0)
         const rowY = i => 56 + i * 60
         const axY = 200
@@ -536,7 +537,7 @@
           lovePlot.append(svgEl('circle', { cx: X(post), cy: rowY(i), r: 4.5, fill: '#17675d' }))
         }
 
-        for (const tick of [-0.5, 0, 0.5]) {
+        for (const tick of niceTicks(lo, hi, 6)) {
           lovePlot.append(svgEl('text', { x: X(tick), y: axY + 14, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, String(tick)))
         }
         lovePlot.append(svgEl('line', { x1: x0, x2: x1, y1: axY, y2: axY, stroke: '#82948a' }))
@@ -563,9 +564,7 @@
 
         const balanced = nPairs > 0 && covariates.every(c => Math.abs(smds.post[c.key]) < 0.1)
         const worst = covariates.reduce((m, c) => Math.abs(smds.post[c.key]) > Math.abs(smds.post[m.key]) ? c : m, covariates[0])
-        statusEl.textContent = nPairs === 0
-          ? `No pairs formed at a caliper of ${cal.toFixed(2)} — the overlap is too thin for this width. Widen the caliper or reduce the group separation.`
-          : `Matched ${nPairs} of ${nTreated} treated patients (${pct}%) at a caliper of ${cal.toFixed(2)} on the logit PS; ${match.unmatchedT.length} treated and ${match.unmatchedU.length} untreated patients remain unmatched. Severity SMD went from ${fmtSmd(smds.pre.severity)} pre-match to ${fmtSmd(smds.post.severity)} post-match — ${balanced ? 'all three covariates now sit inside the |SMD| < 0.1 band.' : `${worst.label} is still outside the |SMD| < 0.1 band: widen the caliper, or plan a residual adjustment.`}`
+        statusEl.textContent = `Matched ${nPairs} of ${nTreated} treated patients (${pct}%) at a caliper of ${cal.toFixed(2)} on the logit PS; ${match.unmatchedT.length} treated and ${match.unmatchedU.length} untreated patients remain unmatched. Severity SMD went from ${fmtSmd(smds.pre.severity)} pre-match to ${fmtSmd(smds.post.severity)} post-match — ${balanced ? 'all three covariates now sit inside the |SMD| < 0.1 band.' : `${worst.label} is still outside the |SMD| < 0.1 band: the groups differ too much where the caliper forces a match — reduce the separation to restore overlap (a narrower estimand), or plan a residual adjustment in the analysis.`}`
       }
 
       function syncSliderOutputs() {
@@ -680,7 +679,7 @@
             'An unpaired t-test on the raw outcome values'
           ],
           answer: 0,
-          explanation: 'Pairs are correlated by construction. Pair-aware methods — McNemar’s test, pair fixed effects, or stratification — give valid standard errors; the naive independent-analysis SE is typically too small, inflating significance.'
+          explanation: 'Pairs are correlated by construction. Pair-aware methods — McNemar’s test, pair fixed effects, or stratification — give valid standard errors; the naive independent-analysis SE is wrong — typically too large (conservative) when pairs are similar, and biased in either direction if balance failed.'
         },
         {
           question: 'A caliper match leaves 25% of treated patients unmatched — all with the highest propensity scores. What does this imply?',
