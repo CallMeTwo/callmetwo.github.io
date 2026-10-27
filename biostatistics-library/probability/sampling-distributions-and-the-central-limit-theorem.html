@@ -667,7 +667,7 @@ ci_95</code></pre>
       const quizItems = [
         {
           question: 'What does the sampling distribution of the sample mean describe?',
-          options: ['The spread of individual observations in the population', 'The values in one observed sample', 'The sample means across many repeated samples of the same size', 'The distribution of sample sizes in a study'],
+          options: ['The spread of the individual observations in the underlying population, i.e. the population distribution itself', 'The values in one observed sample', 'The sample means across many repeated samples of the same size', 'The distribution of sample sizes in a study'],
           answer: 2,
           explanation: 'It is the distribution of a statistic—in this case, the mean—across repeated samples. It is distinct from both the population distribution and one sample.'
         },
@@ -691,13 +691,13 @@ ci_95</code></pre>
         },
         {
           question: 'Which statement correctly distinguishes SD from SE?',
-          options: ['SD describes individual variation; SE describes sample-to-sample variation in an estimate', 'SD and SE are two names for the same quantity', 'SE describes individual variation; SD describes uncertainty in the sample mean', 'SE is always larger than SD'],
+          options: ['SD describes individual variation; SE describes sample-to-sample variation in an estimate', 'SD and SE are two names for the same quantity', 'SE describes the variation among individual observations, while the SD describes the sample-to-sample uncertainty in the estimate of the mean', 'SE is always larger than SD'],
           answer: 0,
           explanation: 'The SD describes how spread out individual observations are. The SE describes how much an estimate such as x̄ would vary across repeated samples.'
         },
         {
           question: 'If observations come from a normal population, what is true of the sample mean?',
-          options: ['It is exactly normally distributed for any sample size', 'It becomes normal only when n reaches 30', 'It has the same SD as individual observations', 'It is normal only if the sample SD is known'],
+          options: ['It is exactly normally distributed for any sample size', 'It only becomes normal once the sample size reaches 30, after which it is guaranteed to be exactly normal', 'It has the same SD as individual observations', 'It is normal only if the sample SD is known'],
           answer: 0,
           explanation: 'For a normal population, the sample mean is exactly normal for every n. The CLT is especially useful when the population itself is not normal.'
         },
@@ -709,7 +709,7 @@ ci_95</code></pre>
         },
         {
           question: 'The population is strongly right-skewed with rare extreme values. What should you expect as n increases?',
-          options: ['The individual population values become less skewed', 'The distribution of sample means generally becomes more nearly normal, though it may take a larger n', 'The sample mean becomes biased upward by the CLT', 'The standard error increases'],
+          options: ['The individual values in the population itself become less skewed over time as more and more observations are drawn from it', 'The distribution of sample means generally becomes more nearly normal, though it may take a larger n', 'The sample mean becomes systematically biased upward, because the CLT pulls the average toward the heavy right tail', 'The standard error of the sample mean increases as the sample size grows, because the population variance gets inflated'],
           answer: 1,
           explanation: 'The CLT concerns the distribution of sample means, not the individual data. Strong skew and rare extremes can make convergence slower, while SE still decreases as n grows.'
         },
@@ -721,7 +721,7 @@ ci_95</code></pre>
         },
         {
           question: 'What is the frequentist interpretation of a 95% confidence interval procedure?',
-          options: ['There is a 95% probability that the fixed population mean is inside this particular interval', 'Across repeated use under its assumptions, about 95% of intervals would contain the fixed population mean', '95% of the observations lie inside the interval', 'The interval contains 95% of possible sample means'],
+          options: ['There is a 95% probability that the fixed, unknown population mean lies inside this one particular interval that has now been calculated', 'Across repeated use under its assumptions, about 95% of intervals would contain the fixed population mean', '95% of the observations lie inside the interval', 'The interval contains 95% of possible sample means'],
           answer: 1,
           explanation: 'The 95% refers to the long-run coverage of the method across repeated samples. After the interval is calculated, the population mean is fixed; the interval either contains it or it does not.'
         }
