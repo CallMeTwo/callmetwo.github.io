@@ -4,10 +4,13 @@
 // set (public/<section>/<slug>.html) and prints the next backlog topic in
 // taxonomy order as a machine-readable block.
 //
-// Usage:  node scripts/pick-next-topic.mjs [--skip N]
-//   --skip N  skip the first N backlog topics (manual experimentation only).
-//             The cron uses NO args: completed pages shift the backlog deterministically,
-//             so "first unfinished topic" never re-picks a done one.
+// Usage:  node scripts/pick-next-topic.mjs [--random] [--seed N]
+//   --random   pick uniformly at random from the unfinished backlog instead of
+//              taxonomy order (the daily cron uses this — fills all sections
+//              evenly instead of grinding one section at a time).
+//   --seed N   with --random: deterministic pick for that seed (reproducible,
+//              for testing). Without --seed, uses entropy.
+//   (Legacy: --skip N — take the Nth backlog topic in taxonomy order.)
 //
 // Prints (topic found):
 //   TOPIC_FOUND
@@ -29,6 +32,9 @@ const PUB = join(PKG, "public");
 
 const si = process.argv.indexOf("--skip");
 const skip = Math.max(0, parseInt(process.argv[si + 1], 10) || 0);
+const rand = process.argv.includes("--random");
+const sei = process.argv.indexOf("--seed");
+const seedArg = sei >= 0 ? process.argv[sei + 1] : undefined;
 
 // mirror topicSlug() from topics.ts EXACTLY
 function topicSlug(title) {
@@ -73,7 +79,16 @@ for (const raw of src.split("\n")) {
 }
 
 if (backlog.length === 0) { console.log("NO_TOPICS_LEFT"); process.exit(0); }
-const pick = backlog[Math.min(skip, backlog.length - 1)];
+let idx;
+if (rand) {
+  // mulberry32 — tiny seeded PRNG so --seed is reproducible; unseeded uses entropy
+  let a = seedArg !== undefined ? (Number(seedArg) >>> 0) : (Date.now() ^ Math.floor(Math.random() * 0x7fffffff)) >>> 0;
+  const next = () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  idx = Math.floor(next() * backlog.length);
+} else {
+  idx = Math.min(skip, backlog.length - 1);
+}
+const pick = backlog[idx];
 console.log("TOPIC_FOUND");
 console.log(`section_id=${pick.section_id}`);
 console.log(`section_title=${pick.section_title}`);
