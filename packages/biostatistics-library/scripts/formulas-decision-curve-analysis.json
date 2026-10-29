@@ -1,0 +1,18 @@
+[
+  {
+    "label": "Net benefit at a threshold probability t equals the prevalence times the true positive rate, minus one minus the prevalence, times the false positive rate, times t over one minus t",
+    "tex": "\\mathrm{NB}(t) = p\\,\\mathrm{TPR}(t) - (1-p)\\,\\mathrm{FPR}(t)\\,\\dfrac{t}{1-t}"
+  },
+  {
+    "label": "The net benefit of treating everyone equals the prevalence minus one minus the prevalence times t over one minus t",
+    "tex": "\\mathrm{NB}_{\\mathrm{all}}(t) = p - \\dfrac{(1-p)\\,t}{1-t} = \\dfrac{p - t}{1 - t}"
+  },
+  {
+    "label": "Treat when the disease probability times the net benefit of treating a diseased patient exceeds one minus the disease probability times the net loss of treating a healthy patient",
+    "tex": "p\\,B_{H} > (1-p)\\,B_{L}"
+  },
+  {
+    "label": "The threshold probability equals the net loss of treating a healthy patient, divided by the sum of that loss and the net benefit of treating a diseased patient",
+    "tex": "t^{*} = \\dfrac{B_{L}}{B_{H} + B_{L}}"
+  }
+]
