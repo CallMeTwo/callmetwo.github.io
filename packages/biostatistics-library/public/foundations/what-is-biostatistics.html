@@ -34,7 +34,7 @@
     <header class="article-head">
       <p class="eyebrow">Foundations</p>
       <h1>What is biostatistics?</h1>
-      <p class="dek">Statistics is the reasoning layer between messy health data and the conclusions you are actually allowed to draw. This is the front door to the library: what the field is, the core vocabulary, and the four-step arc from describing data to making a decision.</p>
+      <p class="dek">Statistics is the reasoning layer between messy health data and the conclusions you are actually allowed to draw. This is the front door to the library: what the field is, the core vocabulary, and the five-step arc from describing data to making a decision.</p>
       <div class="article-meta"><span class="pill">Foundations</span><span class="pill">Descriptive &amp; inferential</span><span class="pill">Normal &amp; sampling</span><span class="pill">CIs &amp; p-values</span><span class="pill">Power &amp; sample size</span></div>
     </header>
 
@@ -51,7 +51,7 @@
           </ol>
           <p>Two distinctions come up constantly, so state them early. <strong>Biostatistics is not “crunching numbers”:</strong> a table of means and SDs is description; biostatistics is the reasoning about what those numbers are <em>allowed to conclude</em> about the world beyond the data. And <strong>biostatistics is not “running a test in software”:</strong> a p-value from a button-click tells you nothing if you don't know what the test assumes, what its inputs mean, or what the number rules out. The software is the calculator; the statistics is the logic.</p>
           <h3>The big picture in one paragraph</h3>
-          <p>A statistical analysis follows a four-to-five-step arc. You <strong>describe</strong> the data you actually have (means, proportions, plots). You <strong>quantify the uncertainty</strong> in those summaries (standard errors — a sample is only one draw from many possible samples). You <strong>draw an inference</strong> about the population (confidence intervals, hypothesis tests). And you <strong>decide</strong> — is the finding big enough, precise enough, and believable enough to change what you do or believe? And finally you <strong>interpret</strong> it in clinical and design terms. Every later article in this library deepens one step of that arc.</p>
+          <p>A statistical analysis follows a five-step arc. You <strong>describe</strong> the data you actually have (means, proportions, plots). You <strong>quantify the uncertainty</strong> in those summaries (standard errors — a sample is only one draw from many possible samples). You <strong>draw an inference</strong> about the population (confidence intervals, hypothesis tests). And you <strong>decide</strong> — is the finding big enough, precise enough, and believable enough to change what you do or believe? And finally you <strong>interpret</strong> it in clinical and design terms. Every later article in this library deepens one step of that arc.</p>
           <table>
             <thead><tr><th scope="col">Step</th><th scope="col">One sentence</th></tr></thead>
             <tbody>
@@ -146,7 +146,7 @@ M834 80h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">�
           <ol>
             <li><strong>Precision — the width.</strong> A narrow CI says you have estimated the effect sharply; a wide one says you have barely pinned it down. CI width is set by sample size and variability (via the SE), so “how big is this trial really?” is often best answered by “how wide is its CI?”</li>
             <li><strong>Exclusion of no effect.</strong> If the CI for a difference excludes 0 (or for a ratio excludes 1), the effect is statistically significant at the 5% level — the CI and the p-value are two views of the same evidence (<a href="#ref-altman2011">Altman &amp; Bland 2011</a>). A CI that <em>includes</em> the no-effect value tells you the data are compatible with “nothing happened.”</li>
-            <li><strong>Clinical relevance of the range.</strong> The full range matters more than the center. A drug whose 95% CI for systolic BP reduction is (−2, −18) mmHg might help some patients a lot and others not at all; a CI of (−8, −10) is a much more uniform promise. The center is your best estimate; the edges are what you should really be looking at.</li>
+            <li><strong>Clinical relevance of the range.</strong> The full range matters more than the center. A drug whose 95% CI for systolic BP reduction is (−18, −2) mmHg might help some patients a lot and others not at all; a CI of (−8, −10) is a much more uniform promise. The center is your best estimate; the edges are what you should really be looking at.</li>
           </ol>
           <p>A CI that excludes the no-effect value but is so wide it spans both trivial and large effects is a <em>modestly</em> convincing result, not a settled one.</p>
         </section>
