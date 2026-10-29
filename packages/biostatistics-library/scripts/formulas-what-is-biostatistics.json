@@ -1,0 +1,18 @@
+[
+  {
+    "label": "The standard error of the sample mean equals the standard deviation divided by the square root of the sample size",
+    "tex": "\\mathrm{SE} = \\dfrac{s}{\\sqrt{n}}"
+  },
+  {
+    "label": "A confidence interval for the mean equals the estimate plus or minus the critical value times the standard error",
+    "tex": "\\hat{\\theta} \\pm z \\, \\mathrm{SE}"
+  },
+  {
+    "label": "The test statistic equals the observed estimate minus the null value, divided by its standard error",
+    "tex": "t = \\dfrac{\\hat{\\theta} - \\theta_0}{\\mathrm{SE}}"
+  },
+  {
+    "label": "The approximate sample size per group equals two times the variance times the square of the sum of the critical values for the alpha over two and beta errors, divided by the square of the effect size",
+    "tex": "n \\approx \\dfrac{2\\sigma^{2}\\left(z_{\\alpha/2} + z_{\\beta}\\right)^{2}}{\\delta^{2}}"
+  }
+]
