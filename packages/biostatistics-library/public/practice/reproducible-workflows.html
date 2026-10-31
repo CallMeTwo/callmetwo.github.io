@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Build reproducible workflows in health research: version control, environment pinning, data provenance, seeds, and report generation — with a two-panel interactive bootstrap lab showing why an undocumented pipeline lets a 2.3× error through.">
+  <title>Reproducible workflows · Biostatistics Library</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon-biostatistics.svg">
+  <style>
+    :root{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df;--pale:#edf3ed;--gold:#b37b29}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:78px}body{margin:0;line-height:1.7}button,input,select{font:inherit}a{color:var(--teal)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    .skip{position:fixed;top:-60px;left:14px;z-index:3;padding:8px 12px;background:white}.skip:focus{top:8px}
+    .topbar{position:sticky;top:0;z-index:2;border-bottom:1px solid var(--line);background:#fff}.topbar-inner{display:flex;align-items:center;gap:12px;max-width:1120px;margin:auto;padding:11px 24px;font-size:12px}.topbar a{text-decoration:none;font-weight:600}.crumb{color:#9aaa9f}.top-current{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    main{width:min(100% - 40px,1040px);margin:0 auto;padding:40px 0 32px}.article-head{max-width:790px;margin-bottom:36px}.eyebrow{margin:0 0 10px;color:#638074;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase}.article-head h1{margin:0;color:#203f37;font:400 clamp(32px,5vw,48px)/1.18 'Libre Caslon Text',Georgia,serif;letter-spacing:-1px}.dek{margin:16px 0 0;color:#526861;font-size:17px;line-height:1.65}.article-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}.pill{border:1px solid #d8e3db;border-radius:30px;background:#f7f9f6;padding:4px 10px;color:#536b61;font-size:10px}
+    .article-layout{display:grid;grid-template-columns:minmax(0,740px) minmax(190px,1fr);gap:48px;align-items:start}.article{min-width:0}.article h2{margin:42px 0 12px;color:#203f37;font-size:22px;line-height:1.35}.article h2:first-child{margin-top:0}.article h3{margin:26px 0 8px;color:#2d5144;font-size:16px}.article p{margin:0 0 15px}.article li{margin:6px 0}.article ul,.article ol{padding-left:23px;margin:0 0 18px}.article code{border-radius:3px;background:#edf3ed;padding:1px 5px;font:.9em ui-monospace,SFMono-Regular,Menlo,monospace}.equation{display:block;overflow:auto;margin:16px 0;padding:14px 17px;border-left:3px solid #8cad99;border-radius:0 4px 4px 0;background:#f1f5f0;color:#244c40;font:16px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}.equation sub,.equation sup{font-size:0.75em}.note{margin:20px 0;padding:14px 17px;border:1px solid #dbe5dc;border-radius:5px;background:#fff;color:#4c615b;font-size:13px}.note strong{color:#294d40}.toc{position:sticky;top:78px;border-left:1px solid var(--line);padding:4px 0 4px 17px}.toc h2{margin:0 0 9px;color:#62776c;font-size:10px;letter-spacing:1px;text-transform:uppercase}.toc a{display:block;padding:4px 0;color:#61766c;font-size:11px;line-height:1.45;text-decoration:none}.toc a:hover{color:var(--teal);text-decoration:underline}
+    .article table{width:100%;margin:0 0 18px;border-collapse:collapse;font-size:12px}.article th{border-bottom:2px solid #cfdcd1;padding:7px 9px;text-align:left;color:#35594a;font-size:10px;letter-spacing:.4px;text-transform:uppercase}.article td{border-bottom:1px solid #e4ebe4;padding:7px 9px;color:#435a50;vertical-align:top}
+    .simulator{margin:22px 0 26px;padding:20px;border:1px solid #d6e2d8;border-radius:7px;background:#fff;box-shadow:0 5px 20px #203f3709}.sim-intro{margin:0 0 15px;color:#5a6e64;font-size:12px}.controls{display:grid;grid-template-columns:1fr 1fr minmax(180px,1.25fr) auto auto;gap:12px;align-items:end}.control label{display:block;margin-bottom:5px;color:#536a60;font-size:10px;font-weight:700}.control select{width:100%;min-height:37px;border:1px solid #cdd9cf;border-radius:4px;padding:6px 8px;background:#fbfcfa;color:#28473d;font-size:12px}.control .num{width:100%;min-height:37px;border:1px solid #cdd9cf;border-radius:4px;padding:6px 8px;background:#fbfcfa;color:#28473d;font-size:12px}.range-line{display:flex;align-items:center;gap:9px}.range-line input{width:100%;accent-color:var(--teal)}.range-line output{min-width:36px;color:#28473d;font-size:12px;font-variant-numeric:tabular-nums}.primary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:#17675d;color:white;font-size:11px;font-weight:600}.primary:hover{background:#12584f}.secondary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:white;color:#17675d;font-size:11px;font-weight:600}.secondary:hover{background:#f1f6f2}.check-line{display:flex;align-items:center;gap:8px;min-height:37px;font-size:12px;color:#28473d}.check-line input{accent-color:var(--teal);width:16px;height:16px}.fixed-label{min-height:37px;display:flex;align-items:center;color:#667970;font-size:11px}.chart-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:18px}.chart-wrap{min-width:0;border:1px solid #e2e9e3;border-radius:4px;background:#fff}.chart-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 12px 0}.chart-heading h3{margin:0;color:#35594a;font-size:12px}.chart-heading span{color:var(--muted);font-size:9px;text-align:right}.legend{display:flex;flex-wrap:wrap;gap:12px;padding:10px 12px 12px;color:#64766d;font-size:9px}.legend-item{display:flex;align-items:center;gap:6px}.swatch{width:12px;height:9px;border-radius:2px;background:#a8c9b3}.swatch.treated{background:#17675d}.swatch.unmatched{background:#c67e6e}.swatch.pair-line{height:0;background:transparent;border-top:2px solid #9dbfab}.swatch.caliper-band{background:#17675d;opacity:.12}.swatch.pre-smd{width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid #bd8135}.swatch.post-smd{width:10px;height:10px;border-radius:50%;background:#17675d}.swatch.smd-band{background:#eef3ee}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.stat{padding:10px 11px;border-radius:4px;background:#f3f6f2}.stat-label{display:block;color:#667970;font-size:9px;line-height:1.4}.stat output{display:block;margin-top:3px;color:#264c40;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}.sim-status{min-height:1.5em;margin:8px 0 0;color:#687b71;font-size:10px}.sim-caveat{margin:12px 0 0;color:#687b71;font-size:10px}
+    .lab-grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.lab-grid .lab-wide{grid-column:1/-1}.lab-svg{display:block;width:100%;height:auto}.lab-stats{grid-template-columns:1fr 1fr;margin-top:0}.lab-summary{padding:0 12px 12px}.lab-status{min-height:3.2em;margin:10px 12px 12px;padding:10px 12px;border-radius:4px;background:#f3f6f2;color:#3f5a4f;font-size:11px;line-height:1.55}
+    .example-box{margin:16px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.example-box h3{margin:0 0 8px}
+    .layout{margin:14px 0;padding:14px 16px;border:1px solid #e2e9e3;border-radius:5px;background:#f7f9f6;color:#3c5349;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto;white-space:pre}
+    .verdict{margin:10px 12px 0;padding:10px 12px;border-radius:4px;font-size:12px;font-weight:600}.verdict.identical{background:#edf7ef;border:1px solid #4b8c68;color:#245c3d}.verdict.diverges{background:#fff2ef;border:1px solid #c67e6e;color:#813d31}
+    .b-setup{margin:0 0 14px;color:#5a6e64;font-size:12px}
+    .quiz-intro{color:#586d63}.quiz-progress{padding:10px 12px;border-radius:4px;background:#f1f5f0;color:#315448;font-size:12px;font-weight:600}.quiz-question{margin:18px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.quiz-question h3{margin:0 0 10px;font-size:14px}.quiz-options{display:grid;gap:7px}.quiz-option{width:100%;padding:9px 11px;border:1px solid #d5e0d7;border-radius:4px;background:#fbfcfa;color:#344f44;text-align:left;font-size:12px;line-height:1.5;cursor:pointer}.quiz-option:hover:not(:disabled){border-color:#7fa393;background:#f4f8f4}.quiz-option:disabled{cursor:default}.quiz-option.is-correct{border-color:#4b8c68;background:#edf7ef;color:#245c3d}.quiz-option.is-incorrect{border-color:#c67e6e;background:#fff2ef;color:#813d31}.quiz-feedback{margin:10px 0 0;padding:10px 12px;border-left:3px solid #8cad99;background:#f4f7f3;color:#465e53;font-size:12px}.quiz-feedback[hidden]{display:none}.quiz-retry{margin:12px 0;padding:8px 12px;border:1px solid #17675d;border-radius:4px;background:#fff;color:#17675d;font-size:11px;font-weight:600}
+    .bottom-nav{display:flex;justify-content:space-between;gap:18px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px}.bottom-nav a{text-decoration:none}.footer{margin-top:30px;padding-top:15px;border-top:1px solid var(--line);color:#7b8a7f;font-size:10px}
+    @media(max-width:800px){.article-layout{grid-template-columns:minmax(0,1fr)}.toc{position:static;grid-row:1;display:flex;flex-wrap:wrap;gap:3px 13px;border:1px solid var(--line);border-radius:5px;padding:10px 12px}.toc h2{flex-basis:100%}.toc a{padding:2px 0}.controls{grid-template-columns:1fr 1fr}.controls .control:nth-child(3){grid-column:1/-1}.controls .primary{justify-self:start}.article-layout{gap:24px}.lab-grid{grid-template-columns:minmax(0,1fr)}}
+    @media(max-width:520px){main{width:min(100% - 28px,1040px);padding-top:26px}.topbar-inner{padding:10px 14px}.dek{font-size:15px}.simulator{padding:13px}.controls{grid-template-columns:1fr}.controls .control:nth-child(3){grid-column:auto}.controls .primary,.controls .secondary{width:100%}.chart-grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.chart-heading{align-items:flex-start;flex-direction:column;gap:2px}.bottom-nav{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to article</a>
+  <header class="topbar"><nav class="topbar-inner" aria-label="Breadcrumb"><a href="../">Biostatistics Library</a><span class="crumb">/</span><span class="top-current">Practice / Reproducible workflows</span></nav></header>
+
+  <main id="main">
+    <header class="article-head">
+      <p class="eyebrow">Practice</p>
+      <h1>Reproducible workflows</h1>
+      <p class="dek">A result you cannot re-derive is a claim, not a result. A reproducible workflow records the data, the code, the environment, and the settings — so the same analysis, re-run by anyone on any machine, gives back the same numbers. That is what makes silent errors discoverable.</p>
+      <div class="article-meta"><span class="pill">Reproducibility</span><span class="pill">Version control (git)</span><span class="pill">Environment pinning</span><span class="pill">Data provenance</span><span class="pill">Seeds &amp; randomness</span></div>
+    </header>
+
+    <div class="article-layout">
+      <article class="article">
+        <section id="core-idea">
+          <h2>Core idea &amp; motivation</h2>
+          <p>A statistical workflow is <strong>reproducible</strong> when, given the same data, the same code, the same documented environment (language and package versions), and the same settings — including any random seed — anyone, including the original analyst six months later on a different machine, can re-run the analysis and obtain <strong>identical results</strong>. The claim is about <em>results from the same inputs</em>, and it is a property of the <strong>workflow</strong>, not of the analyst. (Background: the <a href="https://en.wikipedia.org/wiki/Reproducible_research" target="_blank" rel="noopener">overview of reproducible research on Wikipedia ↗</a>.)</p>
+          <p>Why invest in this? Because a point estimate with no way to re-derive it is a <em>claim</em>, not a <em>result</em>. A 2016 survey of more than 1,500 scientists found that a substantial share could not reproduce another scientist's experiments and an even larger share could not reproduce their own — the so-called reproducibility crisis (<a href="#ref-baker2016">Baker 2016</a>). And the problem is not only that we <em>cannot</em> re-derive results: much of what is published is false or over-stated in the first place, and reproducibility is one of the tools that keeps us honest about which findings survive scrutiny (<a href="#ref-ioannidis2005">Ioannidis 2005</a>).</p>
+          <ul>
+            <li><strong>Trust in published estimates.</strong> Reproducibility is what makes an estimate <em>checkable</em> — the difference between "trust me" and "here is the exact chain that produces it."</li>
+            <li><strong>Error detection.</strong> Silent mistakes — a typo in a variable name, a stale CSV, an undocumented cleaning rule — change results with no obvious trace. A reproducible pipeline makes the discrepancy <em>systematically discoverable</em> (see the worked example, where the same raw export yields two different effect sizes depending on whether the cleaning rule is applied).</li>
+            <li><strong>Meta-analysis inputs.</strong> Pooled estimates are only as good as the component studies' numbers; if a component estimate cannot be reproduced, the meta-analysis inherits an unquantifiable uncertainty.</li>
+            <li><strong>Regulatory / HTA scrutiny.</strong> Reviewers increasingly request code and data access, or at minimum documented methods plus provenance, for submissions and health-technology assessments.</li>
+            <li><strong>The cost of "which version did I run?"</strong> Without version control the question is unanswerable — and an unanswerable question is where analyses die.</li>
+          </ul>
+          <div class="note"><strong>The punchline:</strong> reproducibility is not a philosophical stance, it is <strong>error control</strong>. It converts "I think the answer was −13.1" into "here is the exact chain of operations that produces −13.1, and here is how you can verify it."</div>
+        </section>
+
+        <section id="repro-vs-rep">
+          <h2>Reproducibility vs replicability</h2>
+          <p>These two words are often used interchangeably, but the standard distinction is precise and worth teaching explicitly (the literature uses the terms loosely; we follow the NASEM-style convention, and flag where usage varies):</p>
+          <ul>
+            <li><strong>Reproducibility</strong> — same data + same code + same environment → <strong>same numerical results</strong>. You are checking the <em>pipeline</em>: does the same analysis, re-run, give back the same numbers?</li>
+            <li><strong>Replicability</strong> — an independent group repeats the <strong>study</strong> — new participants, new measurements, sometimes a new setting — and reaches the <strong>same scientific conclusion</strong>. You are checking the <em>inference</em>: does the effect hold up under independent re-investigation?</li>
+          </ul>
+          <p>A study can be perfectly <em>reproducible</em> (everyone re-derives the same point estimate from the same data) and still fail to <em>replicate</em> (a second cohort gives a different estimate). <a href="#ref-peng2011">Peng (2011)</a> makes exactly this distinction for computational science: reproducibility is about being able to arrive at the same answer from the same inputs with the same documented procedure; replication is about whether the scientific conclusion holds when the inputs change.</p>
+          <p>In health research the distinction is not pedantry. A regulatory or HTA reviewer who asks "can we <em>reproduce</em> your number?" needs code + data + environment + seed. A meta-analyst who asks "will your effect <em>replicate</em> in other populations?" needs study quality, generalizability, and — for the meta-analysis — your <em>input estimates</em>, which must themselves have come from a reproducible pipeline. Confusing the two leads to asking the wrong question of the wrong reviewer.</p>
+        </section>
+
+        <section id="pipeline-pieces">
+          <h2>The pieces of a reproducible pipeline</h2>
+          <p>This is the central section. A reproducible workflow is a small set of components working together; each one exists because something specific breaks without it. The list below follows the "best practices for scientific computing" framing of <a href="#ref-wilson2014">Wilson et al. (2014)</a> — a concise, domain-agnostic checklist that has become the de-facto standard.</p>
+
+          <h3>Version control for code (git)</h3>
+          <p>Every <strong>commit</strong> is a dated, named, attributable snapshot of the entire project (code + config + data-processing scripts). (<a href="https://en.wikipedia.org/wiki/Version_control" target="_blank" rel="noopener">Version control on Wikipedia ↗</a>) You can answer "what was the code that produced the submitted table?" exactly, diff between versions, and roll back a bad change. By convention, <code>main</code> holds the pipeline that produced the current report, and a <strong>tag</strong> (e.g. <code>v1.0-submission</code>) marks the exact commit behind a published or submitted analysis — the tag is the reproducibility contract.</p>
+          <p><strong>What breaks without it:</strong> the <code>final.R</code>, <code>final2.R</code>, <code>final_REAL.R</code>, <code>final_FINAL_use_this.R</code> zoo. With no dated snapshots you cannot say which file produced which number, and "final_REAL" is a guess. Reproducibility dies at the filename.</p>
+          <p><strong>Single entry point:</strong> the pipeline should have <strong>one command that runs everything</strong> — one script, or better a Makefile target (<code>make report</code>) or an <code>renv</code>-aware driver that calls the stages in fixed order. One entry point means "re-run" has one definition, and it is what you put in the README.</p>
+
+          <h3>Code organization</h3>
+          <p>One stage per script, scripts in a fixed order, intermediate artifacts in a known place. A small concrete layout (R-flavored; identical in substance for Python):</p>
+          <pre class="layout">sbp-reg/
+├── data/
+│   ├── raw/        # the original export, IMMUTABLE (git-ignored or checksummed)
+│   │   └── sbpreg_raw_export_2025-01-14.csv
+│   └── clean/      # derived, regenerated from raw on every run
+├── code/
+│   ├── 00_setup.R      # load env, set seeds, define paths
+│   ├── 01_clean.R      # raw -&gt; clean (documented rules)
+│   ├── 02_analyze.R    # stats: means, SD, diff, bootstrap
+│   └── 03_report.R     # knit/compile the report from 01+02
+├── results/    # generated tables/figures — OUTPUTS, never hand-edited
+├── report/sbp-reg.Rmd  # narrative + code + outputs, one document
+├── renv.lock           # pinned R package environment
+└── README.md           # how to rebuild everything</pre>
+          <p><strong>What breaks without it:</strong> ad-hoc scripts scattered across home directories that load "the" data file from wherever it last happened to be; no way to know whether <code>02_analyze.R</code> is reading raw or clean data; a colleague cannot follow the order.</p>
+
+          <h3>Environment management / dependency pinning</h3>
+          <p>The analysis depends on the language <em>and</em> the packages — not just your script. Your <code>.R</code> file is one input; the R version and every loaded package's version are inputs too.</p>
+          <ul>
+            <li><strong>R:</strong> <strong>renv</strong> creates a project-local library plus a <code>renv.lock</code> recording exact package versions, sources, and hashes (packrat is the older equivalent).</li>
+            <li><strong>Python:</strong> <strong><code>requirements.txt</code></strong> (or <code>pip freeze</code> / <code>poetry.lock</code> / <code>uv.lock</code> for exact pins) inside a <strong>venv</strong>, or <strong>conda</strong> with an <strong><code>environment.yml</code></strong>.</li>
+          </ul>
+          <p><strong>The principle:</strong> <em>record what you used, install that — not "latest."</em> <code>renv::restore()</code> / <code>pip install -r requirements.txt</code> reconstructs the recorded environment; <code>install.packages("everything")</code> does not. A minor package version change can silently change a default (an algorithm flag, a tie-handling rule, a plotting default) <em>or even a numeric result</em> (a patched numerical routine, a new BLAS path). The script hasn't changed; the machine's libraries have. Pinning is what makes the environment part of the artifact (<a href="#ref-peng2011">Peng 2011</a>).</p>
+
+          <h3>Data versioning &amp; provenance</h3>
+          <p>Data files change out from under code — the CSV in your inbox is not the CSV in your folder three weeks later. Record the exact source (who sent it, export timestamp, the database query if it came from one) and a <strong>file checksum</strong> (e.g. SHA-256) so the file you analyze is verifiably the file you documented. <strong>Keep raw data immutable; write derived/clean copies to a separate location</strong> — cleaning code reads raw and writes clean, never edits raw in place. A <strong>data dictionary / README</strong> describes variables, units, coding, and <em>every cleaning rule</em> (with the reason).</p>
+          <p><strong>When data cannot be shared</strong> (privacy): you still document the provenance fully — source, version, checksum, transformation chain — and, where possible, release a <strong>synthetic exemplar</strong> that exercises the same pipeline.</p>
+
+          <h3>Randomness &amp; seeds</h3>
+          <p>Any randomness in the pipeline — bootstrap/simulation resamples, train/test splits, "random" figure jitter or layout — must use a <strong>documented seed set at a known point</strong> (convention: the top of <code>00_setup</code>, before any random draw). Same seed + same RNG + same algorithm + same package version → same draws → same numbers. An <strong>undocumented seed</strong> (or worse, no seed) means the result cannot be reproduced <em>even with perfect code</em> — the re-run is a different experiment. And the seed alone is not enough: the RNG algorithm and its implementation (package/version) must also be pinned, because <strong>the same seed through different RNGs gives different streams</strong>.</p>
+
+          <h3>Generated artifacts &amp; report generation</h3>
+          <p>Tables, figures, and plots are <strong>OUTPUTS of code, never hand-edited</strong> in Excel or an image editor. A manually moved data label is a fork in the pipeline that no re-run can fix. Regenerate from raw data on every run; if the figure changes, the change is in the code or data and is therefore traceable.</p>
+          <p><strong>Report generation</strong> — <strong>R Markdown / Quarto / Jupyter</strong> — keeps <strong>code + narrative + outputs in one document that re-renders reproducibly</strong>: chunks can echo the code, print the package versions, set the seed, and every displayed table and figure is rebuilt on re-knit. The report is then a <em>generated artifact</em> too, with the same guarantees.</p>
+
+          <h3>Documentation</h3>
+          <p>A <strong>README</strong> that another person can actually follow to rebuild everything: the <strong>data source + version</strong> (and checksum), the <strong>environment install command</strong> (e.g. <code>renv::restore()</code> or <code>pip install -r requirements.txt</code>), the <strong>single run command</strong> (e.g. <code>make report</code> / <code>Rscript code/run_all.R</code>), and the <strong>expected outputs</strong> — what files appear and what the headline numbers should be, so the re-runner can verify their re-run against yours. The test is the <em>rebuild test</em>: can a stranger, following only the README, reproduce the report?</p>
+
+          <h3>Automation (CI) as the final check</h3>
+          <p>A scheduled or pull-triggered <strong>build that re-runs the whole pipeline on a clean machine</strong> — GitHub Actions, a cron job, or a fresh container — catches <strong>environment and dependency drift early</strong> (a package update breaks <code>renv::restore()</code> or changes a result) instead of letting it surface at submission time. Keep this as the <em>final</em> check: it verifies the pipeline still runs; it does not make the pipeline reproducible by itself (<a href="#ref-wilson2014">Wilson et al. 2014</a>).</p>
+        </section>
+
+        <section id="worked-example">
+          <h2>Worked example: the SBP-Reg registry study</h2>
+          <div class="example-box"><h3>The scenario (clearly illustrative)</h3><p>"SBP-Reg" is a <strong>made-up</strong> small registry study: 40 patients, 2 arms (20 control, C-01…C-20; 20 treatment, T-01…T-20); outcome = change in systolic BP from baseline (mmHg; <strong>negative = reduction</strong>). The raw export arrived by email and contains <strong>three transcription slips</strong> — a physiologically impossible one-off value in each case, corrected against the source case-report form by a single documented cleaning rule. All numbers below were recomputed in code and match the pinned values exactly.</p></div>
+
+          <h3>The data, and the three slips</h3>
+          <p><strong>Clean (corrected) control</strong>, in ID order: <code>2, 5, 8, 3, 11, 6, 4, 9, 14, 7, 5, 12, 2, 8, 10, 3, 6, 13, 4, 9</code></p>
+          <p><strong>Clean (corrected) treatment</strong>, in ID order: <code>-6, -3, -8, -5, -11, -2, -4, -7, -9, -13, -3, -5, -8, -2, -6, -10, -4, -7, -3, -5</code></p>
+          <p>The <strong>raw export</strong> is identical except for three slips:</p>
+          <ul>
+            <li><strong>C-09</strong> (control, position 9) recorded <strong>144</strong> instead of <strong>14</strong>,</li>
+            <li><strong>T-10</strong> (treatment, position 10) recorded <strong>−130</strong> instead of <strong>−13</strong>,</li>
+            <li><strong>T-16</strong> (treatment, position 16) recorded <strong>−103</strong> instead of <strong>−10</strong>.</li>
+          </ul>
+          <p>The <strong>documented cleaning rule</strong> — "a physiologically impossible one-off value, corrected against the source case-report form" — fixes exactly these three and restores the clean values.</p>
+
+          <h3>Clean-data analysis</h3>
+          <table>
+            <thead><tr><th scope="col">Quantity</th><th scope="col">Value</th></tr></thead>
+            <tbody>
+              <tr><td>Control mean (SD)</td><td>7.05 (3.66)</td></tr>
+              <tr><td>Treatment mean (SD)</td><td>−6.05 (3.07)</td></tr>
+              <tr><td>Mean difference (treatment − control)</td><td><strong>−13.10</strong> mmHg</td></tr>
+              <tr><td>Two-sample SE</td><td>1.069</td></tr>
+              <tr><td>t statistic</td><td>−12.259</td></tr>
+              <tr><td>Normal-approx 95% CI</td><td>(−15.194, −11.006)</td></tr>
+            </tbody>
+          </table>
+          <p>The two-sample standard error of the mean difference, the <em>t</em> statistic, and the large-sample (normal-approximation) 95% confidence interval are:</p>
+          <div class="equation" role="math" aria-label="Two-sample standard error of the mean difference: SE equals the square root of (s sub 1 squared over n sub 1 plus s sub 2 squared over n sub 2). The t statistic equals the estimated difference theta-hat divided by SE. The normal-approximation 95 percent confidence interval is theta-hat plus or minus 1.96 times SE.">SE = √( s<sub>1</sub><sup>2</sup>/n<sub>1</sub> + s<sub>2</sub><sup>2</sup>/n<sub>2</sub> )&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;t = θ̂ / SE&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;95% CI ≈ θ̂ ± 1.96 · SE</div>
+          <p>Plugging in the clean means and SDs (n<sub>1</sub> = n<sub>2</sub> = 20) gives SE = 1.069, t = −13.10 / 1.069 ≈ −12.259, and a normal-approx CI of (−15.194, −11.006).</p>
+
+          <h3>Raw-data analysis</h3>
+          <table>
+            <thead><tr><th scope="col">Quantity</th><th scope="col">Value</th></tr></thead>
+            <tbody>
+              <tr><td>Control mean</td><td>13.55</td></tr>
+              <tr><td>Treatment mean</td><td>−16.55</td></tr>
+              <tr><td>Mean difference (treatment − control)</td><td><strong>−30.10</strong> mmHg</td></tr>
+              <tr><td>Inflation vs the clean estimate</td><td>30.10 / 13.10 = <strong>2.30×</strong></td></tr>
+            </tbody>
+          </table>
+          <p>So <strong>the raw export makes the treatment look 2.30× more effective than it is</strong> (−30.10 vs −13.10 mmHg). The three impossible values also inflate the arm variances, so the raw-data standard error balloons to about 10.4 and any inference built on it is nonsense — but the point estimate is what a colleague would report if they simply ran the analysis on the email file.</p>
+
+          <h3>Bootstrap of the mean difference</h3>
+          <p>A stratified bootstrap (resample <em>within</em> each arm, recompute the difference, repeat) gives a percentile 95% confidence interval. For B replicates, the interval is taken from the percentile points of the B bootstrap differences:</p>
+          <div class="equation" role="math" aria-label="Percentile bootstrap 95 percent confidence interval: the lower limit is the bootstrap difference at rank ceil(0.025 times B) and the upper limit is the bootstrap difference at rank ceil(0.975 times B), where rank is computed on the B differences sorted ascending (0-based index rank minus 1).">95% CI = ( θ̂[⌈0.025·B⌉], θ̂[⌈0.975·B⌉] )&nbsp;&nbsp;·&nbsp;&nbsp;θ̂[j] = j-th smallest of the B bootstrap differences</div>
+          <p>With a fixed seed (42) and B = 1000 on the <strong>clean</strong> data the percentile 95% CI is <strong>[−15.100, −11.100]</strong> around the estimate −13.10 — tight and well inside the normal-approx interval. On the <strong>raw</strong> data the same seed and B give an estimate of <strong>−30.10</strong> with a CI of <strong>[−50.500, −12.250]</strong>: the impossible values inject huge resampling variance, so the interval is wildly wider and its lower end is physiologically absurd. The interactive lab below lets you reproduce all of this.</p>
+
+          <div class="note"><strong>The teaching point (stated explicitly):</strong> without a documented pipeline — a documented <strong>data source</strong> (which export, when), documented <strong>cleaning rules</strong> (the three impossible values and the rule that corrects them), <strong>version-controlled code</strong>, and a <strong>documented seed</strong> — a colleague re-running the analysis six months later from the raw email export reports <strong>−30.10 mmHg</strong>, and there is <strong>no systematic way to discover the discrepancy</strong> against the "real" −13.10. The two numbers differ by 2.30×, and only the existence of the cleaning rule (documented, in code, applied from immutable raw data) makes the three slips <em>detectable</em> and the corrected result <strong>−13.10 defensible</strong>. The pipeline — not the person's memory — is what makes the difference. That is the whole argument for reproducibility in one example: the error was real, silent, and large; and it was caught <em>by structure</em>, not by luck.</div>
+        </section>
+
+        <section id="lab">
+          <h2>Interactive lab: does the re-run reproduce?</h2>
+          <p>Two panels, both running the <strong>exact same deterministic bootstrap</strong> on the SBP-Reg data. <strong>Panel A</strong> shows how the point estimate and its confidence interval move when you change the data source, the number of replicates, or the seed — so you can see the seed actually doing its job. <strong>Panel B</strong> is the teaching moment: Analyst A (June) ran the pipeline and got a result; Analyst B (December) re-runs it. You control what B gets right or wrong, and you watch the verdict flip between <em>IDENTICAL</em> (reproducible) and <em>DIVERGES</em> (not reproducible) as you remove the documented seed or point the analysis at the raw export.</p>
+
+          <div class="simulator" aria-labelledby="panel-a-title">
+            <h3 id="panel-a-title">Panel A — Bootstrap the arm difference</h3>
+            <p class="sim-intro">Same bootstrap, three levers. Change any control and the estimate, the confidence interval, and the histogram recompute instantly. Watch the histogram shift and the CI endpoints move as the seed changes — that shift is exactly what an <em>undocumented</em> seed would do to a colleague's re-run.</p>
+            <div class="controls">
+              <div class="control"><label for="a-source">Data source</label>
+                <select id="a-source">
+                  <option value="clean" selected>Cleaned (documented)</option>
+                  <option value="raw">Raw email export</option>
+                </select>
+              </div>
+              <div class="control"><label for="a-b">Replicates B</label>
+                <select id="a-b">
+                  <option value="100">100</option>
+                  <option value="500">500</option>
+                  <option value="1000" selected>1000</option>
+                  <option value="2000">2000</option>
+                  <option value="5000">5000</option>
+                </select>
+              </div>
+              <div class="control"><label for="a-seed">Seed</label>
+                <input id="a-seed" class="num" type="number" min="0" max="9999" step="1" value="42">
+              </div>
+            </div>
+            <div class="chart-grid lab-grid">
+              <div class="chart-wrap lab-wide">
+                <div class="chart-heading"><h3>Bootstrap differences (B replicates)</h3><span>~25 bins · marker = point estimate</span></div>
+                <svg id="a-hist" class="lab-svg" viewBox="0 0 720 260" role="img" aria-label="Histogram of the bootstrap differences in mmHg, with a vertical marker line at the point estimate."></svg>
+                <div class="legend" aria-hidden="true"><span class="legend-item"><i class="swatch" style="background:#a8c9b3"></i>Bootstrap replicate</span><span class="legend-item"><i class="swatch" style="background:#b37b29;width:3px;height:12px"></i>Point estimate</span></div>
+              </div>
+              <div class="chart-wrap">
+                <div class="chart-heading"><h3>Result</h3><span>updates live</span></div>
+                <div class="stats lab-stats" aria-label="Bootstrap result summary">
+                  <div class="stat"><span class="stat-label">Estimate (mmHg)</span><output id="a-est">—</output></div>
+                  <div class="stat"><span class="stat-label">95% CI (percentile)</span><output id="a-ci">—</output></div>
+                </div>
+                <p id="a-status" class="lab-status" role="status" aria-live="polite">Adjust the controls to run the bootstrap.</p>
+              </div>
+            </div>
+            <p class="sim-caveat">The data are the illustrative SBP-Reg example. The point estimate is computed at full precision from the chosen (clean/raw) values; only the display is rounded. The CI is computed from full-precision replicate differences and rounded for display.</p>
+          </div>
+
+          <div class="simulator" aria-labelledby="panel-b-title">
+            <h3 id="panel-b-title">Panel B — Does the re-run reproduce?</h3>
+            <p class="b-setup"><strong>Analyst A (June)</strong> ran the documented pipeline: cleaned data, seed 42, B = 1000 → estimate <strong>−13.10 mmHg</strong>, 95% CI <strong>[−15.100, −11.100]</strong>. <strong>Analyst B (December)</strong> re-runs it. You decide what B gets right or wrong:</p>
+            <div class="controls">
+              <div class="control"><label for="b-seed">Seed documented in the README</label>
+                <div class="check-line"><input id="b-seed" type="checkbox" checked><span>checked = seed 42 · unchecked = a fresh random seed each run</span></div>
+              </div>
+              <div class="control"><label for="b-data">Data: cleaned file</label>
+                <div class="check-line"><input id="b-data" type="checkbox" checked><span>checked = cleaned · unchecked = raw email export</span></div>
+              </div>
+              <div class="control"><label>Replicates B</label><span class="fixed-label">B = 1000 (fixed)</span></div>
+              <button id="b-run" class="primary" type="button">Run Analyst B</button>
+            </div>
+            <div class="chart-grid lab-grid">
+              <div class="chart-wrap lab-wide">
+                <div class="chart-heading"><h3>Analyst B's result</h3><span>same bootstrap algorithm</span></div>
+                <svg id="b-hist" class="lab-svg" viewBox="0 0 720 200" role="img" aria-label="Histogram of Analyst B's bootstrap differences, with a marker at B's point estimate and a marker at Analyst A's point estimate."></svg>
+                <div class="legend" aria-hidden="true"><span class="legend-item"><i class="swatch" style="background:#a8c9b3"></i>Analyst B replicates</span><span class="legend-item"><i class="swatch" style="background:#b37b29;width:3px;height:12px"></i>B estimate</span><span class="legend-item"><i class="swatch" style="background:#17675d;width:3px;height:12px"></i>Analyst A estimate</span></div>
+              </div>
+              <div class="chart-wrap">
+                <div class="chart-heading"><h3>Verdict</h3><span>vs Analyst A</span></div>
+                <div class="stats lab-stats" aria-label="Analyst B result summary">
+                  <div class="stat"><span class="stat-label">B estimate (mmHg)</span><output id="b-est">—</output></div>
+                  <div class="stat"><span class="stat-label">B 95% CI</span><output id="b-ci">—</output></div>
+                </div>
+                <p id="b-verdict" class="verdict" hidden></p>
+                <p id="b-status" class="lab-status" role="status" aria-live="polite">Press "Run Analyst B" to see whether the re-run reproduces Analyst A's result.</p>
+              </div>
+            </div>
+            <p class="sim-caveat">The "fresh random seed" path is intentionally nondeterministic — that is the point. With every setting documented, the verdict is IDENTICAL and B's CI is exactly [−15.100, −11.100]; point the analysis at the raw export and it DIVERGES (−30.10, [−50.500, −12.250]); remove the documented seed and it DIVERGES on essentially every run.</p>
+          </div>
+        </section>
+
+        <section id="confusions">
+          <h2>Common confusions</h2>
+          <ul>
+            <li><strong>Reproducibility vs replicability.</strong> Reproducibility = same data + code + environment → same <em>results</em> (a claim about the pipeline). Replicability = independent study, <em>new</em> data → same <em>conclusion</em> (a claim about the science). One can hold without the other (see above).</li>
+            <li><strong>"Working" vs reproducible.</strong> "It runs on my machine" is not "another person can run it." <em>Working</em> = the author's local environment happens to contain the right versions and files. <em>Reproducible</em> = the environment, data, code, and seed are <em>recorded and installable/runnable by anyone</em>. Most analyses that "work" fail the second test.</li>
+            <li><strong>Reproducibility vs open science.</strong> Open <em>data</em> is not sufficient — you still need the code, the pinned environment, and the documentation. Conversely, a fully documented but <em>closed</em> pipeline (private data, shared code + provenance + synthetic exemplar) can be reproducible in substance. Openness and reproducibility overlap, but neither implies the other.</li>
+            <li><strong>A random seed vs a deterministic pipeline.</strong> The seed makes <em>randomness</em> reproducible; it is not the same as <em>having no randomness</em>. A seeded bootstrap is still a resampling experiment — the seed just means the re-run draws the same resamples. And the seed only helps if the RNG + package version are also pinned.</li>
+            <li><strong>Version-controlling code vs versioning data.</strong> Code in git = dated snapshots of <em>your</em> work. Data needs its own provenance record (source, timestamp/query, checksum, cleaning rules) because data is usually <em>not</em> something you author and commit — it arrives from elsewhere, changes without your commits, and (when private) may never enter git at all.</li>
+          </ul>
+        </section>
+
+        <section id="limitations">
+          <h2>Assumptions &amp; limitations</h2>
+          <ol>
+            <li><strong>Reproducibility ≠ correctness.</strong> A pipeline reproduces exactly whatever its inputs and assumptions produce. A <strong>wrong model</strong>, or a cleaning rule that drops the right patients, can be <strong>perfectly reproducible and still wrong</strong>. Reproducibility is error <em>control</em> (you can find and see the mistake); it is not error <em>prevention</em>.</li>
+            <li><strong>Environment drift can survive pinning.</strong> Even a perfect lockfile doesn't pin the <strong>OS</strong>, the <strong>BLAS / linear-algebra library</strong>, CPU/FPU details, or <strong>floating-point ordering in parallel code</strong> — sources of tiny nondeterminism that can flip last digits (usually harmless, occasionally not, e.g. when sorting tied values or choosing convergence paths). Document the OS, and note that "identical to the last digit" may legitimately mean "identical to ~15 digits."</li>
+            <li><strong>Private data cannot be fully released.</strong> Mitigations, in decreasing order of strength: full documentation of provenance + cleaning rules; a <strong>synthetic exemplar</strong> that runs the same pipeline; <strong>code-only release</strong> with a data dictionary. None restores full verifiability — which is exactly why the <em>provenance record</em> matters when the data itself can't travel.</li>
+            <li><strong>Effort cost is real; "minimum viable" is a prioritization.</strong> The pragmatic ordering: (1) code in git, (2) a documented seed, (3) a README a stranger can follow — before anything else; <strong>full lockfiles + CI for anything you publish or submit</strong>. Treating reproducibility as an all-or-nothing project is the fastest way to get none of it.</li>
+          </ol>
+        </section>
+
+        <section id="takeaways">
+          <h2>Practical takeaways</h2>
+          <p>The <strong>minimum viable reproducible setup</strong> — do these before anything else, and add the rest as you publish or submit (<a href="#ref-wilson2014">Wilson et al. 2014</a>):</p>
+          <ol>
+            <li><strong>Put all code in git.</strong> Dated, named snapshots; tag the commit behind each submission (<code>v1.0-submission</code>). Kill the <code>final_FINAL.R</code> habit.</li>
+            <li><strong>Pin and record the environment.</strong> <code>renv</code> (R) / <code>requirements.txt</code> + venv or <code>environment.yml</code> (Python). Record the language version too. Install <em>what you used</em>, not "latest."</li>
+            <li><strong>Keep raw data immutable and document every cleaning rule.</strong> Raw in, clean out; provenance = source + export timestamp/query + checksum; a data dictionary with units and codings.</li>
+            <li><strong>Set and document the seed</strong> at a known point, before any random draw — and note the RNG/package version it applies to.</li>
+            <li><strong>Generate every artifact from code.</strong> No hand-edited Excel tables or retouched figures; regenerate from raw on each run.</li>
+            <li><strong>Use report generation</strong> (R Markdown / Quarto / Jupyter) so code + narrative + outputs re-render together from one document.</li>
+            <li><strong>Write a README a stranger can follow:</strong> data source + version, environment install command, the single run command, expected outputs. <strong>Re-run the whole pipeline before every publication/submission</strong> (ideally on a clean machine, via CI), and confirm the headline numbers match the report.</li>
+          </ol>
+        </section>
+
+        <section id="self-check">
+          <h2>Check your understanding</h2>
+          <p class="quiz-intro">Answer each question to reveal feedback and an explanation. Your score updates as you go.</p>
+          <div id="quiz-progress" class="quiz-progress" role="status" aria-live="polite">Answered 0 of 10 · Score 0</div>
+          <div id="quiz-container"></div>
+          <button id="quiz-retry" class="quiz-retry" type="button">Try again</button>
+        </section>
+
+        <section id="references">
+          <h2>References</h2>
+          <ol>
+            <li id="ref-baker2016">Baker M. 1,500 scientists lift the lid on reproducibility. <em>Nature.</em> 2016;533(7604):452–454. <a href="https://doi.org/10.1038/533452a" target="_blank" rel="noopener">doi.org/10.1038/533452a ↗</a></li>
+            <li id="ref-peng2011">Peng RD. Reproducible research in computational science. <em>Science.</em> 2011;334(6060):1226–1227. <a href="https://doi.org/10.1126/science.1213847" target="_blank" rel="noopener">doi.org/10.1126/science.1213847 ↗</a></li>
+            <li id="ref-wilson2014">Wilson G, Aruliah DA, Brown CT, Chue Hong NP, Davis M, Guy RT, Haddock SHD, Huff KD, Mitchell IM, Plumbley MD, Waugh B, White EP, Wilson P. Best practices for scientific computing. <em>PLoS Biology.</em> 2014;12(1):e1001745. <a href="https://doi.org/10.1371/journal.pbio.1001745" target="_blank" rel="noopener">doi.org/10.1371/journal.pbio.1001745 ↗</a></li>
+            <li id="ref-ioannidis2005">Ioannidis JPA. Why most published research findings are false. <em>PLoS Medicine.</em> 2005;2(8):e124. <a href="https://doi.org/10.1371/journal.pmed.0020124" target="_blank" rel="noopener">doi.org/10.1371/journal.pmed.0020124 ↗</a></li>
+          </ol>
+        </section>
+
+        <nav class="bottom-nav" aria-label="Article navigation"><a href="../#topic-index">← Back to the topic index</a><a href="../survival/markov-models.html">Related: Markov models →</a></nav>
+      </article>
+
+      <nav class="toc" aria-label="On this page">
+        <h2>On this page</h2>
+        <a href="#core-idea">Core idea &amp; motivation</a>
+        <a href="#repro-vs-rep">Reproducibility vs replicability</a>
+        <a href="#pipeline-pieces">The pieces of a pipeline</a>
+        <a href="#worked-example">SBP-Reg worked example</a>
+        <a href="#lab">Interactive lab</a>
+        <a href="#confusions">Common confusions</a>
+        <a href="#limitations">Assumptions &amp; limitations</a>
+        <a href="#takeaways">Practical takeaways</a>
+        <a href="#self-check">Self-check quiz</a>
+        <a href="#references">References</a>
+      </nav>
+    </div>
+
+    <footer class="footer">Biostatistics Library · Educational reference. Interpret methods in the context of the study design and data.</footer>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+      // ---------------- Shared deterministic bootstrap ----------------
+      const CLEAN_CONTROL = [2,5,8,3,11,6,4,9,14,7,5,12,2,8,10,3,6,13,4,9];
+      const CLEAN_TREAT   = [-6,-3,-8,-5,-11,-2,-4,-7,-9,-13,-3,-5,-8,-2,-6,-10,-4,-7,-3,-5];
+      const RAW_CONTROL = CLEAN_CONTROL.slice(); RAW_CONTROL[8] = 144;
+      const RAW_TREAT   = CLEAN_TREAT.slice();   RAW_TREAT[9] = -130; RAW_TREAT[15] = -103;
+      const ARM = 20;
+
+      // Canonical mulberry32 — one draw per call, in order.
+      function mulberry32(seed) {
+        let a = seed | 0;
+        return function () {
+          a = (a + 0x6D2B79F5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const mean = a => a.reduce((s, x) => s + x, 0) / a.length;
+
+      // One replicate: 20 CONTROL draws then 20 TREATMENT draws, same rng stream.
+      // Returns { est, lo, hi, diffs } at full precision.
+      function bootstrap(ctrl, treat, seed, B) {
+        const rng = mulberry32(seed);
+        const diffs = new Array(B);
+        for (let b = 0; b < B; b++) {
+          let cs = 0; for (let i = 0; i < ARM; i++) cs += ctrl[Math.floor(rng() * ARM)];
+          let ts = 0; for (let i = 0; i < ARM; i++) ts += treat[Math.floor(rng() * ARM)];
+          diffs[b] = ts / ARM - cs / ARM;
+        }
+        const sorted = diffs.slice().sort((x, y) => x - y);
+        const lo = sorted[Math.ceil(0.025 * B) - 1];
+        const hi = sorted[Math.ceil(0.975 * B) - 1];
+        return { est: mean(treat) - mean(ctrl), lo, hi, diffs };
+      }
+      const fmt = (v, dp = 2) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(dp);
+      const fmtCi = (lo, hi, dp = 3) => '[' + fmt(lo, dp) + ', ' + fmt(hi, dp) + ']';
+
+      // ---------------- SVG helpers ----------------
+      const svgNS = 'http://www.w3.org/2000/svg';
+      function svgEl(name, attrs, text) {
+        const node = document.createElementNS(svgNS, name);
+        for (const k of Object.keys(attrs)) node.setAttribute(k, attrs[k]);
+        if (text !== undefined && text !== null) node.textContent = text;
+        return node;
+      }
+      function niceTicks(min, max, target) {
+        if (max - min < 1e-9) return [min];
+        const rawStep = (max - min) / target;
+        const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        let step = mag * 10;
+        for (const m of [1, 2, 2.5, 5, 10]) { if (mag * m >= rawStep) { step = mag * m; break; } }
+        const ticks = [];
+        for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) ticks.push(Math.round(v * 1000) / 1000);
+        return ticks;
+      }
+
+      // Draw a histogram of `diffs` with a marker at `est` (and optionally `estRef`).
+      function drawHist(svg, diffs, est, estRef, W, H, showRef) {
+        svg.replaceChildren();
+        const padL = 56, padR = 18, padT = 18, padB = 42;
+        const plotW = W - padL - padR, plotH = H - padT - padB;
+        const lo = Math.min(...diffs), hi = Math.max(...diffs);
+        const span = (hi - lo) || 1;
+        const x0 = lo - span * 0.04, x1 = hi + span * 0.04;
+        const NB = 25;
+        const bins = new Array(NB).fill(0);
+        for (const d of diffs) {
+          let idx = Math.floor((d - x0) / (x1 - x0) * NB);
+          if (idx >= NB) idx = NB - 1; if (idx < 0) idx = 0;
+          bins[idx]++;
+        }
+        const maxCount = Math.max(...bins, 1);
+        const X = v => padL + (v - x0) / (x1 - x0) * plotW;
+        const Y = c => padT + plotH - (c / maxCount) * plotH;
+
+        // y gridlines + ticks
+        for (const t of niceTicks(0, maxCount, 4)) {
+          svg.append(svgEl('line', { x1: padL, x2: padL + plotW, y1: Y(t), y2: Y(t), stroke: '#eef1ed' }));
+          svg.append(svgEl('text', { x: padL - 7, y: Y(t) + 3, 'text-anchor': 'end', fill: '#75867c', 'font-size': 10 }, String(Math.round(t))));
+        }
+        // bars
+        const bw = plotW / NB;
+        for (let i = 0; i < NB; i++) {
+          const c = bins[i];
+          if (c === 0) continue;
+          const bx = padL + i * bw;
+          svg.append(svgEl('rect', { x: bx + 0.5, y: Y(c), width: Math.max(bw - 1, 0.5), height: padT + plotH - Y(c), fill: '#a8c9b3' }));
+        }
+        // x ticks
+        for (const t of niceTicks(x0, x1, 6)) {
+          svg.append(svgEl('line', { x1: X(t), x2: X(t), y1: padT + plotH, y2: padT + plotH + 4, stroke: '#82948a' }));
+          svg.append(svgEl('text', { x: X(t), y: padT + plotH + 15, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, String(t)));
+        }
+        // axes
+        svg.append(svgEl('line', { x1: padL, x2: padL + plotW, y1: padT + plotH, y2: padT + plotH, stroke: '#82948a' }));
+        svg.append(svgEl('line', { x1: padL, x2: padL, y1: padT, y2: padT + plotH, stroke: '#82948a' }));
+        svg.append(svgEl('text', { x: padL + plotW / 2, y: H - 6, 'text-anchor': 'middle', fill: '#586d63', 'font-size': 10 }, 'bootstrap difference (mmHg)'));
+        const yLab = svgEl('text', { x: 14, y: padT + plotH / 2, 'text-anchor': 'middle', fill: '#586d63', 'font-size': 10, transform: `rotate(-90 14 ${padT + plotH / 2})` }, 'number of replicates');
+        svg.append(yLab);
+
+        // marker at B's estimate
+        const mx = X(Math.min(Math.max(est, x0), x1));
+        svg.append(svgEl('line', { x1: mx, x2: mx, y1: padT, y2: padT + plotH, stroke: '#b37b29', 'stroke-width': 2 }));
+        svg.append(svgEl('text', { x: mx, y: padT - 4, 'text-anchor': 'middle', fill: '#b37b29', 'font-size': 9.5, 'font-weight': 700 }, 'B ' + fmt(est)));
+        // reference marker at A's estimate
+        if (showRef && estRef !== undefined) {
+          const rx = X(Math.min(Math.max(estRef, x0), x1));
+          svg.append(svgEl('line', { x1: rx, x2: rx, y1: padT, y2: padT + plotH, stroke: '#17675d', 'stroke-width': 2, 'stroke-dasharray': '4 3' }));
+          svg.append(svgEl('text', { x: rx, y: padT - 4, 'text-anchor': 'middle', fill: '#17675d', 'font-size': 9.5, 'font-weight': 700 }, 'A ' + fmt(estRef)));
+        }
+      }
+
+      // ---------------- Panel A ----------------
+      const aSource = document.getElementById('a-source');
+      const aB = document.getElementById('a-b');
+      const aSeed = document.getElementById('a-seed');
+      const aHist = document.getElementById('a-hist');
+      const aEst = document.getElementById('a-est');
+      const aCi = document.getElementById('a-ci');
+      const aStatus = document.getElementById('a-status');
+
+      function panelA() {
+        const clean = aSource.value === 'clean';
+        const ctrl = clean ? CLEAN_CONTROL : RAW_CONTROL;
+        const treat = clean ? CLEAN_TREAT : RAW_TREAT;
+        const B = Number(aB.value);
+        let seed = Math.floor(Number(aSeed.value));
+        if (!Number.isFinite(seed)) seed = 42;
+        seed = Math.min(9999, Math.max(0, seed));
+        const r = bootstrap(ctrl, treat, seed, B);
+        drawHist(aHist, r.diffs, r.est, undefined, 720, 260, false);
+        aEst.textContent = fmt(r.est);
+        aCi.textContent = fmtCi(r.lo, r.hi);
+        const label = clean ? 'the cleaned data' : 'the raw email export';
+        aStatus.textContent = `With seed ${seed} and ${B} replicates on ${label}, the treatment lowers SBP by about ${fmt(r.est)} mmHg more than control; 95% CI ${fmt(r.lo, 1)} to ${fmt(r.hi, 1)}.`;
+      }
+      aSource.addEventListener('change', panelA);
+      aB.addEventListener('change', panelA);
+      aSeed.addEventListener('input', panelA);
+      panelA();
+
+      // ---------------- Panel B ----------------
+      const A_EST = -13.10, A_LO = -15.100, A_HI = -11.100;
+      const bSeed = document.getElementById('b-seed');
+      const bData = document.getElementById('b-data');
+      const bRun = document.getElementById('b-run');
+      const bHist = document.getElementById('b-hist');
+      const bEst = document.getElementById('b-est');
+      const bCi = document.getElementById('b-ci');
+      const bVerdict = document.getElementById('b-verdict');
+      const bStatus = document.getElementById('b-status');
+
+      bRun.addEventListener('click', () => {
+        const clean = bData.checked;
+        const ctrl = clean ? CLEAN_CONTROL : RAW_CONTROL;
+        const treat = clean ? CLEAN_TREAT : RAW_TREAT;
+        const seed = bSeed.checked ? 42 : Math.floor(Math.random() * 10000);
+        const r = bootstrap(ctrl, treat, seed, 1000);
+        drawHist(bHist, r.diffs, r.est, A_EST, 720, 200, true);
+        bEst.textContent = fmt(r.est);
+        bCi.textContent = fmtCi(r.lo, r.hi);
+
+        const identical = Math.abs(r.est - A_EST) <= 0.001 && Math.abs(r.lo - A_LO) <= 0.001 && Math.abs(r.hi - A_HI) <= 0.001;
+        bVerdict.hidden = false;
+        if (identical) {
+          bVerdict.className = 'verdict identical';
+          bVerdict.textContent = 'IDENTICAL to Analyst A ✓ (reproducible) — estimate ' + fmt(r.est) + ', CI ' + fmtCi(r.lo, r.hi) + '.';
+          bStatus.textContent = 'Every setting matched Analyst A: cleaned data, documented seed 42, B = 1000. The re-run reproduces the result exactly — that is what a documented pipeline buys you.';
+        } else {
+          bVerdict.className = 'verdict diverges';
+          bVerdict.textContent = 'DIVERGES from Analyst A — estimate ' + fmt(r.est) + ' (A: ' + fmt(A_EST) + '), CI ' + fmtCi(r.lo, r.hi) + ' (A: ' + fmtCi(A_LO, A_HI) + ').';
+          const reasons = [];
+          if (!clean) reasons.push('the raw email export (with the three transcription slips) instead of the cleaned file, which pushed the estimate to ' + fmt(r.est) + ' and blew up the CI');
+          if (!bSeed.checked) reasons.push('a fresh, undocumented random seed (this run used seed ' + seed + '), so the bootstrap drew different resamples');
+          bStatus.textContent = 'The re-run diverged because Analyst B used ' + reasons.join(' and ') + '. Remove the cause(s) — restore the cleaned data and the documented seed — and the verdict returns to IDENTICAL.';
+        }
+      });
+    })();
+
+    // ---------------- Self-check quiz ----------------
+    (() => {
+      'use strict';
+      const quizItems = [
+        {
+          question: 'Which claim corresponds to "same data + same code + same environment → same results"?',
+          options: [
+            'Replicability — an independent team repeats the study with new participants and reaches the same scientific conclusion',
+            'Reproducibility — same inputs, same results',
+            'Openness — the data and code are shared for others to inspect',
+            'Generalizability — the effect holds in every population'
+          ],
+          answer: 1,
+          explanation: 'Reproducibility is the claim about the pipeline: same data + same code + same environment (and seed) → same numerical results. Replicability is the new-data, same-conclusion claim (an independent study). Openness and generalizability are related but different ideas.'
+        },
+        {
+          question: 'Why does an analysis with an undocumented random seed fail to reproduce, even when the code is perfect?',
+          options: [
+            'The resampling draws aren\'t fixed — a re-run is a different random experiment',
+            'The expected estimate changes on every run, so the mean of many re-runs drifts away from the original',
+            'Undocumented seeds are a security flaw in the code',
+            'The seed must be recorded in a journal to be valid'
+          ],
+          answer: 0,
+          explanation: 'A seed fixes the random draws. Without a documented seed, the re-run draws different resamples — it is a different random experiment, even though the code is identical. The expected value is unchanged; what changes is the realized number you report. (And the seed only helps if the RNG and its package version are pinned too.)'
+        },
+        {
+          question: 'What does a git commit give you that a file named final2_REAL.R does not?',
+          options: [
+            'A dated, named, attributable snapshot you can diff and roll back',
+            'The analysis runs automatically and the report is regenerated whenever the repository is updated',
+            'A certificate that the code is bug-free and the results it produces are correct',
+            'A cloud backup of every data file the project has used'
+          ],
+          answer: 0,
+          explanation: 'A git commit is a dated, named, attributable snapshot of the whole project — you can diff versions and roll back, so you can say exactly which code produced a published number. Git does not run the analysis (that is CI), it does not certify correctness, and it is not a data backup.'
+        },
+        {
+          question: 'What does renv.lock / requirements.txt capture that your script alone does not?',
+          options: [
+            'The data files, database queries, export timestamps, and provenance chain the analysis depended on',
+            'The random seed, the RNG algorithm, and the package version it applies to, so the draws can be redone',
+            'The exact language and package versions the analysis ran with, so the environment can be rebuilt',
+            'Every cleaning rule applied to the raw export, with the reason each one was chosen'
+          ],
+          answer: 2,
+          explanation: 'A lockfile (renv.lock, requirements.txt, environment.yml) records the exact language and package versions, so the environment — not just the code — can be reconstructed. Data have their own provenance record; the seed is documented separately, in the code and the README.'
+        },
+        {
+          question: 'Why must a published figure not be retouched in an image editor after the code produced it?',
+          options: [
+            'Hand-editing is more error-prone and generally slower than regenerating the figure in code',
+            'Image editors corrupt the numeric values embedded inside the plot',
+            'Figures should be edited only during the peer-review stage',
+            'The figure is an output of code; retouching forks it from the pipeline, so a re-run no longer reproduces it'
+          ],
+          answer: 3,
+          explanation: 'Tables and figures are outputs of code. Retouching one in an editor forks it from the pipeline: a re-run no longer reproduces it and the change is untraceable. Regenerate from the raw data on every run — if the figure changes, the change is in the code or data and is therefore traceable. (Effort is not the issue.)'
+        },
+        {
+          question: 'What is the key reproducibility benefit of an R Markdown / Quarto / Jupyter report?',
+          options: [
+            'It makes the report visually more polished and easier to read for submission',
+            'It automatically uploads the finished report to a repository',
+            'Code, narrative, and outputs re-render together in one document, so the numbers and the code that made them can\'t drift apart',
+            'It removes the need to pin the software environment, since the report carries the versions with it'
+          ],
+          answer: 2,
+          explanation: 'Report generation keeps code + narrative + outputs in one document that re-renders reproducibly — chunks can echo the code, print package versions, and set the seed, so the reported numbers and the code that made them can\'t drift apart. It does not remove the need to pin the environment, and appearance is not the point.'
+        },
+        {
+          question: 'The raw export gives −30.10 mmHg; after the documented cleaning rule it is −13.10. Which number should the pipeline report, and why?',
+          options: [
+            '−13.10 — the documented cleaning applied to immutable raw data, so it is defensible and re-derivable',
+            '−30.10 — it is literally what the raw data says, and altering raw data is a serious data-integrity violation in every audit',
+            'The average of the two estimates, so the reported number does not depend on a single cleaning choice or a single analyst',
+            'Whichever is larger in magnitude, because reviewers prefer bigger effects'
+          ],
+          answer: 0,
+          explanation: 'The pipeline reports the result of the documented cleaning applied to immutable raw data: −13.10 mmHg. The raw −30.10 is the product of three known transcription slips; reporting it would be reproducing a mistake. The pipeline — not the inbox file — defines the result.'
+        },
+        {
+          question: 'Which set of items makes a data file\'s provenance verifiable?',
+          options: [
+            'Just the file name, the date you saved it, and the software you used to open it',
+            'Source, version or generating query, file checksum, and the cleaning rules applied',
+            'The file\'s color scheme, the analyst who created the folder, and the screen it was last viewed on',
+            'The file size and the storage location on your laptop'
+          ],
+          answer: 1,
+          explanation: 'A verifiable provenance record names the source (who/what), the version or generating query/export timestamp, a file checksum (so the analyzed file is the documented file), and the cleaning rules applied. A file name and a save date do not identify the export or verify the file.'
+        },
+        {
+          question: 'A pipeline reproduces its (wrong) model choice perfectly. What does that show?',
+          options: [
+            'If it reproduces exactly, it must be correct, because agreement across independent re-runs proves the analysis is right',
+            'The data must be clean, because no discrepancy appeared across any of the repeated runs on the raw export',
+            'The model is correct, since independent re-runs on different machines produced identical results',
+            'Nothing about correctness — it controls whether you can find an error, not whether one exists'
+          ],
+          answer: 3,
+          explanation: 'Reproducibility is error control, not error prevention. A pipeline reproduces exactly whatever its inputs and assumptions produce — a wrong model or a bad cleaning rule can be perfectly reproducible and still wrong. Reproducing exactly tells you nothing about correctness.'
+        },
+        {
+          question: 'Why should a reproducible pipeline have one command that runs all stages in a fixed order?',
+          options: [
+            'One command is just a convenience for the analyst; the order of the stages does not matter as long as each one runs',
+            'Because "re-run" has one documented definition — same stages, same order, every time',
+            'To keep the repository small and the directory listing easy to read for new collaborators',
+            'So the pipeline runs faster, uses less memory, and finishes before the submission deadline'
+          ],
+          answer: 1,
+          explanation: 'One entry point (e.g. make report) that runs the stages in a fixed order means "re-run" has a single documented definition — the same stages, in the same order, every time, which is what a colleague or CI executes. Stage order is the pipeline (clean before analyze before report); an undocumented order is part of the irreproducibility.'
+        }
+      ];
+
+      function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        const progress = document.getElementById('quiz-progress');
+        container.replaceChildren();
+        let answered = 0, score = 0;
+        progress.textContent = 'Answered 0 of ' + quizItems.length + ' · Score 0';
+        quizItems.forEach((item, index) => {
+          const card = document.createElement('div');
+          card.className = 'quiz-question';
+          const heading = document.createElement('h3');
+          heading.textContent = (index + 1) + '. ' + item.question;
+          card.append(heading);
+          const options = document.createElement('div');
+          options.className = 'quiz-options';
+          options.setAttribute('role', 'group');
+          options.setAttribute('aria-label', 'Answers for question ' + (index + 1));
+          const feedback = document.createElement('p');
+          feedback.className = 'quiz-feedback';
+          feedback.hidden = true;
+          item.options.forEach((option, optionIndex) => {
+            const button = document.createElement('button');
+            button.className = 'quiz-option';
+            button.type = 'button';
+            button.textContent = String.fromCharCode(65 + optionIndex) + '. ' + option;
+            button.setAttribute('aria-pressed', 'false');
+            button.addEventListener('click', () => {
+              answered++;
+              const isCorrect = optionIndex === item.answer;
+              if (isCorrect) score++;
+              for (const choice of options.querySelectorAll('button')) {
+                choice.disabled = true;
+                if (Number(choice.dataset.option) === item.answer) choice.classList.add('is-correct');
+              }
+              button.setAttribute('aria-pressed', 'true');
+              if (!isCorrect) button.classList.add('is-incorrect');
+              feedback.textContent = (isCorrect ? 'Correct. ' : 'Not quite. ') + item.explanation;
+              feedback.hidden = false;
+              progress.textContent = 'Answered ' + answered + ' of ' + quizItems.length + ' · Score ' + score + (answered === quizItems.length ? ' · Complete' : '');
+            });
+            button.dataset.option = String(optionIndex);
+            options.append(button);
+          });
+          card.append(options, feedback);
+          container.append(card);
+        });
+      }
+      document.getElementById('quiz-retry').addEventListener('click', renderQuiz);
+      renderQuiz();
+    })();
+  </script>
+</body>
+</html>

@@ -114,6 +114,7 @@ const availableTopicPages = new Set([
   'clinical-research/decision-curve-analysis',
   'machine-learning/multilayer-perceptrons',
   'survival/markov-models',
+  'practice/reproducible-workflows',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group
