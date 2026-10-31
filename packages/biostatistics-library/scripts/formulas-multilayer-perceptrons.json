@@ -1,0 +1,22 @@
+[
+  {
+    "label": "The output of hidden unit j equals the hyperbolic tangent of the sum of the inputs weighted by the connections into that unit, plus its bias",
+    "tex": "h_j = \\tanh\\!\\left(\\sum_i w_{ji} x_i + b_j\\right)"
+  },
+  {
+    "label": "The output probability equals the logistic sigmoid of the final weighted sum z, which is one over one plus e to the minus z",
+    "tex": "p = \\sigma(z) = \\dfrac{1}{1 + e^{-z}}"
+  },
+  {
+    "label": "The squared error loss equals one half times the difference between the predicted probability and the true outcome, squared",
+    "tex": "L = \\tfrac{1}{2}(p - y)^2"
+  },
+  {
+    "label": "The gradient of the loss with respect to any parameter in the network equals the output error times p times one minus p times the derivative of the final sum with respect to that parameter",
+    "tex": "\\dfrac{\\partial L}{\\partial \\theta} = (p - y)\\,p(1 - p)\\,\\dfrac{\\partial z}{\\partial \\theta}"
+  },
+  {
+    "label": "The gradient descent update sets each new parameter equal to the old parameter minus the learning rate times its gradient",
+    "tex": "\\theta_{\\text{new}} = \\theta - \\eta\\,\\dfrac{\\partial L}{\\partial \\theta}"
+  }
+]

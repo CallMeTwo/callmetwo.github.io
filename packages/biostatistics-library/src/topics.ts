@@ -112,6 +112,7 @@ const availableTopicPages = new Set([
   'study-design/propensity-matching',
   'clinical-research/health-economic-evaluation',
   'clinical-research/decision-curve-analysis',
+  'machine-learning/multilayer-perceptrons',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group
