@@ -1,0 +1,22 @@
+[
+  {
+    "label": "The probability of moving from state i to state j in one cycle equals the entry in row i and column j of the transition matrix, and each row of the transition matrix sums to one",
+    "tex": "P = (p_{ij}), \\qquad p_{ij} = \\mathrm{P}(X_{t+1} = j \\mid X_t = i), \\qquad \\sum_j p_{ij} = 1"
+  },
+  {
+    "label": "The state distribution at the next cycle equals the state distribution at the current cycle multiplied by the transition matrix",
+    "tex": "\\pi_{t+1} = \\pi_t P"
+  },
+  {
+    "label": "Total discounted cost over a horizon equals the sum over each cycle of the discount factor to the power of the cycle, times the expected per-cycle cost under the state distribution at that cycle",
+    "tex": "\\mathrm{Cost} = \\sum_{t=0}^{T-1} \\dfrac{1}{(1+r)^{t}}\\,\\big(\\pi_t \\cdot c\\big)"
+  },
+  {
+    "label": "Total discounted quality-adjusted life years over a horizon equals the sum over each cycle of the discount factor to the power of the cycle, times the expected per-cycle utility under the state distribution at that cycle",
+    "tex": "\\mathrm{QALY} = \\sum_{t=0}^{T-1} \\dfrac{1}{(1+r)^{t}}\\,\\big(\\pi_t \\cdot u\\big)"
+  },
+  {
+    "label": "The Viterbi recurrence defines the best score of any path ending in state i at time t as the maximum over all previous states j of the previous best score for j plus the log transition probability from j to i, plus the log emission probability of the observation at t under state i",
+    "tex": "\\delta_t(i) = \\max_j \\big[\\delta_{t-1}(j) + \\log a_{ji}\\big] + \\log b_i(o_t)"
+  }
+]

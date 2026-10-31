@@ -75,7 +75,7 @@ export const sections: TopicSection[] = [
   {
     id: 'survival', title: 'Survival & longitudinal data', description: 'Work with time to events and repeated observations.',
     groups: [
-      { title: 'Time-to-event analysis', topics: ['Censoring and survival functions', 'Kaplan–Meier curves and the log-rank test', 'Cox proportional hazards model'] },
+      { title: 'Time-to-event analysis', topics: ['Censoring and survival functions', 'Kaplan–Meier curves and the log-rank test', 'Cox proportional hazards model', 'Markov models'] },
       { title: 'Repeated measurements', topics: ['Repeated-measures designs', 'Mixed-effects models', 'Generalized estimating equations'] },
       { title: 'Temporal and spatial data', topics: ['Time-series analysis in health research', 'Spatiotemporal analysis'] }
     ]
@@ -113,6 +113,7 @@ const availableTopicPages = new Set([
   'clinical-research/health-economic-evaluation',
   'clinical-research/decision-curve-analysis',
   'machine-learning/multilayer-perceptrons',
+  'survival/markov-models',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group
