@@ -148,7 +148,7 @@
           </table>
           <p>The two-sample standard error of the mean difference, the <em>t</em> statistic, and the large-sample (normal-approximation) 95% confidence interval are:</p>
           <div class="equation" role="math" aria-label="Two-sample standard error of the mean difference: SE equals the square root of (s sub 1 squared over n sub 1 plus s sub 2 squared over n sub 2). The t statistic equals the estimated difference theta-hat divided by SE. The normal-approximation 95 percent confidence interval is theta-hat plus or minus 1.96 times SE.">SE = √( s<sub>1</sub><sup>2</sup>/n<sub>1</sub> + s<sub>2</sub><sup>2</sup>/n<sub>2</sub> )&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;t = θ̂ / SE&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;95% CI ≈ θ̂ ± 1.96 · SE</div>
-          <p>Plugging in the clean means and SDs (n<sub>1</sub> = n<sub>2</sub> = 20) gives SE = 1.069, t = −13.10 / 1.069 ≈ −12.259, and a normal-approx CI of (−15.194, −11.006).</p>
+          <p>Plugging in the clean means and SDs (n<sub>1</sub> = n<sub>2</sub> = 20) gives SE = 1.069 (1.0686 at full precision), t = −13.100 / 1.0686 ≈ −12.259, and a normal-approx CI of (−15.194, −11.006).</p>
 
           <h3>Raw-data analysis</h3>
           <table>
@@ -382,7 +382,7 @@
       }
 
       // Draw a histogram of `diffs` with a marker at `est` (and optionally `estRef`).
-      function drawHist(svg, diffs, est, estRef, W, H, showRef) {
+      function drawHist(svg, diffs, est, estRef, W, H, showRef, estLabel) {
         svg.replaceChildren();
         const padL = 56, padR = 18, padT = 18, padB = 42;
         const plotW = W - padL - padR, plotH = H - padT - padB;
@@ -425,10 +425,10 @@
         const yLab = svgEl('text', { x: 14, y: padT + plotH / 2, 'text-anchor': 'middle', fill: '#586d63', 'font-size': 10, transform: `rotate(-90 14 ${padT + plotH / 2})` }, 'number of replicates');
         svg.append(yLab);
 
-        // marker at B's estimate
+        // marker at the point estimate (Panel B also shows Analyst A's for comparison)
         const mx = X(Math.min(Math.max(est, x0), x1));
         svg.append(svgEl('line', { x1: mx, x2: mx, y1: padT, y2: padT + plotH, stroke: '#b37b29', 'stroke-width': 2 }));
-        svg.append(svgEl('text', { x: mx, y: padT - 4, 'text-anchor': 'middle', fill: '#b37b29', 'font-size': 9.5, 'font-weight': 700 }, 'B ' + fmt(est)));
+        svg.append(svgEl('text', { x: mx, y: padT - 4, 'text-anchor': 'middle', fill: '#b37b29', 'font-size': 9.5, 'font-weight': 700 }, (estLabel || 'B') + ' ' + fmt(est)));
         // reference marker at A's estimate
         if (showRef && estRef !== undefined) {
           const rx = X(Math.min(Math.max(estRef, x0), x1));
@@ -455,7 +455,7 @@
         if (!Number.isFinite(seed)) seed = 42;
         seed = Math.min(9999, Math.max(0, seed));
         const r = bootstrap(ctrl, treat, seed, B);
-        drawHist(aHist, r.diffs, r.est, undefined, 720, 260, false);
+        drawHist(aHist, r.diffs, r.est, undefined, 720, 260, false, 'est');
         aEst.textContent = fmt(r.est);
         aCi.textContent = fmtCi(r.lo, r.hi);
         const label = clean ? 'the cleaned data' : 'the raw email export';
@@ -483,7 +483,7 @@
         const treat = clean ? CLEAN_TREAT : RAW_TREAT;
         const seed = bSeed.checked ? 42 : Math.floor(Math.random() * 10000);
         const r = bootstrap(ctrl, treat, seed, 1000);
-        drawHist(bHist, r.diffs, r.est, A_EST, 720, 200, true);
+        drawHist(bHist, r.diffs, r.est, A_EST, 720, 200, true, 'B');
         bEst.textContent = fmt(r.est);
         bCi.textContent = fmtCi(r.lo, r.hi);
 
