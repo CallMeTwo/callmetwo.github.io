@@ -560,7 +560,7 @@
         {
           question: 'What does the Markov property assume?',
           options: [
-            'The next state depends only on the current state, not on the path that got there',
+            'The next state depends only on the current state, not the path',
             'The next state depends on the entire history of states the system has visited',
             'The probability of each future state is a deterministic function of the initial state and the elapsed time, with no randomness left once the first state is fixed',
             'The expected sojourn time in the current state fully determines the probability of every future transition'
@@ -571,7 +571,7 @@
         {
           question: 'In a transition matrix, what must each row sum to, and why?',
           options: [
-            'Zero, because the rows are mean-centered before use',
+            'Zero, because the rows are mean-centered before use, which removes the overall level of each distribution',
             'The number of states, so the square matrix stays balanced and total probability is conserved across every transition at once',
             '1 — from any state you must end up somewhere, so the probabilities over all next states add to one',
             'The discount factor, so future cycles are weighted equally'
@@ -605,7 +605,7 @@
           question: 'What does a Markov cycle plus per-state cost and utility let you do in HTA?',
           options: [
             'Compute the exact individual outcome for every single patient in the cohort',
-            'Sum discounted per-cycle cost and QALYs across the horizon for each strategy, then read off ΔCost, ΔQALY and the ICER',
+            'Sum discounted cost and QALYs per strategy, then read off the ICER',
             'Prove the causal treatment effect with certainty, because the cycle structure fully blocks every backdoor path from confounding without any randomization at all',
             'Eliminate the need for any discounting because costs are already present-valued'
           ],
@@ -615,7 +615,7 @@
         {
           question: 'When is a semi-Markov model the right choice over a plain Markov model?',
           options: [
-            'Whenever the number of states is larger than about five',
+            'Whenever the number of states is larger than about five, because plain Markov chains become numerically unstable past that size',
             'When the transition probabilities are all very small',
             'When the chance of leaving a state depends on how long the patient has already been in it (time-in-state)',
             'When the outcome is continuous and the state diagram is a complete directed graph with no absorbing state at all'
@@ -626,7 +626,7 @@
         {
           question: 'Which HMM algorithm solves which of the three core problems?',
           options: [
-            'Forward–backward → filtering/smoothing; Viterbi → decoding (best path); Baum–Welch → learning (EM)',
+            'Forward–backward → filtering and smoothing (per-time state probabilities); Viterbi → decoding, the single most-likely path; Baum–Welch → parameter learning via EM',
             'Forward–backward → learning; Viterbi → filtering; Baum–Welch → decoding',
             'Forward–backward → decoding; Viterbi → learning; Baum–Welch → filtering',
             'All three problems are solved by the same single dynamic-programming algorithm, run in different orders and with different initialization each time'
@@ -638,7 +638,7 @@
           question: 'How do you turn an order-2 Markov chain on m states back into an order-1 chain?',
           options: [
             'Drop the oldest state from the history each cycle',
-            'Square the transition matrix at every step',
+            'Square the transition matrix at every step, since P² encodes the two-cycle transition probabilities and repeated squaring keeps order one',
             'Re-estimate the whole chain as a hidden Markov model with m hidden states and m emission distributions, then read the path off the posterior',
             'Augment the states: combine the last two states into m² "super-states", giving an order-1 chain on m² states'
           ],
@@ -649,7 +649,7 @@
           question: 'In the worked 3-state example, what does the ICER of about $136 per QALY mean?',
           options: [
             'The new treatment costs $136 per cycle in total across all states',
-            'For each additional QALY gained, the new strategy costs about $136 more than the standard strategy, well below typical willingness-to-pay thresholds',
+            'For each additional QALY gained, the new strategy costs about $136 more than the standard strategy, well below typical willingness-to-pay thresholds, which makes it clearly cost-effective in this teaching example',
             'The ICER of $136 per QALY means the model has guaranteed that the new drug is safe and effective, since any ICER below a million dollars is automatically clinically and statistically acceptable',
             'The standard strategy is $136 cheaper per cycle than the new one'
           ],
@@ -661,7 +661,7 @@
           options: [
             'The ICER depends only on the discount rate and never on the transition probabilities',
             'They always overfit because they have infinitely many parameters',
-            'The cycle length is arbitrary and, with infrequent visits, transitions are interval-censored; the result is garbage-in-garbage-out',
+            'Cycle length is arbitrary; transitions get interval-censored',
             'They can never be applied whenever the model contains more than one absorbing state, because the transition matrix then fails to converge to any steady distribution at all'
           ],
           answer: 2,
