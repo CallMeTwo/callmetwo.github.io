@@ -1,0 +1,26 @@
+[
+  {
+    "label": "The population-averaged mean model: the mean of the outcome given the covariates is μ, where the link function g of μ equals the linear predictor, the covariate row times the coefficient vector",
+    "tex": "g(\\\\mu_i) = X_i\\\\beta, \\\\qquad \\\\mu_i = E[Y_i \\\\mid X_i]"
+  },
+  {
+    "label": "The estimating equations: the sum over all subjects i of X transpose times the working weight W times the residual (observed minus expected) equals zero",
+    "tex": "\\\\sum_i X_i^{\\\\top} W_i (y_i - \\\\mu_i) = 0, \\\\qquad W_i = V_i^{-1}"
+  },
+  {
+    "label": "The sandwich variance: the inverse of the bread matrix, times the meat (the sum over subjects of each subject's score vector times its transpose), times the bread again",
+    "tex": "\\\\widehat{V} = \\\\Big(\\\\sum_i X_i^{\\\\top} W_i X_i\\\\Big)^{-1} \\\\Big(\\\\sum_i s_i s_i^{\\\\top}\\\\Big) \\\\Big(\\\\sum_i X_i^{\\\\top} W_i X_i\\\\Big)^{-1}, \\\\qquad s_i = X_i^{\\\\top} W_i (y_i - \\\\hat{\\\\mu}_i)"
+  },
+  {
+    "label": "The design effect for an exchangeable within-subject correlation: one plus (T minus one) times rho, where T is the number of visits and rho the intra-class correlation",
+    "tex": "DEFF = 1 + (T-1)\\\\rho"
+  },
+  {
+    "label": "The naive standard error of the treatment contrast, treating all n T observations as independent: the square root of two sigma squared over n T",
+    "tex": "SE_{naive} = \\\\sqrt{\\\\dfrac{2\\\\sigma^2}{nT}}"
+  },
+  {
+    "label": "The cluster-robust standard error of the treatment contrast under an exchangeable correlation: the square root of two sigma squared times (rho plus one-minus-rho over T), divided by n",
+    "tex": "SE_{robust} = \\\\sqrt{\\\\dfrac{2\\\\sigma^2\\\\big[\\\\rho + (1-\\\\rho)/T\\\\big]}{n}}"
+  }
+]

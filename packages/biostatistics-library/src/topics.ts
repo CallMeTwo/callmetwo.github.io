@@ -114,6 +114,7 @@ const availableTopicPages = new Set([
   'clinical-research/decision-curve-analysis',
   'machine-learning/multilayer-perceptrons',
   'survival/markov-models',
+  'survival/generalized-estimating-equations',
   'practice/reproducible-workflows',
 ])
 
