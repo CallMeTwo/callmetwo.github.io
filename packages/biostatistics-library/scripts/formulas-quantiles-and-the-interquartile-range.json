@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Linear interpolation quantile: h equals (n minus 1) times p; j is the floor of h; the estimated p-th quantile is the (j plus 1)-th order statistic plus (h minus j) times the difference between the (j plus 2)-th and (j plus 1)-th order statistics",
+    "tex": "h = (n-1)\\,p, \\qquad j = \\lfloor h \\rfloor, \\qquad \\hat{q}(p) = x_{(j+1)} + (h-j)\\left(x_{(j+2)} - x_{(j+1)}\\right)"
+  },
+  {
+    "label": "The interquartile range: IQR = Q3 − Q1 — the width of the middle 50% of the distribution",
+    "tex": "\\mathrm{IQR} = Q_3 - Q_1"
+  },
+  {
+    "label": "Tukey's outlier fences: the lower fence is Q1 minus 1.5 times IQR, and the upper fence is Q3 plus 1.5 times IQR; observations beyond a fence are flagged as potential outliers",
+    "tex": "\\mathrm{fence}_{\\text{lower}} = Q_1 - 1.5\\,\\mathrm{IQR}, \\qquad \\mathrm{fence}_{\\text{upper}} = Q_3 + 1.5\\,\\mathrm{IQR}"
+  },
+  {
+    "label": "The arithmetic mean: x-bar equals one over n times the sum of the observations",
+    "tex": "\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{n} x_i"
+  },
+  {
+    "label": "The sample standard deviation: s equals the square root of the sum of squared deviations from the mean, divided by n minus 1",
+    "tex": "s = \\sqrt{\\frac{\\sum_{i=1}^{n} (x_i - \\bar{x})^2}{n-1}}"
+  }
+]

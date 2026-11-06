@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Quantiles, quartiles, the interquartile range, the Tukey boxplot and its 1.5xIQR outlier fences: why the median and IQR stay robust to outliers while the mean and SD do not, with a worked HbA1c example and a live contamination lab.">
+  <title>Quantiles and the interquartile range · Biostatistics Library</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon-biostatistics.svg">
+  <style>
+
+    :root{font-family:'DM Sans',system-ui,sans-serif;color:#273e3b;background:#fbfcfa;font-synthesis:none;--teal:#17675d;--muted:#667975;--line:#dde5df;--pale:#edf3ed;--gold:#b37b29}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:78px}body{margin:0;line-height:1.7}button,input,select{font:inherit}a{color:var(--teal)}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+    .skip{position:fixed;top:-60px;left:14px;z-index:3;padding:8px 12px;background:white}.skip:focus{top:8px}
+    .topbar{position:sticky;top:0;z-index:2;border-bottom:1px solid var(--line);background:#fff}.topbar-inner{display:flex;align-items:center;gap:12px;max-width:1120px;margin:auto;padding:11px 24px;font-size:12px}.topbar a{text-decoration:none;font-weight:600}.crumb{color:#9aaa9f}.top-current{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    main{width:min(100% - 40px,1040px);margin:0 auto;padding:40px 0 32px}.article-head{max-width:790px;margin-bottom:36px}.eyebrow{margin:0 0 10px;color:#638074;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase}.article-head h1{margin:0;color:#203f37;font:400 clamp(32px,5vw,48px)/1.18 'Libre Caslon Text',Georgia,serif;letter-spacing:-1px}.dek{margin:16px 0 0;color:#526861;font-size:17px;line-height:1.65}.article-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:17px}.pill{border:1px solid #d8e3db;border-radius:30px;background:#f7f9f6;padding:4px 10px;color:#536b61;font-size:10px}
+    .article-layout{display:grid;grid-template-columns:minmax(0,740px) minmax(190px,1fr);gap:48px;align-items:start}.article{min-width:0}.article h2{margin:42px 0 12px;color:#203f37;font-size:22px;line-height:1.35}.article h2:first-child{margin-top:0}.article h3{margin:26px 0 8px;color:#2d5144;font-size:16px}.article p{margin:0 0 15px}.article li{margin:6px 0}.article ul,.article ol{padding-left:23px;margin:0 0 18px}.article code{border-radius:3px;background:#edf3ed;padding:1px 5px;font:.9em ui-monospace,SFMono-Regular,Menlo,monospace}.equation{display:block;overflow:auto;margin:16px 0;padding:14px 17px;border-left:3px solid #8cad99;border-radius:0 4px 4px 0;background:#f1f5f0;color:#244c40;font:16px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}.equation sub,.equation sup{font-size:0.75em}.note{margin:20px 0;padding:14px 17px;border:1px solid #dbe5dc;border-radius:5px;background:#fff;color:#4c615b;font-size:13px}.note strong{color:#294d40}.toc{position:sticky;top:78px;border-left:1px solid var(--line);padding:4px 0 4px 17px}.toc h2{margin:0 0 9px;color:#62776c;font-size:10px;letter-spacing:1px;text-transform:uppercase}.toc a{display:block;padding:4px 0;color:#61766c;font-size:11px;line-height:1.45;text-decoration:none}.toc a:hover{color:var(--teal);text-decoration:underline}
+    .article table{width:100%;margin:0 0 18px;border-collapse:collapse;font-size:12px}.article th{border-bottom:2px solid #cfdcd1;padding:7px 9px;text-align:left;color:#35594a;font-size:10px;letter-spacing:.4px;text-transform:uppercase}.article td{border-bottom:1px solid #e4ebe4;padding:7px 9px;color:#435a50;vertical-align:top}.article td.strong-cell{font-weight:700;color:#203f37}
+    .simulator{margin:22px 0 26px;padding:20px;border:1px solid #d6e2d8;border-radius:7px;background:#fff;box-shadow:0 5px 20px #203f3709}.simulator h3{margin:0 0 8px;color:#2d5144;font-size:16px}.sim-intro{margin:0 0 15px;color:#5a6e64;font-size:12px}.controls{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end}.control label{display:block;margin-bottom:5px;color:#536a60;font-size:10px;font-weight:700}.control select{width:100%;min-height:37px;border:1px solid #cdd9cf;border-radius:4px;padding:6px 8px;background:#fbfcfa;color:#28473d;font-size:12px}.range-line{display:flex;align-items:center;gap:9px}.range-line input{width:100%;accent-color:var(--teal)}.range-line output{min-width:36px;color:#28473d;font-size:12px;font-variant-numeric:tabular-nums}.primary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:#17675d;color:white;font-size:11px;font-weight:600}.primary:hover{background:#12584f}.secondary{min-height:37px;padding:7px 13px;border:1px solid #17675d;border-radius:4px;background:white;color:#17675d;font-size:11px;font-weight:600}.secondary:hover{background:#f1f6f2}.chart-wrap{min-width:0;margin-top:16px;border:1px solid #e2e9e3;border-radius:4px;background:#fff}.chart-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:12px 12px 0}.chart-heading h4{margin:0;color:#35594a;font-size:12px}.chart-heading span{color:var(--muted);font-size:9px;text-align:right}.legend{display:flex;flex-wrap:wrap;gap:12px;padding:10px 12px 12px;color:#64766d;font-size:9px}.legend-item{display:flex;align-items:center;gap:6px}.swatch{width:12px;height:9px;border-radius:2px;background:#a8c9b3}.swatch.naive{background:#c67e6e}.swatch.robust{background:#17675d}.swatch.target{height:12px;width:2px;background:#b37b29}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}.stats-3{grid-template-columns:repeat(3,1fr)}.stat{padding:10px 11px;border-radius:4px;background:#f3f6f2}.stat-label{display:block;color:#667970;font-size:9px;line-height:1.4}.stat output{display:block;margin-top:3px;color:#264c40;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}.lab-svg{display:block;width:100%;height:auto}.lab-status{min-height:3.2em;margin:14px 12px 12px;padding:10px 12px;border-radius:4px;background:#f3f6f2;color:#3f5a4f;font-size:11px;line-height:1.55}
+    .example-box{margin:16px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.example-box h3{margin:0 0 8px}
+    .quiz-intro{color:#586d63}.quiz-progress{padding:10px 12px;border-radius:4px;background:#f1f5f0;color:#315448;font-size:12px;font-weight:600}.quiz-question{margin:18px 0;padding:16px;border:1px solid #dce6dc;border-radius:5px;background:#fff}.quiz-question h3{margin:0 0 10px;font-size:14px}.quiz-options{display:grid;gap:7px}.quiz-option{width:100%;padding:9px 11px;border:1px solid #d5e0d7;border-radius:4px;background:#fbfcfa;color:#344f44;text-align:left;font-size:12px;line-height:1.5;cursor:pointer}.quiz-option:hover:not(:disabled){border-color:#7fa393;background:#f4f8f4}.quiz-option:disabled{cursor:default}.quiz-option.is-correct{border-color:#4b8c68;background:#edf7ef;color:#245c3d}.quiz-option.is-incorrect{border-color:#c67e6e;background:#fff2ef;color:#813d31}.quiz-feedback{margin:10px 0 0;padding:10px 12px;border-left:3px solid #8cad99;background:#f4f7f3;color:#465e53;font-size:12px}
+.sim-caveat{margin:10px 0 0;font-size:12px;font-style:italic;color:#667975}.quiz-feedback[hidden]{display:none}.quiz-retry{margin:12px 0;padding:8px 12px;border:1px solid #17675d;border-radius:4px;background:#fff;color:#17675d;font-size:11px;font-weight:600}
+    .refs{counter-reset:ref;list-style:none;padding-left:0}.refs li{counter-increment:ref;margin:10px 0;padding-left:26px;position:relative;font-size:12.5px;color:#435a50}.refs li::before{content:counter(ref) ".";position:absolute;left:0;color:var(--teal);font-weight:700}
+    .bottom-nav{display:flex;justify-content:space-between;gap:18px;margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px}.bottom-nav a{text-decoration:none}.footer{margin-top:30px;padding-top:15px;border-top:1px solid var(--line);color:#7b8a7f;font-size:10px}
+    @media(max-width:800px){.article-layout{grid-template-columns:minmax(0,1fr)}.toc{position:static;grid-row:1;display:flex;flex-wrap:wrap;gap:3px 13px;border:1px solid var(--line);border-radius:5px;padding:10px 12px}.toc h2{flex-basis:100%}.toc a{padding:2px 0}.controls{grid-template-columns:1fr 1fr}.controls .control:nth-child(3){grid-column:1/-1}.controls .primary{justify-self:start}.article-layout{gap:24px}}
+    @media(max-width:520px){main{width:min(100% - 28px,1040px);padding-top:26px}.topbar-inner{padding:10px 14px}.dek{font-size:15px}.simulator{padding:13px}.controls{grid-template-columns:1fr}.controls .control:nth-child(3){grid-column:auto}.controls .primary,.controls .secondary{width:100%}.stats,.stats-3{grid-template-columns:1fr 1fr}.chart-heading{align-items:flex-start;flex-direction:column;gap:2px}.bottom-nav{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+
+    .swatch.box{background:#a8c9b3;box-shadow:inset 0 0 0 1px #17675d}.swatch.medline{width:3px;height:12px;background:#17675d;border-radius:0}.swatch.meanmark{width:10px;height:10px;background:#b37b29;transform:rotate(45deg)}.swatch.outdot{width:9px;height:9px;border-radius:50%;background:#c67e6e}.swatch.fenceline{width:2px;height:12px;background:#b37b29;border-right:1px dashed #b37b29}
+    .stats .stat.wide{grid-column:1/-1}
+
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to article</a>
+  <header class="topbar"><nav class="topbar-inner" aria-label="Breadcrumb"><a href="../">Biostatistics Library</a><span class="crumb">/</span><span class="top-current">Describing &amp; visualizing data / Quantiles and the interquartile range</span></nav></header>
+
+  <main id="main">
+    <header class="article-head">
+      <p class="eyebrow">Describing &amp; visualizing data · Descriptive statistics</p>
+      <h1>Quantiles and the interquartile range</h1>
+      <p class="dek">A quantile is a value defined by <em>position</em> in the ordered data, not by averaging — and that is exactly why the median and the interquartile range survive outliers that overwhelm the mean and the standard deviation. This page covers quantiles and quartiles, the nine interpolation conventions, the Tukey boxplot and its 1.5×IQR fences, and a live lab in which a few extreme values drag the mean and SD while the box barely moves.</p>
+      <div class="article-meta"><span class="pill">Quantiles &amp; quartiles</span><span class="pill">IQR &amp; robust spread</span><span class="pill">Tukey boxplot</span><span class="pill">1.5×IQR outlier fences</span><span class="pill">R-7 interpolation</span></div>
+    </header>
+
+    <div class="article-layout">
+      <article class="article">
+
+        <section id="core-idea">
+          <h2>The core idea: position, not averaging</h2>
+          <p>A <strong>quantile</strong> of a data set is a value that cuts off a specified fraction of the observations. The <strong>p-th quantile</strong> (for p between 0 and 1) is the value below which a proportion p of the data fall. Quantiles are defined by <em>position in the ordered data</em>, not by averaging — which is exactly why they behave so well in the presence of outliers. (For a general background, see the <a href="https://en.wikipedia.org/wiki/Quantile" target="_blank" rel="noopener">Wikipedia article on quantiles ↗</a>.)</p>
+          <p>The special cases everyone uses: the <strong>median</strong> is the 50th percentile, the p = 0.5 quantile — half the data are below it, half above. The <strong>quartiles</strong> divide the data into four equal-probability groups: <strong>Q1 = the 25th percentile</strong>, <strong>Q2 = the 50th percentile (the median)</strong>, and <strong>Q3 = the 75th percentile</strong>.</p>
+          <p>There is no single canonical way to turn a finite sorted sample into “the” p-th quantile: for most p the desired cut point falls <em>between</em> two data values, and you have to decide how to interpolate. Hyndman and Fan catalog nine standard definitions, R-1 through R-9, that differ in how the quantile position is placed on the integer grid <a href="#ref-hyndman1996">[1]</a>. This page uses <strong>R-7</strong>, the linear-interpolation method that is the default in R, NumPy, and most other software:</p>
+          <div class="equation" role="math" aria-label="Linear interpolation quantile: h equals (n minus 1) times p; j is the floor of h; the estimated p-th quantile is the (j plus 1)-th order statistic plus (h minus j) times the difference between the (j plus 2)-th and (j plus 1)-th order statistics">h = (n − 1)·p, &nbsp; j = ⌊h⌋, &nbsp; q̂(p) = x_(j+1) + (h − j)·(x_(j+2) − x_(j+1)),&nbsp;&nbsp; with x_(1) ≤ x_(2) ≤ … ≤ x_(n)</div>
+          <p>The median is q̂(0.5), Q1 = q̂(0.25), and Q3 = q̂(0.75). The fact that nine conventions exist is not a curiosity — it is the reason two statistical packages can print slightly different quartiles for the same data.</p>
+          <h3>The IQR and the boxplot</h3>
+          <p>The <strong>interquartile range (IQR)</strong> is the span of the <em>middle half</em> of the data. It is a measure of spread that ignores the outer quarter of the data on each side, which is precisely what makes it robust: because the IQR is built from quantiles (positions) rather than from squared deviations, one extreme value changes it very little.</p>
+          <div class="equation" role="math" aria-label="The interquartile range: IQR = Q3 − Q1 — the width of the middle 50% of the distribution">IQR = Q3 − Q1</div>
+          <p>The <strong>boxplot</strong> <a href="#ref-mcgill1978">[2]</a> is the <strong>five-number summary</strong> — the minimum, Q1, the median, Q3, and the maximum — drawn to scale. The “box” runs from Q1 to Q3 (its height is the IQR) with a line at the median; the “whiskers” extend to the most extreme observations still inside the outlier fences; and observations beyond the fences are plotted individually as outliers. The whole display is a single glance at center (the median), spread (the IQR), asymmetry (where the median sits inside the box, and how long the two whiskers are), and extremes (the flagged points).</p>
+        </section>
+
+        <section id="confused">
+          <h2>Distinguishing commonly confused ideas</h2>
+          <h3>Quantile vs percentile — same idea, two names</h3>
+          <p>A <em>percentile</em> is just a quantile expressed on a 0–100 scale: the 25th percentile <em>is</em> the 0.25 quantile, and the 90th percentile is the 0.90 quantile. In everyday and clinical writing “percentile” is more common (a baby “in the 75th percentile for weight”); in the statistics literature “quantile” and the p ∈ (0,1) notation are more common. They are not two different objects.</p>
+          <h3>IQR vs range vs SD — different notions of spread, very different robustness</h3>
+          <p>The <strong>range</strong> (max − min) and the <strong>standard deviation</strong> both measure spread, but the three are not equally robust:</p>
+          <ul>
+            <li>The <strong>range</strong> uses the two most extreme values, so a single extreme observation moves the range by its full magnitude. Zero robustness to a single outlier.</li>
+            <li>The <strong>variance/SD</strong> is built from <em>squared</em> deviations from the mean. Squaring means a large deviation is amplified quadratically, and because the center (the mean) itself shifts toward the outlier, a single extreme value can inflate the SD dramatically. In the worked example below, one value (13.8) inflates the SD from 0.62 to 1.92 — about 3×.</li>
+            <li>The <strong>IQR</strong> uses the 25th and 75th percentiles, which are immune to one extreme value. It is the robust spread to pair with the robust center (the median).</li>
+          </ul>
+          <p>The “SD is squaring, so it is very sensitive to one extreme” point is the algebraic reason the mean/SD pair is fragile while the median/IQR pair is not.</p>
+          <h3>Median vs mean — the breakdown point</h3>
+          <p>The mean and the median both summarize “center,” but they have completely different robustness. The <strong>breakdown point</strong> is the fraction of the data you can corrupt (push to arbitrary values) before a statistic is dragged to an arbitrary location; Huber and Ronchetti develop this formalism <a href="#ref-huber2009">[6]</a>. The <strong>mean has breakdown point 0</strong>: a single arbitrarily large value, no matter how far out, moves the mean to match it — with n observations, one value of M shifts the mean by M/n, and as M → ∞ so does the mean. The <strong>median has breakdown point about 50%</strong>: you must corrupt roughly <em>half</em> the sample before the median itself can be pushed to an arbitrary location. This is the single cleanest way to say why the median is “robust” and the mean is not.</p>
+          <h3>The many sample-quantile conventions</h3>
+          <p>As noted in the core idea, there is no unique “the” sample quantile. Hyndman and Fan’s nine methods (R-1 … R-9) give slightly different Q1/Q3 on the same data, and on <em>small</em> samples the differences can be visible to a decimal place <a href="#ref-hyndman1996">[1]</a>. This is a convention, not a deep truth — which is why you must know which method your software uses (R-7 here) so your reported quartiles are reproducible. Two tools disagreeing is a feature of the ambiguity, not a bug in either.</p>
+          <h3>Inner fence (1.5×IQR) vs outer fence (3×IQR) — mild vs extreme outliers</h3>
+          <p>The boxplot flags points beyond <strong>fences</strong> built from the quartiles and the IQR:</p>
+          <ul>
+            <li><strong>Inner fence</strong> = Q1 − 1.5·IQR (low side) and Q3 + 1.5·IQR (high side). Points beyond these are <strong>mild</strong> (suspected) outliers — the standard Tukey boxplot whiskers stop at the most extreme data point <em>inside</em> the inner fence.</li>
+            <li><strong>Outer fence</strong> = Q1 − 3·IQR and Q3 + 3·IQR. Points beyond these are <strong>extreme</strong> outliers.</li>
+          </ul>
+          <p>Hoaglin and Iglewicz <a href="#ref-hoaglin1987">[3]</a> and Iglewicz and Hoaglin <a href="#ref-iglewicz1987">[4]</a> formalize this resistant (Tukey-style) labeling: the 1.5×IQR and 3×IQR multipliers are <strong>conventions for separating “mild” from “extreme,” not derived constants</strong> — rule-of-thumb values that work well for roughly normal data but are not statistically mandated.</p>
+          <div class="equation" role="math" aria-label="Tukey's outlier fences: the lower fence is Q1 minus 1.5 times IQR, and the upper fence is Q3 plus 1.5 times IQR; observations beyond a fence are flagged as potential outliers">lower fence = Q1 − 1.5·IQR, &nbsp; upper fence = Q3 + 1.5·IQR</div>
+        </section>
+
+        <section id="assumptions">
+          <h2>Assumptions and limitations</h2>
+          <ol>
+            <li><strong>Quantiles need ordered (and, in practice, continuous) data.</strong> The definition is “the value at position h in the ordered sample,” so the data must be orderable. For heavily discrete or tied data (a Likert scale, a lab value reported to one decimal), the value below which p falls is not unique — many observations share it — and the interpolated quantile is only a convention. Quantiles are still valid, but interpret a quantile on discrete data as “the data value at that position,” not a precise cut point.</li>
+            <li><strong>The IQR only summarizes the middle.</strong> The IQR (and the boxplot box) says nothing about the tails beyond Q1 and Q3. Two samples can have identical Q1, median, and Q3 yet wildly different tails. The IQR is deliberately blind to the extremes — that is what makes it robust, but it also means you must look at the flagged outliers and the min/max separately to see what the tails are doing.</li>
+            <li><strong>The fence is a heuristic, not a test.</strong> The 1.5×IQR / 3×IQR fences are not a significance test and not a likelihood decision; they flag <em>candidates</em>. A point beyond the fence is a prompt to investigate (possible assay error, unit mislabel, a legitimate extreme), not an automatic instruction to delete it.</li>
+            <li><strong>The fence is itself sample-sensitive.</strong> Because the fence is built from Q1, Q3 and the IQR — all computed from the same sample — removing or adding an extreme value changes the fence, which can change which points are flagged. The worked example exposes this directly: with the extreme 13.8 present, the only flagged outlier is 13.8; remove 13.8 and the upper fence drops to 7.075, which then flags 7.2. This is a limitation, not a bug — the outlier set you report depends on the sample you started with, so state your rule (and that it is conventional) explicitly.</li>
+            <li><strong>Sample quantiles are consistent, but any one method is a convention.</strong> For any fixed distribution, the R-7 sample quantile converges to the true population quantile as n → ∞, so all reasonable methods agree in large samples. In small samples the choice of method matters, and quartiles themselves are <em>noisy</em> — the standard error of a sample quantile shrinks only as 1/√n, and the quartiles (which sit at 25%/75%) are estimated less precisely than the median. Do not over-read a quartile computed from n = 10.</li>
+          </ol>
+        </section>
+
+        <section id="worked-example">
+          <h2>Worked example: HbA1c in 20 outpatients (right-skewed, with one extreme)</h2>
+          <div class="example-box">
+            <h3>Setting</h3>
+            <p>HbA1c (%) in 20 adult diabetes outpatients. HbA1c is right-skewed, and this sample carries one extreme value (13.8) that is a probable mislabelled/failed assay or a new-onset patient — the exact situation that motivates reporting the median (IQR) rather than the mean (SD). Sorted values (n = 20):</p>
+            <p class="sim-caveat">4.7, 4.9, 5.0, 5.1, 5.2, 5.2, 5.3, 5.4, 5.5, 5.6, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.3, 6.6, 7.2, 13.8</p>
+          </div>
+          <h3>Quantile positions (R-7)</h3>
+          <p>With n = 20, the (n − 1)·p positions are:</p>
+          <ul>
+            <li><strong>Q1:</strong> (20 − 1)·0.25 = <strong>4.75</strong> → Q1 = x_(5) + 0.75·(x_(6) − x_(5)) = 5.2 + 0.75·(5.2 − 5.2) = <strong>5.200</strong></li>
+            <li><strong>Median:</strong> (20 − 1)·0.50 = <strong>9.5</strong> → median = x_(10) + 0.5·(x_(11) − x_(10)) = 5.6 + 0.5·(5.6 − 5.6) = <strong>5.600</strong></li>
+            <li><strong>Q3:</strong> (20 − 1)·0.75 = <strong>14.25</strong> → Q3 = x_(15) + 0.25·(x_(16) − x_(15)) = 6.0 + 0.25·(6.1 − 6.0) = <strong>6.025</strong></li>
+          </ul>
+          <h3>Five-number summary and fences</h3>
+          <ul>
+            <li>min = <strong>4.7</strong>, max = <strong>13.8</strong></li>
+            <li>IQR = Q3 − Q1 = 6.025 − 5.2 = <strong>0.825</strong></li>
+            <li>Lower fence = Q1 − 1.5·IQR = 5.2 − 1.2375 = <strong>3.9625</strong></li>
+            <li>Upper fence = Q3 + 1.5·IQR = 6.025 + 1.2375 = <strong>7.2625</strong></li>
+            <li><strong>Flagged outlier = {13.8}</strong> — the only value beyond a fence</li>
+            <li><strong>Whisker ends</strong> (most extreme data still inside the fences): lower <strong>4.7</strong>, upper <strong>7.2</strong></li>
+          </ul>
+          <p>Mean and SD (the fragile pair): mean = <strong>6.045</strong>, SD = <strong>1.9228</strong>.</p>
+          <div class="equation" role="math" aria-label="The arithmetic mean: x-bar equals one over n times the sum of the observations">x&#772; = (1/n) · Σx<sub>i</sub></div>
+          <div class="equation" role="math" aria-label="The sample standard deviation: s equals the square root of the sum of squared deviations from the mean, divided by n minus 1">s = √( Σ(x<sub>i</sub> − x&#772;)² / (n − 1) )</div>
+          <h3>The robustness contrast</h3>
+          <p>The same data, with and without the extreme 13.8, computed in code:</p>
+          <table>
+            <thead><tr><th>Statistic</th><th>WITH 13.8 (n=20)</th><th>WITHOUT 13.8 (n=19)</th><th>Comment</th></tr></thead>
+            <tbody>
+              <tr><td>Mean</td><td>6.045</td><td>5.6368</td><td>one value raises it by +0.408</td></tr>
+              <tr><td>SD</td><td>1.9228</td><td>0.6211</td><td>one value inflates it ~3.1× (squaring)</td></tr>
+              <tr class="strong-cell"><td>Median</td><td>5.600</td><td>5.600</td><td>exactly unchanged</td></tr>
+              <tr><td>Q1</td><td>5.200</td><td>5.200</td><td>unchanged (it sits well inside the middle half)</td></tr>
+              <tr><td>Q3</td><td>6.025</td><td>5.950</td><td>moves only slightly</td></tr>
+              <tr><td>IQR</td><td>0.825</td><td>0.750</td><td>moves only slightly</td></tr>
+              <tr><td>Upper fence</td><td>7.2625</td><td>7.075</td><td>the fence itself shifts</td></tr>
+            </tbody>
+          </table>
+          <p>The single extreme 13.8 <strong>raises the mean by +0.408</strong> (6.045 → 5.6368 gap) and <strong>inflates the SD from 0.6211 to 1.9228 (~3.1×)</strong> — both because the mean averages in the outlier and the SD squares it. Yet it <strong>leaves the median exactly at 5.600</strong> and <strong>does not move Q1 at all</strong>, and only nudges Q3 and the IQR a little. That is robustness, concretely: the median/IQR pair tells a stable story about the <em>typical</em> patient while the mean/SD pair is dominated by one questionable measurement. For a skewed, long-tailed lab value like HbA1c, <strong>median (IQR) is the honest summary</strong>.</p>
+          <p class="note"><strong>Honest limitation (the fence wrinkle).</strong> Removing 13.8 shifts Q3 to 5.950 and the upper fence to 7.075, which then flags 7.2 as the new outlier. So the set of “outliers” is not an intrinsic property of the data — it depends on the sample, because the fence is computed from that same sample. Keep this in view: the fence flags candidates to investigate, it does not make a final call, and its own position moves when the extreme values move.</p>
+        </section>
+
+        <section id="takeaways">
+          <h2>Practical takeaways</h2>
+          <ul>
+            <li><strong>Report median (IQR) for skewed / long-tailed health data.</strong> For right-skewed measures like HbA1c, biomarkers, lengths of stay, or costs, the distribution is not normal and the mean/SD are misleading; the STROBE statement endorses median (IQR) as the appropriate descriptive summary for non-normally distributed data <a href="#ref-strobe2007">[5]</a>. This is a <em>reporting convention</em> — label it as such, and note it is not a derived rule.</li>
+            <li><strong>Pair the median with the IQR, not just the SD.</strong> The SD is the fragile partner (it squares deviations, so one extreme inflates it). The IQR is the robust spread that matches the robust center. Reporting “median (IQR)” lets readers see a center and a spread that are both resistant to outliers.</li>
+            <li><strong>The boxplot is the five-number summary, drawn to scale.</strong> Use it as the default display for a single skewed variable: center (median), spread (IQR box), asymmetry (median position + whisker lengths), and extremes (flagged points) in one figure <a href="#ref-mcgill1978">[2]</a>.</li>
+            <li><strong>The fence flags candidates — investigate, do not auto-delete.</strong> A point beyond 1.5×IQR is a hypothesis (“is this an error?”), not a verdict. Check the source: unit error, mislabel, repeat the assay, confirm the value. Auto-deleting based on a fence is how you remove the very extremes that are scientifically interesting.</li>
+            <li><strong>Know your software’s quantile method (R-7 here).</strong> Quartiles differ slightly across packages because of the nine Hyndman-and-Fan conventions <a href="#ref-hyndman1996">[1]</a>. State or assume R-7 (the default in R and NumPy) so your reported Q1/Q3/median are reproducible, and so a reader comparing to another tool understands any small discrepancy.</li>
+          </ul>
+        </section>
+
+        <section id="lab">
+          <h2>Interactive lab: does one extreme really move the mean but not the median?</h2>
+          <p class="sim-intro">This lab generates a deterministic, seeded right-skewed sample (a lognormal, HbA1c-like scale) and adds “contamination” — a few extreme values with the C slider — so you can watch the <strong>mean and SD move while the median and IQR stay nearly put</strong>. The boxplot is redrawn live: the box (Q1–Q3) and median line barely move, while the amber mean diamond and the SD readout race away, and each new extreme appears as a flagged dot beyond the upper fence. All random numbers come from a fixed seed (mulberry32, seed 42), so every reader sees exactly the same data; the C slider is the interaction.</p>
+
+          <div class="simulator" role="group" aria-label="Quantile and IQR robustness lab">
+            <div class="controls">
+              <div class="control">
+                <label for="lab-n">Sample size n</label>
+                <div class="range-line"><input type="range" id="lab-n" min="10" max="100" step="10" value="40" aria-label="Sample size n"><output id="lab-n-value">40</output></div>
+              </div>
+              <div class="control">
+                <label for="lab-sigma">Spread σ (lognormal)</label>
+                <div class="range-line"><input type="range" id="lab-sigma" min="0.2" max="1.0" step="0.05" value="0.35" aria-label="Lognormal spread sigma"><output id="lab-sigma-value">0.35</output></div>
+              </div>
+              <div class="control">
+                <label for="lab-c">Extreme values C (contamination)</label>
+                <div class="range-line"><input type="range" id="lab-c" min="0" max="5" step="1" value="0" aria-label="Number of extreme values C"><output id="lab-c-value">0</output></div>
+              </div>
+            </div>
+
+            <div class="chart-wrap" style="margin-top:16px">
+              <div class="chart-heading">
+                <h4>Live boxplot — the box (Q1–Q3) vs the drifting mean</h4>
+                <span>outlier dots beyond the 1.5×IQR fences</span>
+              </div>
+              <div id="boxplot" role="img" aria-label="Boxplot of the current sample with whiskers, box from Q1 to Q3, median line, and flagged outlier dots"></div>
+              <div class="legend" id="boxplot-legend" aria-hidden="true">
+                <span class="legend-item"><span class="swatch box"></span> box: Q1 to Q3 (height = IQR)</span>
+                <span class="legend-item"><span class="swatch medline"></span> median line</span>
+                <span class="legend-item"><span class="swatch meanmark"></span> mean diamond (drifts)</span>
+                <span class="legend-item"><span class="swatch outdot"></span> flagged outlier (beyond fence)</span>
+                <span class="legend-item"><span class="swatch fenceline"></span> upper 1.5×IQR fence</span>
+              </div>
+            </div>
+
+            <div class="stats" id="lab-readouts" role="group" aria-label="Summary statistics of the current sample"></div>
+
+            <p class="lab-status" id="lab-status" role="status" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <section id="self-check">
+          <h2>Check your understanding</h2>
+          <p class="quiz-intro">Answer each question to reveal feedback and an explanation. Your score updates as you go.</p>
+          <div id="quiz-progress" class="quiz-progress" role="status" aria-live="polite">Answered 0 of 10 · Score 0</div>
+          <div id="quiz-container"></div>
+          <button id="quiz-retry" class="quiz-retry" type="button">Try again</button>
+        </section>
+
+        <section id="references">
+          <h2>References</h2>
+          <ol class="refs">
+            <li id="ref-hyndman1996">Hyndman RJ, Fan Y. Sample quantiles in statistical packages. <em>The American Statistician.</em> 1996;50(4):361–365. <a href="https://doi.org/10.1080/00031305.1996.10473566" target="_blank" rel="noopener">doi.org/10.1080/00031305.1996.10473566 ↗</a></li>
+            <li id="ref-mcgill1978">McGill R, Tukey JW, Larsen WA. Variations of box plots. <em>The American Statistician.</em> 1978;32(1):12–16. <a href="https://doi.org/10.1080/00031305.1978.10479236" target="_blank" rel="noopener">doi.org/10.1080/00031305.1978.10479236 ↗</a></li>
+            <li id="ref-hoaglin1987">Hoaglin DC, Iglewicz B. Fine-tuning some resistant rules for outlier labeling. <em>Journal of the American Statistical Association.</em> 1987;82(400):1147–1149. <a href="https://doi.org/10.1080/01621459.1987.10478551" target="_blank" rel="noopener">doi.org/10.1080/01621459.1987.10478551 ↗</a></li>
+            <li id="ref-iglewicz1987">Iglewicz B, Hoaglin DC. Use of boxplots for process evaluation. <em>Journal of Quality Technology.</em> 1987;19(4):180–190. <a href="https://doi.org/10.1080/00224065.1987.11979063" target="_blank" rel="noopener">doi.org/10.1080/00224065.1987.11979063 ↗</a></li>
+            <li id="ref-strobe2007">von Elm E, Altman DG, Egger M, Pocock SJ, Gøtzsche PC, Vandenbroucke JP. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. <em>PLoS Medicine.</em> 2007;4(10):e296. <a href="https://doi.org/10.1371/journal.pmed.0040296" target="_blank" rel="noopener">doi.org/10.1371/journal.pmed.0040296 ↗</a></li>
+            <li id="ref-huber2009">Huber PJ, Ronchetti EM. <em>Robust Statistics.</em> Wiley Series in Probability and Statistics. Wiley; 2009. <a href="https://doi.org/10.1002/9780470434697" target="_blank" rel="noopener">doi.org/10.1002/9780470434697 ↗</a></li>
+          </ol>
+        </section>
+
+        <nav class="bottom-nav" aria-label="Article navigation"><a href="../#topic-index">← Back to the topic index</a><a href="../study-design/propensity-matching.html">Next: Propensity matching →</a></nav>
+
+
+      </article>
+
+      <nav class="toc" aria-label="On this page">
+        <h2>On this page</h2>
+        <a href="#core-idea">Core idea</a>
+        <a href="#confused">Commonly confused ideas</a>
+        <a href="#assumptions">Assumptions &amp; limitations</a>
+        <a href="#worked-example">Worked example</a>
+        <a href="#takeaways">Practical takeaways</a>
+        <a href="#lab">Interactive lab</a>
+        <a href="#self-check">Self-check quiz</a>
+        <a href="#references">References</a>
+      </nav>
+    </div>
+
+    <footer class="footer">Biostatistics Library · Educational reference. Interpret methods in the context of the study design and data.</footer>
+  </main>
+
+  <script>
+    (() => {
+      // ---------------- shared ----------------
+      const fmt = (v, dp) => (v < 0 ? '\u2212' : '') + Math.abs(v).toFixed(dp);
+      const $ = id => document.getElementById(id);
+
+      // ---------------- deterministic data (mulberry32, seed 42) ----------------
+      // Canonical mulberry32 body; the constant is added exactly once inside the draw (no pre-mix).
+      function mulberry32(seed) {
+        let a = seed | 0;
+        return function () {
+          a = (a + 0x6D2B79F5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      // n standard normals by the Marsaglia polar (Box-Muller) method, cos branch first then sin:
+      //   u1, u2; r = sqrt(-2 ln u1); z0 = r cos(2pi u2); z1 = r sin(2pi u2)
+      // each observation = exp(3.8 + sigma z) (lognormal, scale ~ e^3.8).
+      // Contamination: for k = 1..C add one value at max(base) + 15k.
+      function generate(n, sigma, C) {
+        const rng = mulberry32(42);
+        const base = [];
+        while (base.length < n) {
+          const u1 = rng(), u2 = rng();
+          const r = Math.sqrt(-2 * Math.log(u1));
+          const z0 = r * Math.cos(2 * Math.PI * u2);
+          const z1 = r * Math.sin(2 * Math.PI * u2);
+          base.push(Math.exp(3.8 + sigma * z0));
+          if (base.length < n) base.push(Math.exp(3.8 + sigma * z1));
+        }
+        const m = Math.max(...base);
+        for (let k = 1; k <= C; k++) base.push(m + 15 * k);
+        return base;
+      }
+      // R-7 linear-interpolation quantile: h = (n-1)p, j = floor(h), q = x_j + (h-j)(x_{j+1}-x_j)
+      function quantileR7(sorted, p) {
+        const n = sorted.length;
+        const h = (n - 1) * p, j = Math.floor(h), f = h - j;
+        return j + 1 < n ? sorted[j] + f * (sorted[j + 1] - sorted[j]) : sorted[j];
+      }
+      function summarize(xs) {
+        const x = [...xs].sort((a, b) => a - b);
+        const n = x.length;
+        const Q1 = quantileR7(x, 0.25), med = quantileR7(x, 0.5), Q3 = quantileR7(x, 0.75);
+        const iqr = Q3 - Q1, loF = Q1 - 1.5 * iqr, hiF = Q3 + 1.5 * iqr;
+        const out = x.filter(v => v < loF || v > hiF);
+        const inl = x.filter(v => v >= loF && v <= hiF);
+        const mean = x.reduce((a, b) => a + b, 0) / n;
+        const sd = Math.sqrt(x.reduce((s, v) => s + (v - mean) * (v - mean), 0) / (n - 1));
+        const hasInl = inl.length > 0;
+        return { min: x[0], Q1, med, Q3, max: x[n - 1], iqr, loF, hiF, wLo: hasInl ? Math.min(...inl) : med, wHi: hasInl ? Math.max(...inl) : med, mean, sd, nOut: out.length, outVals: out };
+      }
+      function niceTicks(lo, hi, count) {
+        const span = hi - lo;
+        if (span <= 0) return [lo];
+        const step0 = span / Math.max(1, count);
+        const mag = Math.pow(10, Math.floor(Math.log10(step0)));
+        const norm = step0 / mag;
+        const step = (norm >= 5 ? 5 : norm >= 2 ? 2 : 1) * mag;
+        const start = Math.ceil(lo / step) * step;
+        const ticks = [];
+        for (let v = start; v <= hi + 1e-9; v += step) ticks.push(v);
+        return ticks;
+      }
+      function tickLabel(v) {
+        return Math.abs(v) >= 100 ? String(Math.round(v)) : String(parseFloat(v.toFixed(1)));
+      }
+
+      // ---------------- lab ----------------
+      const nInput = $('lab-n'), sigInput = $('lab-sigma'), cInput = $('lab-c');
+      const nValue = $('lab-n-value'), sigValue = $('lab-sigma-value'), cValue = $('lab-c-value');
+      const svgHost = $('boxplot'), readouts = $('lab-readouts'), statusEl = $('lab-status');
+      const SVGNS = 'http://www.w3.org/2000/svg';
+      function svgEl(tag, attrs, text) {
+        const el = document.createElementNS(SVGNS, tag);
+        for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+        if (text !== undefined) el.textContent = text;
+        return el;
+      }
+      function drawBoxplot(st) {
+        const W = 720, H = 172;
+        const x0 = 56, x1 = 704, midY = 76, boxTop = 54, boxBot = 98, axisY = 140;
+        const pad = (st.max - st.min) * 0.06;
+        const lo = st.min - pad, hi = st.max + pad;
+        const X = v => x0 + (v - lo) / (hi - lo) * (x1 - x0);
+        const svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, 'aria-hidden': 'true' });
+        // upper 1.5xIQR fence (faint, if visible in range)
+        if (st.hiF > lo && st.hiF < hi) {
+          svg.append(svgEl('line', { x1: X(st.hiF), x2: X(st.hiF), y1: 34, y2: 120, stroke: '#b37b29', 'stroke-width': 1.5, 'stroke-dasharray': '4 3', opacity: 0.55 }));
+          svg.append(svgEl('text', { x: X(st.hiF), y: 26, 'text-anchor': 'middle', fill: '#b37b29', 'font-size': 9, 'font-weight': 700 }, '1.5\u00d7IQR fence'));
+        }
+        // whiskers + caps
+        svg.append(svgEl('line', { x1: X(st.wLo), x2: X(st.wHi), y1: midY, y2: midY, stroke: '#82948a', 'stroke-width': 1.5 }));
+        for (const wv of [st.wLo, st.wHi]) {
+          svg.append(svgEl('line', { x1: X(wv), x2: X(wv), y1: midY - 12, y2: midY + 12, stroke: '#82948a', 'stroke-width': 1.5 }));
+          svg.append(svgEl('text', { x: X(wv), y: boxTop - 8, 'text-anchor': 'middle', fill: '#64766d', 'font-size': 9 }, tickLabel(wv)));
+        }
+        // box Q1..Q3
+        svg.append(svgEl('rect', { x: X(st.Q1), y: boxTop, width: Math.max(1, X(st.Q3) - X(st.Q1)), height: boxBot - boxTop, fill: '#a8c9b3', 'fill-opacity': 0.55, stroke: '#17675d', 'stroke-width': 1.5, rx: 2 }));
+        // median line
+        svg.append(svgEl('line', { x1: X(st.med), x2: X(st.med), y1: boxTop, y2: boxBot, stroke: '#17675d', 'stroke-width': 3 }));
+        // mean diamond (drifts)
+        const mx = X(st.mean);
+        svg.append(svgEl('rect', { x: mx - 5, y: midY - 5, width: 10, height: 10, fill: '#b37b29', transform: 'rotate(45 ' + mx + ' ' + midY + ')' }));
+        // outlier dots
+        for (const v of st.outVals) svg.append(svgEl('circle', { cx: X(v), cy: midY, r: 4.5, fill: '#c67e6e', stroke: '#fff', 'stroke-width': 1 }));
+        // axis
+        for (const tick of niceTicks(lo, hi, 7)) {
+          if (tick < lo || tick > hi) continue;
+          svg.append(svgEl('line', { x1: X(tick), x2: X(tick), y1: axisY, y2: axisY + 5, stroke: '#82948a' }));
+          svg.append(svgEl('text', { x: X(tick), y: axisY + 17, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, tickLabel(tick)));
+        }
+        svg.append(svgEl('line', { x1: x0, x2: x1, y1: axisY, y2: axisY, stroke: '#82948a' }));
+        svg.append(svgEl('text', { x: (x0 + x1) / 2, y: axisY + 33, 'text-anchor': 'middle', fill: '#75867c', 'font-size': 10 }, 'value (HbA1c-like lognormal scale, seed 42)'));
+        svgHost.replaceChildren(svg);
+      }
+      function statusText(st, base, n, sigma, C) {
+        if (C === 0) {
+          return 'n=' + n + ', \u03c3=' + sigma.toFixed(2) + ', C=0: the lognormal right tail already puts ' + st.nOut + ' natural outlier' + (st.nOut === 1 ? '' : 's') + ' beyond the upper fence (' + fmt(st.hiF, 3) + '): ' + st.outVals.map(v => fmt(v, 3)).join(', ') + '. The box (Q1 ' + fmt(st.Q1, 3) + ' to Q3 ' + fmt(st.Q3, 3) + ') and median ' + fmt(st.med, 3) + ' describe the typical value; the mean (' + fmt(st.mean, 3) + ') is already pulled toward the tail. Add extremes with C and watch what moves.';
+        }
+        return 'C=' + C + ' extreme value' + (C === 1 ? '' : 's') + ' added (new max ' + fmt(st.max, 3) + '): mean ' + fmt(base.mean, 3) + ' \u2192 ' + fmt(st.mean, 3) + ' (\u0394 ' + fmt(st.mean - base.mean, 1) + '), median ' + fmt(base.med, 3) + ' \u2192 ' + fmt(st.med, 3) + ' (\u0394 ' + fmt(st.med - base.med, 1) + '), SD ' + fmt(base.sd, 3) + ' \u2192 ' + fmt(st.sd, 3) + ' (\u0394 ' + fmt(st.sd - base.sd, 1) + '), IQR ' + fmt(base.iqr, 3) + ' \u2192 ' + fmt(st.iqr, 3) + ' (\u0394 ' + fmt(st.iqr - base.iqr, 1) + '). The mean and SD move far more than the median and IQR \u2014 the median/IQR do move, just far less. Outliers flagged: ' + st.nOut + ' (' + st.outVals.map(v => fmt(v, 3)).join(', ') + ').';
+      }
+      function render() {
+        const n = Number(nInput.value), sigma = Number(sigInput.value), C = Number(cInput.value);
+        nValue.textContent = String(n);
+        sigValue.textContent = sigma.toFixed(2);
+        cValue.textContent = String(C);
+        const st = summarize(generate(n, sigma, C));
+        const base = C > 0 ? summarize(generate(n, sigma, 0)) : null;
+        drawBoxplot(st);
+        const cells = [
+          ['min', fmt(st.min, 3)], ['Q1', fmt(st.Q1, 3)], ['median', fmt(st.med, 3)], ['Q3', fmt(st.Q3, 3)],
+          ['max', fmt(st.max, 3)], ['IQR', fmt(st.iqr, 3)], ['lower fence', fmt(st.loF, 3)], ['upper fence', fmt(st.hiF, 3)],
+          ['whisker lo', fmt(st.wLo, 3)], ['whisker hi', fmt(st.wHi, 3)], ['mean', fmt(st.mean, 3)], ['SD (n\u22121)', fmt(st.sd, 3)]
+        ];
+        readouts.replaceChildren();
+        for (const [label, val] of cells) {
+          const d = document.createElement('div');
+          d.className = 'stat';
+          const lab = document.createElement('span');
+          lab.className = 'stat-label';
+          lab.textContent = label;
+          const out = document.createElement('output');
+          out.textContent = val;
+          d.append(lab, out);
+          readouts.append(d);
+        }
+        const ow = document.createElement('div');
+        ow.className = 'stat wide';
+        const olab = document.createElement('span');
+        olab.className = 'stat-label';
+        olab.textContent = 'outliers beyond the 1.5\u00d7IQR fences (' + st.nOut + ')';
+        const oout = document.createElement('output');
+        oout.textContent = st.outVals.length ? st.outVals.map(v => fmt(v, 3)).join(', ') : 'none';
+        ow.append(olab, oout);
+        readouts.append(ow);
+        statusEl.textContent = statusText(st, base, n, sigma, C);
+      }
+      nInput.addEventListener('input', render);
+      sigInput.addEventListener('input', render);
+      cInput.addEventListener('input', render);
+
+      // ---------------- quiz ----------------
+      const quizItems = [
+        {
+          question: 'The 25th percentile, or first quartile (Q1), of a data set is the value:',
+          options: [
+            'the observation that leaves exactly one quarter of the data below it and three quarters above it, once the values are sorted in ascending order',
+            'the value below which 25% of the observations fall',
+            'the point that lies one quarter of the way between the smallest and the largest value in the sample',
+            'the value that divides the range into four equal-length segments'
+          ],
+          answer: 1,
+          explanation: 'B is the definition. A is the tempting near-miss \u2014 leaving a quarter below is true of the position of Q1 in the sorted data, but the clean definition is the value below which 25% of the observations fall; C and D describe positions in the range, not in the data.'
+        },
+        {
+          question: 'The interquartile range (IQR) of a data set is:',
+          options: [
+            'the difference between the largest and the smallest values, spanning the full width of the distribution',
+            'Q3 minus Q1, the width of the central half of the data',
+            'the distance from the minimum to the maximum',
+            'half the range, computed as (max \u2212 min) divided by two'
+          ],
+          answer: 1,
+          explanation: 'B. A and C both describe the range, not the IQR; D is half the range, not the middle-50% span.'
+        },
+        {
+          question: 'The median of a data set is equal to which of the following?',
+          options: [
+            'the arithmetic mean, which adds every observation and then divides by n',
+            'the value that occurs most frequently in the data, i.e. the mode',
+            'the 50th percentile',
+            'the 10th percentile'
+          ],
+          answer: 2,
+          explanation: 'C. A (the mean) and B (the mode) are different central statistics that only sometimes coincide with the median; D is simply wrong.'
+        },
+        {
+          question: 'Why is the median robust to a single extreme outlier while the mean is not?',
+          options: [
+            'The median and the mean are always equal, so an outlier moves both of them by the same amount.',
+            'The mean drops the largest observation before averaging, so it is immune to extreme values.',
+            'Extreme values are removed before either statistic is calculated, so neither is ever affected.',
+            'It depends only on the order of the values, so a single extreme point barely moves it, whereas the mean uses every value and is pulled strongly toward the outlier.'
+          ],
+          answer: 3,
+          explanation: 'D is the order-versus-average distinction: the median has a breakdown point of about 50%, the mean has one of 0. A is false (they are not always equal); B inverts the truth (the median, not the mean, is insensitive); C is false (nothing is pre-removed).'
+        },
+        {
+          question: 'A Tukey boxplot is a scale drawing of which summary of the data?',
+          options: [
+            'the five-number summary: minimum, Q1, median, Q3, maximum',
+            'the complete empirical distribution, drawn as a separate mark for every single observation in the sample',
+            'the mean, the standard deviation, and the sample size, arranged left to right',
+            'only the median and the mode of the data set'
+          ],
+          answer: 0,
+          explanation: 'A. B describes a strip or jitter plot, not a boxplot; C is the fragile mean/SD summary, not what the box encodes; D omits Q1, Q3 and the min/max.'
+        },
+        {
+          question: 'In a classic boxplot, a point is flagged as a mild outlier when it lies beyond:',
+          options: [
+            'one full standard deviation away from the sample mean, on either side of it',
+            'Q1 \u2212 1.5 x IQR or Q3 + 1.5 x IQR',
+            'the median plus one entire interquartile range above, or minus one IQR below',
+            'three times the sample range, measured outward from the minimum and the maximum'
+          ],
+          answer: 1,
+          explanation: 'B is the Tukey 1.5\u00d7IQR inner fence. A is a z = 1 normal-distribution idea; C is a made-up median-based fence; D is not a standard rule.'
+        },
+        {
+          question: 'The breakdown point of the median is about 50% because:',
+          options: [
+            'it is a trimmed mean that discards the most extreme observations first',
+            'it only ever uses the lower half of the sorted data',
+            'roughly half of the data can be replaced with arbitrarily large values before the median is pushed to an arbitrary location, whereas a single point can drag the mean as far as you like.',
+            'it is a geometric mean, which cannot exceed the largest value'
+          ],
+          answer: 2,
+          explanation: 'C is the definition of a ~50% breakdown point. A is false (the median is not a trimmed mean); B is false (it uses the order of the whole sample); D is false (it is not a geometric mean).'
+        },
+        {
+          question: 'The 1.5 x IQR and 3 x IQR fence multipliers are best described as:',
+          options: [
+            'conventional rule-of-thumb choices (Tukey, Hoaglin), not derived constants',
+            'exact probability constants that follow directly from the shape of the standard normal distribution',
+            'universal constants that can never be changed in any application',
+            'software defaults that are identical to a two-sided hypothesis test at 5%'
+          ],
+          answer: 0,
+          explanation: 'A \u2014 they are the Tukey/Hoaglin conventions. B is false (they are not derived from the normal distribution); C is false (they can be adjusted); D is false (a fence is not a hypothesis test).'
+        },
+        {
+          question: 'Two software packages report slightly different quartiles for the same data. The most likely cause is:',
+          options: [
+            'the data were not sorted in ascending order before either package computed its quartiles, which always shifts the results',
+            'different sample-quantile conventions (e.g. R-7 versus another Hyndman-Fan method)',
+            'quartiles are only defined for exactly 100 observations, so one of the reports must be invalid',
+            'one package refused to run for an even sample size'
+          ],
+          answer: 1,
+          explanation: 'B \u2014 the nine Hyndman-and-Fan conventions differ slightly. A is false (sorting is always done, and it is not the cause of small differences); C and D are unambiguously false (quartiles are defined for any n, even included).'
+        },
+        {
+          question: 'A value falls beyond the 1.5 x IQR upper fence. The correct next step is to:',
+          options: [
+            'immediately delete it, because the 1.5 x IQR fence is a formal significance test at the 0.05 level',
+            'replace it with the median so the summary statistics shrink',
+            'investigate it as a candidate outlier, not delete it',
+            'ignore it, since the fence is only a cosmetic feature of the boxplot and means nothing'
+          ],
+          answer: 2,
+          explanation: 'C \u2014 the fence flags candidates to investigate; it is not a test and not a delete order. A is the dangerous misconception (a fence is not a significance test); B and D are clearly wrong responses.'
+        }
+      ];
+      function renderQuiz() {
+        const container = document.getElementById('quiz-container');
+        const progress = document.getElementById('quiz-progress');
+        container.replaceChildren();
+        let answered = 0, score = 0;
+        progress.textContent = 'Answered 0 of ' + quizItems.length + ' \u00b7 Score 0';
+        quizItems.forEach((item, index) => {
+          const card = document.createElement('div');
+          card.className = 'quiz-question';
+          const heading = document.createElement('h3');
+          heading.textContent = (index + 1) + '. ' + item.question;
+          card.append(heading);
+          const options = document.createElement('div');
+          options.className = 'quiz-options';
+          options.setAttribute('role', 'group');
+          options.setAttribute('aria-label', 'Answers for question ' + (index + 1));
+          const feedback = document.createElement('p');
+          feedback.className = 'quiz-feedback';
+          feedback.hidden = true;
+          item.options.forEach((option, optionIndex) => {
+            const button = document.createElement('button');
+            button.className = 'quiz-option';
+            button.type = 'button';
+            button.textContent = String.fromCharCode(65 + optionIndex) + '. ' + option;
+            button.setAttribute('aria-pressed', 'false');
+            button.addEventListener('click', () => {
+              answered++;
+              const isCorrect = optionIndex === item.answer;
+              if (isCorrect) score++;
+              for (const choice of options.querySelectorAll('button')) {
+                choice.disabled = true;
+                if (Number(choice.dataset.option) === item.answer) choice.classList.add('is-correct');
+              }
+              button.setAttribute('aria-pressed', 'true');
+              if (!isCorrect) button.classList.add('is-incorrect');
+              feedback.textContent = (isCorrect ? 'Correct. ' : 'Not quite. ') + item.explanation;
+              feedback.hidden = false;
+              progress.textContent = 'Answered ' + answered + ' of ' + quizItems.length + ' \u00b7 Score ' + score + (answered === quizItems.length ? ' \u00b7 Complete' : '');
+            });
+            button.dataset.option = String(optionIndex);
+            options.append(button);
+          });
+          card.append(options, feedback);
+          container.append(card);
+        });
+      }
+      document.getElementById('quiz-retry').addEventListener('click', renderQuiz);
+      renderQuiz();
+
+      // ---------------- init ----------------
+      render();
+    })();
+  </script>
+
+</body>
+</html>
