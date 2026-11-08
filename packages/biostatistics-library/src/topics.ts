@@ -117,6 +117,7 @@ const availableTopicPages = new Set([
   'survival/generalized-estimating-equations',
   'practice/reproducible-workflows',
   'describing-data/quantiles-and-the-interquartile-range',
+  'regression/interaction-and-effect-modification',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group

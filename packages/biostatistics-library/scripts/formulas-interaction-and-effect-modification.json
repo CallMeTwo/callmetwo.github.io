@@ -1,0 +1,22 @@
+[
+  {
+    "label": "The centered interaction model: Y equals beta zero plus beta T times T plus beta A times (age minus 50) plus beta T-A times T times (age minus 50) plus epsilon; with age centered at 50, beta T is the treatment effect at age 50 and beta T-A is the change in the treatment effect per year of age",
+    "tex": "Y = \\beta_0 + \\beta_T T + \\beta_A (\\text{age} - 50) + \\beta_{TA} \\bigl[ T \\times (\\text{age} - 50) \\bigr] + \\varepsilon"
+  },
+  {
+    "label": "The uncentered interaction model: Y equals beta zero plus beta T times T plus beta A times age plus beta T-A times T times age plus epsilon; with age uncentered, beta T is the extrapolated effect at age zero and beta T-A is the change in the effect per year",
+    "tex": "Y = \\beta_0 + \\beta_T T + \\beta_A \\text{age} + \\beta_{TA} (T \\times \\text{age}) + \\varepsilon"
+  },
+  {
+    "label": "The effect-modification line: the treatment effect at age a, Delta of a, equals E sub 50 plus m times (a minus 50) — a straight line in age whose slope m is the interaction coefficient",
+    "tex": "\\Delta(a) = E_{50} + m\\,(a - 50)"
+  },
+  {
+    "label": "The crossover age a star equals 50 minus E sub 50 over m — the age at which the treatment effect crosses zero, where it switches from helping to harming",
+    "tex": "a^{*} = 50 - \\dfrac{E_{50}}{m}"
+  },
+  {
+    "label": "The 95 percent confidence interval for the interaction coefficient: beta T-A hat plus or minus 1.96 times its standard error; the smallest detectable interaction at the 5 percent level is about 1.96 times this standard error",
+    "tex": "\\widehat{\\beta}_{TA} \\pm 1.96\\,\\text{SE}(\\widehat{\\beta}_{TA})"
+  }
+]
