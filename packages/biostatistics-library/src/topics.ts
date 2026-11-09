@@ -118,6 +118,7 @@ const availableTopicPages = new Set([
   'practice/reproducible-workflows',
   'describing-data/quantiles-and-the-interquartile-range',
   'regression/interaction-and-effect-modification',
+  'machine-learning/transformers-for-health-data',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group

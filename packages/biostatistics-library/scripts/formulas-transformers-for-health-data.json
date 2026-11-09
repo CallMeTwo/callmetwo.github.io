@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Scaled dot-product attention: Attention of Q K V equals softmax of Q times K transpose divided by the square root of d-k times V",
+    "tex": "\\operatorname{Attention}(Q, K, V) = \\operatorname{softmax}\\!\\left(\\frac{QK^{\\top}}{\\sqrt{d_k}}\\right)V"
+  },
+  {
+    "label": "The softmax: each attention weight alpha sub j equals e to the power s sub j divided by the sum over all i of e to the power s sub i — every weight is positive and all weights sum to 1",
+    "tex": "\\alpha_j = \\frac{e^{s_j}}{\\sum_{i} e^{s_i}}"
+  },
+  {
+    "label": "The attention output for one query: the weighted sum o equals the sum over j of alpha sub j times v sub j — each token gathers its context as a weighted mix of the value vectors",
+    "tex": "o = \\sum_{j} \\alpha_j \\, v_j"
+  },
+  {
+    "label": "Temperature scaling: the raw score s sub j equals the dot product of q and k sub j divided by the square root of d times the temperature T — smaller T sharpens the weights toward a single token and larger T flattens them toward uniform",
+    "tex": "s_j = \\frac{q \\cdot k_j}{\\sqrt{d} \\, T}"
+  },
+  {
+    "label": "Multi-head attention: MultiHead of Q K V equals the concatenation of heads of attention with per-head projections W q W k W v followed by a final projection W o",
+    "tex": "\\operatorname{MultiHead}(Q, K, V) = \\operatorname{Concat}(\\operatorname{head}_1, \\ldots, \\operatorname{head}_h) W^{O}, \\quad \\text{head}_i = \\operatorname{Attention}(QW_i^{Q},\\, KW_i^{K},\\, VW_i^{V})"
+  }
+]
