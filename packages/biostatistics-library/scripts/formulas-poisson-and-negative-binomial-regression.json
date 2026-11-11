@@ -1,0 +1,22 @@
+[
+  {
+    "label": "The Poisson regression model: Y i is distributed as a Poisson random variable with mean mu i, where the log of mu i equals beta zero plus beta one times x one plus beta two times x two, and so on — a linear predictor passed through the log link function",
+    "tex": "Y_i \\sim \\mathrm{Poisson}(\\mu_i), \\qquad \\log(\\mu_i) = \\beta_0 + \\beta_1 x_1 + \\beta_2 x_2 + \\cdots + \\beta_k x_k"
+  },
+  {
+    "label": "The variance-mean relationship: for the Poisson model the variance equals the mean, Var of Y i equals mu i; for the negative binomial model the variance is mu i plus mu i squared over theta, where a larger theta means less overdispersion",
+    "tex": "\\mathrm{Var}(Y_i) = \\mu_i \\quad (\\text{Poisson}) \\qquad \\mathrm{Var}(Y_i) = \\mu_i + \\dfrac{\\mu_i^{2}}{\\theta} \\quad (\\text{negative binomial})"
+  },
+  {
+    "label": "The rate ratio: a one-unit increase in the predictor x changes the event rate by a factor of exp of beta, the exponential of the coefficient — so beta is the log of the rate ratio",
+    "tex": "\\text{RR} = e^{\\beta} \\qquad (\\beta = \\log \\text{RR})"
+  },
+  {
+    "label": "The dispersion parameter phi: the ratio of the observed variance to the mean, phi equals Var of Y divided by mu; phi equal to one is the Poisson case, phi greater than one is overdispersion, and phi less than one is underdispersion",
+    "tex": "\\phi = \\dfrac{\\mathrm{Var}(Y)}{\\mu} \\qquad (\\phi = 1: \\text{Poisson}; \\;\\; \\phi > 1: \\text{overdispersion})"
+  },
+  {
+    "label": "The overdispersion-corrected confidence interval: the negative binomial or quasi-Poisson rate estimate mu hat plus or minus 1.96 times the square root of mu hat times phi over n, versus the plain Poisson interval mu hat plus or minus 1.96 times the square root of mu hat over n — the overdispersion factor widens the interval by the square root of phi",
+    "tex": "\\hat{\\mu} \\pm 1.96\\sqrt{\\dfrac{\\hat{\\mu}\\,\\phi}{n}} \\quad \\text{vs} \\quad \\hat{\\mu} \\pm 1.96\\sqrt{\\dfrac{\\hat{\\mu}}{n}}"
+  }
+]

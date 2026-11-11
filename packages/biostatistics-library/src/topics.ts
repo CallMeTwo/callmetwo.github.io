@@ -76,7 +76,7 @@ export const sections: TopicSection[] = [
     id: 'survival', title: 'Survival & longitudinal data', description: 'Work with time to events and repeated observations.',
     groups: [
       { title: 'Time-to-event analysis', topics: ['Censoring and survival functions', 'Kaplan–Meier curves and the log-rank test', 'Cox proportional hazards model', 'Markov models'] },
-      { title: 'Repeated measurements', topics: ['Repeated-measures designs', 'Mixed-effects models', 'Generalized estimating equations'] },
+      { title: 'Repeated measurements', topics: ['Repeated measurement', 'Mixed-effects models', 'Generalized estimating equations'] },
       { title: 'Temporal and spatial data', topics: ['Time-series analysis in health research', 'Spatiotemporal analysis'] }
     ]
   },
@@ -115,9 +115,11 @@ const availableTopicPages = new Set([
   'machine-learning/multilayer-perceptrons',
   'survival/markov-models',
   'survival/generalized-estimating-equations',
+  'survival/repeated-measurement',
   'practice/reproducible-workflows',
   'describing-data/quantiles-and-the-interquartile-range',
   'regression/interaction-and-effect-modification',
+  'regression/poisson-and-negative-binomial-regression',
   'machine-learning/transformers-for-health-data',
 ])
 

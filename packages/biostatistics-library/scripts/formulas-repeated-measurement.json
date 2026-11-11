@@ -1,0 +1,14 @@
+[
+  { "label": "The design effect for an exchangeable within-subject correlation is one plus (T minus one) times rho, where T is the number of visits and rho the intra-class correlation",
+    "tex": "\\mathrm{DEFF} = 1 + (T-1)\\rho" },
+  { "label": "The paired t statistic is the mean of the per-subject differences, d-bar, divided by the standard error of that mean, which is the standard deviation of the differences over the square root of n",
+    "tex": "t = \\dfrac{\\bar{d}}{s_{d} / \\sqrt{n}}" },
+  { "label": "The standard error of the mean paired difference is the square root of two sigma squared times (one minus rho) divided by n, where rho is the within-subject correlation",
+    "tex": "SE_{d} = \\sqrt{\\dfrac{2\\sigma^{2}(1-\\rho)}{n}}" },
+  { "label": "The Wilcoxon signed-rank test statistic W is the smaller of W-plus, the sum of the ranks of the positive differences, and W-minus, the sum of the ranks of the negative differences",
+    "tex": "W = \\min\\big(\\mathrm{W}^{+},\\ \\mathrm{W}^{-}\\big)" },
+  { "label": "The repeated-measures ANOVA F statistic is the mean square for time divided by the mean square for the time by subject interaction, which serves as the error term",
+    "tex": "F = \\dfrac{MS_{\\mathrm{time}}}{MS_{\\mathrm{time\\times subj}}}" },
+  { "label": "The mixed-effects model with a random intercept: the observation y for subject s at visit t equals beta zero plus beta one times t, plus the subject random effect b subscript s, plus the residual e for s at t",
+    "tex": "y_{st} = \\beta_{0} + \\beta_{1} t + b_{s} + e_{st}" }
+]
