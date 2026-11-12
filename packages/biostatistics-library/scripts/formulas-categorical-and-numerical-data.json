@@ -1,0 +1,22 @@
+[
+  {
+    "label": "The sample proportion: p-hat equals k over n, where k is the number of observations in a category and n is the total number of observations",
+    "tex": "\\hat{p} = \\dfrac{k}{n}"
+  },
+  {
+    "label": "The arithmetic mean: x-bar equals one over n times the sum of the n observations",
+    "tex": "\\bar{x} = \\dfrac{1}{n}\\sum_{i=1}^{n} x_i"
+  },
+  {
+    "label": "The median by R-7 linear interpolation: h equals (n minus 1) over 2; j is the floor of h; the median is the (j plus 1)-th order statistic plus (h minus j) times the difference between the (j plus 2)-th and (j plus 1)-th order statistics",
+    "tex": "h = \\tfrac{n-1}{2},\\quad j = \\lfloor h \\rfloor,\\quad \\tilde{x} = x_{(j+1)} + (h-j)\\left(x_{(j+2)} - x_{(j+1)}\\right)"
+  },
+  {
+    "label": "The sample standard deviation: s equals the square root of the sum of squared deviations from the mean, divided by n minus 1",
+    "tex": "s = \\sqrt{\\dfrac{\\sum_{i=1}^{n}(x_i - \\bar{x})^2}{n-1}}"
+  },
+  {
+    "label": "The range: the maximum value minus the minimum value",
+    "tex": "\\mathrm{range} = x_{(n)} - x_{(1)}"
+  }
+]
