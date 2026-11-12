@@ -173,7 +173,7 @@ h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span
                   <option value="age" selected>age — Age (numerical, discrete)</option>
                   <option value="sex">sex — Sex (categorical, nominal)</option>
                   <option value="source">source — Source (categorical, nominal)</option>
-                  <option value="pain">pain — Pain 0–10 (categorical, ordinal)</option>
+                  <option value="pain">pain — Pain 1–5 (categorical, ordinal)</option>
                   <option value="ed">ed — Prior ED visits (numerical, discrete)</option>
                   <option value="los">los — Length of stay (numerical, discrete)</option>
                   <option value="hb">hb — Hemoglobin (numerical, continuous)</option>
@@ -320,7 +320,7 @@ h400000v40h-400000z"/></svg></span></span></span><span class="vlist-s">​</span
         age: { label: 'Age', type: 'numerical, discrete', kind: 'histogram', unit: 'Age (years)', bins: [2, 5, 10], binDefault: 5 },
         sex: { label: 'Sex', type: 'categorical, nominal', kind: 'bar', cats: ['M', 'F'], unit: 'Sex' },
         source: { label: 'Source', type: 'categorical, nominal', kind: 'bar', cats: ['ER', 'Ward', 'Transfer'], unit: 'Source of admission' },
-        pain: { label: 'Pain 0–10', type: 'categorical, ordinal', kind: 'bar', cats: [1, 2, 3, 4, 5], unit: 'Pain score (0–10)' },
+        pain: { label: 'Pain (1–5)', type: 'categorical, ordinal', kind: 'bar', cats: [1, 2, 3, 4, 5], unit: 'Pain score (1–5 in this sample)' },
         ed: { label: 'Prior ED visits', type: 'numerical, discrete', kind: 'bar', cats: [0, 1, 2, 3, 4], unit: 'Prior ED visits (12 mo)', numeric: true },
         los: { label: 'Length of stay', type: 'numerical, discrete', kind: 'histogram', unit: 'Length of stay (days)', bins: [2, 5, 10], binDefault: 5 },
         hb: { label: 'Hemoglobin', type: 'numerical, continuous', kind: 'histogram', unit: 'Hemoglobin (g/dL)', bins: [0.5, 1, 2], binDefault: 1 },
