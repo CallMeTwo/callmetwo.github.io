@@ -1,0 +1,26 @@
+[
+  {
+    "label": "The two-sample t statistic: t equals the difference between the two sample means, x bar one minus x bar two, divided by the pooled standard error — s pooled times the square root of one over n one plus one over n two — where s pooled is the square root of the pooled variance; under the null hypothesis this follows Student's t distribution with n one plus n two minus two degrees of freedom",
+    "tex": "t = \\frac{\\bar{x}_1 - \\bar{x}_2}{s_p \\,\\sqrt{\\tfrac{1}{n_1} + \\tfrac{1}{n_2}}}, \\qquad s_p^2 = \\frac{(n_1-1)\\,s_1^2 + (n_2-1)\\,s_2^2}{n_1 + n_2 - 2}, \\qquad t \\sim t_{\\,n_1+n_2-2}"
+  },
+  {
+    "label": "The pooled variance: s pooled squared equals the two sample variances weighted by their degrees of freedom — (n one minus one) times s one squared plus (n two minus one) times s two squared — divided by the total degrees of freedom, n one plus n two minus two",
+    "tex": "s_p^2 = \\frac{(n_1-1)\\,s_1^2 + (n_2-1)\\,s_2^2}{n_1 + n_2 - 2}"
+  },
+  {
+    "label": "The Welch t statistic: the difference in means divided by a standard error built from each group's own variance — the square root of s one squared over n one plus s two squared over n two — with degrees of freedom from the Welch–Satterthwaite equation",
+    "tex": "t = \\frac{\\bar{x}_1 - \\bar{x}_2}{\\sqrt{s_1^2/n_1 + s_2^2/n_2}}, \\qquad \\nu = \\frac{\\left( s_1^2/n_1 + s_2^2/n_2 \\right)^{2}}{\\dfrac{\\left(s_1^2/n_1\\right)^{2}}{n_1-1} + \\dfrac{\\left(s_2^2/n_2\\right)^{2}}{n_2-1}}"
+  },
+  {
+    "label": "The paired t statistic: t equals the mean of the n within-pair differences, d bar, divided by its standard error, the standard deviation of the differences over the square root of n, with n minus one degrees of freedom — the common level of each pair cancels, so each subject serves as their own control",
+    "tex": "t = \\frac{\\bar{d}}{s_d / \\sqrt{n}}, \\qquad d_i = \\text{pre}_i - \\text{post}_i, \\qquad t \\sim t_{\\,n-1}"
+  },
+  {
+    "label": "The confidence interval for a mean difference: the estimate (difference in means, or mean of the differences) plus or minus the two-sided t critical value for the relevant degrees of freedom, t sub 1 minus alpha over 2, times the standard error — for a two-sided 5% test the critical value is t sub 0.975",
+    "tex": "\\widehat{\\delta} \\;\\pm\\; t_{\\,1-\\alpha/2,\\;\\nu} \\times \\text{SE}"
+  },
+  {
+    "label": "Cohen's d: the standardized mean difference, the difference between the two means divided by the pooled standard deviation — a unit-free effect size, interpreted by the common convention 0.2 small, 0.5 medium, 0.8 large (rules of thumb, not laws)",
+    "tex": "d = \\frac{\\bar{x}_1 - \\bar{x}_2}{s_p}"
+  }
+]

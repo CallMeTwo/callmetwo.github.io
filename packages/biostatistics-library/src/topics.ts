@@ -122,6 +122,7 @@ const availableTopicPages = new Set([
   'regression/interaction-and-effect-modification',
   'regression/poisson-and-negative-binomial-regression',
   'machine-learning/transformers-for-health-data',
+  'comparisons/independent-and-paired-t-tests',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group
