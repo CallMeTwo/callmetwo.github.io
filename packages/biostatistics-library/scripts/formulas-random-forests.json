@@ -1,0 +1,18 @@
+[
+  {
+    "label": "The bootstrap sample: for j = 1, 2, …, N, draw x* sub j independently from the set { x sub 1, …, x sub N } with equal probability one over N, with replacement",
+    "tex": "x_{j}^{*} \\sim \\text{Categorical}\\!\\bigl(\\{x_{1},\\dots,x_{N}\\},\\; \\tfrac{1}{N}\\bigr),\\quad j=1,\\dots,N"
+  },
+  {
+    "label": "Gini impurity of a node: G equals the sum over classes c of p of c times one minus p of c — the probability that two items drawn at random from the node are given different labels",
+    "tex": "G \\;=\\; \\sum_{c} p_{c}\\,(1-p_{c})"
+  },
+  {
+    "label": "The best split: the feature f star and threshold t star that minimize the weighted Gini impurity of the two child nodes — p of L times G of L plus p of R times G of R — where p of L and p of R are the fractions of the parent's rows that fall left and right",
+    "tex": "(f^{*},\\, t^{*}) \\;=\\; \\underset{(f,\\,t)}{\\operatorname{argmin}} \\;\\bigl[\\, p_{L}\\, G_{L} \\;+\\; p_{R}\\, G_{R} \\,\\bigr]"
+  },
+  {
+    "label": "The forest prediction by majority vote: y hat equals the class c that maximizes, over c, the sum over the B trees of the indicator that tree b's own prediction for x equals c",
+    "tex": "\\hat{y} \\;=\\; \\underset{c}{\\operatorname{argmax}} \\;\\sum_{b=1}^{B} \\mathbf{1}\\!\\bigl[\\,\\hat{y}_{b}(x) = c\\,\\bigr]"
+  }
+]
