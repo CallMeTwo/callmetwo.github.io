@@ -124,6 +124,7 @@ const availableTopicPages = new Set([
   'machine-learning/transformers-for-health-data',
   'comparisons/independent-and-paired-t-tests',
   'machine-learning/random-forests',
+  'practice/reporting-and-interpreting-results',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group

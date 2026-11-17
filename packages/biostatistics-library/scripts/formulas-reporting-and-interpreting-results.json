@@ -1,0 +1,7 @@
+[
+ {"label": "Risk difference: p-hat treated minus p-hat control", "tex": "\\mathrm{RD} = \\hat{p}_{\\mathrm{t}} - \\hat{p}_{\\mathrm{c}}"},
+ {"label": "Standard error of the risk difference: the square root of p-hat treated times one minus p-hat treated over n treated, plus p-hat control times one minus p-hat control over n control", "tex": "\\mathrm{SE}(\\mathrm{RD}) = \\sqrt{\\dfrac{\\hat{p}_{\\mathrm{t}}(1-\\hat{p}_{\\mathrm{t}})}{n_{\\mathrm{t}}} + \\dfrac{\\hat{p}_{\\mathrm{c}}(1-\\hat{p}_{\\mathrm{c}})}{n_{\\mathrm{c}}}}"},
+ {"label": "Ninety-five percent confidence interval: the risk difference plus or minus 1.96 times its standard error", "tex": "\\mathrm{CI}_{95\\%} = \\mathrm{RD} \\pm 1.96 \\times \\mathrm{SE}(\\mathrm{RD})"},
+ {"label": "Risk ratio: p-hat treated divided by p-hat control", "tex": "\\mathrm{RR} = \\dfrac{\\hat{p}_{\\mathrm{t}}}{\\hat{p}_{\\mathrm{c}}}"},
+ {"label": "Number needed to treat: one divided by the absolute risk reduction, p-hat control minus p-hat treated", "tex": "\\mathrm{NNT} = \\dfrac{1}{\\hat{p}_{\\mathrm{c}} - \\hat{p}_{\\mathrm{t}}}"}
+]
