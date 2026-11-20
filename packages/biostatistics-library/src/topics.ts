@@ -119,6 +119,7 @@ const availableTopicPages = new Set([
   'survival/repeated-measurement',
   'practice/reproducible-workflows',
   'describing-data/quantiles-and-the-interquartile-range',
+  'describing-data/mean-median-and-mode',
   'regression/interaction-and-effect-modification',
   'regression/poisson-and-negative-binomial-regression',
   'machine-learning/transformers-for-health-data',

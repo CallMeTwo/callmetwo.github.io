@@ -1,0 +1,26 @@
+[
+  {
+    "label": "The arithmetic mean: x-bar equals one over n times the sum of the observations",
+    "tex": "\\bar{x} = \\frac{1}{n}\\sum_{i=1}^{n} x_i"
+  },
+  {
+    "label": "The median: for odd n the middle order statistic; for even n the average of the two middle order statistics",
+    "tex": "median = \\begin{cases} x_{(n+1)/2} & n \\text{ odd} \\\\ \\frac{1}{2}\\left(x_{(n/2)} + x_{(n/2)+1}\\right) & n \\text{ even} \\end{cases}"
+  },
+  {
+    "label": "The mode: the value with the highest frequency f(x) in the data",
+    "tex": "mode = \\arg\\max_{x} f(x)"
+  },
+  {
+    "label": "The mean minimizes the sum of squared deviations: the arithmetic mean is the unique value c that makes the sum of (x_i minus c) squared as small as possible",
+    "tex": "\\bar{x} = \\arg\\min_{c} \\sum_{i=1}^{n} (x_i - c)^2"
+  },
+  {
+    "label": "The median minimizes the sum of absolute deviations: the median is the value c that makes the sum of the distances |x_i minus c| as small as possible",
+    "tex": "median = \\arg\\min_{c} \\sum_{i=1}^{n} |x_i - c|"
+  },
+  {
+    "label": "The sample standard deviation: s equals the square root of the sum of squared deviations from the mean, divided by n minus 1",
+    "tex": "s = \\sqrt{\\frac{\\sum_{i=1}^{n} (x_i - \\bar{x})^2}{n-1}}"
+  }
+]
