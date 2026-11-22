@@ -1,0 +1,7 @@
+[
+  { "label": "Logistic model: the predicted probability that patient i has the event, given the score s(i) built from the centered age u(i)", "tex": "\\hat p_i = \\frac{1}{1 + e^{-s_i}}, \\qquad s_i = \\beta_0 + \\beta_1 u_i + \\cdots + \\beta_d u_i^{d}, \\;\\; u_i = \\frac{x_i - 50}{10}" },
+  { "label": "Mean log loss: the average negative log-likelihood of the fit's probabilities on a data set", "tex": "\\mathrm{LL} = -\\frac{1}{n}\\sum_{i=1}^{n}\\bigl[ y_i \\log \\hat p_i + (1 - y_i)\\log(1 - \\hat p_i)\\bigr]" },
+  { "label": "Area under the ROC curve: the probability that the model gives a higher score to a random event patient than to a random non-event patient", "tex": "\\mathrm{AUC} = P\\bigl(s_i > s_j \\,\\big|\\, y_i = 1,\\; y_j = 0\\bigr)" },
+  { "label": "The overfitting gap: the difference between held-out and training log loss", "tex": "\\Delta(n, d) = \\mathrm{LL}_{\\mathrm{test}}(n, d) - \\mathrm{LL}_{\\mathrm{train}}(n, d)" },
+  { "label": "Relative sample richness: the number of training rows per fitted coefficient, n divided by d plus one", "tex": "r(n, d) = \\frac{n}{d + 1}" }
+]

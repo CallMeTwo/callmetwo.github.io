@@ -126,6 +126,7 @@ const availableTopicPages = new Set([
   'comparisons/independent-and-paired-t-tests',
   'machine-learning/random-forests',
   'practice/reporting-and-interpreting-results',
+  'regression/model-validation-and-overfitting',
 ])
 
 // Flatten the old hierarchy into a topic directory. Former section and group
