@@ -56,9 +56,9 @@ c10,0,16.667,-5,20,-15 v-585 v0 v-585 c-2.667,-10,-9.667,-15,-21,-15
 c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.35em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">i</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.9305em;vertical-align:-0.2861em;"></span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3117em;"><span style="top:-2.55em;margin-left:-0.0359em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.05724em;">j</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.2em;vertical-align:-0.35em;"></span><span class="mord">0</span><span class="mclose"><span class="delimsizing size1">)</span></span></span></span></span></div>
           <p>Two loss numbers matter. The <strong>training loss</strong> says how well the fit explains the rows it was trained on — an optimistic lower bound on real error. The <strong>held-out (test) loss</strong> says how well it explains rows it never saw — the honest estimate of future performance. And the <strong>overfitting gap</strong> is the diagnostic that compares the two losses:</p>
           <div class="equation" role="math" aria-label="The overfitting gap: the difference between held-out and training log loss"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mo stretchy="false">(</mo><mi>n</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi></mrow></msub><mo stretchy="false">(</mo><mi>n</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo><mo>−</mo><msub><mrow><mi mathvariant="normal">L</mi><mi mathvariant="normal">L</mi></mrow><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">n</mi></mrow></msub><mo stretchy="false">(</mo><mi>n</mi><mo separator="true">,</mo><mi>d</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\Delta(n, d) = \mathrm{LL}_{\mathrm{test}}(n, d) - \mathrm{LL}_{\mathrm{train}}(n, d)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">Δ</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord"><span class="mord mathrm">LL</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2806em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">test</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord"><span class="mord mathrm">LL</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3175em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathrm mtight">train</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">d</span><span class="mclose">)</span></span></span></span></div>
-          <p>As memorisation grows, Δ widens <em>before</em> the test AUC collapses: the gap is the early warning, the held-out number is the verdict.</p>
+          <p>For a <em>converged</em> fit, as overfitting grows Δ widens <em>before</em> the test AUC collapses: the gap is the early warning, the held-out number is the verdict.</p>
           <p>A <strong>held-out test set</strong> is data set aside, never fit on, and used <strong>once, at the end</strong> — the discipline behind all of the above. Its lineage: cross-validation as the origin of the held-out idea (<a href="#ref-stone1974">Stone 1974</a>); the model-capacity culture of ensembles and standard cross-validation (<a href="#ref-breiman2001">Breiman 2001</a>); the warning that selecting against a peeked set biases the estimate optimistically (<a href="#ref-varma2006">Varma &amp; Simon 2006</a>); and the clinical events-per-variable rule of thumb that keeps the capacity/row ratio honest (<a href="#ref-riley2020">Riley 2020</a>).</p>
-          <div class="note"><strong>The one-liner to remember:</strong> the training score is how hard the model worked on <em>this</em> sample; the held-out score is what it will do for the next patient. The gap between them is the overfitting signal.</div>
+          <div class="note"><strong>The one-liner to remember:</strong> the training score is how hard the model worked on <em>this</em> sample; the held-out score is what it will do for the next patient. When the fit has converged, the gap between them is the overfitting signal.</div>
         </section>
 
         <section id="confused">
@@ -122,10 +122,10 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
           <p><strong>Named coefficients (n = 40, 3 dp).</strong> Degree 1: β₀ = 0.486, β₁ = 0.357. Degree 3: β₀ = 0.069, β₁ = −1.814, β₂ = 1.266, β₃ = −0.063.</p>
           <h3>The teaching beats (all backed by the table)</h3>
           <ol>
-            <li><strong>The headline overfitting pair is d = 3 at n = 40: training AUC 0.352 AND test AUC 0.314 — both below 0.5.</strong> The cubic memorised its 40 rows so hard that its <em>ranking</em> of patients flipped: it ranks held-out event patients LOWER than held-out non-event patients. A training score below 0.5 is the smoking gun of memorisation — the model fits a shape that has nothing to do with the truth.</li>
+            <li><strong>The headline overfitting pair is d = 3 at n = 40: training AUC 0.352 AND test AUC 0.314 — both below 0.5.</strong> The cubic bent its 40 rows into a shape that ranks NEW patients backwards: it ranks held-out event patients LOWER than held-out non-event patients. Note precisely what kind of failure this is: textbook memorisation scores its own rows almost perfectly (training AUC near 1, training loss near 0). This fit does not — its TRAINING AUC is also below 0.5 and its training loss is huge. It is the high-capacity regime gone wrong: the extra coefficients let gradient descent run off into a wild shape that fits neither the training rows nor the new ones. Either way the lesson stands — a training score alone is never evidence of competence, and a training score below 0.5 is the loudest alarm on the table.</li>
             <li><strong>The same d = 3 fit recovers as the sample grows: test AUC 0.314 → 0.795 → 0.792</strong>, converging to the oracle’s 0.799. Same model, more data: the noise the 4-coefficient fit was memorising stops dominating. This is the page’s central cure, shown in one column.</li>
-            <li><strong>d = 8 at n = 40 (9 coefficients for 40 rows, r = 4.4): training AUC 0.448, test AUC 0.494 ≈ chance, and the highest test log loss in the table (6.065).</strong> 9 free parameters in 40 rows is the “one row per parameter is a rule-of-thumb red line” lesson made visible.</li>
-            <li><strong>The overfitting gap Δ = test LL − train LL (n = 40 column, computed from the table’s LL columns):</strong> d = 1: −0.041 (the simple fit’s test loss is even slightly better); d = 3: +0.462; d = 5: +1.831; d = 6: 7.656 − 9.448 = −1.792; d = 8: 6.065 − 6.222 = −0.157 (with the d = 8 training loss 6.222 already far from the optimum — its coefficients run to thousands). Say honestly: the gap is the <em>early-warning</em> diagnostic (it widens before test AUC collapses), but the held-out number is the verdict.</li>
+            <li><strong>d = 8 at n = 40 (9 coefficients for 40 rows, r = 4.4): training AUC 0.448, test AUC 0.494 ≈ chance, and a test log loss of 6.065 — third-highest in the table, behind only d = 6 (7.656) and d = 5 (6.839).</strong> 9 free parameters in 40 rows is the “one row per parameter is a rule-of-thumb red line” lesson made visible.</li>
+            <li><strong>The overfitting gap Δ = test LL − train LL (n = 40 column, computed from the table’s LL columns):</strong> d = 1: −0.041 (the simple fit’s test loss is even slightly better); d = 3: +0.462; d = 5: +1.831; d = 6: 7.656 − 9.448 = −1.792; d = 8: 6.065 − 6.222 = −0.157 (with the d = 8 training loss 6.222 already far from the optimum — its coefficients run to thousands). The honest reading: the gap is the <em>early-warning</em> diagnostic for a <em>converged</em> fit — it widens before the test AUC collapses (the d = 1 → 3 → 5 progression) — but the held-out number is the verdict. Where the table shows a NEGATIVE gap (d = 6, 8), the training loss itself has gone absurd because the descent diverged; a broken thermometer cannot diagnose.</li>
             <li><strong>Why the truth is simple matters:</strong> the degree-1 line (n = 40) already reaches test AUC 0.799 — the oracle’s ceiling — because the truth is exactly logistic in age. The whole table is a comparison of “fit the signal” vs “fit the signal plus the noise of 40 rows”.</li>
           </ol>
         </section>
@@ -183,7 +183,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
             </div>
             <div class="stats" id="lab-readouts" role="group" aria-label="Model scores at the current degree and sample size"></div>
             <p class="lab-status" id="lab-status" role="status" aria-live="polite"></p>
-            <p class="sim-caveat">The cohort is synthetic, but the mechanism is the real one: with 9 coefficients on 40 rows the fit memorises the sample’s noise, the training score and the held-out score diverge, and the held-out ranking can flip below chance. The 300-row test set is scored once per setting, by the exact deterministic recipe from the worked example.</p>
+            <p class="sim-caveat">The cohort is synthetic, but the mechanism is the real one: with 9 coefficients on 40 rows the fit chases the sample’s noise, the training score and the held-out score diverge, and the held-out ranking can flip below chance. (At the worst cells the fixed-step descent also <em>diverges</em> — huge training losses, coefficients in the thousands — which is why the table’s high-degree rows look wild rather than smoothly over-mastered. Same lesson: trust the held-out number.) The 300-row test set is scored once per setting, by the exact deterministic recipe from the worked example.</p>
           </div>
         </section>
 
@@ -408,7 +408,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
             : 'test AUC ' + fmt(r.testAUC, 3) + ' is ' + fmt(Math.abs(ORACLE - r.testAUC), 3) + ' away from the ' + ORACLE.toFixed(3) + ' oracle ceiling');
         parts.push('n=' + n + ', d=' + d + ' (r = ' + fmt(r.r, 1) + ' rows per coefficient): training AUC ' + fmt(r.trainAUC, 3) + ', ' + vsOracle + '. Overfitting gap ' + (r.gap < 0 ? fmt(r.gap, 3) : '+' + r.gap.toFixed(3)) + ' (test LL ' + r.testLL.toFixed(3) + ' minus train LL ' + r.trainLL.toFixed(3) + ').');
         if (n > 40) parts.push('The scatter shows the first 40 of the ' + n + ' training rows.');
-        if (r.trainAUC < 0.5) parts.push('A training AUC below 0.5 is the smoking gun of memorisation: the fit learned a shape with nothing to do with the truth.');
+        if (r.trainAUC < 0.5) parts.push('A training AUC below 0.5 means the fit ranks even its OWN rows backwards — the loudest alarm on the dashboard: this is a wild shape, not a competent model.');
         else if (r.testAUC < 0.5) parts.push('The fit ranked the held-out rows worse than a coin flip — capacity outgrew the sample.');
         return parts.join(' ');
       }
@@ -478,11 +478,11 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
           options: [
             'AUC is defined for linear models only, so 0.448 is a computation error',
             'the polynomial captured a real age effect the generator could not have produced',
-            'the fit memorised its rows so hard that its ranking of the held-out rows has now flipped',
+            'the fit is a wild shape unrelated to the truth, so its ranking runs backwards',
             'a training AUC below 0.5 proves the rows were mislabelled, so the whole sample should be dropped'
           ],
           answer: 2,
-          explanation: 'AUC below 0.5 means the model’s ranking is worse than chance on the rows it scored — the signature of a shape fitted to memorise, not of an error, a new effect, or mislabelling.'
+          explanation: 'AUC below 0.5 means the model’s ranking is worse than chance — the signature of a diverged, wrong-shaped fit, not of an error, a new effect, or mislabelling. Textbook memorisation would instead show near-perfect in-sample ranking.'
         },
         {
           question: 'The degree-3 fit has a training AUC of 0.352 and a test AUC of 0.314, while the degree-1 line has 0.723 and 0.799. The contrast shows that —',
@@ -493,7 +493,7 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
             'the cubic’s low in-sample AUC is the normal price paid for a higher-degree fit'
           ],
           answer: 1,
-          explanation: 'The cubic is a 4-coefficient fit on 40 rows — the noise it memorised inverts its ranking of new rows; the line has only 2 coefficients, so the signal survives. Same population, same rows drawn from the same stream; the difference is capacity relative to sample size.'
+          explanation: 'The cubic is a 4-coefficient fit on 40 rows — the noise it chased inverts its ranking of new rows; the line has only 2 coefficients, so the signal survives. Same population, same rows drawn from the same stream; the difference is capacity relative to sample size.'
         },
         {
           question: 'As the sample grows from 40 to 100 to 200 rows, the degree-3 fit’s test AUC moves 0.314 to 0.795 to 0.792, converging toward the oracle’s 0.799. This pattern is the signature of —',
@@ -501,21 +501,21 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
             'a data-generator bug in the random seed that the sample size happens to fix by sheer coincidence',
             'the true model becoming progressively more linear as more rows are observed from it',
             'the test set shrinking as the training set grows, which mechanically raises every score',
-            'overfitting that fades with the sample, because four coefficients stop memorising the noise'
+            'overfitting that fades with the sample, because four coefficients stop chasing the noise'
           ],
           answer: 3,
-          explanation: 'Same model, same truth, bigger sample — the memorised noise shrinks as a fraction of the fit, so performance recovers to the ceiling. The truth does not change and the test set is fixed at 300 rows.'
+          explanation: 'Same model, same truth, bigger sample — the noise the fit chased shrinks as a fraction of the signal, so performance recovers to the ceiling. The truth does not change and the test set is fixed at 300 rows.'
         },
         {
           question: 'Which pair of numbers is the standard ‘Is this model overfitting?’ diagnostic?',
           options: [
-            'the training and held-out log losses, whose gap is the signal of memorisation',
+            'the training and held-out log losses, whose gap is the signal of overfitting',
             'the coefficient of the highest-degree term and the fitted intercept',
             'the log loss at n = 40 and the log loss at n = 100 for the same degree',
             'the AUC of the fit and the AUC of the same fit at a different number of iterations'
           ],
           answer: 0,
-          explanation: 'The overfitting gap Δ = test LL − train LL is the diagnostic (it widens as memorisation grows); coefficients, cross-sample comparisons, and optimizer settings are not.'
+          explanation: 'The overfitting gap Δ = test LL − train LL is the diagnostic (it widens as overfitting grows); coefficients, cross-sample comparisons, and optimizer settings are not.'
         },
         {
           question: 'The degree-8 fit’s training AUC is 0.448 but its test AUC is 0.494, near chance. Compared with its training rows, the held-out rows are —',
@@ -540,15 +540,15 @@ c-10,0,-16.667,5,-20,15z M188 15 H145 v585 v0 v585 h43z"/></svg></span></span></
           explanation: 'Overfitting is defined by train ≫ held-out performance and scales with model capacity RELATIVE to the sample (n/(d+1)); a 1-parameter line can overfit a tiny sample, and it is a property of model+training rows, not the test set.'
         },
         {
-          question: 'A team fits degrees 1–8 on the same 40 rows and reports the degree with the lowest training log loss (degree 8, at 4.145). The strongest objection is —',
+          question: 'A team fits degrees 1–8 on the same 40 rows and argues that the training log loss alone can guide model choice if it is read the right way — degree 8 scores 6.222, degree 1 only 0.587. The strongest objection is —',
           options: [
             'log loss is undefined for models with more than three parameters, so the comparison is invalid',
-            'training log loss rewards memorising the 40 rows, so the lowest-loss fit is least defensible to report to new patients',
+            'training log loss measures the fit to those 40 rows only — in this very table it flatters the simple line and punishes the diverged degree-8 fit, and neither number says anything reliable about new patients without a held-out score',
             'the degree-8 coefficients are all negative, which is impossible in logistic regression',
             'a sample of 40 rows is far too large for any model to overfit, so the objection has no merit'
           ],
           answer: 1,
-          explanation: 'Picking the model by its training loss is selection in the direction of memorisation — the d = 8 fit’s training loss is the lowest only because it spent its 9 coefficients on the sample’s noise. (Its coefficients are not all negative — that distractor is false; check the sign pattern in the fit.)'
+          explanation: 'Training log loss describes only the rows the model was fit on — here it is worst (6.222) for the fit whose coefficients ran to thousands, and best (0.587) for the line that happened to be simple enough. Whether a model generalizes is answered by the held-out rows, not the training rows. (The degree-8 coefficients are not all negative — that distractor is false; check the sign pattern in the fit.)'
         },
         {
           question: 'The oracle — the true probabilities p(age) themselves — scores a test AUC of 0.799, and no fit can meaningfully beat it. The oracle’s role in the lab is to show that —',
