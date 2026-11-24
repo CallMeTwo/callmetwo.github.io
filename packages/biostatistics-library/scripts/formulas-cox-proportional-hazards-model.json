@@ -1,0 +1,7 @@
+[
+  { "label": "The Cox proportional hazards model: the hazard at time t for a patient with covariate x is an unknown baseline hazard times an exponential risk multiplier", "tex": "h(t \\mid x) = h_0(t)\\, e^{\\beta x}" },
+  { "label": "The hazard ratio: the constant multiplier on the baseline hazard comparing x plus one unit to x", "tex": "\\mathrm{HR} = e^{\\beta}" },
+  { "label": "Cox partial likelihood: over the observed event times, the exponential score of the patient who failed divided by the sum over that time's risk set", "tex": "L(\\beta) = \\prod_{i \\in \\text{events}} \\frac{e^{\\beta x_i}}{\\sum_{j \\in R(t_i)} e^{\\beta x_j}}" },
+  { "label": "Back-of-envelope standard error of the log hazard ratio: two divided by the square root of the number of events", "tex": "\\mathrm{SE}(\\ln \\widehat{\\mathrm{HR}}) \\approx \\frac{2}{\\sqrt{E}}" },
+  { "label": "Required events for 80 percent power at a two-sided 5 percent level: four times the sum of the two z quantiles, squared, divided by the squared log of the assumed hazard ratio", "tex": "E^{*} = \\frac{4\\,(z_{0.975} + z_{0.80})^{2}}{(\\ln \\mathrm{HR}_0)^{2}}" }
+]

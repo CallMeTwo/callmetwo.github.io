@@ -117,6 +117,7 @@ const availableTopicPages = new Set([
   'survival/markov-models',
   'survival/generalized-estimating-equations',
   'survival/repeated-measurement',
+  'survival/cox-proportional-hazards-model',
   'practice/reproducible-workflows',
   'describing-data/quantiles-and-the-interquartile-range',
   'describing-data/mean-median-and-mode',
