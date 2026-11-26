@@ -109,6 +109,7 @@ export interface TopicEntry {
 const availableTopicPages = new Set([
   'foundations/what-is-biostatistics',
   'foundations/categorical-and-numerical-data',
+  'foundations/scales-of-measurement',
   'probability/sampling-distributions-and-the-central-limit-theorem',
   'study-design/propensity-matching',
   'clinical-research/health-economic-evaluation',
