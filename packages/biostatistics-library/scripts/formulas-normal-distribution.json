@@ -1,0 +1,22 @@
+[
+  {
+    "label": "The normal probability density function: f of x equals one divided by sigma times the square root of two pi, times e raised to the power minus the quantity x minus mu squared divided by two sigma squared",
+    "tex": "f(x)=\\frac{1}{\\sigma\\sqrt{2\\pi}}\\;e^{\\,-\\frac{(x-\\mu)^{2}}{2\\sigma^{2}}}"
+  },
+  {
+    "label": "Standardizing an observation: z equals the observation x minus the mean mu, divided by the standard deviation sigma",
+    "tex": "z=\\frac{x-\\mu}{\\sigma}"
+  },
+  {
+    "label": "The empirical rule: the probability of falling within one, two, and three standard deviations of the mean is approximately 68.3 percent, 95.4 percent, and 99.7 percent",
+    "tex": "P(\\mu-\\sigma<X<\\mu+\\sigma)\\approx 68.3\\%,\\quad P(\\mu-2\\sigma<X<\\mu+2\\sigma)\\approx 95.4\\%,\\quad P(\\mu-3\\sigma<X<\\mu+3\\sigma)\\approx 99.7\\%"
+  },
+  {
+    "label": "The central 95 percent of the standard normal: the probability that Z lies between minus 1.96 and 1.96 equals 0.95",
+    "tex": "P(-1.96<Z<1.96)=0.95"
+  },
+  {
+    "label": "The normal-method reference interval: mean minus 1.96 times sigma up to mean plus 1.96 times sigma",
+    "tex": "\\mu-1.96\\,\\sigma\\;\\text{to}\\;\\mu+1.96\\,\\sigma"
+  }
+]

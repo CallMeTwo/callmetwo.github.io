@@ -111,6 +111,7 @@ const availableTopicPages = new Set([
   'foundations/categorical-and-numerical-data',
   'foundations/scales-of-measurement',
   'probability/sampling-distributions-and-the-central-limit-theorem',
+  'probability/normal-distribution',
   'study-design/propensity-matching',
   'clinical-research/health-economic-evaluation',
   'clinical-research/decision-curve-analysis',
