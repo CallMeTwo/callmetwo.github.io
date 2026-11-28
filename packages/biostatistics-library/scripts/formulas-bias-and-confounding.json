@@ -1,0 +1,22 @@
+[
+  {
+    "label": "The relative risk: the risk of the outcome in the exposed group divided by the risk of the outcome in the unexposed group",
+    "tex": "\\text{RR}=\\frac{P(\\text{outcome}\\mid \\text{exposed})}{P(\\text{outcome}\\mid \\text{unexposed})}"
+  },
+  {
+    "label": "The crude relative risk: the pooled risk in all exposed divided by the pooled risk in all unexposed, ignoring strata",
+    "tex": "\\text{RR}_{\\text{crude}}=\\frac{\\sum_j d_{1j}/\\sum_j n_{1j}}{\\sum_j d_{0j}/\\sum_j n_{0j}}"
+  },
+  {
+    "label": "The Mantel-Haenszel relative risk: the sum over strata of exposed cases times unexposed total divided by stratum total, divided by the sum over strata of exposed total times unexposed cases divided by stratum total",
+    "tex": "\\text{RR}_{\\text{MH}}=\\frac{\\sum_j \\frac{d_{1j}\\,n_{0j}}{N_j}}{\\sum_j \\frac{n_{1j}\\,d_{0j}}{N_j}}"
+  },
+  {
+    "label": "The confounder criteria: a confounder is associated with the exposure, is a cause of the outcome independent of the exposure, and is not on the causal path between exposure and outcome",
+    "tex": "C\\not\\perp E\\;;\\quad C\\rightarrow Y\\ \\text{independently of }E\\;;\\quad E\\nrightarrow C\\rightarrow Y"
+  },
+  {
+    "label": "The lab model: the risk in the exposed equals smoking prevalence among exposed times baseline risk times smoking effect plus one minus that prevalence times baseline risk, and symmetrically for the unexposed",
+    "tex": "r_1=p_1\\,b\\,R+(1-p_1)\\,b\\;;\\quad r_0=p_0\\,b\\,R+(1-p_0)\\,b"
+  }
+]

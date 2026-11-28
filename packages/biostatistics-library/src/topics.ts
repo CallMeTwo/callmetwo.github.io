@@ -113,6 +113,7 @@ const availableTopicPages = new Set([
   'probability/sampling-distributions-and-the-central-limit-theorem',
   'probability/normal-distribution',
   'study-design/propensity-matching',
+  'study-design/bias-and-confounding',
   'clinical-research/health-economic-evaluation',
   'clinical-research/decision-curve-analysis',
   'machine-learning/multilayer-perceptrons',
